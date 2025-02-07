@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -18,13 +20,13 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <a href="/" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <img 
                 src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
                 alt="BuyBidHQ Logo" 
                 className="h-8 w-auto"
               />
-            </a>
+            </Link>
           </div>
           
           {/* Desktop Navigation */}
@@ -38,7 +40,11 @@ const Navigation = () => {
                 {item.name}
               </a>
             ))}
-            <Button variant="default" className="bg-accent hover:bg-accent/90">
+            <Button 
+              variant="default" 
+              className="bg-accent hover:bg-accent/90"
+              onClick={() => navigate('/signin')}
+            >
               Sign In
             </Button>
           </div>
@@ -72,6 +78,10 @@ const Navigation = () => {
             <Button 
               variant="default" 
               className="w-full bg-accent hover:bg-accent/90 mt-4"
+              onClick={() => {
+                navigate('/signin');
+                setIsOpen(false);
+              }}
             >
               Sign In
             </Button>
