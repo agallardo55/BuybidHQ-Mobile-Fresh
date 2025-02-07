@@ -18,8 +18,12 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <a href="/" className="text-2xl font-bold text-primary">
-              BuyBid
+            <a href="/" className="flex items-center">
+              <img 
+                src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
+                alt="BuyBidHQ Logo" 
+                className="h-8 w-auto"
+              />
             </a>
           </div>
           
