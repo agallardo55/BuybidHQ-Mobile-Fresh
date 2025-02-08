@@ -135,15 +135,15 @@ const CreateBidRequest = () => {
     <div className="h-screen bg-gray-50 overflow-hidden">
       <BidRequestNavigation />
 
-      <div className="h-[calc(100vh-64px)] pt-16 px-4">
+      <div className="h-[calc(100vh-64px)] pt-8 px-4">
         <div className="h-full max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-4 h-full">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Create Bid Request</h1>
+          <div className="bg-white rounded-lg shadow-md p-4 h-full flex flex-col">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Create Bid Request</h1>
             
-            <form onSubmit={handleSubmit} className="h-[calc(100%-60px)]">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-                <ScrollArea className="h-full pr-4">
-                  <div className="space-y-4">
+                <div className="bg-white overflow-auto">
+                  <div className="space-y-2 pr-2">
                     <VinSection 
                       vin={formData.vin}
                       onChange={handleChange}
@@ -159,50 +159,50 @@ const CreateBidRequest = () => {
                       onChange={handleChange}
                     />
                   </div>
-                </ScrollArea>
+                </div>
 
-                <ScrollArea className="h-full pr-4">
-                  <VehicleCondition 
-                    formData={formData}
-                    onChange={handleChange}
-                    onSelectChange={handleSelectChange}
-                  />
-                </ScrollArea>
+                <div className="bg-white overflow-auto">
+                  <div className="pr-2">
+                    <VehicleCondition 
+                      formData={formData}
+                      onChange={handleChange}
+                      onSelectChange={handleSelectChange}
+                    />
+                  </div>
+                </div>
 
                 <div className="flex flex-col h-full">
-                  <div className="flex-1 border rounded-lg p-4">
-                    <h2 className="text-lg font-semibold mb-4">Select Buyers</h2>
+                  <div className="flex-1 border rounded-lg p-4 overflow-auto">
+                    <h2 className="text-lg font-semibold mb-2">Select Buyers</h2>
                     {errors.buyers && (
                       <p className="text-sm text-red-500 mb-2">{errors.buyers}</p>
                     )}
-                    <ScrollArea className="h-[calc(100%-120px)]">
-                      <div className="space-y-2">
-                        {buyers.map((buyer) => (
-                          <div
-                            key={buyer.id}
-                            className="flex items-start space-x-3 p-2 rounded hover:bg-gray-50"
-                          >
-                            <Checkbox
-                              id={`buyer-${buyer.id}`}
-                              checked={selectedBuyers.includes(buyer.id)}
-                              onCheckedChange={() => toggleBuyer(buyer.id)}
-                            />
-                            <div className="flex-1">
-                              <label
-                                htmlFor={`buyer-${buyer.id}`}
-                                className="text-sm font-medium cursor-pointer"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <UserRound className="h-4 w-4 text-gray-500" />
-                                  {buyer.name}
-                                </div>
-                                <p className="text-sm text-gray-500">{buyer.location}</p>
-                              </label>
-                            </div>
+                    <div className="space-y-2">
+                      {buyers.map((buyer) => (
+                        <div
+                          key={buyer.id}
+                          className="flex items-start space-x-3 p-2 rounded hover:bg-gray-50"
+                        >
+                          <Checkbox
+                            id={`buyer-${buyer.id}`}
+                            checked={selectedBuyers.includes(buyer.id)}
+                            onCheckedChange={() => toggleBuyer(buyer.id)}
+                          />
+                          <div className="flex-1">
+                            <label
+                              htmlFor={`buyer-${buyer.id}`}
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2">
+                                <UserRound className="h-4 w-4 text-gray-500" />
+                                {buyer.name}
+                              </div>
+                              <p className="text-sm text-gray-500">{buyer.location}</p>
+                            </label>
                           </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   
                   <Button 
