@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import BidRequestNavigation from "@/components/bid-request/BidRequestNavigation";
+import DashboardNavigation from "@/components/DashboardNavigation";
 import VinSection from "@/components/bid-request/VinSection";
 import BasicVehicleInfo from "@/components/bid-request/BasicVehicleInfo";
 import ColorsAndAccessories from "@/components/bid-request/ColorsAndAccessories";
@@ -138,7 +138,7 @@ const CreateBidRequest = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <BidRequestNavigation />
+      <DashboardNavigation />
 
       <div className="pt-20 px-6 pb-4">
         <div className="max-w-6xl mx-auto">

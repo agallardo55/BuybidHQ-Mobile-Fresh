@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, UserRound, Plus } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Search, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import DashboardNavigation from "@/components/DashboardNavigation";
 
 interface BidRequest {
   id: string;
@@ -44,7 +44,6 @@ const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
   const itemsPerPage = 5;
 
   const bidRequests: BidRequest[] = [
@@ -142,70 +141,7 @@ const BidRequestDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link to="/" className="flex items-center">
-                <img 
-                  src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-                  alt="BuyBidHQ Logo" 
-                  className="h-8 w-auto"
-                />
-              </Link>
-              <Link 
-                to="/dashboard" 
-                className="text-gray-700 hover:text-accent transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                to="/buyers" 
-                className="text-gray-700 hover:text-accent transition-colors"
-              >
-                Buyers
-              </Link>
-              <button 
-                onClick={() => setShowComingSoon(true)}
-                className="text-gray-700 hover:text-accent transition-colors"
-              >
-                Marketplace
-              </button>
-            </div>
-            
-            <div 
-              className="flex items-center space-x-2 cursor-pointer hover:text-accent transition-colors"
-              onClick={() => navigate('/account')}
-            >
-              <UserRound className="h-5 w-5 text-gray-500" />
-              <span className="text-gray-700">Account</span>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <Dialog open={showComingSoon} onOpenChange={setShowComingSoon}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              <div className="flex flex-col items-center space-y-4">
-                <span className="text-2xl font-bold animate-fade-in">
-                  Coming Soon!
-                </span>
-                <p className="text-gray-500 text-sm animate-fade-in">
-                  We're working hard to bring you an amazing marketplace experience.
-                  Stay tuned!
-                </p>
-                <img
-                  src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d"
-                  alt="Vehicle Auction Marketplace"
-                  className="w-full h-48 object-cover rounded-lg animate-fade-in"
-                />
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      <DashboardNavigation />
 
       <div className="pt-24 px-8">
         <div className="max-w-7xl mx-auto">
@@ -220,7 +156,7 @@ const BidRequestDashboard = () => {
                     placeholder="Search"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-[300px]"
+                    className="pl-10 w-[225px]"
                   />
                 </div>
                 <Link to="/create-bid-request">
@@ -296,6 +232,29 @@ const BidRequestDashboard = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={showComingSoon} onOpenChange={setShowComingSoon}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              <div className="flex flex-col items-center space-y-4">
+                <span className="text-2xl font-bold animate-fade-in">
+                  Coming Soon!
+                </span>
+                <p className="text-gray-500 text-sm animate-fade-in">
+                  We're working hard to bring you an amazing marketplace experience.
+                  Stay tuned!
+                </p>
+                <img
+                  src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d"
+                  alt="Vehicle Auction Marketplace"
+                  className="w-full h-48 object-cover rounded-lg animate-fade-in"
+                />
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
