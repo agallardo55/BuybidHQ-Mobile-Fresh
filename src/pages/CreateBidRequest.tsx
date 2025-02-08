@@ -132,18 +132,18 @@ const CreateBidRequest = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen bg-gray-50 overflow-hidden">
       <BidRequestNavigation />
 
-      <div className="flex-1 p-4 lg:p-6">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
+      <div className="h-[calc(100vh-64px)] pt-16 px-4">
+        <div className="h-full max-w-7xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-4 h-full">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Create Bid Request</h1>
             
-            <form onSubmit={handleSubmit} className="h-[calc(100vh-240px)]">
+            <form onSubmit={handleSubmit} className="h-[calc(100%-60px)]">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-                <ScrollArea className="h-full p-2">
-                  <div className="space-y-4 pr-2">
+                <ScrollArea className="h-full pr-4">
+                  <div className="space-y-4">
                     <VinSection 
                       vin={formData.vin}
                       onChange={handleChange}
@@ -161,23 +161,21 @@ const CreateBidRequest = () => {
                   </div>
                 </ScrollArea>
 
-                <ScrollArea className="h-full p-2">
-                  <div className="pr-2">
-                    <VehicleCondition 
-                      formData={formData}
-                      onChange={handleChange}
-                      onSelectChange={handleSelectChange}
-                    />
-                  </div>
+                <ScrollArea className="h-full pr-4">
+                  <VehicleCondition 
+                    formData={formData}
+                    onChange={handleChange}
+                    onSelectChange={handleSelectChange}
+                  />
                 </ScrollArea>
 
                 <div className="flex flex-col h-full">
-                  <ScrollArea className="flex-1 rounded-lg border p-4">
-                    <div className="space-y-2">
-                      <h2 className="text-lg font-semibold">Select Buyers</h2>
-                      {errors.buyers && (
-                        <p className="text-sm text-red-500">{errors.buyers}</p>
-                      )}
+                  <div className="flex-1 border rounded-lg p-4">
+                    <h2 className="text-lg font-semibold mb-4">Select Buyers</h2>
+                    {errors.buyers && (
+                      <p className="text-sm text-red-500 mb-2">{errors.buyers}</p>
+                    )}
+                    <ScrollArea className="h-[calc(100%-120px)]">
                       <div className="space-y-2">
                         {buyers.map((buyer) => (
                           <div
@@ -204,8 +202,8 @@ const CreateBidRequest = () => {
                           </div>
                         ))}
                       </div>
-                    </div>
-                  </ScrollArea>
+                    </ScrollArea>
+                  </div>
                   
                   <Button 
                     type="submit" 
@@ -225,3 +223,4 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
+
