@@ -139,7 +139,7 @@ const SignUp = () => {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Dealership Information</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">Dealership Information</h3>
               <div>
                 <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
                   Dealership Name
