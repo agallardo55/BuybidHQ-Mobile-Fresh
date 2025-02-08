@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -27,12 +28,43 @@ const SignUp = () => {
     zipCode: "",
   });
 
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digit characters
+    const phoneNumber = value.replace(/\D/g, '');
+    
+    // Format the number as (XXX) XXX-XXXX
+    if (phoneNumber.length >= 10) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+    }
+    
+    // Partial formatting as user types
+    if (phoneNumber.length > 6) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+    }
+    if (phoneNumber.length > 3) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+    }
+    if (phoneNumber.length > 0) {
+      return `(${phoneNumber}`;
+    }
+    return phoneNumber;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    
+    if (name === 'mobileNumber' || name === 'businessNumber') {
+      // Format phone numbers
+      setFormData((prev) => ({
+        ...prev,
+        [name]: formatPhoneNumber(value),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleStateChange = (value: string) => {
@@ -138,6 +170,8 @@ const SignUp = () => {
                   required
                   value={formData.mobileNumber}
                   onChange={handleChange}
+                  placeholder="(123) 456-7890"
+                  maxLength={14}
                 />
               </div>
               <div>
@@ -151,6 +185,8 @@ const SignUp = () => {
                   required
                   value={formData.businessNumber}
                   onChange={handleChange}
+                  placeholder="(123) 456-7890"
+                  maxLength={14}
                 />
               </div>
               <Button
