@@ -7,9 +7,11 @@ import { UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 const CreateBidRequest = () => {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     year: "",
     make: "",
@@ -29,11 +31,60 @@ const CreateBidRequest = () => {
     reconDetails: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    // Required field validation
+    if (!formData.year) newErrors.year = "Year is required";
+    if (!formData.make) newErrors.make = "Make is required";
+    if (!formData.model) newErrors.model = "Model is required";
+    if (!formData.vin) newErrors.vin = "VIN is required";
+    if (!formData.mileage) newErrors.mileage = "Mileage is required";
+    
+    // VIN validation (basic check for 17 characters)
+    if (formData.vin && formData.vin.length !== 17) {
+      newErrors.vin = "VIN must be 17 characters";
+    }
+    
+    // Year validation
+    const currentYear = new Date().getFullYear();
+    const year = parseInt(formData.year);
+    if (year < 1900 || year > currentYear + 1) {
+      newErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
+    }
+
+    // Mileage validation
+    if (parseInt(formData.mileage) < 0) {
+      newErrors.mileage = "Mileage cannot be negative";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Handle form submission
-    // For now, just navigate back to dashboard
-    navigate("/dashboard");
+    
+    if (!validateForm()) {
+      toast.error("Please fix the errors before submitting");
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success("Bid request submitted successfully!");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Failed to submit bid request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
@@ -44,6 +95,13 @@ const CreateBidRequest = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
   };
 
   const handleSelectChange = (value: string, name: string) => {
@@ -100,7 +158,7 @@ const CreateBidRequest = () => {
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
-                      Year
+                      Year <span className="text-red-500">*</span>
                     </label>
                     <Input
                       id="year"
@@ -110,11 +168,15 @@ const CreateBidRequest = () => {
                       onChange={handleChange}
                       required
                       placeholder="2024"
+                      className={errors.year ? "border-red-500" : ""}
                     />
+                    {errors.year && (
+                      <p className="text-red-500 text-sm mt-1">{errors.year}</p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="make" className="block text-sm font-medium text-gray-700 mb-1">
-                      Make
+                      Make <span className="text-red-500">*</span>
                     </label>
                     <Input
                       id="make"
@@ -124,11 +186,15 @@ const CreateBidRequest = () => {
                       onChange={handleChange}
                       required
                       placeholder="Toyota"
+                      className={errors.make ? "border-red-500" : ""}
                     />
+                    {errors.make && (
+                      <p className="text-red-500 text-sm mt-1">{errors.make}</p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-1">
-                      Model
+                      Model <span className="text-red-500">*</span>
                     </label>
                     <Input
                       id="model"
@@ -138,7 +204,11 @@ const CreateBidRequest = () => {
                       onChange={handleChange}
                       required
                       placeholder="Camry"
+                      className={errors.model ? "border-red-500" : ""}
                     />
+                    {errors.model && (
+                      <p className="text-red-500 text-sm mt-1">{errors.model}</p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">
@@ -150,13 +220,12 @@ const CreateBidRequest = () => {
                       type="text"
                       value={formData.trim}
                       onChange={handleChange}
-                      required
                       placeholder="SE"
                     />
                   </div>
                   <div>
                     <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
-                      VIN
+                      VIN <span className="text-red-500">*</span>
                     </label>
                     <Input
                       id="vin"
@@ -166,11 +235,16 @@ const CreateBidRequest = () => {
                       onChange={handleChange}
                       required
                       placeholder="1HGCM82633A123456"
+                      className={errors.vin ? "border-red-500" : ""}
+                      maxLength={17}
                     />
+                    {errors.vin && (
+                      <p className="text-red-500 text-sm mt-1">{errors.vin}</p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">
-                      Mileage
+                      Mileage <span className="text-red-500">*</span>
                     </label>
                     <Input
                       id="mileage"
@@ -180,7 +254,12 @@ const CreateBidRequest = () => {
                       onChange={handleChange}
                       required
                       placeholder="35000"
+                      min="0"
+                      className={errors.mileage ? "border-red-500" : ""}
                     />
+                    {errors.mileage && (
+                      <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
+                    )}
                   </div>
                 </div>
 
@@ -342,8 +421,12 @@ const CreateBidRequest = () => {
                 </div>
               </div>
               
-              <Button type="submit" className="w-full mt-6">
-                Submit Bid Request
+              <Button 
+                type="submit" 
+                className="w-full mt-6"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit Bid Request"}
               </Button>
             </form>
           </div>
@@ -354,3 +437,4 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
+
