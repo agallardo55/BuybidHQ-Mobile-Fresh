@@ -60,6 +60,18 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
             <p className="font-medium">{vehicle.interiorColor}</p>
           </div>
           <div>
+            <p className="text-gray-500">Transmission</p>
+            <p className="font-medium">{vehicle.transmission}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Engine</p>
+            <p className="font-medium">{vehicle.engineCylinders}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Drivetrain</p>
+            <p className="font-medium">{vehicle.drivetrain}</p>
+          </div>
+          <div>
             <p className="text-gray-500">Windshield</p>
             <p className="font-medium capitalize">{vehicle.windshield || '-'}</p>
           </div>

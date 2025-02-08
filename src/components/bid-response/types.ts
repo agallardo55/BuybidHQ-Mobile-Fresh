@@ -20,5 +20,8 @@ export interface VehicleDetails {
   reconEstimate: string;
   reconDetails: string;
   accessories: string;
+  transmission: string;
+  engineCylinders: string;
+  drivetrain: string;
 }
 

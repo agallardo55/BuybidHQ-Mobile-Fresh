@@ -27,7 +27,10 @@ const BidResponse = () => {
     maintenance: "upToDate",
     reconEstimate: "2500",
     reconDetails: "Minor paint correction needed on front bumper, detail service required",
-    accessories: "Premium Audio Package, Navigation System, Sunroof"
+    accessories: "Premium Audio Package, Navigation System, Sunroof",
+    transmission: "8-Speed Automatic",
+    engineCylinders: "4-Cylinder",
+    drivetrain: "FWD"
   };
 
   const handleSubmit = async (formData: BidResponseFormData) => {
