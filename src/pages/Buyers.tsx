@@ -12,12 +12,6 @@ import {
 import { Search, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -26,115 +20,68 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-interface BidRequest {
+interface Buyer {
   id: string;
-  year: number;
-  make: string;
-  model: string;
-  trim: string;
-  vin: string;
-  mileage: number;
-  buyer: string;
-  dealership: string;
-  highestOffer: number;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  totalBids: number;
+  successfulBids: number;
+  joinedDate: string;
 }
 
-const BidRequestDashboard = () => {
+const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [showComingSoon, setShowComingSoon] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   // Sample data - in a real app, this would come from an API
-  const bidRequests: BidRequest[] = [
+  const buyers: Buyer[] = [
     {
       id: "1",
-      year: 2021,
-      make: "Toyota",
-      model: "Camry",
-      trim: "SE",
-      vin: "1HGCM82633A123456",
-      mileage: 35000,
-      buyer: "John Smith",
-      dealership: "ABC Motors",
-      highestOffer: 22500,
+      name: "John Smith",
+      email: "john.smith@email.com",
+      phone: "(555) 123-4567",
+      location: "Los Angeles, CA",
+      totalBids: 15,
+      successfulBids: 8,
+      joinedDate: "2023-08-15",
     },
     {
       id: "2",
-      year: 2020,
-      make: "Honda",
-      model: "CR-V",
-      trim: "EX-L",
-      vin: "5J6RW2H89LA123456",
-      mileage: 42000,
-      buyer: "Jane Doe",
-      dealership: "XYZ Auto",
-      highestOffer: 24800,
+      name: "Sarah Williams",
+      email: "sarah.w@email.com",
+      phone: "(555) 234-5678",
+      location: "New York, NY",
+      totalBids: 23,
+      successfulBids: 12,
+      joinedDate: "2023-06-20",
     },
     {
       id: "3",
-      year: 2022,
-      make: "Ford",
-      model: "F-150",
-      trim: "XLT",
-      vin: "1FTEW1E53NFA12345",
-      mileage: 28000,
-      buyer: "Mike Johnson",
-      dealership: "Ford Direct",
-      highestOffer: 35600,
-    },
-    {
-      id: "4",
-      year: 2021,
-      make: "Tesla",
-      model: "Model 3",
-      trim: "Long Range",
-      vin: "5YJ3E1EA1MF123456",
-      mileage: 15000,
-      buyer: "Sarah Williams",
-      dealership: "Tesla Store",
-      highestOffer: 41200,
-    },
-    {
-      id: "5",
-      year: 2020,
-      make: "BMW",
-      model: "X5",
-      trim: "xDrive40i",
-      vin: "5UXCR6C06L9B12345",
-      mileage: 32000,
-      buyer: "Tom Brown",
-      dealership: "BMW Excellence",
-      highestOffer: 45800,
-    },
-    {
-      id: "6",
-      year: 2022,
-      make: "Mercedes",
-      model: "C-Class",
-      trim: "C300",
-      vin: "WDDWF4KB1NR123456",
-      mileage: 12000,
-      buyer: "Emily Davis",
-      dealership: "Mercedes World",
-      highestOffer: 39900,
+      name: "Mike Johnson",
+      email: "mike.j@email.com",
+      phone: "(555) 345-6789",
+      location: "Chicago, IL",
+      totalBids: 8,
+      successfulBids: 3,
+      joinedDate: "2023-09-10",
     },
   ];
 
-  const filteredRequests = bidRequests.filter((request) => {
+  const filteredBuyers = buyers.filter((buyer) => {
     const searchString = searchTerm.toLowerCase();
     return (
-      request.make.toLowerCase().includes(searchString) ||
-      request.model.toLowerCase().includes(searchString) ||
-      request.vin.toLowerCase().includes(searchString) ||
-      request.buyer.toLowerCase().includes(searchString) ||
-      request.dealership.toLowerCase().includes(searchString)
+      buyer.name.toLowerCase().includes(searchString) ||
+      buyer.email.toLowerCase().includes(searchString) ||
+      buyer.location.toLowerCase().includes(searchString)
     );
   });
 
-  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredBuyers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedRequests = filteredRequests.slice(
+  const paginatedBuyers = filteredBuyers.slice(
     startIndex,
     startIndex + itemsPerPage
   );
@@ -159,7 +106,6 @@ const BidRequestDashboard = () => {
                 Dashboard
               </Link>
               <button 
-                onClick={() => setShowComingSoon(true)}
                 className="text-gray-700 hover:text-accent transition-colors"
               >
                 Marketplace
@@ -186,39 +132,16 @@ const BidRequestDashboard = () => {
         </div>
       </nav>
 
-      <Dialog open={showComingSoon} onOpenChange={setShowComingSoon}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              <div className="flex flex-col items-center space-y-4">
-                <span className="text-2xl font-bold animate-fade-in">
-                  Coming Soon!
-                </span>
-                <p className="text-gray-500 text-sm animate-fade-in">
-                  We're working hard to bring you an amazing marketplace experience.
-                  Stay tuned!
-                </p>
-                <img
-                  src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d"
-                  alt="Vehicle Auction Marketplace"
-                  className="w-full h-48 object-cover rounded-lg animate-fade-in"
-                />
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-
       <div className="pt-24 px-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Buyers</h1>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Search bid requests..."
+                  placeholder="Search buyers..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 w-[300px]"
@@ -229,34 +152,30 @@ const BidRequestDashboard = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Year</TableHead>
-                    <TableHead>Make</TableHead>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Trim</TableHead>
-                    <TableHead>VIN</TableHead>
-                    <TableHead>Mileage</TableHead>
-                    <TableHead>Buyer</TableHead>
-                    <TableHead>Dealership</TableHead>
-                    <TableHead>Highest Offer</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Total Bids</TableHead>
+                    <TableHead>Successful Bids</TableHead>
+                    <TableHead>Joined Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>{request.year}</TableCell>
-                      <TableCell>{request.make}</TableCell>
-                      <TableCell>{request.model}</TableCell>
-                      <TableCell>{request.trim}</TableCell>
-                      <TableCell>{request.vin}</TableCell>
-                      <TableCell>{request.mileage.toLocaleString()}</TableCell>
-                      <TableCell>{request.buyer}</TableCell>
-                      <TableCell>{request.dealership}</TableCell>
-                      <TableCell>${request.highestOffer.toLocaleString()}</TableCell>
+                  {paginatedBuyers.map((buyer) => (
+                    <TableRow key={buyer.id}>
+                      <TableCell>{buyer.name}</TableCell>
+                      <TableCell>{buyer.email}</TableCell>
+                      <TableCell>{buyer.phone}</TableCell>
+                      <TableCell>{buyer.location}</TableCell>
+                      <TableCell>{buyer.totalBids}</TableCell>
+                      <TableCell>{buyer.successfulBids}</TableCell>
+                      <TableCell>{new Date(buyer.joinedDate).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-              {filteredRequests.length > itemsPerPage && (
+              {filteredBuyers.length > itemsPerPage && (
                 <div className="mt-4 flex justify-center">
                   <Pagination>
                     <PaginationContent>
@@ -294,4 +213,4 @@ const BidRequestDashboard = () => {
   );
 };
 
-export default BidRequestDashboard;
+export default Buyers;
