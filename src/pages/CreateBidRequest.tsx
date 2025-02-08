@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -228,7 +227,7 @@ const CreateBidRequest = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full mt-2.5 text-sm py-2 bg-blue-500 hover:bg-blue-600"
+                    className="w-full mt-2.5 text-sm py-2 bg-custom-blue hover:bg-custom-blue/90"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Bid Request"}
