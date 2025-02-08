@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CreateBidRequest = () => {
   const navigate = useNavigate();
@@ -19,6 +20,13 @@ const CreateBidRequest = () => {
     exteriorColor: "",
     interiorColor: "",
     accessories: "",
+    windshield: "",
+    engineLights: "",
+    brakes: "",
+    tire: "",
+    maintenance: "",
+    reconEstimate: "",
+    reconDetails: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,6 +40,13 @@ const CreateBidRequest = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (value: string, name: string) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -76,11 +91,11 @@ const CreateBidRequest = () => {
 
       {/* Main Content */}
       <div className="pt-24 px-8">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Bid Request</h1>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Left Column - Basic Vehicle Information */}
                 <div className="space-y-4">
                   <div>
@@ -169,7 +184,7 @@ const CreateBidRequest = () => {
                   </div>
                 </div>
 
-                {/* Right Column - Colors and Accessories */}
+                {/* Middle Column - Colors and Accessories */}
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="exteriorColor" className="block text-sm font-medium text-gray-700 mb-1">
@@ -210,6 +225,118 @@ const CreateBidRequest = () => {
                       onChange={handleChange}
                       placeholder="List any additional equipment or accessories..."
                       className="min-h-[200px]"
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column - Vehicle Condition */}
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="windshield" className="block text-sm font-medium text-gray-700 mb-1">
+                      Windshield
+                    </label>
+                    <Select name="windshield" onValueChange={(value) => handleSelectChange(value, "windshield")}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose One" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="good">Good</SelectItem>
+                        <SelectItem value="fair">Fair</SelectItem>
+                        <SelectItem value="poor">Poor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="engineLights" className="block text-sm font-medium text-gray-700 mb-1">
+                      Engine Lights
+                    </label>
+                    <Select name="engineLights" onValueChange={(value) => handleSelectChange(value, "engineLights")}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose One" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="on">On</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="brakes" className="block text-sm font-medium text-gray-700 mb-1">
+                      Brakes
+                    </label>
+                    <Select name="brakes" onValueChange={(value) => handleSelectChange(value, "brakes")}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose One" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="excellent">Excellent</SelectItem>
+                        <SelectItem value="good">Good</SelectItem>
+                        <SelectItem value="fair">Fair</SelectItem>
+                        <SelectItem value="poor">Poor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="tire" className="block text-sm font-medium text-gray-700 mb-1">
+                      Tire
+                    </label>
+                    <Select name="tire" onValueChange={(value) => handleSelectChange(value, "tire")}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose One" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">New</SelectItem>
+                        <SelectItem value="good">Good</SelectItem>
+                        <SelectItem value="fair">Fair</SelectItem>
+                        <SelectItem value="poor">Poor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="maintenance" className="block text-sm font-medium text-gray-700 mb-1">
+                      Maintenance
+                    </label>
+                    <Select name="maintenance" onValueChange={(value) => handleSelectChange(value, "maintenance")}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose One" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="upToDate">Up to Date</SelectItem>
+                        <SelectItem value="needsService">Needs Service</SelectItem>
+                        <SelectItem value="overdue">Overdue</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="reconEstimate" className="block text-sm font-medium text-gray-700 mb-1">
+                      Recon Estimate ($)
+                    </label>
+                    <Input
+                      id="reconEstimate"
+                      name="reconEstimate"
+                      type="number"
+                      value={formData.reconEstimate}
+                      onChange={handleChange}
+                      placeholder="0"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="reconDetails" className="block text-sm font-medium text-gray-700 mb-1">
+                      Recon Details
+                    </label>
+                    <Textarea
+                      id="reconDetails"
+                      name="reconDetails"
+                      value={formData.reconDetails}
+                      onChange={handleChange}
+                      placeholder="Enter reconditioning details..."
+                      className="min-h-[100px]"
                     />
                   </div>
                 </div>
