@@ -18,6 +18,7 @@ const CreateBidRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedBuyers, setSelectedBuyers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<BidRequestFormData>({
     year: "",
     make: "",
