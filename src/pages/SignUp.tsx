@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -12,18 +13,19 @@ import {
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState<'personal' | 'dealership'>('personal');
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
+    mobileNumber: "",
+    businessNumber: "",
     dealershipName: "",
     licenseNumber: "",
     dealershipAddress: "",
     city: "",
     state: "",
     zipCode: "",
-    mobileNumber: "",
-    businessNumber: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,9 +45,18 @@ const SignUp = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Sign up logic will be implemented later with backend integration
     console.log("Sign up data:", formData);
     navigate("/dashboard");
+  };
+
+  const handleNext = () => {
+    if (formData.fullName && formData.email && formData.password && formData.mobileNumber && formData.businessNumber) {
+      setCurrentStep('dealership');
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep('personal');
   };
 
   const states = [
@@ -66,11 +77,18 @@ const SignUp = () => {
             className="mx-auto h-12 w-auto"
           />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Create your account</h2>
+          <div className="flex justify-center space-x-4 mt-4">
+            <div className={`h-2 w-16 rounded ${currentStep === 'personal' ? 'bg-accent' : 'bg-gray-200'}`} />
+            <div className={`h-2 w-16 rounded ${currentStep === 'dealership' ? 'bg-accent' : 'bg-gray-200'}`} />
+          </div>
+          <p className="mt-4 text-sm text-gray-600">
+            {currentStep === 'personal' ? 'Step 1: Personal Information' : 'Step 2: Dealership Information'}
+          </p>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {currentStep === 'personal' ? (
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">Personal Information</h3>
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
                   Full Name
@@ -136,10 +154,16 @@ const SignUp = () => {
                   onChange={handleChange}
                 />
               </div>
+              <Button
+                type="button"
+                onClick={handleNext}
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+              >
+                Next Step
+              </Button>
             </div>
-
+          ) : (
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">Dealership Information</h3>
               <div>
                 <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
                   Dealership Name
@@ -227,12 +251,24 @@ const SignUp = () => {
                   />
                 </div>
               </div>
+              <div className="flex space-x-4">
+                <Button
+                  type="button"
+                  onClick={handleBack}
+                  className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
+                >
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                >
+                  Sign up
+                </Button>
+              </div>
             </div>
-          </div>
-
-          <Button type="submit" className="w-full bg-accent hover:bg-accent/90">
-            Sign up
-          </Button>
+          )}
+          
           <div className="text-center mt-4">
             <Link to="/signin" className="text-sm text-[#325AE7] hover:text-[#325AE7]/90">
               Already have an account? Sign in
