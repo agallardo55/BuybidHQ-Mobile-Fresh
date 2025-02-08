@@ -45,7 +45,6 @@ const BidRequestDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Sample data - in a real app, this would come from an API
   const bidRequests: BidRequest[] = [
     {
       id: "1",
@@ -124,9 +123,9 @@ const BidRequestDashboard = () => {
   const filteredRequests = bidRequests.filter((request) => {
     const searchString = searchTerm.toLowerCase();
     return (
+      request.year.toString().includes(searchString) ||
       request.make.toLowerCase().includes(searchString) ||
       request.model.toLowerCase().includes(searchString) ||
-      request.vin.toLowerCase().includes(searchString) ||
       request.buyer.toLowerCase().includes(searchString) ||
       request.dealership.toLowerCase().includes(searchString)
     );
@@ -213,10 +212,10 @@ const BidRequestDashboard = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     type="text"
-                    placeholder="Search bid requests..."
+                    placeholder="Search by year, make, model, buyer or dealership..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-[300px]"
+                    className="pl-10 w-[400px]"
                   />
                 </div>
                 <Link to="/create-bid-request">
