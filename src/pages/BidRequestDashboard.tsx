@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -216,7 +215,7 @@ const BidRequestDashboard = () => {
                     placeholder="Search"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-[400px]"
+                    className="pl-10 w-[300px]"
                   />
                 </div>
                 <Link to="/create-bid-request">
@@ -297,4 +296,3 @@ const BidRequestDashboard = () => {
 };
 
 export default BidRequestDashboard;
-
