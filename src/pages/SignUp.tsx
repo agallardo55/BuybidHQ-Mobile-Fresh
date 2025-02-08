@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -123,7 +124,7 @@ const SignUp = () => {
             </div>
             <div>
               <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
-                Dealer License Number
+                Dealer ID
               </label>
               <Input
                 id="licenseNumber"
