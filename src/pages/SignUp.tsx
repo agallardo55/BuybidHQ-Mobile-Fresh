@@ -11,9 +11,9 @@ const SignUp = () => {
     email: "",
     password: "",
     dealershipName: "",
+    licenseNumber: "",
     dealershipAddress: "",
     phoneNumber: "",
-    licenseNumber: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +97,19 @@ const SignUp = () => {
               />
             </div>
             <div>
+              <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
+                Dealer ID
+              </label>
+              <Input
+                id="licenseNumber"
+                name="licenseNumber"
+                type="text"
+                required
+                value={formData.licenseNumber}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
               <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700">
                 Dealership Address
               </label>
@@ -119,19 +132,6 @@ const SignUp = () => {
                 type="tel"
                 required
                 value={formData.phoneNumber}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
-                Dealer ID
-              </label>
-              <Input
-                id="licenseNumber"
-                name="licenseNumber"
-                type="text"
-                required
-                value={formData.licenseNumber}
                 onChange={handleChange}
               />
             </div>
