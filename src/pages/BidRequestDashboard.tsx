@@ -144,8 +144,8 @@ const BidRequestDashboard = () => {
                   Stay tuned!
                 </p>
                 <img
-                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f"
-                  alt="Marketplace Coming Soon"
+                  src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d"
+                  alt="Vehicle Auction Marketplace"
                   className="w-full h-48 object-cover rounded-lg animate-fade-in"
                 />
               </div>
