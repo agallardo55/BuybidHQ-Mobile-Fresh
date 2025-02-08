@@ -198,8 +198,8 @@ const Account = () => {
                     onChange={handleChange}
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                  <div className="md:col-span-3">
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700">
                       City
                     </label>
@@ -212,7 +212,7 @@ const Account = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div>
+                  <div className="md:col-span-1">
                     <label htmlFor="state" className="block text-sm font-medium text-gray-700">
                       State
                     </label>
@@ -229,7 +229,7 @@ const Account = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
+                  <div className="md:col-span-2">
                     <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
                       ZIP Code
                     </label>
