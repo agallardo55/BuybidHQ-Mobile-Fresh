@@ -73,13 +73,19 @@ const BidRequestDashboard = () => {
       <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex-shrink-0 flex items-center">
+            <div className="flex items-center space-x-8">
               <Link to="/" className="flex items-center">
                 <img 
                   src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
                   alt="BuyBidHQ Logo" 
                   className="h-8 w-auto"
                 />
+              </Link>
+              <Link 
+                to="/dashboard" 
+                className="text-accent hover:text-accent/90 font-medium"
+              >
+                Dashboard
               </Link>
             </div>
             
