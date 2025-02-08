@@ -13,6 +13,7 @@ const SignUp = () => {
     dealershipName: "",
     licenseNumber: "",
     dealershipAddress: "",
+    city: "",
     phoneNumber: "",
   });
 
@@ -119,6 +120,19 @@ const SignUp = () => {
                 type="text"
                 required
                 value={formData.dealershipAddress}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                City
+              </label>
+              <Input
+                id="city"
+                name="city"
+                type="text"
+                required
+                value={formData.city}
                 onChange={handleChange}
               />
             </div>
