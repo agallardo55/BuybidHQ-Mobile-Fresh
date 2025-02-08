@@ -1,4 +1,3 @@
-
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
@@ -12,7 +11,7 @@ const Pricing = () => {
   };
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Simple, Transparent Pricing</h2>

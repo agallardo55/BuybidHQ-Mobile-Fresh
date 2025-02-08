@@ -8,6 +8,14 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
+  const handleScroll = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setIsOpen(false);
+    }
+  };
+
   const navItems = [
     { name: "Home", href: "/" },
     { name: "About", href: "#about" },
@@ -35,6 +43,14 @@ const Navigation = () => {
               <a
                 key={item.name}
                 href={item.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (item.href.startsWith('#')) {
+                    handleScroll(item.href.substring(1));
+                  } else {
+                    navigate(item.href);
+                  }
+                }}
                 className="text-gray-600 hover:text-accent transition-colors duration-200"
               >
                 {item.name}
@@ -69,8 +85,15 @@ const Navigation = () => {
               <a
                 key={item.name}
                 href={item.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (item.href.startsWith('#')) {
+                    handleScroll(item.href.substring(1));
+                  } else {
+                    navigate(item.href);
+                  }
+                }}
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
-                onClick={() => setIsOpen(false)}
               >
                 {item.name}
               </a>
