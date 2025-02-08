@@ -37,11 +37,11 @@ const CreateBidRequest = () => {
   });
 
   const buyers = [
-    { id: "1", name: "John Smith", location: "Los Angeles, CA" },
-    { id: "2", name: "Sarah Williams", location: "New York, NY" },
-    { id: "3", name: "Mike Johnson", location: "Chicago, IL" },
-    { id: "4", name: "Emily Brown", location: "Houston, TX" },
-    { id: "5", name: "David Wilson", location: "Miami, FL" },
+    { id: "1", name: "John Smith", dealership: "Premium Auto Sales" },
+    { id: "2", name: "Sarah Williams", dealership: "Elite Motors" },
+    { id: "3", name: "Mike Johnson", dealership: "Prestige Cars" },
+    { id: "4", name: "Emily Brown", dealership: "City Auto Group" },
+    { id: "5", name: "David Wilson", dealership: "Luxury Vehicles Inc" },
   ];
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -196,7 +196,7 @@ const CreateBidRequest = () => {
                                   <UserRound className="h-4 w-4 text-gray-500" />
                                   {buyer.name}
                                 </div>
-                                <p className="text-sm text-gray-500">{buyer.location}</p>
+                                <p className="text-sm text-gray-500">{buyer.dealership}</p>
                               </label>
                             </div>
                           </div>
