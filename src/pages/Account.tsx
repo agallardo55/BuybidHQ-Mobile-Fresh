@@ -386,6 +386,16 @@ const Account = () => {
                       />
                     </div>
                   </div>
+
+                  <div className="pt-4">
+                    <Button
+                      type="button"
+                      onClick={handleSubmit}
+                      className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                    >
+                      Update Payment Method
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
