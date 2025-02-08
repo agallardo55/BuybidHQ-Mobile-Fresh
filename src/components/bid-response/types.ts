@@ -23,5 +23,7 @@ export interface VehicleDetails {
   transmission: string;
   engineCylinders: string;
   drivetrain: string;
+  userFullName: string;
+  dealership: string;
+  mobileNumber: string;
 }
-

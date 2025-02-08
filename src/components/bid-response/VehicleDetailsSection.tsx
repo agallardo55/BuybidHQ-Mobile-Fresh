@@ -21,6 +21,18 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-fade-in">
+      <div className="p-4 border-b">
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {vehicle.userFullName}
+          </h2>
+          <div className="text-sm text-gray-500 space-y-1">
+            <p>{vehicle.dealership}</p>
+            <p>{vehicle.mobileNumber}</p>
+          </div>
+        </div>
+      </div>
+
       <ScrollArea className="h-64 whitespace-nowrap">
         <div className="flex">
           {images.map((_, index) => (
@@ -121,4 +133,3 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
 };
 
 export default VehicleDetailsSection;
-

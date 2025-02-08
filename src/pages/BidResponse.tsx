@@ -30,7 +30,10 @@ const BidResponse = () => {
     accessories: "Premium Audio Package, Navigation System, Sunroof",
     transmission: "8-Speed Automatic",
     engineCylinders: "4-Cylinder",
-    drivetrain: "FWD"
+    drivetrain: "FWD",
+    userFullName: "John Smith",
+    dealership: "ABC Motors",
+    mobileNumber: "(555) 123-4567"
   };
 
   const handleSubmit = async (formData: BidResponseFormData) => {
