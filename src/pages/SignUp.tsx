@@ -3,6 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -14,6 +21,8 @@ const SignUp = () => {
     licenseNumber: "",
     dealershipAddress: "",
     city: "",
+    state: "",
+    zipCode: "",
     phoneNumber: "",
   });
 
@@ -25,12 +34,27 @@ const SignUp = () => {
     }));
   };
 
+  const handleStateChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      state: value,
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Sign up logic will be implemented later with backend integration
     console.log("Sign up data:", formData);
     navigate("/dashboard");
   };
+
+  const states = [
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -134,6 +158,39 @@ const SignUp = () => {
                 required
                 value={formData.city}
                 onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                State
+              </label>
+              <Select onValueChange={handleStateChange} value={formData.state}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {states.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+                ZIP Code
+              </label>
+              <Input
+                id="zipCode"
+                name="zipCode"
+                type="text"
+                required
+                value={formData.zipCode}
+                onChange={handleChange}
+                pattern="[0-9]{5}"
+                maxLength={5}
+                placeholder="12345"
               />
             </div>
             <div>
