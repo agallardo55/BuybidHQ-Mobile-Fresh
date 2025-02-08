@@ -27,12 +27,6 @@ const BidRequestNavigation = () => {
             >
               Marketplace
             </Link>
-            <Link 
-              to="/create-bid-request" 
-              className="text-gray-700 hover:text-accent transition-colors"
-            >
-              Bid Request
-            </Link>
           </div>
           
           <div className="flex items-center space-x-2">

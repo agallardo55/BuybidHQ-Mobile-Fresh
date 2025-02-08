@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -171,12 +170,6 @@ const BidRequestDashboard = () => {
               >
                 Marketplace
               </button>
-              <Link 
-                to="/create-bid-request" 
-                className="text-gray-700 hover:text-accent transition-colors"
-              >
-                Bid Request
-              </Link>
             </div>
             
             <div className="flex items-center space-x-2">
