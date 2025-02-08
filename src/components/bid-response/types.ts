@@ -12,4 +12,13 @@ export interface VehicleDetails {
   exteriorColor: string;
   interiorColor: string;
   vin: string;
+  windshield: string;
+  engineLights: string;
+  brakes: string;
+  tire: string;
+  maintenance: string;
+  reconEstimate: string;
+  reconDetails: string;
+  accessories: string;
 }
+

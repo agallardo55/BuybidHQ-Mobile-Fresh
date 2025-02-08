@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BidResponseFormData, VehicleDetails } from "@/components/bid-response/types";
@@ -20,7 +19,15 @@ const BidResponse = () => {
     mileage: "15000",
     exteriorColor: "Midnight Black",
     interiorColor: "Black Leather",
-    vin: "1HGCM82633A123456"
+    vin: "1HGCM82633A123456",
+    windshield: "good",
+    engineLights: "none",
+    brakes: "excellent",
+    tire: "good",
+    maintenance: "upToDate",
+    reconEstimate: "2500",
+    reconDetails: "Minor paint correction needed on front bumper, detail service required",
+    accessories: "Premium Audio Package, Navigation System, Sunroof"
   };
 
   const handleSubmit = async (formData: BidResponseFormData) => {

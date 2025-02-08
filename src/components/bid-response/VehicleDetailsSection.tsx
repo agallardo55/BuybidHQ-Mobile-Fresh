@@ -11,6 +11,14 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
   // Mock images array - in a real app, these would come from your API
   const images = [1, 2, 3]; // Placeholder for image URLs
 
+  const formatCurrency = (value: string) => {
+    if (!value) return '-';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(Number(value));
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden animate-fade-in">
       <ScrollArea className="h-64 whitespace-nowrap">
@@ -51,6 +59,47 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
             <p className="text-gray-500">Interior</p>
             <p className="font-medium">{vehicle.interiorColor}</p>
           </div>
+          <div>
+            <p className="text-gray-500">Windshield</p>
+            <p className="font-medium capitalize">{vehicle.windshield || '-'}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Engine Lights</p>
+            <p className="font-medium capitalize">{vehicle.engineLights || '-'}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Brakes</p>
+            <p className="font-medium capitalize">{vehicle.brakes || '-'}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Tires</p>
+            <p className="font-medium capitalize">{vehicle.tire || '-'}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Maintenance</p>
+            <p className="font-medium capitalize">{vehicle.maintenance || '-'}</p>
+          </div>
+        </div>
+
+        <div className="space-y-3 border-t pt-3">
+          <div>
+            <p className="text-gray-500 text-sm">Reconditioning Estimate</p>
+            <p className="font-medium">{formatCurrency(vehicle.reconEstimate)}</p>
+          </div>
+          
+          {vehicle.reconDetails && (
+            <div>
+              <p className="text-gray-500 text-sm">Reconditioning Details</p>
+              <p className="text-sm">{vehicle.reconDetails}</p>
+            </div>
+          )}
+          
+          {vehicle.accessories && (
+            <div>
+              <p className="text-gray-500 text-sm">Additional Equipment/Accessories</p>
+              <p className="text-sm">{vehicle.accessories}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -58,3 +107,4 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
 };
 
 export default VehicleDetailsSection;
+
