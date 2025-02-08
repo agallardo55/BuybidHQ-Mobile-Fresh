@@ -39,12 +39,19 @@ const BidResponse = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 px-4 py-8 flex items-center justify-center">
-        <div className="w-full max-w-lg text-center space-y-4 animate-fade-in">
-          <h2 className="text-2xl font-bold text-gray-900">Thank You!</h2>
-          <p className="text-gray-600">
-            Your bid has been received. We'll be in touch shortly.
-          </p>
+      <div className="min-h-screen bg-gray-50">
+        <header className="w-full bg-white shadow-sm py-4">
+          <div className="max-w-2xl mx-auto px-4">
+            <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
+          </div>
+        </header>
+        <div className="px-4 py-8 flex items-center justify-center">
+          <div className="w-full max-w-lg text-center space-y-4 animate-fade-in">
+            <h2 className="text-2xl font-bold text-gray-900">Thank You!</h2>
+            <p className="text-gray-600">
+              Your bid has been received. We'll be in touch shortly.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -52,6 +59,11 @@ const BidResponse = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <header className="w-full bg-white shadow-sm py-4">
+        <div className="max-w-2xl mx-auto px-4">
+          <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
+        </div>
+      </header>
       <div className="max-w-2xl mx-auto p-4 space-y-6">
         <VehicleDetailsSection vehicle={vehicleDetails} />
         <BidForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
