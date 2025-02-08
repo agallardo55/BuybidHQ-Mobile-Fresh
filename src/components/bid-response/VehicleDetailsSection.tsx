@@ -93,6 +93,15 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           </div>
         </div>
 
+        <div className="space-y-3">
+          {vehicle.accessories && (
+            <div>
+              <p className="text-gray-500 text-sm">Additional Equipment/Accessories</p>
+              <p className="text-sm">{vehicle.accessories}</p>
+            </div>
+          )}
+        </div>
+
         <div className="space-y-3 border-t pt-3">
           <div>
             <p className="text-gray-500 text-sm">Reconditioning Estimate</p>
@@ -103,13 +112,6 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
             <div>
               <p className="text-gray-500 text-sm">Reconditioning Details</p>
               <p className="text-sm">{vehicle.reconDetails}</p>
-            </div>
-          )}
-          
-          {vehicle.accessories && (
-            <div>
-              <p className="text-gray-500 text-sm">Additional Equipment/Accessories</p>
-              <p className="text-sm">{vehicle.accessories}</p>
             </div>
           )}
         </div>
