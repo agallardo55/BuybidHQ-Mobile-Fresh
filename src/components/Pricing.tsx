@@ -2,8 +2,15 @@
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { useNavigate } from "react-router-dom";
 
 const Pricing = () => {
+  const navigate = useNavigate();
+
+  const handleSignUp = () => {
+    navigate('/signup');
+  };
+
   return (
     <section className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
@@ -39,7 +46,9 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-accent hover:bg-accent/90">Get Started</Button>
+              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">
+                Get Started
+              </Button>
             </CardFooter>
           </Card>
 
@@ -77,7 +86,9 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-accent hover:bg-accent/90">Start Free Trial</Button>
+              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">
+                Start Free Trial
+              </Button>
             </CardFooter>
           </Card>
 
@@ -116,7 +127,9 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-accent hover:bg-accent/90">Contact Sales</Button>
+              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">
+                Contact Sales
+              </Button>
             </CardFooter>
           </Card>
         </div>
