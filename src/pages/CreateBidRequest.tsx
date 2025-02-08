@@ -140,9 +140,9 @@ const CreateBidRequest = () => {
     <div className="min-h-screen bg-gray-50">
       <BidRequestNavigation />
 
-      <div className="pt-20 px-3 pb-4">
+      <div className="pt-20 px-6 pb-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-2.5">
+          <div className="bg-white rounded-lg shadow-md p-6">
             <h1 className="text-lg font-bold text-gray-900 mb-2.5">Create Bid Request</h1>
             
             <form onSubmit={handleSubmit} className="h-[calc(100vh-180px)]">
