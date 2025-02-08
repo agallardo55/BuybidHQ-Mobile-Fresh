@@ -152,6 +152,42 @@ const CreateBidRequest = () => {
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Bid Request</h1>
+            
+            {/* VIN Section at the top */}
+            <div className="mb-8">
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
+                    VIN <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id="vin"
+                    name="vin"
+                    type="text"
+                    value={formData.vin}
+                    onChange={handleChange}
+                    required
+                    placeholder="1HGCM82633A123456"
+                    className={errors.vin ? "border-red-500" : ""}
+                    maxLength={17}
+                  />
+                  {errors.vin && (
+                    <p className="text-red-500 text-sm mt-1">{errors.vin}</p>
+                  )}
+                </div>
+                <Button 
+                  type="button"
+                  className="mb-[errors.vin ? '24px' : '0px']"
+                  onClick={() => {
+                    // TODO: Implement VIN lookup functionality
+                    toast.info("VIN lookup functionality coming soon!");
+                  }}
+                >
+                  Go
+                </Button>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Left Column - Basic Vehicle Information */}
@@ -222,25 +258,6 @@ const CreateBidRequest = () => {
                       onChange={handleChange}
                       placeholder="SE"
                     />
-                  </div>
-                  <div>
-                    <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
-                      VIN <span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                      id="vin"
-                      name="vin"
-                      type="text"
-                      value={formData.vin}
-                      onChange={handleChange}
-                      required
-                      placeholder="1HGCM82633A123456"
-                      className={errors.vin ? "border-red-500" : ""}
-                      maxLength={17}
-                    />
-                    {errors.vin && (
-                      <p className="text-red-500 text-sm mt-1">{errors.vin}</p>
-                    )}
                   </div>
                   <div>
                     <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">
@@ -437,4 +454,3 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
-
