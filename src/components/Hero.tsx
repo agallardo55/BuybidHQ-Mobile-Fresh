@@ -10,7 +10,7 @@ const Hero = () => {
           <div className="mx-auto max-w-3xl">
             <div className="animate-fade-in">
               <span className="rounded-full bg-[#325AE7]/10 px-3 py-1 text-sm font-semibold leading-6 text-[#325AE7] ring-1 ring-inset ring-[#325AE7]/20">
-                Announcing our new platform
+                The future is now
               </span>
             </div>
             <h1 className="mt-6 text-4xl font-bold tracking-tight text-primary sm:text-6xl animate-slide-in">
