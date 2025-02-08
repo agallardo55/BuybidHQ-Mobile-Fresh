@@ -1,9 +1,6 @@
 
 export interface BidResponseFormData {
   offerAmount: string;
-  buyerName: string;
-  email: string;
-  phone: string;
   message: string;
 }
 

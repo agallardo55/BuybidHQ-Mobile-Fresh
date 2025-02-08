@@ -13,9 +13,6 @@ interface BidFormProps {
 const BidForm = ({ onSubmit, isSubmitting }: BidFormProps) => {
   const [formData, setFormData] = useState<BidResponseFormData>({
     offerAmount: "",
-    buyerName: "",
-    email: "",
-    phone: "",
     message: "",
   });
 
@@ -25,18 +22,7 @@ const BidForm = ({ onSubmit, isSubmitting }: BidFormProps) => {
     const newErrors: Partial<Record<keyof BidResponseFormData, string>> = {};
     
     if (!formData.offerAmount) newErrors.offerAmount = "Offer amount is required";
-    if (!formData.buyerName) newErrors.buyerName = "Name is required";
-    if (!formData.email) newErrors.email = "Email is required";
-    if (!formData.phone) newErrors.phone = "Phone number is required";
     
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-    
-    if (formData.phone && !/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = "Please enter a valid 10-digit phone number";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -84,60 +70,6 @@ const BidForm = ({ onSubmit, isSubmitting }: BidFormProps) => {
           />
           {errors.offerAmount && (
             <p className="text-red-500 text-sm mt-1">{errors.offerAmount}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="buyerName" className="block text-sm font-medium text-gray-700 mb-1">
-            Name <span className="text-red-500">*</span>
-          </label>
-          <Input
-            id="buyerName"
-            name="buyerName"
-            type="text"
-            placeholder="Enter your full name"
-            value={formData.buyerName}
-            onChange={handleChange}
-            className={errors.buyerName ? "border-red-500" : ""}
-          />
-          {errors.buyerName && (
-            <p className="text-red-500 text-sm mt-1">{errors.buyerName}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email <span className="text-red-500">*</span>
-          </label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-            className={errors.email ? "border-red-500" : ""}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-            Phone <span className="text-red-500">*</span>
-          </label>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="Enter your phone number"
-            value={formData.phone}
-            onChange={handleChange}
-            className={errors.phone ? "border-red-500" : ""}
-          />
-          {errors.phone && (
-            <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
           )}
         </div>
 
