@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,6 @@ const Buyers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Sample data - in a real app, this would come from an API
   const buyers: Buyer[] = [
     {
       id: "1",
@@ -149,12 +147,6 @@ const Buyers = () => {
                     className="pl-10 w-[300px]"
                   />
                 </div>
-                <Link to="/create-bid-request">
-                  <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <Plus className="h-4 w-4" />
-                    Bid Request
-                  </Button>
-                </Link>
                 <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
                   <Plus className="h-4 w-4" />
                   Buyer
