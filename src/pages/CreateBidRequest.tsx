@@ -135,15 +135,15 @@ const CreateBidRequest = () => {
     <div className="min-h-screen bg-gray-50">
       <BidRequestNavigation />
 
-      <div className="flex-1 p-3 lg:p-5 pt-20">
-        <div className="max-w-[1120px] mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-3 lg:p-4">
-            <h1 className="text-xl font-bold text-gray-900 mb-3">Create Bid Request</h1>
+      <div className="flex-1 p-4 lg:p-6 pt-20">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Create Bid Request</h1>
             
-            <form onSubmit={handleSubmit} className="h-[calc(100vh-220px)]">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <form onSubmit={handleSubmit} className="h-[calc(100vh-240px)]">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
                 <ScrollArea className="h-full p-2">
-                  <div className="space-y-3 pr-2">
+                  <div className="space-y-4 pr-2">
                     <VinSection 
                       vin={formData.vin}
                       onChange={handleChange}
@@ -172,17 +172,17 @@ const CreateBidRequest = () => {
                 </ScrollArea>
 
                 <div className="flex flex-col h-full">
-                  <ScrollArea className="flex-1 rounded-lg border p-3">
+                  <ScrollArea className="flex-1 rounded-lg border p-4">
                     <div className="space-y-2">
-                      <h2 className="text-base font-semibold">Select Buyers</h2>
+                      <h2 className="text-lg font-semibold">Select Buyers</h2>
                       {errors.buyers && (
                         <p className="text-sm text-red-500">{errors.buyers}</p>
                       )}
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         {buyers.map((buyer) => (
                           <div
                             key={buyer.id}
-                            className="flex items-start space-x-2 p-1.5 rounded hover:bg-gray-50"
+                            className="flex items-start space-x-3 p-2 rounded hover:bg-gray-50"
                           >
                             <Checkbox
                               id={`buyer-${buyer.id}`}
@@ -194,11 +194,11 @@ const CreateBidRequest = () => {
                                 htmlFor={`buyer-${buyer.id}`}
                                 className="text-sm font-medium cursor-pointer"
                               >
-                                <div className="flex items-center gap-1.5">
-                                  <UserRound className="h-3.5 w-3.5 text-gray-500" />
+                                <div className="flex items-center gap-2">
+                                  <UserRound className="h-4 w-4 text-gray-500" />
                                   {buyer.name}
                                 </div>
-                                <p className="text-xs text-gray-500">{buyer.location}</p>
+                                <p className="text-sm text-gray-500">{buyer.location}</p>
                               </label>
                             </div>
                           </div>
@@ -209,7 +209,7 @@ const CreateBidRequest = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full mt-3 text-sm py-2"
+                    className="w-full mt-4"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Bid Request"}
