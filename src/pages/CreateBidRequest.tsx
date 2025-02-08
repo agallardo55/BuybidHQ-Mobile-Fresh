@@ -9,10 +9,14 @@ import BasicVehicleInfo from "@/components/bid-request/BasicVehicleInfo";
 import ColorsAndAccessories from "@/components/bid-request/ColorsAndAccessories";
 import VehicleCondition from "@/components/bid-request/VehicleCondition";
 import { BidRequestFormData, FormErrors } from "@/components/bid-request/types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { UserRound } from "lucide-react";
 
 const CreateBidRequest = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedBuyers, setSelectedBuyers] = useState<string[]>([]);
   const [formData, setFormData] = useState<BidRequestFormData>({
     year: "",
     make: "",
@@ -32,6 +36,15 @@ const CreateBidRequest = () => {
     reconDetails: "",
   });
 
+  // Mock buyers data - in a real app, this would come from an API
+  const buyers = [
+    { id: "1", name: "John Smith", location: "Los Angeles, CA" },
+    { id: "2", name: "Sarah Williams", location: "New York, NY" },
+    { id: "3", name: "Mike Johnson", location: "Chicago, IL" },
+    { id: "4", name: "Emily Brown", location: "Houston, TX" },
+    { id: "5", name: "David Wilson", location: "Miami, FL" },
+  ];
+
   const [errors, setErrors] = useState<FormErrors>({});
 
   const validateForm = () => {
@@ -42,6 +55,7 @@ const CreateBidRequest = () => {
     if (!formData.model) newErrors.model = "Model is required";
     if (!formData.vin) newErrors.vin = "VIN is required";
     if (!formData.mileage) newErrors.mileage = "Mileage is required";
+    if (selectedBuyers.length === 0) newErrors.buyers = "Please select at least one buyer";
     
     if (formData.vin && formData.vin.length !== 17) {
       newErrors.vin = "VIN must be 17 characters";
@@ -105,6 +119,18 @@ const CreateBidRequest = () => {
     }));
   };
 
+  const toggleBuyer = (buyerId: string) => {
+    setSelectedBuyers(prev => {
+      if (prev.includes(buyerId)) {
+        return prev.filter(id => id !== buyerId);
+      }
+      return [...prev, buyerId];
+    });
+    if (errors.buyers) {
+      setErrors(prev => ({ ...prev, buyers: "" }));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <BidRequestNavigation />
@@ -138,15 +164,52 @@ const CreateBidRequest = () => {
                   onChange={handleChange}
                   onSelectChange={handleSelectChange}
                 />
+
+                <div className="space-y-6">
+                  <div className="rounded-lg border p-4">
+                    <h2 className="text-lg font-semibold mb-4">Select Buyers</h2>
+                    {errors.buyers && (
+                      <p className="text-sm text-red-500 mb-2">{errors.buyers}</p>
+                    )}
+                    <ScrollArea className="h-[400px] pr-4">
+                      <div className="space-y-4">
+                        {buyers.map((buyer) => (
+                          <div
+                            key={buyer.id}
+                            className="flex items-start space-x-3 p-2 rounded hover:bg-gray-50"
+                          >
+                            <Checkbox
+                              id={`buyer-${buyer.id}`}
+                              checked={selectedBuyers.includes(buyer.id)}
+                              onCheckedChange={() => toggleBuyer(buyer.id)}
+                            />
+                            <div className="flex-1">
+                              <label
+                                htmlFor={`buyer-${buyer.id}`}
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <UserRound className="h-4 w-4 text-gray-500" />
+                                  {buyer.name}
+                                </div>
+                                <p className="text-sm text-gray-500">{buyer.location}</p>
+                              </label>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Bid Request"}
+                  </Button>
+                </div>
               </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full mt-6"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit Bid Request"}
-              </Button>
             </form>
           </div>
         </div>
@@ -156,3 +219,4 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
+
