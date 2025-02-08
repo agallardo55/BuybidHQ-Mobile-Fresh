@@ -158,31 +158,33 @@ const Account = () => {
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-900">Dealership Information</h2>
               <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
-                    Dealership Name
-                  </label>
-                  <Input
-                    id="dealershipName"
-                    name="dealershipName"
-                    type="text"
-                    required
-                    value={formData.dealershipName}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
-                    Dealer ID
-                  </label>
-                  <Input
-                    id="licenseNumber"
-                    name="licenseNumber"
-                    type="text"
-                    required
-                    value={formData.licenseNumber}
-                    onChange={handleChange}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
+                      Dealership Name
+                    </label>
+                    <Input
+                      id="dealershipName"
+                      name="dealershipName"
+                      type="text"
+                      required
+                      value={formData.dealershipName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
+                      Dealer ID
+                    </label>
+                    <Input
+                      id="licenseNumber"
+                      name="licenseNumber"
+                      type="text"
+                      required
+                      value={formData.licenseNumber}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700">
@@ -264,3 +266,4 @@ const Account = () => {
 };
 
 export default Account;
+
