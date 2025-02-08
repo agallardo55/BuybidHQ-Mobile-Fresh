@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Search, UserRound, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +44,7 @@ const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
   const itemsPerPage = 5;
 
   const bidRequests: BidRequest[] = [
@@ -171,7 +173,10 @@ const BidRequestDashboard = () => {
               </button>
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:text-accent transition-colors"
+              onClick={() => navigate('/account')}
+            >
               <UserRound className="h-5 w-5 text-gray-500" />
               <span className="text-gray-700">Account</span>
             </div>
