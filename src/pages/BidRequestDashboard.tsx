@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
@@ -142,7 +143,11 @@ const BidRequestDashboard = () => {
                   We're working hard to bring you an amazing marketplace experience.
                   Stay tuned!
                 </p>
-                <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+                <img
+                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f"
+                  alt="Marketplace Coming Soon"
+                  className="w-full h-48 object-cover rounded-lg animate-fade-in"
+                />
               </div>
             </DialogTitle>
           </DialogHeader>
