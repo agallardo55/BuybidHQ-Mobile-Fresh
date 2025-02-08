@@ -45,6 +45,7 @@ const BidRequestDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  // Sample data - in a real app, this would come from an API
   const bidRequests: BidRequest[] = [
     {
       id: "1",
@@ -69,6 +70,54 @@ const BidRequestDashboard = () => {
       buyer: "Jane Doe",
       dealership: "XYZ Auto",
       highestOffer: 24800,
+    },
+    {
+      id: "3",
+      year: 2022,
+      make: "Ford",
+      model: "F-150",
+      trim: "XLT",
+      vin: "1FTEW1E53NFA12345",
+      mileage: 28000,
+      buyer: "Mike Johnson",
+      dealership: "Ford Direct",
+      highestOffer: 35600,
+    },
+    {
+      id: "4",
+      year: 2021,
+      make: "Tesla",
+      model: "Model 3",
+      trim: "Long Range",
+      vin: "5YJ3E1EA1MF123456",
+      mileage: 15000,
+      buyer: "Sarah Williams",
+      dealership: "Tesla Store",
+      highestOffer: 41200,
+    },
+    {
+      id: "5",
+      year: 2020,
+      make: "BMW",
+      model: "X5",
+      trim: "xDrive40i",
+      vin: "5UXCR6C06L9B12345",
+      mileage: 32000,
+      buyer: "Tom Brown",
+      dealership: "BMW Excellence",
+      highestOffer: 45800,
+    },
+    {
+      id: "6",
+      year: 2022,
+      make: "Mercedes",
+      model: "C-Class",
+      trim: "C300",
+      vin: "WDDWF4KB1NR123456",
+      mileage: 12000,
+      buyer: "Emily Davis",
+      dealership: "Mercedes World",
+      highestOffer: 39900,
     },
   ];
 
@@ -201,7 +250,7 @@ const BidRequestDashboard = () => {
                   ))}
                 </TableBody>
               </Table>
-              {totalPages > 1 && (
+              {filteredRequests.length > itemsPerPage && (
                 <div className="mt-4 flex justify-center">
                   <Pagination>
                     <PaginationContent>
