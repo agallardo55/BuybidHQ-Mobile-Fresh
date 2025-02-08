@@ -1,8 +1,10 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserRound } from "lucide-react";
 
 const BidRequestNavigation = () => {
+  const navigate = useNavigate();
+
   return (
     <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,7 +36,10 @@ const BidRequestNavigation = () => {
             </button>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div 
+            className="flex items-center space-x-2 cursor-pointer hover:text-accent transition-colors"
+            onClick={() => navigate('/account')}
+          >
             <UserRound className="h-5 w-5 text-gray-500" />
             <span className="text-gray-700">Account</span>
           </div>
@@ -45,3 +50,4 @@ const BidRequestNavigation = () => {
 };
 
 export default BidRequestNavigation;
+

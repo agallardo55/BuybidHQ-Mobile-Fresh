@@ -11,6 +11,7 @@ import BidRequestDashboard from "./pages/BidRequestDashboard";
 import CreateBidRequest from "./pages/CreateBidRequest";
 import Buyers from "./pages/Buyers";
 import NotFound from "./pages/NotFound";
+import Account from "./pages/Account";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/dashboard" element={<BidRequestDashboard />} />
           <Route path="/create-bid-request" element={<CreateBidRequest />} />
           <Route path="/buyers" element={<Buyers />} />
+          <Route path="/account" element={<Account />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
@@ -35,3 +37,4 @@ const App = () => (
 );
 
 export default App;
+
