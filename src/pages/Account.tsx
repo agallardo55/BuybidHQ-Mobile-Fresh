@@ -1,3 +1,4 @@
+
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,10 @@ const Account = () => {
     state: "",
     zipCode: "",
     subscriptionType: "basic",
-    paymentMethod: "",
+    cardNumber: "",
+    cardExpiry: "",
+    cardCvc: "",
+    cardName: "",
   });
 
   const formatPhoneNumber = (value: string) => {
@@ -53,6 +57,33 @@ const Account = () => {
       setFormData((prev) => ({
         ...prev,
         [name]: formatPhoneNumber(value),
+      }));
+    } else if (name === 'cardNumber') {
+      // Format card number as **** **** **** ****
+      const formatted = value
+        .replace(/\s/g, '')
+        .replace(/(\d{4})/g, '$1 ')
+        .trim();
+      setFormData((prev) => ({
+        ...prev,
+        [name]: formatted,
+      }));
+    } else if (name === 'cardExpiry') {
+      // Format expiry as MM/YY
+      const expiry = value
+        .replace(/\D/g, '')
+        .replace(/(\d{2})(\d{0,2})/, '$1/$2')
+        .substr(0, 5);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: expiry,
+      }));
+    } else if (name === 'cardCvc') {
+      // Only allow numbers and max 3 digits
+      const cvc = value.replace(/\D/g, '').substr(0, 3);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: cvc,
       }));
     } else {
       setFormData((prev) => ({
@@ -291,23 +322,70 @@ const Account = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700">
-                    Payment Method
-                  </label>
-                  <Input
-                    id="paymentMethod"
-                    name="paymentMethod"
-                    type="text"
-                    value={formData.paymentMethod}
-                    onChange={handleChange}
-                    placeholder="•••• •••• •••• 4242"
-                    className="bg-gray-50"
-                    readOnly
-                  />
-                  <p className="mt-2 text-sm text-gray-500">
-                    To update your payment method, please contact support.
-                  </p>
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-gray-900">Payment Method</h3>
+                  
+                  <div>
+                    <label htmlFor="cardName" className="block text-sm font-medium text-gray-700">
+                      Cardholder Name
+                    </label>
+                    <Input
+                      id="cardName"
+                      name="cardName"
+                      type="text"
+                      value={formData.cardName}
+                      onChange={handleChange}
+                      placeholder="John Doe"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700">
+                      Card Number
+                    </label>
+                    <Input
+                      id="cardNumber"
+                      name="cardNumber"
+                      type="text"
+                      value={formData.cardNumber}
+                      onChange={handleChange}
+                      placeholder="**** **** **** ****"
+                      maxLength={19}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="cardExpiry" className="block text-sm font-medium text-gray-700">
+                        Expiry Date
+                      </label>
+                      <Input
+                        id="cardExpiry"
+                        name="cardExpiry"
+                        type="text"
+                        value={formData.cardExpiry}
+                        onChange={handleChange}
+                        placeholder="MM/YY"
+                        maxLength={5}
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="cardCvc" className="block text-sm font-medium text-gray-700">
+                        CVC
+                      </label>
+                      <Input
+                        id="cardCvc"
+                        name="cardCvc"
+                        type="text"
+                        value={formData.cardCvc}
+                        onChange={handleChange}
+                        placeholder="123"
+                        maxLength={3}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
