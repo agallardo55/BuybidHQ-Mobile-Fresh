@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -170,8 +169,8 @@ const CreateBidRequest = () => {
                 </ScrollArea>
 
                 <div className="flex flex-col h-full">
+                  <h2 className="text-lg font-semibold mb-4">Select Buyers</h2>
                   <div className="flex-1 border rounded-lg p-4">
-                    <h2 className="text-lg font-semibold mb-4">Select Buyers</h2>
                     {errors.buyers && (
                       <p className="text-sm text-red-500 mb-2">{errors.buyers}</p>
                     )}
@@ -223,4 +222,3 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
-
