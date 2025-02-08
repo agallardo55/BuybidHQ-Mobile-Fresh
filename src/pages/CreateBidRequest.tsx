@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -126,12 +127,11 @@ const CreateBidRequest = () => {
                     errors={errors}
                     onChange={handleChange}
                   />
+                  <ColorsAndAccessories 
+                    formData={formData}
+                    onChange={handleChange}
+                  />
                 </div>
-
-                <ColorsAndAccessories 
-                  formData={formData}
-                  onChange={handleChange}
-                />
 
                 <VehicleCondition 
                   formData={formData}
