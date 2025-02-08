@@ -22,11 +22,16 @@ const BidRequestNavigation = () => {
               Dashboard
             </Link>
             <Link 
-              to="/marketplace" 
+              to="/buyers" 
+              className="text-gray-700 hover:text-accent transition-colors"
+            >
+              Buyers
+            </Link>
+            <button 
               className="text-gray-700 hover:text-accent transition-colors"
             >
               Marketplace
-            </Link>
+            </button>
           </div>
           
           <div className="flex items-center space-x-2">
