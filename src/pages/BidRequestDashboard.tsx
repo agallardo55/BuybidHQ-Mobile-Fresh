@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,6 +16,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface BidRequest {
   id: string;
@@ -34,8 +41,9 @@ interface BidRequest {
 const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  // Dummy data for demonstration
   const bidRequests: BidRequest[] = [
     {
       id: "1",
@@ -74,9 +82,15 @@ const BidRequestDashboard = () => {
     );
   });
 
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedRequests = filteredRequests.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Dashboard Navigation */}
       <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -116,7 +130,6 @@ const BidRequestDashboard = () => {
         </div>
       </nav>
 
-      {/* Coming Soon Modal */}
       <Dialog open={showComingSoon} onOpenChange={setShowComingSoon}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -136,7 +149,6 @@ const BidRequestDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Main Content */}
       <div className="pt-24 px-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -169,7 +181,7 @@ const BidRequestDashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRequests.map((request) => (
+                  {paginatedRequests.map((request) => (
                     <TableRow key={request.id}>
                       <TableCell>{request.year}</TableCell>
                       <TableCell>{request.make}</TableCell>
@@ -184,6 +196,36 @@ const BidRequestDashboard = () => {
                   ))}
                 </TableBody>
               </Table>
+              {totalPages > 1 && (
+                <div className="mt-4 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      {Array.from({ length: totalPages }).map((_, index) => (
+                        <PaginationItem key={index + 1}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(index + 1)}
+                            isActive={currentPage === index + 1}
+                          >
+                            {index + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
             </div>
           </div>
         </div>
