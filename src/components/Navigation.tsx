@@ -1,20 +1,34 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleScroll = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setIsOpen(false);
+      if (location.pathname !== '/') {
+        navigate('/', { state: { scrollTo: id } });
+      } else {
+        element.scrollIntoView({ behavior: 'smooth' });
+        setIsOpen(false);
+      }
     }
   };
+
+  useEffect(() => {
+    if (location.state && location.state.scrollTo) {
+      const element = document.getElementById(location.state.scrollTo);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location]);
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -37,7 +51,6 @@ const Navigation = () => {
             </Link>
           </div>
           
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
               <a
@@ -65,7 +78,6 @@ const Navigation = () => {
             </Button>
           </div>
 
-          {/* Mobile Navigation Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -77,7 +89,6 @@ const Navigation = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
       {isOpen && (
         <div className="md:hidden bg-white border-b">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
