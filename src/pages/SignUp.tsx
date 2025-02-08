@@ -23,7 +23,8 @@ const SignUp = () => {
     city: "",
     state: "",
     zipCode: "",
-    phoneNumber: "",
+    mobileNumber: "", // Changed from phoneNumber
+    businessNumber: "", // Added new field
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,15 +113,28 @@ const SignUp = () => {
                 />
               </div>
               <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
-                  Phone Number
+                <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
+                  Mobile Number
                 </label>
                 <Input
-                  id="phoneNumber"
-                  name="phoneNumber"
+                  id="mobileNumber"
+                  name="mobileNumber"
                   type="tel"
                   required
-                  value={formData.phoneNumber}
+                  value={formData.mobileNumber}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
+                  Business Number
+                </label>
+                <Input
+                  id="businessNumber"
+                  name="businessNumber"
+                  type="tel"
+                  required
+                  value={formData.businessNumber}
                   onChange={handleChange}
                 />
               </div>
