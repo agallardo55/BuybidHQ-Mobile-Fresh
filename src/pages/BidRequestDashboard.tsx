@@ -11,6 +11,12 @@ import {
 } from "@/components/ui/table";
 import { Search, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface BidRequest {
   id: string;
@@ -27,6 +33,7 @@ interface BidRequest {
 
 const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   // Dummy data for demonstration
   const bidRequests: BidRequest[] = [
@@ -87,12 +94,12 @@ const BidRequestDashboard = () => {
               >
                 Dashboard
               </Link>
-              <Link 
-                to="/marketplace" 
+              <button 
+                onClick={() => setShowComingSoon(true)}
                 className="text-gray-700 hover:text-accent transition-colors"
               >
                 Marketplace
-              </Link>
+              </button>
               <Link 
                 to="/create-bid-request" 
                 className="text-gray-700 hover:text-accent transition-colors"
@@ -108,6 +115,26 @@ const BidRequestDashboard = () => {
           </div>
         </div>
       </nav>
+
+      {/* Coming Soon Modal */}
+      <Dialog open={showComingSoon} onOpenChange={setShowComingSoon}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              <div className="flex flex-col items-center space-y-4">
+                <span className="text-2xl font-bold animate-fade-in">
+                  Coming Soon!
+                </span>
+                <p className="text-gray-500 text-sm animate-fade-in">
+                  We're working hard to bring you an amazing marketplace experience.
+                  Stay tuned!
+                </p>
+                <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
 
       {/* Main Content */}
       <div className="pt-24 px-8">
