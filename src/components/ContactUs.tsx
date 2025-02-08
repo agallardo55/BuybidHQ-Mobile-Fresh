@@ -93,7 +93,7 @@ const ContactUs = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
               Send Message
             </Button>
           </form>
