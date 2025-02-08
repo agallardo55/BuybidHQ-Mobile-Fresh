@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +10,7 @@ import VehicleCondition from "@/components/bid-request/VehicleCondition";
 import { BidRequestFormData, FormErrors } from "@/components/bid-request/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { UserRound, Phone } from "lucide-react";
+import { UserRound } from "lucide-react";
 
 const CreateBidRequest = () => {
   const navigate = useNavigate();
@@ -196,8 +195,7 @@ const CreateBidRequest = () => {
                                   <UserRound className="h-4 w-4 text-gray-500" />
                                   <span>{buyer.name}</span>
                                   <div className="flex items-center text-gray-500 ml-2">
-                                    <Phone className="h-4 w-4 mr-1" />
-                                    <span className="text-sm">{buyer.mobile}</span>
+                                    <span className="text-sm">M: {buyer.mobile}</span>
                                   </div>
                                 </div>
                                 <p className="text-sm text-gray-500">{buyer.dealership}</p>
