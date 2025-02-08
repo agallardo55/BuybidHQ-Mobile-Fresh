@@ -1,18 +1,19 @@
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { UserRound } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import BidRequestNavigation from "@/components/bid-request/BidRequestNavigation";
+import VinSection from "@/components/bid-request/VinSection";
+import BasicVehicleInfo from "@/components/bid-request/BasicVehicleInfo";
+import ColorsAndAccessories from "@/components/bid-request/ColorsAndAccessories";
+import VehicleCondition from "@/components/bid-request/VehicleCondition";
+import { BidRequestFormData, FormErrors } from "@/components/bid-request/types";
 
 const CreateBidRequest = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BidRequestFormData>({
     year: "",
     make: "",
     model: "",
@@ -31,31 +32,27 @@ const CreateBidRequest = () => {
     reconDetails: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: FormErrors = {};
     
-    // Required field validation
     if (!formData.year) newErrors.year = "Year is required";
     if (!formData.make) newErrors.make = "Make is required";
     if (!formData.model) newErrors.model = "Model is required";
     if (!formData.vin) newErrors.vin = "VIN is required";
     if (!formData.mileage) newErrors.mileage = "Mileage is required";
     
-    // VIN validation (basic check for 17 characters)
     if (formData.vin && formData.vin.length !== 17) {
       newErrors.vin = "VIN must be 17 characters";
     }
     
-    // Year validation
     const currentYear = new Date().getFullYear();
     const year = parseInt(formData.year);
     if (year < 1900 || year > currentYear + 1) {
       newErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
     }
 
-    // Mileage validation
     if (parseInt(formData.mileage) < 0) {
       newErrors.mileage = "Mileage cannot be negative";
     }
@@ -75,9 +72,7 @@ const CreateBidRequest = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       toast.success("Bid request submitted successfully!");
       navigate("/dashboard");
     } catch (error) {
@@ -95,7 +90,6 @@ const CreateBidRequest = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -113,329 +107,37 @@ const CreateBidRequest = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation Header */}
-      <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link to="/" className="flex items-center">
-                <img 
-                  src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-                  alt="BuyBidHQ Logo" 
-                  className="h-8 w-auto"
-                />
-              </Link>
-              <Link 
-                to="/dashboard" 
-                className="text-gray-700"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                to="/create-bid-request" 
-                className="text-gray-700"
-              >
-                Bid Request
-              </Link>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <UserRound className="h-5 w-5 text-gray-500" />
-              <span className="text-gray-700">Account</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <BidRequestNavigation />
 
-      {/* Main Content */}
       <div className="pt-24 px-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Bid Request</h1>
             
-            {/* VIN Section at the top */}
-            <div className="mb-8">
-              <div className="flex gap-4 items-end">
-                <div className="flex-1">
-                  <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
-                    VIN <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="vin"
-                    name="vin"
-                    type="text"
-                    value={formData.vin}
-                    onChange={handleChange}
-                    required
-                    placeholder="1HGCM82633A123456"
-                    className={errors.vin ? "border-red-500" : ""}
-                    maxLength={17}
-                  />
-                  {errors.vin && (
-                    <p className="text-red-500 text-sm mt-1">{errors.vin}</p>
-                  )}
-                </div>
-                <Button 
-                  type="button"
-                  className="mb-[errors.vin ? '24px' : '0px']"
-                  onClick={() => {
-                    // TODO: Implement VIN lookup functionality
-                    toast.info("VIN lookup functionality coming soon!");
-                  }}
-                >
-                  Go
-                </Button>
-              </div>
-            </div>
+            <VinSection 
+              vin={formData.vin}
+              onChange={handleChange}
+              error={errors.vin}
+            />
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Left Column - Basic Vehicle Information */}
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
-                      Year <span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                      id="year"
-                      name="year"
-                      type="number"
-                      value={formData.year}
-                      onChange={handleChange}
-                      required
-                      placeholder="2024"
-                      className={errors.year ? "border-red-500" : ""}
-                    />
-                    {errors.year && (
-                      <p className="text-red-500 text-sm mt-1">{errors.year}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label htmlFor="make" className="block text-sm font-medium text-gray-700 mb-1">
-                      Make <span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                      id="make"
-                      name="make"
-                      type="text"
-                      value={formData.make}
-                      onChange={handleChange}
-                      required
-                      placeholder="Toyota"
-                      className={errors.make ? "border-red-500" : ""}
-                    />
-                    {errors.make && (
-                      <p className="text-red-500 text-sm mt-1">{errors.make}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-1">
-                      Model <span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                      id="model"
-                      name="model"
-                      type="text"
-                      value={formData.model}
-                      onChange={handleChange}
-                      required
-                      placeholder="Camry"
-                      className={errors.model ? "border-red-500" : ""}
-                    />
-                    {errors.model && (
-                      <p className="text-red-500 text-sm mt-1">{errors.model}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">
-                      Trim
-                    </label>
-                    <Input
-                      id="trim"
-                      name="trim"
-                      type="text"
-                      value={formData.trim}
-                      onChange={handleChange}
-                      placeholder="SE"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">
-                      Mileage <span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                      id="mileage"
-                      name="mileage"
-                      type="number"
-                      value={formData.mileage}
-                      onChange={handleChange}
-                      required
-                      placeholder="35000"
-                      min="0"
-                      className={errors.mileage ? "border-red-500" : ""}
-                    />
-                    {errors.mileage && (
-                      <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
-                    )}
-                  </div>
-                </div>
+                <BasicVehicleInfo 
+                  formData={formData}
+                  errors={errors}
+                  onChange={handleChange}
+                />
 
-                {/* Middle Column - Colors and Accessories */}
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="exteriorColor" className="block text-sm font-medium text-gray-700 mb-1">
-                      Exterior Color
-                    </label>
-                    <Input
-                      id="exteriorColor"
-                      name="exteriorColor"
-                      type="text"
-                      value={formData.exteriorColor}
-                      onChange={handleChange}
-                      required
-                      placeholder="Midnight Black"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="interiorColor" className="block text-sm font-medium text-gray-700 mb-1">
-                      Interior Color
-                    </label>
-                    <Input
-                      id="interiorColor"
-                      name="interiorColor"
-                      type="text"
-                      value={formData.interiorColor}
-                      onChange={handleChange}
-                      required
-                      placeholder="Black Leather"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="accessories" className="block text-sm font-medium text-gray-700 mb-1">
-                      Additional Equipment/Accessories
-                    </label>
-                    <Textarea
-                      id="accessories"
-                      name="accessories"
-                      value={formData.accessories}
-                      onChange={handleChange}
-                      placeholder="List any additional equipment or accessories..."
-                      className="min-h-[200px]"
-                    />
-                  </div>
-                </div>
+                <ColorsAndAccessories 
+                  formData={formData}
+                  onChange={handleChange}
+                />
 
-                {/* Right Column - Vehicle Condition */}
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="windshield" className="block text-sm font-medium text-gray-700 mb-1">
-                      Windshield
-                    </label>
-                    <Select name="windshield" onValueChange={(value) => handleSelectChange(value, "windshield")}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose One" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="good">Good</SelectItem>
-                        <SelectItem value="fair">Fair</SelectItem>
-                        <SelectItem value="poor">Poor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="engineLights" className="block text-sm font-medium text-gray-700 mb-1">
-                      Engine Lights
-                    </label>
-                    <Select name="engineLights" onValueChange={(value) => handleSelectChange(value, "engineLights")}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose One" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        <SelectItem value="on">On</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="brakes" className="block text-sm font-medium text-gray-700 mb-1">
-                      Brakes
-                    </label>
-                    <Select name="brakes" onValueChange={(value) => handleSelectChange(value, "brakes")}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose One" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="excellent">Excellent</SelectItem>
-                        <SelectItem value="good">Good</SelectItem>
-                        <SelectItem value="fair">Fair</SelectItem>
-                        <SelectItem value="poor">Poor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="tire" className="block text-sm font-medium text-gray-700 mb-1">
-                      Tire
-                    </label>
-                    <Select name="tire" onValueChange={(value) => handleSelectChange(value, "tire")}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose One" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="new">New</SelectItem>
-                        <SelectItem value="good">Good</SelectItem>
-                        <SelectItem value="fair">Fair</SelectItem>
-                        <SelectItem value="poor">Poor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="maintenance" className="block text-sm font-medium text-gray-700 mb-1">
-                      Maintenance
-                    </label>
-                    <Select name="maintenance" onValueChange={(value) => handleSelectChange(value, "maintenance")}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose One" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="upToDate">Up to Date</SelectItem>
-                        <SelectItem value="needsService">Needs Service</SelectItem>
-                        <SelectItem value="overdue">Overdue</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="reconEstimate" className="block text-sm font-medium text-gray-700 mb-1">
-                      Recon Estimate ($)
-                    </label>
-                    <Input
-                      id="reconEstimate"
-                      name="reconEstimate"
-                      type="number"
-                      value={formData.reconEstimate}
-                      onChange={handleChange}
-                      placeholder="0"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="reconDetails" className="block text-sm font-medium text-gray-700 mb-1">
-                      Recon Details
-                    </label>
-                    <Textarea
-                      id="reconDetails"
-                      name="reconDetails"
-                      value={formData.reconDetails}
-                      onChange={handleChange}
-                      placeholder="Enter reconditioning details..."
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                </div>
+                <VehicleCondition 
+                  formData={formData}
+                  onChange={handleChange}
+                  onSelectChange={handleSelectChange}
+                />
               </div>
               
               <Button 
