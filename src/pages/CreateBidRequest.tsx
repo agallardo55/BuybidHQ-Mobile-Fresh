@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -191,10 +192,12 @@ const CreateBidRequest = () => {
                                 htmlFor={`buyer-${buyer.id}`}
                                 className="text-sm font-medium cursor-pointer"
                               >
-                                <div className="flex items-center gap-1.5">
-                                  <UserRound className="h-4 w-4 text-gray-500" />
-                                  <span>{buyer.name}</span>
-                                  <div className="flex items-center text-gray-500 ml-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1.5">
+                                    <UserRound className="h-4 w-4 text-gray-500" />
+                                    <span>{buyer.name}</span>
+                                  </div>
+                                  <div className="text-gray-500">
                                     <span className="text-sm">M: {buyer.mobile}</span>
                                   </div>
                                 </div>
