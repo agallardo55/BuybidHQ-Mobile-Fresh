@@ -1,8 +1,10 @@
+
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BidResponseFormData, VehicleDetails } from "@/components/bid-response/types";
 import VehicleDetailsSection from "@/components/bid-response/VehicleDetailsSection";
 import BidForm from "@/components/bid-response/BidForm";
+import Footer from "@/components/Footer";
 import { toast } from "sonner";
 
 const BidResponse = () => {
@@ -52,13 +54,13 @@ const BidResponse = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <header className="w-full bg-white shadow-sm py-4">
           <div className="max-w-2xl mx-auto px-4">
             <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
           </div>
         </header>
-        <div className="px-4 py-8 flex items-center justify-center">
+        <div className="px-4 py-8 flex items-center justify-center flex-grow">
           <div className="w-full max-w-lg text-center space-y-4 animate-fade-in">
             <h2 className="text-2xl font-bold text-gray-900">Thank You!</h2>
             <p className="text-gray-600">
@@ -66,23 +68,26 @@ const BidResponse = () => {
             </p>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="w-full bg-white shadow-sm py-4">
         <div className="max-w-2xl mx-auto px-4">
           <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
         </div>
       </header>
-      <div className="max-w-2xl mx-auto p-4 space-y-6">
+      <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
         <VehicleDetailsSection vehicle={vehicleDetails} />
         <BidForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       </div>
+      <Footer />
     </div>
   );
 };
 
 export default BidResponse;
+
