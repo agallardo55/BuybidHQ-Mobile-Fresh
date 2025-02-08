@@ -9,6 +9,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import BidRequestDashboard from "./pages/BidRequestDashboard";
 import CreateBidRequest from "./pages/CreateBidRequest";
+import BidResponse from "./pages/BidResponse";
 import Buyers from "./pages/Buyers";
 import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<BidRequestDashboard />} />
           <Route path="/create-bid-request" element={<CreateBidRequest />} />
+          <Route path="/bid-response" element={<BidResponse />} />
           <Route path="/buyers" element={<Buyers />} />
           <Route path="/account" element={<Account />} />
           <Route path="*" element={<NotFound />} />
@@ -37,4 +39,3 @@ const App = () => (
 );
 
 export default App;
-
