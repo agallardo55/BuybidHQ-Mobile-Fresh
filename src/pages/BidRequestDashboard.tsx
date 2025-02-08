@@ -141,7 +141,7 @@ const BidRequestDashboard = () => {
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Bid Requests</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
