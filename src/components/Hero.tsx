@@ -14,7 +14,7 @@ const Hero = () => {
               </span>
             </div>
             <h1 className="mt-6 text-4xl font-bold tracking-tight text-primary sm:text-6xl animate-slide-in">
-              Revolutionizing Auto Dealer Bidding
+              Revolutionizing Dealer Wholesale Buying and Selling
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-600 animate-slide-in" style={{ animationDelay: "0.2s" }}>
               Streamline your vehicle buy bids and connect with dealers instantly through our communication platform.
