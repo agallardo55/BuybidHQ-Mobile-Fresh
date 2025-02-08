@@ -24,11 +24,11 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
       <div className="p-4 border-b">
         <div className="space-y-2">
           <h2 className="text-lg font-semibold text-gray-900">
-            {vehicle.userFullName}
+            From: {vehicle.userFullName}
           </h2>
           <div className="text-sm text-gray-500 space-y-1">
-            <p>{vehicle.dealership}</p>
-            <p>{vehicle.mobileNumber}</p>
+            <p>Dealership: {vehicle.dealership}</p>
+            <p>Phone: {vehicle.mobileNumber}</p>
           </div>
         </div>
       </div>
