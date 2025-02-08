@@ -52,7 +52,7 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
           value={formData.accessories}
           onChange={onChange}
           placeholder="List any additional equipment or accessories..."
-          className="min-h-[200px]"
+          className="min-h-[100px]"
         />
       </div>
     </div>
