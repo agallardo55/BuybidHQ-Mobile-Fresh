@@ -87,6 +87,12 @@ const BidRequestDashboard = () => {
               >
                 Dashboard
               </Link>
+              <Link 
+                to="/create-bid-request" 
+                className="text-gray-700"
+              >
+                Bid Request
+              </Link>
             </div>
             
             <div className="flex items-center space-x-2">

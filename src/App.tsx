@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import BidRequestDashboard from "./pages/BidRequestDashboard";
+import CreateBidRequest from "./pages/CreateBidRequest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<BidRequestDashboard />} />
+          <Route path="/create-bid-request" element={<CreateBidRequest />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
