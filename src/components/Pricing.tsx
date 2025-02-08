@@ -89,7 +89,7 @@ const Pricing = () => {
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
-                <span className="text-3xl font-bold">$199</span>
+                <span className="text-3xl font-bold">TBD</span>
                 <span className="ml-1 text-gray-500">/month</span>
               </div>
               <ul className="mt-6 space-y-4">
