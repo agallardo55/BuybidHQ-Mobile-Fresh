@@ -1,4 +1,3 @@
-
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -393,7 +392,7 @@ const Account = () => {
                       onClick={handleSubmit}
                       className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                     >
-                      Update Payment Method
+                      Remove Payment Method
                     </Button>
                   </div>
                 </div>
