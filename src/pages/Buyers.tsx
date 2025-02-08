@@ -105,6 +105,12 @@ const Buyers = () => {
               >
                 Dashboard
               </Link>
+              <Link 
+                to="/buyers" 
+                className="text-gray-700 hover:text-accent transition-colors"
+              >
+                Buyers
+              </Link>
               <button 
                 className="text-gray-700 hover:text-accent transition-colors"
               >
@@ -115,12 +121,6 @@ const Buyers = () => {
                 className="text-gray-700 hover:text-accent transition-colors"
               >
                 Bid Request
-              </Link>
-              <Link 
-                to="/buyers" 
-                className="text-gray-700 hover:text-accent transition-colors"
-              >
-                Buyers
               </Link>
             </div>
             

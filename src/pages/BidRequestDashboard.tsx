@@ -158,6 +158,12 @@ const BidRequestDashboard = () => {
               >
                 Dashboard
               </Link>
+              <Link 
+                to="/buyers" 
+                className="text-gray-700 hover:text-accent transition-colors"
+              >
+                Buyers
+              </Link>
               <button 
                 onClick={() => setShowComingSoon(true)}
                 className="text-gray-700 hover:text-accent transition-colors"
@@ -169,12 +175,6 @@ const BidRequestDashboard = () => {
                 className="text-gray-700 hover:text-accent transition-colors"
               >
                 Bid Request
-              </Link>
-              <Link 
-                to="/buyers" 
-                className="text-gray-700 hover:text-accent transition-colors"
-              >
-                Buyers
               </Link>
             </div>
             
