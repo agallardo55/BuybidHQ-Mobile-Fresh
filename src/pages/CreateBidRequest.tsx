@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -114,19 +113,20 @@ const CreateBidRequest = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Bid Request</h1>
             
-            <VinSection 
-              vin={formData.vin}
-              onChange={handleChange}
-              error={errors.vin}
-            />
-
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <BasicVehicleInfo 
-                  formData={formData}
-                  errors={errors}
-                  onChange={handleChange}
-                />
+                <div className="space-y-6">
+                  <VinSection 
+                    vin={formData.vin}
+                    onChange={handleChange}
+                    error={errors.vin}
+                  />
+                  <BasicVehicleInfo 
+                    formData={formData}
+                    errors={errors}
+                    onChange={handleChange}
+                  />
+                </div>
 
                 <ColorsAndAccessories 
                   formData={formData}

@@ -11,7 +11,7 @@ interface VinSectionProps {
 
 const VinSection = ({ vin, onChange, error }: VinSectionProps) => {
   return (
-    <div className="mb-8">
+    <div>
       <div className="flex gap-4 items-end">
         <div className="flex-1">
           <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
