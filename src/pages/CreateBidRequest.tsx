@@ -132,47 +132,51 @@ const CreateBidRequest = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen bg-gray-50 overflow-hidden">
       <BidRequestNavigation />
 
-      <div className="pt-24 px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Bid Request</h1>
+      <div className="h-[calc(100vh-64px)] pt-16 px-4">
+        <div className="h-full max-w-7xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-4 h-full">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Create Bid Request</h1>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-6">
-                  <VinSection 
-                    vin={formData.vin}
-                    onChange={handleChange}
-                    error={errors.vin}
-                  />
-                  <BasicVehicleInfo 
-                    formData={formData}
-                    errors={errors}
-                    onChange={handleChange}
-                  />
-                  <ColorsAndAccessories 
-                    formData={formData}
-                    onChange={handleChange}
-                  />
-                </div>
+            <form onSubmit={handleSubmit} className="h-[calc(100%-60px)]">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+                <ScrollArea className="h-full pr-4">
+                  <div className="space-y-4">
+                    <VinSection 
+                      vin={formData.vin}
+                      onChange={handleChange}
+                      error={errors.vin}
+                    />
+                    <BasicVehicleInfo 
+                      formData={formData}
+                      errors={errors}
+                      onChange={handleChange}
+                    />
+                    <ColorsAndAccessories 
+                      formData={formData}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </ScrollArea>
 
-                <VehicleCondition 
-                  formData={formData}
-                  onChange={handleChange}
-                  onSelectChange={handleSelectChange}
-                />
+                <ScrollArea className="h-full pr-4">
+                  <VehicleCondition 
+                    formData={formData}
+                    onChange={handleChange}
+                    onSelectChange={handleSelectChange}
+                  />
+                </ScrollArea>
 
-                <div className="space-y-6">
-                  <div className="rounded-lg border p-4">
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 border rounded-lg p-4">
                     <h2 className="text-lg font-semibold mb-4">Select Buyers</h2>
                     {errors.buyers && (
                       <p className="text-sm text-red-500 mb-2">{errors.buyers}</p>
                     )}
-                    <ScrollArea className="h-[400px] pr-4">
-                      <div className="space-y-4">
+                    <ScrollArea className="h-[calc(100%-120px)]">
+                      <div className="space-y-2">
                         {buyers.map((buyer) => (
                           <div
                             key={buyer.id}
@@ -203,7 +207,7 @@ const CreateBidRequest = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full"
+                    className="w-full mt-4"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Bid Request"}
