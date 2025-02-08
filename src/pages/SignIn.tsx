@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -23,6 +24,9 @@ const SignIn = () => {
             className="mx-auto h-12 w-auto"
           />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Sign in to your account</h2>
+          <Link to="/" className="mt-2 text-sm text-[#325AE7] hover:text-[#325AE7]/90">
+            ← Back Home
+          </Link>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
