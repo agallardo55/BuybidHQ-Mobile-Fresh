@@ -135,7 +135,7 @@ const CreateBidRequest = () => {
     <div className="min-h-screen bg-gray-50">
       <BidRequestNavigation />
 
-      <div className="flex-1 p-4 lg:p-6 pt-20">
+      <div className="flex-1 p-4 lg:p-6">
         <div className="max-w-[1400px] mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Create Bid Request</h1>
