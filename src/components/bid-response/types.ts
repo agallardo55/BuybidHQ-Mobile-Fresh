@@ -1,7 +1,6 @@
 
 export interface BidResponseFormData {
   offerAmount: string;
-  message: string;
 }
 
 export interface VehicleDetails {
