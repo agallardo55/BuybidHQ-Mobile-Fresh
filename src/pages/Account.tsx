@@ -1,4 +1,3 @@
-
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -158,8 +157,8 @@ const Account = () => {
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-900">Dealership Information</h2>
               <div className="grid grid-cols-1 gap-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
                     <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
                       Dealership Name
                     </label>
@@ -266,4 +265,3 @@ const Account = () => {
 };
 
 export default Account;
-
