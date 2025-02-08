@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -130,15 +131,15 @@ const CreateBidRequest = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-50 overflow-hidden">
+    <div className="min-h-screen bg-gray-50">
       <BidRequestNavigation />
 
-      <div className="h-[calc(100vh-64px)] pt-16 px-3">
-        <div className="h-full max-w-6xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-3 h-full">
+      <div className="pt-20 px-3 pb-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-3">
             <h1 className="text-xl font-bold text-gray-900 mb-3">Create Bid Request</h1>
             
-            <form onSubmit={handleSubmit} className="h-[calc(100%-48px)]">
+            <form onSubmit={handleSubmit} className="h-[calc(100vh-180px)]">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 h-full">
                 <ScrollArea className="h-full pr-3">
                   <div className="space-y-3">
@@ -221,3 +222,4 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
+
