@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -70,9 +69,8 @@ const SignUp = () => {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Personal Information Column */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Personal Information</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">Personal Information</h3>
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
                   Full Name
@@ -140,7 +138,6 @@ const SignUp = () => {
               </div>
             </div>
 
-            {/* Dealership Information Column */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gray-800 mb-4">Dealership Information</h3>
               <div>
