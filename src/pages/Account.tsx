@@ -1,3 +1,4 @@
+
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -199,7 +200,7 @@ const Account = () => {
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                  <div className="md:col-span-3">
+                  <div className="md:col-span-2">
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700">
                       City
                     </label>
@@ -212,7 +213,7 @@ const Account = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div className="md:col-span-1">
+                  <div className="md:col-span-2">
                     <label htmlFor="state" className="block text-sm font-medium text-gray-700">
                       State
                     </label>
