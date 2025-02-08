@@ -55,7 +55,6 @@ const Buyers = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    password: "",
     mobileNumber: "",
     businessNumber: "",
     dealershipName: "",
@@ -117,7 +116,6 @@ const Buyers = () => {
     setFormData({
       fullName: "",
       email: "",
-      password: "",
       mobileNumber: "",
       businessNumber: "",
       dealershipName: "",
@@ -278,19 +276,6 @@ const Buyers = () => {
                             type="email"
                             required
                             value={formData.email}
-                            onChange={handleChange}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                            Password
-                          </label>
-                          <Input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            value={formData.password}
                             onChange={handleChange}
                           />
                         </div>
