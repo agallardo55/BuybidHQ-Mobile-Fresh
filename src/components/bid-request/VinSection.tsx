@@ -34,7 +34,7 @@ const VinSection = ({ vin, onChange, error }: VinSectionProps) => {
         </div>
         <Button 
           type="button"
-          className="mb-[error ? '24px' : '0px'] bg-[#0EA5E9] hover:bg-[#0EA5E9]/90"
+          className="mb-[error ? '24px' : '0px'] bg-custom-blue hover:bg-custom-blue/90"
           onClick={() => {
             toast.info("VIN lookup functionality coming soon!");
           }}
