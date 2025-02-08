@@ -83,7 +83,7 @@ const BidRequestDashboard = () => {
               </Link>
               <Link 
                 to="/dashboard" 
-                className="text-accent hover:text-accent/90 font-medium"
+                className="text-gray-700"
               >
                 Dashboard
               </Link>
