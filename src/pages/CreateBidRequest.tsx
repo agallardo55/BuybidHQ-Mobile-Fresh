@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -11,12 +10,14 @@ import VehicleCondition from "@/components/bid-request/VehicleCondition";
 import { BidRequestFormData, FormErrors } from "@/components/bid-request/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { UserRound } from "lucide-react";
+import { UserRound, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const CreateBidRequest = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedBuyers, setSelectedBuyers] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState<BidRequestFormData>({
     year: "",
     make: "",
@@ -44,7 +45,10 @@ const CreateBidRequest = () => {
     { id: "5", name: "David Wilson", dealership: "Luxury Vehicles Inc", mobile: "(305) 555-0127" },
   ];
 
-  const [errors, setErrors] = useState<FormErrors>({});
+  const filteredBuyers = buyers.filter(buyer => 
+    buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    buyer.dealership.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const validateForm = () => {
     const newErrors: FormErrors = {};
@@ -174,9 +178,19 @@ const CreateBidRequest = () => {
                     {errors.buyers && (
                       <p className="text-xs text-red-500 mb-2">{errors.buyers}</p>
                     )}
+                    <div className="relative mb-2">
+                      <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        type="text"
+                        placeholder="Search buyers..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9 w-full text-sm"
+                      />
+                    </div>
                     <ScrollArea className="h-[calc(100%-96px)]">
                       <div className="space-y-2">
-                        {buyers.map((buyer) => (
+                        {filteredBuyers.map((buyer) => (
                           <div
                             key={buyer.id}
                             className="flex items-start space-x-2 p-1.5 rounded hover:bg-gray-50"
