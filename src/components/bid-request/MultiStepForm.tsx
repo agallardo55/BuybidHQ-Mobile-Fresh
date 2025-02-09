@@ -1,5 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import BasicVehicleInfo from "./BasicVehicleInfo";
 import ColorsAndAccessories from "./ColorsAndAccessories";
 import VehicleCondition from "./VehicleCondition";
@@ -10,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, UserRound } from "lucide-react";
+import { useState } from "react";
 
 interface MultiStepFormProps {
   formData: BidRequestFormData;
@@ -43,8 +45,29 @@ const MultiStepForm = ({
   onSubmit,
   isSubmitting,
 }: MultiStepFormProps) => {
+  const [currentStep, setCurrentStep] = useState<"basic-info" | "appearance" | "condition" | "buyers">("basic-info");
+  
+  const progressMap = {
+    "basic-info": 25,
+    "appearance": 50,
+    "condition": 75,
+    "buyers": 100
+  };
+
   return (
-    <Tabs defaultValue="basic-info" className="w-full">
+    <Tabs 
+      defaultValue="basic-info" 
+      className="w-full"
+      onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "buyers")}
+    >
+      <div className="mb-6">
+        <Progress value={progressMap[currentStep]} className="h-2" />
+        <div className="flex justify-between text-sm text-gray-500 mt-1">
+          <span>Step {Object.keys(progressMap).indexOf(currentStep) + 1} of 4</span>
+          <span>{progressMap[currentStep]}% Complete</span>
+        </div>
+      </div>
+
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
         <TabsTrigger value="appearance">Appearance</TabsTrigger>
