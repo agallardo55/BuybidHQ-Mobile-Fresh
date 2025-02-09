@@ -165,17 +165,19 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               placeholder="AWD"
             />
           </div>
-          <Button 
-            type="button"
-            className="w-full bg-custom-blue hover:bg-custom-blue/90"
-            onClick={() => {
-              document.querySelector('[value="appearance"]')?.dispatchEvent(
-                new MouseEvent('click', { bubbles: true })
-              );
-            }}
-          >
-            Next
-          </Button>
+          <div className="pt-4">
+            <Button 
+              type="button"
+              className="w-full bg-custom-blue hover:bg-custom-blue/90"
+              onClick={() => {
+                document.querySelector('[value="appearance"]')?.dispatchEvent(
+                  new MouseEvent('click', { bubbles: true })
+                );
+              }}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -183,4 +185,3 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
 };
 
 export default BasicVehicleInfo;
-
