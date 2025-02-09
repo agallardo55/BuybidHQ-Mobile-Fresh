@@ -3,11 +3,11 @@ import { Link, useLocation } from "react-router-dom";
 
 const Footer = () => {
   const location = useLocation();
-  const isBidResponsePage = location.pathname === "/bid-response";
+  const isDashboardPage = ["/dashboard", "/buyers", "/account", "/create-bid-request"].includes(location.pathname);
 
-  if (isBidResponsePage) {
+  if (isDashboardPage) {
     return (
-      <footer className="bg-primary text-white py-12 mt-auto">
+      <footer className="bg-[#eee] py-8 mt-auto">
         <div className="container mx-auto px-4">
           <div className="flex justify-center">
             <div className="space-y-4 text-center">
@@ -15,12 +15,11 @@ const Footer = () => {
                 <img 
                   src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
                   alt="BuyBidHQ Logo" 
-                  className="h-8 w-auto brightness-0 invert"
+                  className="h-8 w-auto"
                 />
               </Link>
-              <p className="text-sm text-gray-400">
-                © {new Date().getFullYear()} BuyBidHQ™. <br />
-                All rights reserved.
+              <p className="text-sm text-gray-500">
+                © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
               </p>
             </div>
           </div>
@@ -135,3 +134,4 @@ const Footer = () => {
 };
 
 export default Footer;
+
