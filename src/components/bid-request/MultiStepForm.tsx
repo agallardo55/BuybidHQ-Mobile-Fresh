@@ -4,7 +4,6 @@ import { Progress } from "@/components/ui/progress";
 import BasicVehicleInfo from "./BasicVehicleInfo";
 import ColorsAndAccessories from "./ColorsAndAccessories";
 import VehicleCondition from "./VehicleCondition";
-import VinSection from "./VinSection";
 import { Button } from "@/components/ui/button";
 import { BidRequestFormData, FormErrors } from "./types";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -77,18 +76,11 @@ const MultiStepForm = ({
 
       <div className="mt-6">
         <TabsContent value="basic-info">
-          <div className="space-y-4">
-            <VinSection 
-              vin={formData.vin}
-              onChange={onChange}
-              error={errors.vin}
-            />
-            <BasicVehicleInfo 
-              formData={formData}
-              errors={errors}
-              onChange={onChange}
-            />
-          </div>
+          <BasicVehicleInfo 
+            formData={formData}
+            errors={errors}
+            onChange={onChange}
+          />
         </TabsContent>
 
         <TabsContent value="appearance">
