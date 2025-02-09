@@ -1,4 +1,5 @@
 
+import { BrowserRouter } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
@@ -9,17 +10,19 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white flex flex-col w-full">
-      <Navigation />
-      <div className="flex-1">
-        <Hero />
-        <HowItWorks />
-        <Pricing />
-        <ContactUs />
-        <AppDownload />
+    <BrowserRouter>
+      <div className="min-h-screen bg-white flex flex-col w-full">
+        <Navigation />
+        <div className="flex-1">
+          <Hero />
+          <HowItWorks />
+          <Pricing />
+          <ContactUs />
+          <AppDownload />
+        </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    </BrowserRouter>
   );
 };
 
