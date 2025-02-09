@@ -1,5 +1,6 @@
 
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface VinSectionProps {
   vin: string;
@@ -13,17 +14,25 @@ const VinSection = ({ vin, onChange, error }: VinSectionProps) => {
       <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
         VIN <span className="text-red-500">*</span>
       </label>
-      <Input
-        id="vin"
-        name="vin"
-        type="text"
-        value={vin}
-        onChange={onChange}
-        required
-        placeholder="1HGCM82633A123456"
-        className={error ? "border-red-500" : ""}
-        maxLength={17}
-      />
+      <div className="flex gap-2">
+        <Input
+          id="vin"
+          name="vin"
+          type="text"
+          value={vin}
+          onChange={onChange}
+          required
+          placeholder="1HGCM82633A123456"
+          className={error ? "border-red-500" : ""}
+          maxLength={17}
+        />
+        <Button 
+          type="button"
+          className="bg-custom-blue hover:bg-custom-blue/90 px-6"
+        >
+          Go
+        </Button>
+      </div>
       {error && (
         <p className="text-red-500 text-sm mt-1">{error}</p>
       )}
@@ -32,3 +41,4 @@ const VinSection = ({ vin, onChange, error }: VinSectionProps) => {
 };
 
 export default VinSection;
+
