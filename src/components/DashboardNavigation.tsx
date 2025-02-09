@@ -37,6 +37,13 @@ const DashboardNavigation = () => {
           </div>
           
           <div className="flex items-center space-x-6">
+            <Link 
+              to="/account"
+              className="flex items-center space-x-2 cursor-pointer hover:text-accent transition-colors"
+            >
+              <UserRound className="h-5 w-5 text-gray-500" />
+              <span className="text-gray-700">Account</span>
+            </Link>
             <button 
               className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
               aria-label="Notifications"
@@ -47,13 +54,6 @@ const DashboardNavigation = () => {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
               </span>
             </button>
-            <Link 
-              to="/account"
-              className="flex items-center space-x-2 cursor-pointer hover:text-accent transition-colors"
-            >
-              <UserRound className="h-5 w-5 text-gray-500" />
-              <span className="text-gray-700">Account</span>
-            </Link>
           </div>
         </div>
       </div>
@@ -62,4 +62,3 @@ const DashboardNavigation = () => {
 };
 
 export default DashboardNavigation;
-
