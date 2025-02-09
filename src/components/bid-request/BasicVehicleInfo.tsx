@@ -8,6 +8,9 @@ interface BasicVehicleInfoProps {
     model: string;
     trim: string;
     mileage: string;
+    engineCylinders: string;
+    transmission: string;
+    drivetrain: string;
   };
   errors: {
     year?: string;
@@ -107,8 +110,48 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
           <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
         )}
       </div>
+      <div>
+        <label htmlFor="engineCylinders" className="block text-sm font-medium text-gray-700 mb-1">
+          Engine
+        </label>
+        <Input
+          id="engineCylinders"
+          name="engineCylinders"
+          type="text"
+          value={formData.engineCylinders}
+          onChange={onChange}
+          placeholder="V6"
+        />
+      </div>
+      <div>
+        <label htmlFor="transmission" className="block text-sm font-medium text-gray-700 mb-1">
+          Transmission
+        </label>
+        <Input
+          id="transmission"
+          name="transmission"
+          type="text"
+          value={formData.transmission}
+          onChange={onChange}
+          placeholder="Automatic"
+        />
+      </div>
+      <div>
+        <label htmlFor="drivetrain" className="block text-sm font-medium text-gray-700 mb-1">
+          Drivetrain
+        </label>
+        <Input
+          id="drivetrain"
+          name="drivetrain"
+          type="text"
+          value={formData.drivetrain}
+          onChange={onChange}
+          placeholder="AWD"
+        />
+      </div>
     </div>
   );
 };
 
 export default BasicVehicleInfo;
+

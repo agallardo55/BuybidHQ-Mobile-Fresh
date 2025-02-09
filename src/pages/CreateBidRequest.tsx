@@ -37,6 +37,9 @@ const CreateBidRequest = () => {
     maintenance: "",
     reconEstimate: "",
     reconDetails: "",
+    engineCylinders: "",
+    transmission: "",
+    drivetrain: "",
   });
 
   const buyers = [
@@ -244,3 +247,4 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
+

@@ -16,8 +16,12 @@ export interface BidRequestFormData {
   maintenance: string;
   reconEstimate: string;
   reconDetails: string;
+  engineCylinders: string;
+  transmission: string;
+  drivetrain: string;
 }
 
 export interface FormErrors {
   [key: string]: string;
 }
+
