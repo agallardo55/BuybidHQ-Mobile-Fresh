@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -159,6 +158,36 @@ const Buyers = () => {
       successfulBids: 3,
       joinedDate: "2023-09-10",
     },
+    {
+      id: "4",
+      name: "Emily Brown",
+      email: "emily.b@email.com",
+      phone: "(555) 456-7890",
+      location: "Houston, TX",
+      totalBids: 19,
+      successfulBids: 7,
+      joinedDate: "2023-07-25",
+    },
+    {
+      id: "5",
+      name: "David Wilson",
+      email: "david.w@email.com",
+      phone: "(555) 567-8901",
+      location: "Miami, FL",
+      totalBids: 12,
+      successfulBids: 5,
+      joinedDate: "2023-10-05",
+    },
+    {
+      id: "6",
+      name: "Lisa Anderson",
+      email: "lisa.a@email.com",
+      phone: "(555) 678-9012",
+      location: "Seattle, WA",
+      totalBids: 27,
+      successfulBids: 15,
+      joinedDate: "2023-05-30",
+    }
   ];
 
   const filteredBuyers = buyers.filter((buyer) => {
@@ -176,6 +205,13 @@ const Buyers = () => {
     startIndex,
     startIndex + itemsPerPage
   );
+
+  console.log({
+    filteredBuyersLength: filteredBuyers.length,
+    itemsPerPage,
+    totalPages,
+    shouldShowPagination: filteredBuyers.length > itemsPerPage
+  });
 
   const states = [
     "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
@@ -459,36 +495,34 @@ const Buyers = () => {
                   ))}
                 </TableBody>
               </Table>
-              {filteredBuyers.length > itemsPerPage && (
-                <div className="mt-4 flex justify-center">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
+              <div className="mt-4 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }).map((_, index) => (
+                      <PaginationItem key={index + 1}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(index + 1)}
+                          isActive={currentPage === index + 1}
+                        >
+                          {index + 1}
+                        </PaginationLink>
                       </PaginationItem>
-                      {Array.from({ length: totalPages }).map((_, index) => (
-                        <PaginationItem key={index + 1}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(index + 1)}
-                            isActive={currentPage === index + 1}
-                          >
-                            {index + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
             </div>
           </div>
         </div>
