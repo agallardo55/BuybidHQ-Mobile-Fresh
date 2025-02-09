@@ -146,6 +146,14 @@ const CreateBidRequest = () => {
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
             />
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-500 text-center">
+                Need help? Contact our support team at{" "}
+                <a href="mailto:support@buybidhq.com" className="text-custom-blue hover:underline">
+                  support@buybidhq.com
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -154,4 +162,3 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
-
