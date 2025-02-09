@@ -137,16 +137,16 @@ const Account = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h1>
           
-          <Tabs defaultValue="details" className="w-full">
+          <Tabs defaultValue="personal" className="w-full">
             <TabsList className="mb-4">
-              <TabsTrigger value="details">Account Details</TabsTrigger>
+              <TabsTrigger value="personal">Personal Information</TabsTrigger>
+              <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
               <TabsTrigger value="subscription">Subscription & Payment</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="details">
+            <TabsContent value="personal">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Personal Information</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
@@ -207,8 +207,20 @@ const Account = () => {
                   </div>
                 </div>
 
+                <div className="pt-4">
+                  <Button
+                    type="submit"
+                    className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="dealership">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Dealership Information</h2>
                   <div className="grid grid-cols-1 gap-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="md:col-span-2">
