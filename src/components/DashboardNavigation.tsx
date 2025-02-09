@@ -126,7 +126,7 @@ const DashboardNavigation = () => {
       </nav>
 
       <AlertDialog open={showNotifications} onOpenChange={setShowNotifications}>
-        <AlertDialogContent onInteractOutside={() => setShowNotifications(false)}>
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Notifications</AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
@@ -149,3 +149,4 @@ const DashboardNavigation = () => {
 };
 
 export default DashboardNavigation;
+
