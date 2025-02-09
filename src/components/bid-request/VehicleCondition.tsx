@@ -1,3 +1,4 @@
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -208,8 +209,23 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           </div>
         </DialogContent>
       </Dialog>
+
+      <div className="pt-6">
+        <Button 
+          type="button"
+          className="w-full bg-custom-blue hover:bg-custom-blue/90"
+          onClick={() => {
+            document.querySelector('[value="buyers"]')?.dispatchEvent(
+              new MouseEvent('click', { bubbles: true })
+            );
+          }}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
 
 export default VehicleCondition;
+

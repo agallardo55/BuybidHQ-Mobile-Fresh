@@ -1,6 +1,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface ColorsAndAccessoriesProps {
   formData: {
@@ -55,8 +56,22 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
           className="min-h-[100px]"
         />
       </div>
+      <div className="pt-6">
+        <Button 
+          type="button"
+          className="w-full bg-custom-blue hover:bg-custom-blue/90"
+          onClick={() => {
+            document.querySelector('[value="condition"]')?.dispatchEvent(
+              new MouseEvent('click', { bubbles: true })
+            );
+          }}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
 
 export default ColorsAndAccessories;
+
