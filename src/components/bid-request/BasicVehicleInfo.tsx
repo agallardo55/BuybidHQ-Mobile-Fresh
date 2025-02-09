@@ -94,27 +94,14 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
             <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">
               Trim
             </label>
-            <div className="flex items-center gap-4">
-              <Input
-                id="trim"
-                name="trim"
-                type="text"
-                value={formData.trim}
-                onChange={onChange}
-                placeholder="SE"
-              />
-              <Button 
-                type="button"
-                className="bg-custom-blue hover:bg-custom-blue/90"
-                onClick={() => {
-                  document.querySelector('[value="appearance"]')?.dispatchEvent(
-                    new MouseEvent('click', { bubbles: true })
-                  );
-                }}
-              >
-                Next
-              </Button>
-            </div>
+            <Input
+              id="trim"
+              name="trim"
+              type="text"
+              value={formData.trim}
+              onChange={onChange}
+              placeholder="SE"
+            />
           </div>
         </div>
 
@@ -178,6 +165,17 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               placeholder="AWD"
             />
           </div>
+          <Button 
+            type="button"
+            className="w-full bg-custom-blue hover:bg-custom-blue/90"
+            onClick={() => {
+              document.querySelector('[value="appearance"]')?.dispatchEvent(
+                new MouseEvent('click', { bubbles: true })
+              );
+            }}
+          >
+            Next
+          </Button>
         </div>
       </div>
     </div>
