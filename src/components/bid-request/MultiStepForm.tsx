@@ -68,7 +68,7 @@ const MultiStepForm = ({
       </div>
 
       <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
+        <TabsTrigger value="basic-info">Vehicle</TabsTrigger>
         <TabsTrigger value="appearance">Appearance</TabsTrigger>
         <TabsTrigger value="condition">Condition</TabsTrigger>
         <TabsTrigger value="buyers">Buyers</TabsTrigger>
