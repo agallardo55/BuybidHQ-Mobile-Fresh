@@ -39,10 +39,10 @@ const BidRequestNavigation = () => {
           <div className="flex items-center space-x-6">
             <Link 
               to="/account"
-              className="flex items-center space-x-2 cursor-pointer hover:text-accent transition-colors"
+              className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
+              aria-label="Account"
             >
-              <UserRound className="h-5 w-5 text-gray-500" />
-              <span className="text-gray-700">Account</span>
+              <UserRound className="h-5 w-5" />
             </Link>
             <button 
               className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
