@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -224,116 +225,122 @@ const Buyers = () => {
         </div>
       </nav>
 
-      <div className="pt-24 px-8">
+      <div className="pt-24 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Buyers</h1>
-              <div className="flex items-center gap-4">
-                <div className="relative">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                <div className="relative w-full sm:w-[300px]">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     type="text"
                     placeholder="Search buyers..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-[300px]"
+                    className="pl-10 w-full"
                   />
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
+                    <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
                       <Plus className="h-4 w-4" />
                       Buyer
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-[672px]">
+                  <DialogContent className="w-[95vw] max-w-[672px] h-[90vh] sm:h-auto overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Add New Buyer</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                       <div className="space-y-4">
-                        <div>
-                          <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                            Full Name
-                          </label>
-                          <Input
-                            id="fullName"
-                            name="fullName"
-                            type="text"
-                            required
-                            value={formData.fullName}
-                            onChange={handleChange}
-                          />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                              Full Name
+                            </label>
+                            <Input
+                              id="fullName"
+                              name="fullName"
+                              type="text"
+                              required
+                              value={formData.fullName}
+                              onChange={handleChange}
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                              Email address
+                            </label>
+                            <Input
+                              id="email"
+                              name="email"
+                              type="email"
+                              required
+                              value={formData.email}
+                              onChange={handleChange}
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                            Email address
-                          </label>
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={handleChange}
-                          />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
+                              Mobile Number
+                            </label>
+                            <Input
+                              id="mobileNumber"
+                              name="mobileNumber"
+                              type="tel"
+                              required
+                              value={formData.mobileNumber}
+                              onChange={handleChange}
+                              placeholder="(123) 456-7890"
+                              maxLength={14}
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
+                              Business Number
+                            </label>
+                            <Input
+                              id="businessNumber"
+                              name="businessNumber"
+                              type="tel"
+                              required
+                              value={formData.businessNumber}
+                              onChange={handleChange}
+                              placeholder="(123) 456-7890"
+                              maxLength={14}
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
-                            Mobile Number
-                          </label>
-                          <Input
-                            id="mobileNumber"
-                            name="mobileNumber"
-                            type="tel"
-                            required
-                            value={formData.mobileNumber}
-                            onChange={handleChange}
-                            placeholder="(123) 456-7890"
-                            maxLength={14}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
-                            Business Number
-                          </label>
-                          <Input
-                            id="businessNumber"
-                            name="businessNumber"
-                            type="tel"
-                            required
-                            value={formData.businessNumber}
-                            onChange={handleChange}
-                            placeholder="(123) 456-7890"
-                            maxLength={14}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
-                            Dealership Name
-                          </label>
-                          <Input
-                            id="dealershipName"
-                            name="dealershipName"
-                            type="text"
-                            required
-                            value={formData.dealershipName}
-                            onChange={handleChange}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
-                            Dealer ID
-                          </label>
-                          <Input
-                            id="licenseNumber"
-                            name="licenseNumber"
-                            type="text"
-                            required
-                            value={formData.licenseNumber}
-                            onChange={handleChange}
-                          />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
+                              Dealership Name
+                            </label>
+                            <Input
+                              id="dealershipName"
+                              name="dealershipName"
+                              type="text"
+                              required
+                              value={formData.dealershipName}
+                              onChange={handleChange}
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
+                              Dealer ID
+                            </label>
+                            <Input
+                              id="licenseNumber"
+                              name="licenseNumber"
+                              type="text"
+                              required
+                              value={formData.licenseNumber}
+                              onChange={handleChange}
+                            />
+                          </div>
                         </div>
                         <div>
                           <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700">
@@ -348,52 +355,54 @@ const Buyers = () => {
                             onChange={handleChange}
                           />
                         </div>
-                        <div>
-                          <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                            City
-                          </label>
-                          <Input
-                            id="city"
-                            name="city"
-                            type="text"
-                            required
-                            value={formData.city}
-                            onChange={handleChange}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label htmlFor="state" className="block text-sm font-medium text-gray-700">
-                              State
-                            </label>
-                            <Select onValueChange={handleStateChange} value={formData.state}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select state" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {states.map((state) => (
-                                  <SelectItem key={state} value={state}>
-                                    {state}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
-                              ZIP Code
+                            <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                              City
                             </label>
                             <Input
-                              id="zipCode"
-                              name="zipCode"
+                              id="city"
+                              name="city"
                               type="text"
                               required
-                              value={formData.zipCode}
+                              value={formData.city}
                               onChange={handleChange}
-                              pattern="[0-9]{5}"
-                              maxLength={5}
-                              placeholder="12345"
                             />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                                State
+                              </label>
+                              <Select onValueChange={handleStateChange} value={formData.state}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select state" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {states.map((state) => (
+                                    <SelectItem key={state} value={state}>
+                                      {state}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+                                ZIP Code
+                              </label>
+                              <Input
+                                id="zipCode"
+                                name="zipCode"
+                                type="text"
+                                required
+                                value={formData.zipCode}
+                                onChange={handleChange}
+                                pattern="[0-9]{5}"
+                                maxLength={5}
+                                placeholder="12345"
+                              />
+                            </div>
                           </div>
                         </div>
                         <Button
@@ -474,3 +483,4 @@ const Buyers = () => {
 };
 
 export default Buyers;
+
