@@ -1,18 +1,10 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import DashboardNavigation from "@/components/DashboardNavigation";
-import VinSection from "@/components/bid-request/VinSection";
-import BasicVehicleInfo from "@/components/bid-request/BasicVehicleInfo";
-import ColorsAndAccessories from "@/components/bid-request/ColorsAndAccessories";
-import VehicleCondition from "@/components/bid-request/VehicleCondition";
 import { BidRequestFormData, FormErrors } from "@/components/bid-request/types";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { UserRound, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import MultiStepForm from "@/components/bid-request/MultiStepForm";
 
 const CreateBidRequest = () => {
   const navigate = useNavigate();
@@ -83,9 +75,7 @@ const CreateBidRequest = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before submitting");
       return;
@@ -93,15 +83,12 @@ const CreateBidRequest = () => {
 
     setIsSubmitting(true);
     
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    // Simulate API call
+    setTimeout(() => {
       toast.success("Bid request submitted successfully!");
       navigate("/dashboard");
-    } catch (error) {
-      toast.error("Failed to submit bid request. Please try again.");
-    } finally {
       setIsSubmitting(false);
-    }
+    }, 1000);
   };
 
   const handleChange = (
@@ -142,103 +129,23 @@ const CreateBidRequest = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardNavigation />
-
       <div className="pt-20 px-6 pb-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h1 className="text-lg font-bold text-gray-900 mb-2.5">Create Bid Request</h1>
-            
-            <form onSubmit={handleSubmit} className="h-[calc(100vh-180px)]">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 h-full">
-                <ScrollArea className="h-full pr-2.5">
-                  <div className="space-y-2.5">
-                    <VinSection 
-                      vin={formData.vin}
-                      onChange={handleChange}
-                      error={errors.vin}
-                    />
-                    <BasicVehicleInfo 
-                      formData={formData}
-                      errors={errors}
-                      onChange={handleChange}
-                    />
-                    <ColorsAndAccessories 
-                      formData={formData}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </ScrollArea>
-
-                <ScrollArea className="h-full pr-2.5">
-                  <VehicleCondition 
-                    formData={formData}
-                    onChange={handleChange}
-                    onSelectChange={handleSelectChange}
-                  />
-                </ScrollArea>
-
-                <div className="flex flex-col h-full">
-                  <h2 className="text-sm font-semibold mb-2.5">Select Buyers</h2>
-                  <div className="flex-1 border rounded-lg p-2.5">
-                    {errors.buyers && (
-                      <p className="text-xs text-red-500 mb-2">{errors.buyers}</p>
-                    )}
-                    <div className="relative mb-2">
-                      <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        type="text"
-                        placeholder="Search buyers..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9 w-full text-sm"
-                      />
-                    </div>
-                    <ScrollArea className="h-[calc(100%-96px)]">
-                      <div className="space-y-2">
-                        {filteredBuyers.map((buyer) => (
-                          <div
-                            key={buyer.id}
-                            className="flex items-start space-x-2 p-1.5 rounded hover:bg-gray-50"
-                          >
-                            <Checkbox
-                              id={`buyer-${buyer.id}`}
-                              checked={selectedBuyers.includes(buyer.id)}
-                              onCheckedChange={() => toggleBuyer(buyer.id)}
-                              className="h-4 w-4 mt-0.5"
-                            />
-                            <div className="flex-1">
-                              <label
-                                htmlFor={`buyer-${buyer.id}`}
-                                className="text-sm font-medium cursor-pointer"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-1.5">
-                                    <UserRound className="h-4 w-4 text-gray-500" />
-                                    <span>{buyer.name}</span>
-                                  </div>
-                                  <div className="text-gray-500">
-                                    <span className="text-sm">M: {buyer.mobile}</span>
-                                  </div>
-                                </div>
-                                <p className="text-sm text-gray-500">{buyer.dealership}</p>
-                              </label>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full mt-2.5 text-sm py-2 bg-custom-blue hover:bg-custom-blue/90"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit"}
-                  </Button>
-                </div>
-              </div>
-            </form>
+            <h1 className="text-lg font-bold text-gray-900 mb-6">Create Bid Request</h1>
+            <MultiStepForm
+              formData={formData}
+              errors={errors}
+              onChange={handleChange}
+              onSelectChange={handleSelectChange}
+              selectedBuyers={selectedBuyers}
+              toggleBuyer={toggleBuyer}
+              buyers={filteredBuyers}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
+            />
           </div>
         </div>
       </div>
@@ -247,4 +154,3 @@ const CreateBidRequest = () => {
 };
 
 export default CreateBidRequest;
-
