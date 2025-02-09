@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, Menu, X } from "lucide-react";
@@ -126,7 +125,7 @@ const DashboardNavigation = () => {
       </nav>
 
       <AlertDialog open={showNotifications} onOpenChange={setShowNotifications}>
-        <AlertDialogContent>
+        <AlertDialogContent onPointerDownOutside={() => setShowNotifications(false)}>
           <AlertDialogHeader>
             <AlertDialogTitle>Notifications</AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
@@ -149,4 +148,3 @@ const DashboardNavigation = () => {
 };
 
 export default DashboardNavigation;
-
