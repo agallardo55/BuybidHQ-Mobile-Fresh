@@ -12,11 +12,11 @@ interface VinSectionProps {
 const VinSection = ({ vin, onChange, error }: VinSectionProps) => {
   return (
     <div>
-      <div className="flex gap-4 items-end">
+      <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
+        VIN <span className="text-red-500">*</span>
+      </label>
+      <div className="flex gap-2">
         <div className="flex-1">
-          <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
-            VIN <span className="text-red-500">*</span>
-          </label>
           <Input
             id="vin"
             name="vin"
@@ -25,16 +25,13 @@ const VinSection = ({ vin, onChange, error }: VinSectionProps) => {
             onChange={onChange}
             required
             placeholder="1HGCM82633A123456"
-            className={error ? "border-red-500" : ""}
+            className={`${error ? "border-red-500" : ""} rounded-r-none`}
             maxLength={17}
           />
-          {error && (
-            <p className="text-red-500 text-sm mt-1">{error}</p>
-          )}
         </div>
         <Button 
           type="button"
-          className="mb-[error ? '24px' : '0px'] bg-custom-blue hover:bg-custom-blue/90"
+          className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none"
           onClick={() => {
             toast.info("VIN lookup functionality coming soon!");
           }}
@@ -42,6 +39,9 @@ const VinSection = ({ vin, onChange, error }: VinSectionProps) => {
           Go
         </Button>
       </div>
+      {error && (
+        <p className="text-red-500 text-sm mt-1">{error}</p>
+      )}
     </div>
   );
 };

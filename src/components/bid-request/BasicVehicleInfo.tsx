@@ -27,24 +27,6 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
       {/* Left Column */}
       <div className="space-y-4">
         <div>
-          <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
-            VIN <span className="text-red-500">*</span>
-          </label>
-          <Input
-            id="vin"
-            name="vin"
-            type="text"
-            value={formData.vin}
-            onChange={onChange}
-            required
-            placeholder="1HGCM82633A123456"
-            className={errors.vin ? "border-red-500" : ""}
-          />
-          {errors.vin && (
-            <p className="text-red-500 text-sm mt-1">{errors.vin}</p>
-          )}
-        </div>
-        <div>
           <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
             Year <span className="text-red-500">*</span>
           </label>
@@ -179,4 +161,3 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
 };
 
 export default BasicVehicleInfo;
-
