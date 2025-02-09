@@ -23,131 +23,156 @@ interface BasicVehicleInfoProps {
 
 const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps) => {
   return (
-    <div className="space-y-4">
-      <div>
-        <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
-          Year <span className="text-red-500">*</span>
-        </label>
-        <Input
-          id="year"
-          name="year"
-          type="number"
-          value={formData.year}
-          onChange={onChange}
-          required
-          placeholder="2024"
-          className={errors.year ? "border-red-500" : ""}
-        />
-        {errors.year && (
-          <p className="text-red-500 text-sm mt-1">{errors.year}</p>
-        )}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Left Column */}
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
+            VIN <span className="text-red-500">*</span>
+          </label>
+          <Input
+            id="vin"
+            name="vin"
+            type="text"
+            value={formData.vin}
+            onChange={onChange}
+            required
+            placeholder="1HGCM82633A123456"
+            className={errors.vin ? "border-red-500" : ""}
+          />
+          {errors.vin && (
+            <p className="text-red-500 text-sm mt-1">{errors.vin}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
+            Year <span className="text-red-500">*</span>
+          </label>
+          <Input
+            id="year"
+            name="year"
+            type="number"
+            value={formData.year}
+            onChange={onChange}
+            required
+            placeholder="2024"
+            className={errors.year ? "border-red-500" : ""}
+          />
+          {errors.year && (
+            <p className="text-red-500 text-sm mt-1">{errors.year}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="make" className="block text-sm font-medium text-gray-700 mb-1">
+            Make <span className="text-red-500">*</span>
+          </label>
+          <Input
+            id="make"
+            name="make"
+            type="text"
+            value={formData.make}
+            onChange={onChange}
+            required
+            placeholder="Toyota"
+            className={errors.make ? "border-red-500" : ""}
+          />
+          {errors.make && (
+            <p className="text-red-500 text-sm mt-1">{errors.make}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-1">
+            Model <span className="text-red-500">*</span>
+          </label>
+          <Input
+            id="model"
+            name="model"
+            type="text"
+            value={formData.model}
+            onChange={onChange}
+            required
+            placeholder="Camry"
+            className={errors.model ? "border-red-500" : ""}
+          />
+          {errors.model && (
+            <p className="text-red-500 text-sm mt-1">{errors.model}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">
+            Trim
+          </label>
+          <Input
+            id="trim"
+            name="trim"
+            type="text"
+            value={formData.trim}
+            onChange={onChange}
+            placeholder="SE"
+          />
+        </div>
       </div>
-      <div>
-        <label htmlFor="make" className="block text-sm font-medium text-gray-700 mb-1">
-          Make <span className="text-red-500">*</span>
-        </label>
-        <Input
-          id="make"
-          name="make"
-          type="text"
-          value={formData.make}
-          onChange={onChange}
-          required
-          placeholder="Toyota"
-          className={errors.make ? "border-red-500" : ""}
-        />
-        {errors.make && (
-          <p className="text-red-500 text-sm mt-1">{errors.make}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-1">
-          Model <span className="text-red-500">*</span>
-        </label>
-        <Input
-          id="model"
-          name="model"
-          type="text"
-          value={formData.model}
-          onChange={onChange}
-          required
-          placeholder="Camry"
-          className={errors.model ? "border-red-500" : ""}
-        />
-        {errors.model && (
-          <p className="text-red-500 text-sm mt-1">{errors.model}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">
-          Trim
-        </label>
-        <Input
-          id="trim"
-          name="trim"
-          type="text"
-          value={formData.trim}
-          onChange={onChange}
-          placeholder="SE"
-        />
-      </div>
-      <div>
-        <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">
-          Mileage <span className="text-red-500">*</span>
-        </label>
-        <Input
-          id="mileage"
-          name="mileage"
-          type="number"
-          value={formData.mileage}
-          onChange={onChange}
-          required
-          placeholder="35000"
-          min="0"
-          className={errors.mileage ? "border-red-500" : ""}
-        />
-        {errors.mileage && (
-          <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="engineCylinders" className="block text-sm font-medium text-gray-700 mb-1">
-          Engine
-        </label>
-        <Input
-          id="engineCylinders"
-          name="engineCylinders"
-          type="text"
-          value={formData.engineCylinders}
-          onChange={onChange}
-          placeholder="V6"
-        />
-      </div>
-      <div>
-        <label htmlFor="transmission" className="block text-sm font-medium text-gray-700 mb-1">
-          Transmission
-        </label>
-        <Input
-          id="transmission"
-          name="transmission"
-          type="text"
-          value={formData.transmission}
-          onChange={onChange}
-          placeholder="Automatic"
-        />
-      </div>
-      <div>
-        <label htmlFor="drivetrain" className="block text-sm font-medium text-gray-700 mb-1">
-          Drivetrain
-        </label>
-        <Input
-          id="drivetrain"
-          name="drivetrain"
-          type="text"
-          value={formData.drivetrain}
-          onChange={onChange}
-          placeholder="AWD"
-        />
+
+      {/* Right Column */}
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="mileage" className="block text-sm font-medium text-gray-700 mb-1">
+            Mileage <span className="text-red-500">*</span>
+          </label>
+          <Input
+            id="mileage"
+            name="mileage"
+            type="number"
+            value={formData.mileage}
+            onChange={onChange}
+            required
+            placeholder="35000"
+            min="0"
+            className={errors.mileage ? "border-red-500" : ""}
+          />
+          {errors.mileage && (
+            <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="engineCylinders" className="block text-sm font-medium text-gray-700 mb-1">
+            Engine
+          </label>
+          <Input
+            id="engineCylinders"
+            name="engineCylinders"
+            type="text"
+            value={formData.engineCylinders}
+            onChange={onChange}
+            placeholder="V6"
+          />
+        </div>
+        <div>
+          <label htmlFor="transmission" className="block text-sm font-medium text-gray-700 mb-1">
+            Transmission
+          </label>
+          <Input
+            id="transmission"
+            name="transmission"
+            type="text"
+            value={formData.transmission}
+            onChange={onChange}
+            placeholder="Automatic"
+          />
+        </div>
+        <div>
+          <label htmlFor="drivetrain" className="block text-sm font-medium text-gray-700 mb-1">
+            Drivetrain
+          </label>
+          <Input
+            id="drivetrain"
+            name="drivetrain"
+            type="text"
+            value={formData.drivetrain}
+            onChange={onChange}
+            placeholder="AWD"
+          />
+        </div>
       </div>
     </div>
   );
