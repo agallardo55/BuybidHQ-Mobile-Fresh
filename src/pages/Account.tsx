@@ -1,3 +1,4 @@
+
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 const Account = () => {
   const { toast } = useToast();
@@ -127,11 +134,16 @@ const Account = () => {
     <div className="min-h-screen bg-gray-50">
       <DashboardNavigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h1>
-              
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h1>
+          
+          <Tabs defaultValue="details" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="details">Account Details</TabsTrigger>
+              <TabsTrigger value="subscription">Subscription & Payment</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="details">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-4">
                   <h2 className="text-lg font-semibold text-gray-900">Personal Information</h2>
@@ -299,13 +311,10 @@ const Account = () => {
                   </Button>
                 </div>
               </form>
-            </div>
-          </div>
+            </TabsContent>
 
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Subscription & Payment</h2>
-              <div className="space-y-4">
+            <TabsContent value="subscription">
+              <div className="space-y-6">
                 <div>
                   <label htmlFor="subscriptionType" className="block text-sm font-medium text-gray-700">
                     Subscription Plan
@@ -392,13 +401,13 @@ const Account = () => {
                       onClick={handleSubmit}
                       className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
                     >
-                      Update
+                      Update Payment Details
                     </Button>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
@@ -406,3 +415,4 @@ const Account = () => {
 };
 
 export default Account;
+
