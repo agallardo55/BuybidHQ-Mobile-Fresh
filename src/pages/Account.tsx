@@ -133,23 +133,23 @@ const Account = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardNavigation />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Account Settings</h1>
           
           <Tabs defaultValue="personal" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="personal">Personal Information</TabsTrigger>
-              <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
-              <TabsTrigger value="subscription">Subscription & Payment</TabsTrigger>
+            <TabsList className="mb-4 w-full flex flex-wrap gap-2">
+              <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
+              <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>
+              <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>
             </TabsList>
 
             <TabsContent value="personal">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
                         Full Name
                       </label>
                       <Input
@@ -162,7 +162,7 @@ const Account = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                         Email address
                       </label>
                       <Input
@@ -175,7 +175,7 @@ const Account = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700 mb-1">
                         Mobile Number
                       </label>
                       <Input
@@ -190,7 +190,7 @@ const Account = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700 mb-1">
                         Business Number
                       </label>
                       <Input
@@ -219,12 +219,12 @@ const Account = () => {
             </TabsContent>
 
             <TabsContent value="dealership">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="md:col-span-2">
-                        <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="sm:col-span-2">
+                        <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700 mb-1">
                           Dealership Name
                         </label>
                         <Input
@@ -237,7 +237,7 @@ const Account = () => {
                         />
                       </div>
                       <div>
-                        <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
                           Dealer ID
                         </label>
                         <Input
@@ -251,7 +251,7 @@ const Account = () => {
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">
                         Dealership Address
                       </label>
                       <Input
@@ -263,9 +263,9 @@ const Account = () => {
                         onChange={handleChange}
                       />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                      <div className="md:col-span-2">
-                        <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                    <div className="grid grid-cols-1 sm:grid-cols-6 gap-4">
+                      <div className="sm:col-span-2">
+                        <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
                           City
                         </label>
                         <Input
@@ -277,8 +277,8 @@ const Account = () => {
                           onChange={handleChange}
                         />
                       </div>
-                      <div className="md:col-span-2">
-                        <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                      <div className="sm:col-span-2">
+                        <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
                           State
                         </label>
                         <Select onValueChange={handleStateChange} value={formData.state}>
@@ -294,8 +294,8 @@ const Account = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="md:col-span-2">
-                        <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+                      <div className="sm:col-span-2">
+                        <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
                           ZIP Code
                         </label>
                         <Input
@@ -326,9 +326,9 @@ const Account = () => {
             </TabsContent>
 
             <TabsContent value="subscription">
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div>
-                  <label htmlFor="subscriptionType" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="subscriptionType" className="block text-sm font-medium text-gray-700 mb-1">
                     Subscription Plan
                   </label>
                   <Select onValueChange={handleSubscriptionChange} value={formData.subscriptionType}>
@@ -347,7 +347,7 @@ const Account = () => {
                   <h3 className="text-sm font-medium text-gray-900">Payment Method</h3>
                   
                   <div>
-                    <label htmlFor="cardName" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="cardName" className="block text-sm font-medium text-gray-700 mb-1">
                       Cardholder Name
                     </label>
                     <Input
@@ -361,7 +361,7 @@ const Account = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-1">
                       Card Number
                     </label>
                     <Input
@@ -375,9 +375,9 @@ const Account = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="cardExpiry" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="cardExpiry" className="block text-sm font-medium text-gray-700 mb-1">
                         Expiry Date
                       </label>
                       <Input
@@ -392,7 +392,7 @@ const Account = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="cardCvc" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="cardCvc" className="block text-sm font-medium text-gray-700 mb-1">
                         CVC
                       </label>
                       <Input
