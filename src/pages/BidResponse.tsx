@@ -6,6 +6,7 @@ import VehicleDetailsSection from "@/components/bid-response/VehicleDetailsSecti
 import BidForm from "@/components/bid-response/BidForm";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const BidResponse = () => {
   const [searchParams] = useSearchParams();
@@ -56,8 +57,11 @@ const BidResponse = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <header className="w-full bg-white shadow-sm py-4">
-          <div className="max-w-2xl mx-auto px-4">
+          <div className="max-w-2xl mx-auto px-4 flex justify-between items-center">
             <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
+            <Button variant="default" className="bg-custom-blue hover:bg-custom-blue/90">
+              Join Now
+            </Button>
           </div>
         </header>
         <div className="px-4 py-8 flex items-center justify-center flex-grow">
@@ -76,13 +80,23 @@ const BidResponse = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="w-full bg-white shadow-sm py-4">
-        <div className="max-w-2xl mx-auto px-4">
+        <div className="max-w-2xl mx-auto px-4 flex justify-between items-center">
           <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
+          <Button variant="default" className="bg-custom-blue hover:bg-custom-blue/90">
+            Join Now
+          </Button>
         </div>
       </header>
       <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
         <VehicleDetailsSection vehicle={vehicleDetails} />
         <BidForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        <div className="bg-gray-50 rounded-lg p-6 shadow-sm space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Why Join BuyBidHQ?</h3>
+          <p className="text-gray-600">
+            Join our network of dealerships and get access to exclusive vehicle listings, real-time bidding, 
+            and comprehensive vehicle condition reports. Start expanding your inventory today!
+          </p>
+        </div>
       </div>
       <Footer />
     </div>
@@ -90,4 +104,3 @@ const BidResponse = () => {
 };
 
 export default BidResponse;
-
