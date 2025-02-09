@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 const Footer = () => {
   const location = useLocation();
   const isDashboardPage = ["/dashboard", "/buyers", "/account", "/create-bid-request"].includes(location.pathname);
+  const isBidResponsePage = location.pathname === "/bid-response";
 
   if (isDashboardPage) {
     return (
@@ -19,6 +20,29 @@ const Footer = () => {
                 />
               </Link>
               <p className="text-sm text-gray-500">
+                © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  if (isBidResponsePage) {
+    return (
+      <footer className="bg-primary text-white py-12 mt-auto">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center">
+            <div className="space-y-4 text-center">
+              <Link to="/" className="flex items-center justify-center">
+                <img 
+                  src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
+                  alt="BuyBidHQ Logo" 
+                  className="h-8 w-auto brightness-0 invert"
+                />
+              </Link>
+              <p className="text-sm text-gray-400">
                 © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
               </p>
             </div>
@@ -134,4 +158,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
