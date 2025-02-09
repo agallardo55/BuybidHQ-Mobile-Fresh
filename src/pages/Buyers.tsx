@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -222,7 +223,7 @@ const Buyers = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen">
       <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -276,7 +277,7 @@ const Buyers = () => {
         </div>
       </nav>
 
-      <div className="pt-24 px-4 sm:px-8">
+      <div className="pt-24 px-4 sm:px-8 flex-grow pb-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -532,3 +533,4 @@ const Buyers = () => {
 };
 
 export default Buyers;
+
