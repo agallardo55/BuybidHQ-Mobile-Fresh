@@ -99,15 +99,15 @@ const SignUp = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-[672px] w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[672px] w-full space-y-6 bg-white p-4 sm:p-8 rounded-lg shadow-md">
         <div className="text-center">
           <img 
             src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
             alt="BuyBidHQ Logo" 
             className="mx-auto h-12 w-auto"
           />
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Create your account</h2>
+          <h2 className="mt-6 text-2xl sm:text-3xl font-bold text-gray-900">Create your account</h2>
           <div className="flex justify-center space-x-4 mt-4">
             <div className={`h-2 w-16 rounded ${currentStep === 'personal' ? 'bg-accent' : 'bg-gray-200'}`} />
             <div className={`h-2 w-16 rounded ${currentStep === 'dealership' ? 'bg-accent' : 'bg-gray-200'}`} />
@@ -199,59 +199,59 @@ const SignUp = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              <div>
-                <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
-                  Dealership Name
-                </label>
-                <Input
-                  id="dealershipName"
-                  name="dealershipName"
-                  type="text"
-                  required
-                  value={formData.dealershipName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
-                  Dealer ID
-                </label>
-                <Input
-                  id="licenseNumber"
-                  name="licenseNumber"
-                  type="text"
-                  required
-                  value={formData.licenseNumber}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700">
-                  Dealership Address
-                </label>
-                <Input
-                  id="dealershipAddress"
-                  name="dealershipAddress"
-                  type="text"
-                  required
-                  value={formData.dealershipAddress}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                  City
-                </label>
-                <Input
-                  id="city"
-                  name="city"
-                  type="text"
-                  required
-                  value={formData.city}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
+                    Dealership Name
+                  </label>
+                  <Input
+                    id="dealershipName"
+                    name="dealershipName"
+                    type="text"
+                    required
+                    value={formData.dealershipName}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
+                    Dealer ID
+                  </label>
+                  <Input
+                    id="licenseNumber"
+                    name="licenseNumber"
+                    type="text"
+                    required
+                    value={formData.licenseNumber}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700">
+                    Dealership Address
+                  </label>
+                  <Input
+                    id="dealershipAddress"
+                    name="dealershipAddress"
+                    type="text"
+                    required
+                    value={formData.dealershipAddress}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                    City
+                  </label>
+                  <Input
+                    id="city"
+                    name="city"
+                    type="text"
+                    required
+                    value={formData.city}
+                    onChange={handleChange}
+                  />
+                </div>
                 <div>
                   <label htmlFor="state" className="block text-sm font-medium text-gray-700">
                     State
@@ -286,7 +286,7 @@ const SignUp = () => {
                   />
                 </div>
               </div>
-              <div className="flex space-x-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   type="button"
                   onClick={handleBack}
@@ -319,3 +319,4 @@ const SignUp = () => {
 };
 
 export default SignUp;
+

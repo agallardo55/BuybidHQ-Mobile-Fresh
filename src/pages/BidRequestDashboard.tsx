@@ -143,92 +143,94 @@ const BidRequestDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <DashboardNavigation />
 
-      <div className="pt-24 px-8">
+      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <div className="flex items-center gap-4">
-                <div className="relative">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                <div className="relative w-full sm:w-[225px]">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     type="text"
                     placeholder="Search"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-[225px]"
+                    className="pl-10 w-full"
                   />
                 </div>
-                <Link to="/create-bid-request">
-                  <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Link to="/create-bid-request" className="w-full sm:w-auto">
+                  <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
                     <Plus className="h-4 w-4" />
                     Bid Request
                   </Button>
                 </Link>
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Year</TableHead>
-                    <TableHead>Make</TableHead>
-                    <TableHead>Model</TableHead>
-                    <TableHead>Trim</TableHead>
-                    <TableHead>VIN</TableHead>
-                    <TableHead>Mileage</TableHead>
-                    <TableHead>Buyer</TableHead>
-                    <TableHead>Dealership</TableHead>
-                    <TableHead>Highest Offer</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>{request.year}</TableCell>
-                      <TableCell>{request.make}</TableCell>
-                      <TableCell>{request.model}</TableCell>
-                      <TableCell>{request.trim}</TableCell>
-                      <TableCell>{request.vin}</TableCell>
-                      <TableCell>{request.mileage.toLocaleString()}</TableCell>
-                      <TableCell>{request.buyer}</TableCell>
-                      <TableCell>{request.dealership}</TableCell>
-                      <TableCell>${request.highestOffer.toLocaleString()}</TableCell>
+            <div className="overflow-x-auto -mx-4 sm:-mx-6">
+              <div className="inline-block min-w-full align-middle px-4 sm:px-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="whitespace-nowrap">Year</TableHead>
+                      <TableHead className="whitespace-nowrap">Make</TableHead>
+                      <TableHead className="whitespace-nowrap">Model</TableHead>
+                      <TableHead className="whitespace-nowrap">Trim</TableHead>
+                      <TableHead className="whitespace-nowrap">VIN</TableHead>
+                      <TableHead className="whitespace-nowrap">Mileage</TableHead>
+                      <TableHead className="whitespace-nowrap">Buyer</TableHead>
+                      <TableHead className="whitespace-nowrap">Dealership</TableHead>
+                      <TableHead className="whitespace-nowrap">Highest Offer</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {filteredRequests.length > itemsPerPage && (
-                <div className="mt-4 flex justify-center">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                      {Array.from({ length: totalPages }).map((_, index) => (
-                        <PaginationItem key={index + 1}>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(index + 1)}
-                            isActive={currentPage === index + 1}
-                          >
-                            {index + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedRequests.map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell>{request.year}</TableCell>
+                        <TableCell>{request.make}</TableCell>
+                        <TableCell>{request.model}</TableCell>
+                        <TableCell>{request.trim}</TableCell>
+                        <TableCell>{request.vin}</TableCell>
+                        <TableCell>{request.mileage.toLocaleString()}</TableCell>
+                        <TableCell>{request.buyer}</TableCell>
+                        <TableCell>{request.dealership}</TableCell>
+                        <TableCell>${request.highestOffer.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
+            {filteredRequests.length > itemsPerPage && (
+              <div className="mt-4 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }).map((_, index) => (
+                      <PaginationItem key={index + 1}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(index + 1)}
+                          isActive={currentPage === index + 1}
+                        >
+                          {index + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </div>
         </div>
       </div>

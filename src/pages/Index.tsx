@@ -8,15 +8,18 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col w-full">
       <Navigation />
-      <Hero />
-      <HowItWorks />
-      <Pricing />
-      <ContactUs />
+      <div className="flex-1">
+        <Hero />
+        <HowItWorks />
+        <Pricing />
+        <ContactUs />
+      </div>
       <Footer />
     </div>
   );
 };
 
 export default Index;
+
