@@ -165,7 +165,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               placeholder="AWD"
             />
           </div>
-          <div className="pt-8">
+          <div className="pt-6">
             <Button 
               type="button"
               className="w-full bg-custom-blue hover:bg-custom-blue/90"
