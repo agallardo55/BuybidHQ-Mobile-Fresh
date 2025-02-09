@@ -5,16 +5,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import ReCAPTCHA from "react-google-recaptcha";
+import { useToast } from "@/components/ui/use-toast";
 
 const ContactUs = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [captchaValue, setCaptchaValue] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!captchaValue) {
+      toast({
+        variant: "destructive",
+        title: "Verification required",
+        description: "Please complete the captcha verification",
+      });
+      return;
+    }
     // In a real application, you would handle form submission here
-    console.log("Form submitted:", { name, email, message });
+    console.log("Form submitted:", { name, email, message, captchaValue });
+  };
+
+  const handleCaptchaChange = (value: string | null) => {
+    setCaptchaValue(value);
   };
 
   const contactMethods = [
@@ -91,6 +107,12 @@ const ContactUs = () => {
                 placeholder="Your message"
                 className="min-h-[120px]"
                 required
+              />
+            </div>
+            <div className="flex justify-center">
+              <ReCAPTCHA
+                sitekey="YOUR_RECAPTCHA_SITE_KEY"
+                onChange={handleCaptchaChange}
               />
             </div>
             <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
