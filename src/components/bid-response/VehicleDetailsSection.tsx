@@ -2,12 +2,17 @@
 import { VehicleDetails } from "./types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ImagePlus } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
 }
 
 const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  
   // Mock images array - in a real app, these would come from your API
   const images = [1, 2, 3]; // Placeholder for image URLs
 
@@ -38,15 +43,53 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           {images.map((_, index) => (
             <div
               key={index}
-              className="w-full flex-none snap-center"
+              className="w-full flex-none snap-center cursor-pointer"
+              onClick={() => {
+                setSelectedImageIndex(index);
+                setIsGalleryOpen(true);
+              }}
             >
-              <div className="h-64 w-full flex items-center justify-center bg-gray-100">
+              <div className="h-64 w-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors">
                 <ImagePlus className="h-12 w-12 text-gray-400" />
               </div>
             </div>
           ))}
         </div>
       </ScrollArea>
+
+      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+        <DialogContent className="max-w-4xl p-0 bg-black/95">
+          <div className="relative">
+            <ScrollArea className="h-[80vh] whitespace-nowrap">
+              <div className="flex snap-x snap-mandatory">
+                {images.map((_, index) => (
+                  <div
+                    key={index}
+                    className="w-full flex-none snap-center"
+                  >
+                    <div className="h-[80vh] w-screen flex items-center justify-center">
+                      <div className="h-64 w-full flex items-center justify-center">
+                        <ImagePlus className="h-12 w-12 text-gray-400" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === selectedImageIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                  onClick={() => setSelectedImageIndex(index)}
+                />
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <div className="p-4 space-y-4">
         <div>
