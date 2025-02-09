@@ -1,5 +1,5 @@
 
-import { Apple, Android } from "lucide-react";
+import { Apple, Smartphone } from "lucide-react";
 
 const AppDownload = () => {
   return (
@@ -27,7 +27,7 @@ const AppDownload = () => {
               href="#"
               className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
             >
-              <Android className="h-6 w-6" />
+              <Smartphone className="h-6 w-6" />
               <div className="text-left">
                 <div className="text-xs">Get it on</div>
                 <div className="text-lg font-semibold">Google Play</div>
