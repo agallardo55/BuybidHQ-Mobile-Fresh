@@ -170,9 +170,10 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               type="button"
               className="w-full bg-custom-blue hover:bg-custom-blue/90"
               onClick={() => {
-                document.querySelector('[value="appearance"]')?.dispatchEvent(
-                  new MouseEvent('click', { bubbles: true })
-                );
+                const appearanceTab = document.querySelector('[value="appearance"]') as HTMLElement;
+                if (appearanceTab) {
+                  appearanceTab.click();
+                }
               }}
             >
               Next

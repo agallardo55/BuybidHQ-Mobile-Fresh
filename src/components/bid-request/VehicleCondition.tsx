@@ -135,9 +135,10 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           type="button"
           className="w-full bg-custom-blue hover:bg-custom-blue/90"
           onClick={() => {
-            document.querySelector('[value="buyers"]')?.dispatchEvent(
-              new MouseEvent('click', { bubbles: true })
-            );
+            const buyersTab = document.querySelector('[value="buyers"]') as HTMLElement;
+            if (buyersTab) {
+              buyersTab.click();
+            }
           }}
         >
           Next

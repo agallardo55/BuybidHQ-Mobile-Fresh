@@ -27,7 +27,6 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
   };
 
   const handleUpload = () => {
-    // Here you would typically handle the upload process
     console.log('Files to upload:', selectedFiles);
   };
 
@@ -142,9 +141,10 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
           type="button"
           className="w-full bg-custom-blue hover:bg-custom-blue/90"
           onClick={() => {
-            document.querySelector('[value="condition"]')?.dispatchEvent(
-              new MouseEvent('click', { bubbles: true })
-            );
+            const conditionTab = document.querySelector('[value="condition"]') as HTMLElement;
+            if (conditionTab) {
+              conditionTab.click();
+            }
           }}
         >
           Next
