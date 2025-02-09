@@ -36,13 +36,13 @@ const BidRequestNavigation = () => {
             </button>
           </div>
           
-          <div 
+          <Link 
+            to="/account"
             className="flex items-center space-x-2 cursor-pointer hover:text-accent transition-colors"
-            onClick={() => navigate('/account')}
           >
             <UserRound className="h-5 w-5 text-gray-500" />
             <span className="text-gray-700">Account</span>
-          </div>
+          </Link>
         </div>
       </div>
     </nav>

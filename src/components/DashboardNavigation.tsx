@@ -47,13 +47,13 @@ const DashboardNavigation = () => {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
               </span>
             </button>
-            <div 
+            <Link 
+              to="/account"
               className="flex items-center space-x-2 cursor-pointer hover:text-accent transition-colors"
-              onClick={() => navigate('/account')}
             >
               <UserRound className="h-5 w-5 text-gray-500" />
               <span className="text-gray-700">Account</span>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
