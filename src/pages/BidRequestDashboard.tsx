@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ interface BidRequest {
   buyer: string;
   dealership: string;
   highestOffer: number;
+  status: "Pending" | "Approved" | "Rejected";
 }
 
 const BidRequestDashboard = () => {
@@ -59,6 +61,7 @@ const BidRequestDashboard = () => {
       buyer: "John Smith",
       dealership: "ABC Motors",
       highestOffer: 22500,
+      status: "Pending"
     },
     {
       id: "2",
@@ -71,6 +74,7 @@ const BidRequestDashboard = () => {
       buyer: "Jane Doe",
       dealership: "XYZ Auto",
       highestOffer: 24800,
+      status: "Approved"
     },
     {
       id: "3",
@@ -83,6 +87,7 @@ const BidRequestDashboard = () => {
       buyer: "Mike Johnson",
       dealership: "Ford Direct",
       highestOffer: 35600,
+      status: "Rejected"
     },
     {
       id: "4",
@@ -95,6 +100,7 @@ const BidRequestDashboard = () => {
       buyer: "Sarah Williams",
       dealership: "Tesla Store",
       highestOffer: 41200,
+      status: "Pending"
     },
     {
       id: "5",
@@ -107,6 +113,7 @@ const BidRequestDashboard = () => {
       buyer: "Tom Brown",
       dealership: "BMW Excellence",
       highestOffer: 45800,
+      status: "Approved"
     },
     {
       id: "6",
@@ -119,6 +126,7 @@ const BidRequestDashboard = () => {
       buyer: "Emily Davis",
       dealership: "Mercedes World",
       highestOffer: 39900,
+      status: "Pending"
     },
   ];
 
@@ -129,7 +137,8 @@ const BidRequestDashboard = () => {
       request.make.toLowerCase().includes(searchString) ||
       request.model.toLowerCase().includes(searchString) ||
       request.buyer.toLowerCase().includes(searchString) ||
-      request.dealership.toLowerCase().includes(searchString)
+      request.dealership.toLowerCase().includes(searchString) ||
+      request.status.toLowerCase().includes(searchString)
     );
   });
 
@@ -182,6 +191,7 @@ const BidRequestDashboard = () => {
                       <TableHead className="whitespace-nowrap">Buyer</TableHead>
                       <TableHead className="whitespace-nowrap">Dealership</TableHead>
                       <TableHead className="whitespace-nowrap">Highest Offer</TableHead>
+                      <TableHead className="whitespace-nowrap text-right">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -196,6 +206,17 @@ const BidRequestDashboard = () => {
                         <TableCell>{request.buyer}</TableCell>
                         <TableCell>{request.dealership}</TableCell>
                         <TableCell>${request.highestOffer.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                              ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
+                              ${request.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : ''}
+                              ${request.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}
+                            `}
+                          >
+                            {request.status}
+                          </span>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
