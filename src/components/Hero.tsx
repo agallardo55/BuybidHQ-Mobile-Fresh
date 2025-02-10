@@ -10,6 +10,13 @@ const Hero = () => {
     }
   };
 
+  const scrollToHowItWorks = () => {
+    const howItWorksSection = document.getElementById('howitworks');
+    if (howItWorksSection) {
+      howItWorksSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="relative overflow-hidden bg-white pt-16">
       <div className="relative">
@@ -34,7 +41,11 @@ const Hero = () => {
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" className="text-lg px-8 py-6 hover:bg-[#325AE7]/10 hover:text-[#325AE7] w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                className="text-lg px-8 py-6 hover:bg-[#325AE7]/10 hover:text-[#325AE7] w-full sm:w-auto"
+                onClick={scrollToHowItWorks}
+              >
                 Learn More
               </Button>
             </div>
