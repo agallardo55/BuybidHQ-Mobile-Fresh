@@ -1,4 +1,3 @@
-
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -215,6 +214,7 @@ const Account = () => {
                     Save Changes
                   </Button>
                 </div>
+                <div className="h-8 border-t mt-6"></div>
               </form>
             </TabsContent>
 
@@ -322,6 +322,7 @@ const Account = () => {
                     Save Changes
                   </Button>
                 </div>
+                <div className="h-8 border-t mt-6"></div>
               </form>
             </TabsContent>
 
@@ -427,4 +428,3 @@ const Account = () => {
 };
 
 export default Account;
-
