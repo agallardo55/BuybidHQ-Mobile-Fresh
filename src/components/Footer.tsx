@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 
 const Footer = () => {
@@ -9,7 +10,7 @@ const Footer = () => {
     return (
       <footer className="bg-white py-8 mt-auto border-t">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start sm:justify-start gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between">
             <Link to="/" className="flex items-center">
               <img 
                 src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
@@ -17,7 +18,7 @@ const Footer = () => {
                 className="h-8 w-auto"
               />
             </Link>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 mt-4 sm:mt-0">
               © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
             </p>
           </div>
@@ -30,7 +31,7 @@ const Footer = () => {
     return (
       <footer className="bg-primary text-white py-12 mt-auto">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start sm:justify-start gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between">
             <Link to="/" className="flex items-center">
               <img 
                 src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
@@ -38,7 +39,7 @@ const Footer = () => {
                 className="h-8 w-auto brightness-0 invert"
               />
             </Link>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 mt-4 sm:mt-0">
               © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
             </p>
           </div>
