@@ -16,14 +16,14 @@ const AppDownload = () => {
             <div className="flex items-center gap-2 bg-black/80 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-80">
               <Clock className="h-6 w-6" />
               <div className="text-left">
-                <div className="text-xs">Coming Soon to</div>
+                <div className="text-xs">Download on</div>
                 <div className="text-lg font-semibold">App Store</div>
               </div>
             </div>
             <div className="flex items-center gap-2 bg-black/80 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-80">
               <Clock className="h-6 w-6" />
               <div className="text-left">
-                <div className="text-xs">Coming Soon to</div>
+                <div className="text-xs">Download on</div>
                 <div className="text-lg font-semibold">Google Play</div>
               </div>
             </div>
@@ -35,4 +35,3 @@ const AppDownload = () => {
 };
 
 export default AppDownload;
-
