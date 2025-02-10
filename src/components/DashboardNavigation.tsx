@@ -125,7 +125,10 @@ const DashboardNavigation = () => {
         )}
       </nav>
 
-      <AlertDialog open={showNotifications} onOpenChange={setShowNotifications}>
+      <AlertDialog 
+        open={showNotifications} 
+        onOpenChange={(open) => setShowNotifications(open)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Notifications</AlertDialogTitle>
