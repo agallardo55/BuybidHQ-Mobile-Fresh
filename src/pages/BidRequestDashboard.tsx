@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,7 @@ interface BidRequest {
   buyer: string;
   dealership: string;
   highestOffer: number;
-  status: "Pending" | "Sold" | "Rejected";
+  status: "Pending" | "Approved" | "Rejected";
 }
 
 const BidRequestDashboard = () => {
@@ -74,7 +73,7 @@ const BidRequestDashboard = () => {
       buyer: "Jane Doe",
       dealership: "XYZ Auto",
       highestOffer: 24800,
-      status: "Sold"
+      status: "Approved"
     },
     {
       id: "3",
@@ -113,7 +112,7 @@ const BidRequestDashboard = () => {
       buyer: "Tom Brown",
       dealership: "BMW Excellence",
       highestOffer: 45800,
-      status: "Sold"
+      status: "Approved"
     },
     {
       id: "6",
@@ -209,7 +208,7 @@ const BidRequestDashboard = () => {
                         <TableCell className="text-right">
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                              ${request.status === 'Sold' ? 'bg-green-100 text-green-800' : ''}
+                              ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
                               ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800' : ''}
                               ${request.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}
                             `}
@@ -263,4 +262,3 @@ const BidRequestDashboard = () => {
 };
 
 export default BidRequestDashboard;
-
