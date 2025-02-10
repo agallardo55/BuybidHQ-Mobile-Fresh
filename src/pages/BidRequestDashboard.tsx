@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -190,7 +191,7 @@ const BidRequestDashboard = () => {
                       <TableHead className="whitespace-nowrap">Buyer</TableHead>
                       <TableHead className="whitespace-nowrap">Dealership</TableHead>
                       <TableHead className="whitespace-nowrap">Highest Offer</TableHead>
-                      <TableHead className="whitespace-nowrap text-right">Status</TableHead>
+                      <TableHead className="whitespace-nowrap">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
