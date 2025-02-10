@@ -7,10 +7,10 @@ const AppDownload = () => {
       <div className="container mx-auto px-4">
         <div className="text-center space-y-6">
           <h2 className="text-2xl md:text-3xl font-bold text-primary">
-            Download Our Mobile App
+            Coming Soon: Our Mobile App
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Get instant access to bid requests and manage your vehicle listings on the go with our mobile app
+            Coming Soon: Download our mobile app for instant access to bid requests and vehicle listing management on the go
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="flex items-center gap-2 bg-black/80 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-80">
