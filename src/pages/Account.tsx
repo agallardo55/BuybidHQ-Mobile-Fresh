@@ -418,6 +418,7 @@ const Account = () => {
                     </Button>
                   </div>
                 </div>
+                <div className="h-8 border-t mt-6"></div>
               </div>
             </TabsContent>
           </Tabs>
