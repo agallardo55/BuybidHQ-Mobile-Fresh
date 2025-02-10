@@ -50,7 +50,7 @@ interface BidRequest {
   buyer: string;
   dealership: string;
   highestOffer: number;
-  status: "Pending" | "Approved" | "Rejected";
+  status: "Pending" | "Approved" | "Declined";
 }
 
 const BidRequestDashboard = () => {
@@ -62,7 +62,7 @@ const BidRequestDashboard = () => {
   const { toast } = useToast();
 
   // Function to update status
-  const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Rejected") => {
+  const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
     try {
       const { error } = await supabase
         .from('bid_requests')
@@ -114,23 +114,41 @@ const BidRequestDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('bid_requests')
-        .select('*');
+        .select(`
+          id,
+          vehicles (
+            year,
+            make,
+            model,
+            trim,
+            vin,
+            mileage
+          ),
+          buyers (
+            buyer_name,
+            dealer_name
+          ),
+          offers (
+            offer_amount
+          ),
+          status
+        `);
 
       if (error) throw error;
 
       if (data) {
         const formattedData = data.map(item => ({
           id: item.id,
-          year: parseInt(item.year as string),
-          make: item.make as string,
-          model: item.model as string,
-          trim: item.trim as string,
-          vin: item.vin as string,
-          mileage: parseInt(item.mileage as string),
-          buyer: item.buyer as string,
-          dealership: item.dealership as string,
-          highestOffer: parseFloat(item.highest_offer as string),
-          status: item.status as "Pending" | "Approved" | "Rejected"
+          year: parseInt(item.vehicles?.year || '0'),
+          make: item.vehicles?.make || '',
+          model: item.vehicles?.model || '',
+          trim: item.vehicles?.trim || '',
+          vin: item.vehicles?.vin || '',
+          mileage: parseInt(item.vehicles?.mileage || '0'),
+          buyer: item.buyers?.buyer_name || '',
+          dealership: item.buyers?.dealer_name || '',
+          highestOffer: parseFloat(item.offers?.offer_amount || '0'),
+          status: item.status as "Pending" | "Approved" | "Declined"
         }));
         setBidRequests(formattedData);
       }
@@ -228,21 +246,21 @@ const BidRequestDashboard = () => {
                         <TableCell>
                           <Select
                             value={request.status}
-                            onValueChange={(value: "Pending" | "Approved" | "Rejected") => 
+                            onValueChange={(value: "Pending" | "Approved" | "Declined") => 
                               updateStatus(request.id, value)
                             }
                           >
                             <SelectTrigger className={`w-[110px] h-7 text-xs font-medium
                               ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
                               ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                              ${request.status === 'Rejected' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+                              ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
                             `}>
                               <SelectValue>{request.status}</SelectValue>
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="Pending">Pending</SelectItem>
                               <SelectItem value="Approved">Approved</SelectItem>
-                              <SelectItem value="Rejected">Rejected</SelectItem>
+                              <SelectItem value="Declined">Declined</SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
