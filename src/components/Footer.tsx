@@ -3,12 +3,12 @@ import { Link, useLocation } from "react-router-dom";
 
 const Footer = () => {
   const location = useLocation();
-  const isDashboardPage = ["/dashboard", "/buyers", "/account", "/create-bid-request"].includes(location.pathname);
+  const isAdminPage = ["/dashboard", "/buyers", "/account", "/create-bid-request"].includes(location.pathname);
   const isBidResponsePage = location.pathname === "/bid-response";
 
-  if (isDashboardPage) {
+  if (isAdminPage) {
     return (
-      <footer className="bg-[#eee] py-8 mt-auto">
+      <footer className="bg-white py-8 mt-auto border-t">
         <div className="container mx-auto px-4">
           <div className="flex justify-center">
             <div className="space-y-4 text-center">
