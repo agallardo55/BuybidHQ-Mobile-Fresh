@@ -206,7 +206,7 @@ const BidRequestDashboard = () => {
                         <TableCell>{request.buyer}</TableCell>
                         <TableCell>{request.dealership}</TableCell>
                         <TableCell>${request.highestOffer.toLocaleString()}</TableCell>
-                        <TableCell className="text-right">
+                        <TableCell>
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                               ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
