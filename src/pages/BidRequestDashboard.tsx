@@ -26,6 +26,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import DashboardNavigation from "@/components/DashboardNavigation";
+import Footer from "@/components/Footer";
 
 interface BidRequest {
   id: string;
@@ -140,10 +141,10 @@ const BidRequestDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <DashboardNavigation />
 
-      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6">
+      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -235,28 +236,7 @@ const BidRequestDashboard = () => {
         </div>
       </div>
 
-      <Dialog open={showComingSoon} onOpenChange={setShowComingSoon}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              <div className="flex flex-col items-center space-y-4">
-                <span className="text-2xl font-bold animate-fade-in">
-                  Coming Soon!
-                </span>
-                <p className="text-gray-500 text-sm animate-fade-in">
-                  We're working hard to bring you an amazing marketplace experience.
-                  Stay tuned!
-                </p>
-                <img
-                  src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d"
-                  alt="Vehicle Auction Marketplace"
-                  className="w-full h-48 object-cover rounded-lg animate-fade-in"
-                />
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      <Footer />
     </div>
   );
 };
