@@ -13,6 +13,7 @@ import BidResponse from "./pages/BidResponse";
 import Buyers from "./pages/Buyers";
 import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/dashboard" element={<BidRequestDashboard />} />
           <Route path="/create-bid-request" element={<CreateBidRequest />} />
           <Route path="/bid-response" element={<BidResponse />} />
