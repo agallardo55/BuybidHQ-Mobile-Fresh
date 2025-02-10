@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Pagination,
@@ -26,8 +27,17 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BidRequest {
   id: string;
@@ -47,88 +57,97 @@ const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [bidRequests, setBidRequests] = useState<BidRequest[]>([]);
   const itemsPerPage = 5;
+  const { toast } = useToast();
 
-  const bidRequests: BidRequest[] = [
-    {
-      id: "1",
-      year: 2021,
-      make: "Toyota",
-      model: "Camry",
-      trim: "SE",
-      vin: "1HGCM82633A123456",
-      mileage: 35000,
-      buyer: "John Smith",
-      dealership: "ABC Motors",
-      highestOffer: 22500,
-      status: "Pending"
-    },
-    {
-      id: "2",
-      year: 2020,
-      make: "Honda",
-      model: "CR-V",
-      trim: "EX-L",
-      vin: "5J6RW2H89LA123456",
-      mileage: 42000,
-      buyer: "Jane Doe",
-      dealership: "XYZ Auto",
-      highestOffer: 24800,
-      status: "Approved"
-    },
-    {
-      id: "3",
-      year: 2022,
-      make: "Ford",
-      model: "F-150",
-      trim: "XLT",
-      vin: "1FTEW1E53NFA12345",
-      mileage: 28000,
-      buyer: "Mike Johnson",
-      dealership: "Ford Direct",
-      highestOffer: 35600,
-      status: "Rejected"
-    },
-    {
-      id: "4",
-      year: 2021,
-      make: "Tesla",
-      model: "Model 3",
-      trim: "Long Range",
-      vin: "5YJ3E1EA1MF123456",
-      mileage: 15000,
-      buyer: "Sarah Williams",
-      dealership: "Tesla Store",
-      highestOffer: 41200,
-      status: "Pending"
-    },
-    {
-      id: "5",
-      year: 2020,
-      make: "BMW",
-      model: "X5",
-      trim: "xDrive40i",
-      vin: "5UXCR6C06L9B12345",
-      mileage: 32000,
-      buyer: "Tom Brown",
-      dealership: "BMW Excellence",
-      highestOffer: 45800,
-      status: "Approved"
-    },
-    {
-      id: "6",
-      year: 2022,
-      make: "Mercedes",
-      model: "C-Class",
-      trim: "C300",
-      vin: "WDDWF4KB1NR123456",
-      mileage: 12000,
-      buyer: "Emily Davis",
-      dealership: "Mercedes World",
-      highestOffer: 39900,
-      status: "Pending"
-    },
-  ];
+  // Function to update status
+  const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Rejected") => {
+    try {
+      const { error } = await supabase
+        .from('bid_requests')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status Updated",
+        description: `Bid request status changed to ${newStatus}`,
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Set up realtime subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bid_requests'
+        },
+        (payload) => {
+          console.log('Change received!', payload);
+          // Refresh the data when changes occur
+          fetchBidRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Fetch bid requests
+  const fetchBidRequests = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bid_requests')
+        .select('*');
+
+      if (error) throw error;
+
+      if (data) {
+        const formattedData = data.map(item => ({
+          id: item.id,
+          year: parseInt(item.year as string),
+          make: item.make as string,
+          model: item.model as string,
+          trim: item.trim as string,
+          vin: item.vin as string,
+          mileage: parseInt(item.mileage as string),
+          buyer: item.buyer as string,
+          dealership: item.dealership as string,
+          highestOffer: parseFloat(item.highest_offer as string),
+          status: item.status as "Pending" | "Approved" | "Rejected"
+        }));
+        setBidRequests(formattedData);
+      }
+    } catch (error) {
+      console.error('Error fetching bid requests:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch bid requests",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    fetchBidRequests();
+  }, []);
 
   const filteredRequests = bidRequests.filter((request) => {
     const searchString = searchTerm.toLowerCase();
@@ -207,15 +226,25 @@ const BidRequestDashboard = () => {
                         <TableCell>{request.dealership}</TableCell>
                         <TableCell>${request.highestOffer.toLocaleString()}</TableCell>
                         <TableCell>
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                              ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
-                              ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800' : ''}
-                              ${request.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}
-                            `}
+                          <Select
+                            value={request.status}
+                            onValueChange={(value: "Pending" | "Approved" | "Rejected") => 
+                              updateStatus(request.id, value)
+                            }
                           >
-                            {request.status}
-                          </span>
+                            <SelectTrigger className={`w-[110px] h-7 text-xs font-medium
+                              ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                              ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                              ${request.status === 'Rejected' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+                            `}>
+                              <SelectValue>{request.status}</SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Pending">Pending</SelectItem>
+                              <SelectItem value="Approved">Approved</SelectItem>
+                              <SelectItem value="Rejected">Rejected</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -263,3 +292,4 @@ const BidRequestDashboard = () => {
 };
 
 export default BidRequestDashboard;
+
