@@ -3,6 +3,13 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Hero = () => {
+  const scrollToPricing = () => {
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="relative overflow-hidden bg-white pt-16">
       <div className="relative">
@@ -20,7 +27,10 @@ const Hero = () => {
               Streamline your vehicle buy bids and connect with dealers instantly through our communication platform.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6 animate-slide-in" style={{ animationDelay: "0.4s" }}>
-              <Button className="bg-[#325AE7] hover:bg-[#325AE7]/90 text-lg px-8 py-6 w-full sm:w-auto">
+              <Button 
+                className="bg-[#325AE7] hover:bg-[#325AE7]/90 text-lg px-8 py-6 w-full sm:w-auto"
+                onClick={scrollToPricing}
+              >
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
