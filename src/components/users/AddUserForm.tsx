@@ -10,6 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { 
+  Switch
+} from "@/components/ui/switch";
 import { UserFormData } from "@/types/users";
 
 interface AddUserFormProps {
@@ -29,6 +32,7 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
             placeholder="Enter full name"
             value={formData.fullName}
             onChange={(e) => onFormDataChange({ fullName: e.target.value })}
+            required
           />
         </div>
         
@@ -68,8 +72,80 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
             placeholder="Enter mobile number"
             value={formData.mobileNumber}
             onChange={(e) => onFormDataChange({ mobileNumber: e.target.value })}
+            required
           />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="address">Address</Label>
+          <Input
+            id="address"
+            placeholder="Enter address"
+            value={formData.address}
+            onChange={(e) => onFormDataChange({ address: e.target.value })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="city">City</Label>
+          <Input
+            id="city"
+            placeholder="Enter city"
+            value={formData.city}
+            onChange={(e) => onFormDataChange({ city: e.target.value })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="state">State</Label>
+          <Input
+            id="state"
+            placeholder="Enter state"
+            value={formData.state}
+            onChange={(e) => onFormDataChange({ state: e.target.value })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="zipCode">ZIP Code</Label>
+          <Input
+            id="zipCode"
+            placeholder="Enter ZIP code"
+            value={formData.zipCode}
+            onChange={(e) => onFormDataChange({ zipCode: e.target.value })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="company">Company</Label>
+          <Input
+            id="company"
+            placeholder="Enter company name"
+            value={formData.company}
+            onChange={(e) => onFormDataChange({ company: e.target.value })}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="website">Website</Label>
+          <Input
+            id="website"
+            placeholder="Enter website URL"
+            type="url"
+            value={formData.website}
+            onChange={(e) => onFormDataChange({ website: e.target.value })}
+          />
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="isActive"
+            checked={formData.isActive}
+            onCheckedChange={(checked) => onFormDataChange({ isActive: checked })}
+          />
+          <Label htmlFor="isActive">Active User</Label>
+        </div>
+
       </div>
 
       <Button type="submit" className="w-full">

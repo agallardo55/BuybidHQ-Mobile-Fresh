@@ -22,6 +22,13 @@ const Users = () => {
     email: "",
     role: "basic",
     mobileNumber: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    company: "",
+    website: "",
+    isActive: true,
   });
 
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
@@ -43,6 +50,13 @@ const Users = () => {
       email: "",
       role: "basic",
       mobileNumber: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      company: "",
+      website: "",
+      isActive: true,
     });
   };
 
