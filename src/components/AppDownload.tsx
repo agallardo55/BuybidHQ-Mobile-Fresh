@@ -1,6 +1,4 @@
 
-import { Clock } from "lucide-react";
-
 const AppDownload = () => {
   return (
     <section className="bg-secondary py-12">
@@ -13,7 +11,7 @@ const AppDownload = () => {
             Download our mobile app for instant access to bid requests and vehicle listing management on the go
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="relative cursor-not-allowed">
+            <div className="cursor-not-allowed">
               <div className="opacity-80">
                 <img
                   src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us"
@@ -22,11 +20,8 @@ const AppDownload = () => {
                   className="min-h-[40px]"
                 />
               </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-gray-700" />
-              </div>
             </div>
-            <div className="relative cursor-not-allowed">
+            <div className="cursor-not-allowed">
               <div className="opacity-80">
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/360px-Google_Play_Store_badge_EN.svg.png"
@@ -34,9 +29,6 @@ const AppDownload = () => {
                   style={{ height: "40px", width: "auto" }}
                   className="min-h-[40px]"
                 />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-gray-700" />
               </div>
             </div>
           </div>
