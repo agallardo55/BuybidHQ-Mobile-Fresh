@@ -11,6 +11,13 @@ const Pricing = () => {
     navigate('/signup');
   };
 
+  const scrollToContact = () => {
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
@@ -129,7 +136,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">
+              <Button onClick={scrollToContact} className="w-full bg-accent hover:bg-accent/90">
                 Contact Sales
               </Button>
             </CardFooter>
