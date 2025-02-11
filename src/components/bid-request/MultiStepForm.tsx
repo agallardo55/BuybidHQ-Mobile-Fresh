@@ -111,7 +111,7 @@ const MultiStepForm = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="flex-1"
               />
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="flex items-center gap-2 bg-custom-blue text-white hover:bg-custom-blue/90">
                 <Plus className="h-4 w-4" />
                 <span>Buyer</span>
               </Button>
