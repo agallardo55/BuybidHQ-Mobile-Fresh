@@ -117,23 +117,12 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="company">Company</Label>
+          <Label htmlFor="dealership">Dealership</Label>
           <Input
-            id="company"
-            placeholder="Enter company name"
-            value={formData.company}
-            onChange={(e) => onFormDataChange({ company: e.target.value })}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="website">Website</Label>
-          <Input
-            id="website"
-            placeholder="Enter website URL"
-            type="url"
-            value={formData.website}
-            onChange={(e) => onFormDataChange({ website: e.target.value })}
+            id="dealership"
+            placeholder="Enter dealership name"
+            value={formData.dealership}
+            onChange={(e) => onFormDataChange({ dealership: e.target.value })}
           />
         </div>
 

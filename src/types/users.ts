@@ -10,8 +10,7 @@ export interface User {
   city: string | null;
   state: string | null;
   zipCode: string | null;
-  company: string | null;
-  website: string | null;
+  dealership: string | null;
   isActive: boolean;
 }
 
@@ -24,7 +23,6 @@ export interface UserFormData {
   city: string;
   state: string;
   zipCode: string;
-  company: string;
-  website: string;
+  dealership: string;
   isActive: boolean;
 }

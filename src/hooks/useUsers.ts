@@ -30,8 +30,7 @@ export const useUsers = () => {
         city: user.city,
         state: user.state,
         zipCode: user.zip_code,
-        company: user.company,
-        website: user.website,
+        dealership: user.dealership,
         isActive: user.is_active
       }));
     },
@@ -48,8 +47,7 @@ export const useUsers = () => {
         city: userData.city,
         state: userData.state,
         zip_code: userData.zipCode,
-        company: userData.company,
-        website: userData.website,
+        dealership: userData.dealership,
         is_active: userData.isActive,
         status: 'active'
       };
