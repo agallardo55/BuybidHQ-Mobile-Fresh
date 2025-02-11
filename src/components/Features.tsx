@@ -16,7 +16,7 @@ const Features = () => {
     {
       icon: <BarChart className="h-12 w-12 text-accent" />,
       title: "Analytics Dashboard",
-      description: "Track your bids, monitor market trends, and make informed decisions"
+      description: "Track your bids and make informed decisions"
     },
     {
       icon: <BatteryCharging className="h-12 w-12 text-accent" />,
