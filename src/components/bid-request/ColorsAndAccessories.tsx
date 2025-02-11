@@ -135,24 +135,8 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
           </div>
         </DialogContent>
       </Dialog>
-
-      <div className="pt-6">
-        <Button 
-          type="button"
-          className="w-full bg-custom-blue hover:bg-custom-blue/90"
-          onClick={() => {
-            const conditionTab = document.querySelector('[value="condition"]') as HTMLElement;
-            if (conditionTab) {
-              conditionTab.click();
-            }
-          }}
-        >
-          Next
-        </Button>
-      </div>
     </div>
   );
 };
 
 export default ColorsAndAccessories;
-
