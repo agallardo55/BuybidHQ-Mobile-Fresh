@@ -29,9 +29,9 @@ const AddUserDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button className="flex items-center gap-2 bg-accent hover:bg-accent/90">
           <Plus className="h-4 w-4" />
-          User
+          Add User
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
