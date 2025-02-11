@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Users = () => {
+  const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
@@ -41,7 +42,7 @@ const Users = () => {
     mobileNumber: "",
   });
 
-  const { data: currentUser } = useQuery({
+  const { data: currentUser, isLoading: isUserLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
       const { data: { user }, error } = await supabase.auth.getUser();
@@ -55,6 +56,13 @@ const Users = () => {
         
       if (userError) throw userError;
       return userData;
+    },
+    onSuccess: (data) => {
+      // Redirect if user is not admin or dealer
+      if (data.role !== 'admin' && data.role !== 'dealer') {
+        toast.error("You don't have permission to access this page");
+        navigate('/dashboard');
+      }
     },
   });
 

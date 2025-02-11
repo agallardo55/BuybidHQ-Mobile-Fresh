@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -17,10 +19,30 @@ const DashboardNavigation = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const isMobile = useIsMobile();
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      
+      const { data: userData, error: userError } = await supabase
+        .from('buybidhq_users')
+        .select('role')
+        .eq('id', user?.id)
+        .single();
+        
+      if (userError) throw userError;
+      return userData;
+    },
+  });
+
+  // Only show Users link for admin and dealer roles
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
-    { name: "Users", href: "/users" },
+    ...(currentUser?.role === 'admin' || currentUser?.role === 'dealer' 
+      ? [{ name: "Users", href: "/users" }] 
+      : []),
     { name: "Marketplace", href: "#" },
   ];
 
