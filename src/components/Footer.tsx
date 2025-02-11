@@ -72,8 +72,8 @@ const Footer = () => {
     <>
       <footer className="bg-primary text-white py-9 mt-auto">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-            <div className="space-y-4 col-span-2 md:col-span-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-4 md:col-span-1">
               <Link to="/" className="flex items-center">
                 <img 
                   src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
@@ -87,50 +87,54 @@ const Footer = () => {
               </p>
             </div>
 
-            <div>
-              <h3 className="font-semibold text-lg mb-4">Product</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/features" className="text-gray-400 hover:text-white transition-colors">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/pricing" className="text-gray-400 hover:text-white transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            <div className="md:col-start-2 md:col-span-2">
+              <div className="grid grid-cols-2 gap-8 justify-items-end">
+                <div>
+                  <h3 className="font-semibold text-lg mb-4 text-right">Product</h3>
+                  <ul className="space-y-2 text-right">
+                    <li>
+                      <Link to="/features" className="text-gray-400 hover:text-white transition-colors">
+                        Features
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/pricing" className="text-gray-400 hover:text-white transition-colors">
+                        Pricing
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
 
-            <div>
-              <h3 className="font-semibold text-lg mb-4">Support</h3>
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    onClick={handleContactClick}
-                    className="text-gray-400 hover:text-white transition-colors text-left"
-                  >
-                    Contact Us
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setShowTerms(true)}
-                    className="text-gray-400 hover:text-white transition-colors text-left"
-                  >
-                    Terms of Service
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setShowPrivacy(true)}
-                    className="text-gray-400 hover:text-white transition-colors text-left"
-                  >
-                    Privacy Policy
-                  </button>
-                </li>
-              </ul>
+                <div>
+                  <h3 className="font-semibold text-lg mb-4 text-right">Support</h3>
+                  <ul className="space-y-2 text-right">
+                    <li>
+                      <button
+                        onClick={handleContactClick}
+                        className="text-gray-400 hover:text-white transition-colors text-right w-full"
+                      >
+                        Contact Us
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => setShowTerms(true)}
+                        className="text-gray-400 hover:text-white transition-colors text-right w-full"
+                      >
+                        Terms of Service
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => setShowPrivacy(true)}
+                        className="text-gray-400 hover:text-white transition-colors text-right w-full"
+                      >
+                        Privacy Policy
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
