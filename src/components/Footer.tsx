@@ -79,16 +79,6 @@ const Footer = () => {
                   Pricing
                 </Link>
               </li>
-              <li>
-                <Link to="/marketplace" className="text-gray-400 hover:text-white transition-colors">
-                  Marketplace
-                </Link>
-              </li>
-              <li>
-                <Link to="/integrations" className="text-gray-400 hover:text-white transition-colors">
-                  Integrations
-                </Link>
-              </li>
             </ul>
           </div>
 
