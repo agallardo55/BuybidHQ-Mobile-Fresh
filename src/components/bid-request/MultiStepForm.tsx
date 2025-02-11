@@ -60,7 +60,7 @@ const MultiStepForm = ({
       onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "buyers")}
     >
       <div className="mb-6">
-        <Progress value={progressMap[currentStep]} className="h-2" />
+        <Progress value={progressMap[currentStep]} className="h-2 bg-gray-200 [&>[role=progressbar]]:bg-custom-blue" />
         <div className="flex justify-between text-sm text-gray-500 mt-1">
           <span>Step {Object.keys(progressMap).indexOf(currentStep) + 1} of 4</span>
           <span>{progressMap[currentStep]}% Complete</span>
