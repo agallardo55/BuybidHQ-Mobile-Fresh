@@ -96,7 +96,7 @@ const Pricing = () => {
           <Card className="flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl">
-                Enterprise <span className="text-sm text-gray-500 font-normal">(coming soon)</span>
+                Enterprise <span className="text-sm text-gray-500 font-normal">(Coming soon)</span>
               </CardTitle>
               <CardDescription>For large dealerships</CardDescription>
             </CardHeader>
