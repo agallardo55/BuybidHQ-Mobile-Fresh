@@ -101,15 +101,14 @@ const Users = () => {
                     className="pl-10"
                   />
                 </div>
-                {currentUser?.role === 'admin' && (
-                  <AddUserDialog
-                    isOpen={isDialogOpen}
-                    onOpenChange={setIsDialogOpen}
-                    onSubmit={handleSubmit}
-                    formData={formData}
-                    onFormDataChange={handleFormDataChange}
-                  />
-                )}
+                {/* TODO: Implement proper authentication and role-based access control later */}
+                <AddUserDialog
+                  isOpen={isDialogOpen}
+                  onOpenChange={setIsDialogOpen}
+                  onSubmit={handleSubmit}
+                  formData={formData}
+                  onFormDataChange={handleFormDataChange}
+                />
               </div>
             </div>
             <div className="overflow-x-auto">
