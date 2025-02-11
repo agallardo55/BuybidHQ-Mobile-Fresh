@@ -45,7 +45,7 @@ interface Buyer {
   phone: string;
   location: string;
   acceptedBids: number;
-  successfulBids: number;
+  pendingBids: number;
   joinedDate: string;
 }
 
@@ -138,7 +138,7 @@ const Buyers = () => {
       phone: "(555) 123-4567",
       location: "Los Angeles, CA",
       acceptedBids: 12,
-      successfulBids: 8,
+      pendingBids: 4,
       joinedDate: "2023-08-15",
     },
     {
@@ -148,7 +148,7 @@ const Buyers = () => {
       phone: "(555) 234-5678",
       location: "New York, NY",
       acceptedBids: 18,
-      successfulBids: 12,
+      pendingBids: 6,
       joinedDate: "2023-06-20",
     },
     {
@@ -158,7 +158,7 @@ const Buyers = () => {
       phone: "(555) 345-6789",
       location: "Chicago, IL",
       acceptedBids: 6,
-      successfulBids: 3,
+      pendingBids: 3,
       joinedDate: "2023-09-10",
     },
     {
@@ -168,7 +168,7 @@ const Buyers = () => {
       phone: "(555) 456-7890",
       location: "Houston, TX",
       acceptedBids: 15,
-      successfulBids: 7,
+      pendingBids: 8,
       joinedDate: "2023-07-25",
     },
     {
@@ -178,7 +178,7 @@ const Buyers = () => {
       phone: "(555) 567-8901",
       location: "Miami, FL",
       acceptedBids: 9,
-      successfulBids: 5,
+      pendingBids: 4,
       joinedDate: "2023-10-05",
     },
     {
@@ -188,7 +188,7 @@ const Buyers = () => {
       phone: "(555) 678-9012",
       location: "Seattle, WA",
       acceptedBids: 22,
-      successfulBids: 15,
+      pendingBids: 7,
       joinedDate: "2023-05-30",
     }
   ];
@@ -429,7 +429,7 @@ const Buyers = () => {
                     <TableHead>Phone</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Accepted</TableHead>
-                    <TableHead>Successful Bids</TableHead>
+                    <TableHead>Pending</TableHead>
                     <TableHead>Joined Date</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -441,7 +441,7 @@ const Buyers = () => {
                       <TableCell>{buyer.phone}</TableCell>
                       <TableCell>{buyer.location}</TableCell>
                       <TableCell>{buyer.acceptedBids}</TableCell>
-                      <TableCell>{buyer.successfulBids}</TableCell>
+                      <TableCell>{buyer.pendingBids}</TableCell>
                       <TableCell>{new Date(buyer.joinedDate).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))}
