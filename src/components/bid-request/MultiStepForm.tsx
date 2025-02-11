@@ -55,9 +55,68 @@ const MultiStepForm = ({
     "buyers": 100
   };
 
+  const validateBasicInfo = () => {
+    const newErrors: FormErrors = {};
+    if (!formData.year) newErrors.year = "Year is required";
+    if (!formData.make) newErrors.make = "Make is required";
+    if (!formData.model) newErrors.model = "Model is required";
+    if (!formData.vin) newErrors.vin = "VIN is required";
+    if (!formData.mileage) newErrors.mileage = "Mileage is required";
+    
+    if (formData.vin && formData.vin.length !== 17) {
+      newErrors.vin = "VIN must be 17 characters";
+    }
+    
+    const currentYear = new Date().getFullYear();
+    const year = parseInt(formData.year);
+    if (year < 1900 || year > currentYear + 1) {
+      newErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
+    }
+
+    if (parseInt(formData.mileage) < 0) {
+      newErrors.mileage = "Mileage cannot be negative";
+    }
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    switch (currentStep) {
+      case "basic-info":
+        if (validateBasicInfo()) {
+          setCurrentStep("appearance");
+        }
+        break;
+      case "appearance":
+        setCurrentStep("condition");
+        break;
+      case "condition":
+        setCurrentStep("buyers");
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleBack = () => {
+    switch (currentStep) {
+      case "appearance":
+        setCurrentStep("basic-info");
+        break;
+      case "condition":
+        setCurrentStep("appearance");
+        break;
+      case "buyers":
+        setCurrentStep("condition");
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <Tabs 
-      defaultValue="basic-info" 
+      value={currentStep}
       className="w-full"
       onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "buyers")}
     >
@@ -70,10 +129,10 @@ const MultiStepForm = ({
       </div>
 
       <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="basic-info">Vehicle</TabsTrigger>
-        <TabsTrigger value="appearance">Appearance</TabsTrigger>
-        <TabsTrigger value="condition">Condition</TabsTrigger>
-        <TabsTrigger value="buyers">Buyers</TabsTrigger>
+        <TabsTrigger value="basic-info" disabled={currentStep !== "basic-info"}>Vehicle</TabsTrigger>
+        <TabsTrigger value="appearance" disabled={currentStep !== "appearance"}>Appearance</TabsTrigger>
+        <TabsTrigger value="condition" disabled={currentStep !== "condition"}>Condition</TabsTrigger>
+        <TabsTrigger value="buyers" disabled={currentStep !== "buyers"}>Buyers</TabsTrigger>
       </TabsList>
 
       <div className="mt-6">
@@ -83,6 +142,14 @@ const MultiStepForm = ({
             errors={errors}
             onChange={onChange}
           />
+          <div className="mt-6 flex justify-end">
+            <Button 
+              onClick={handleNext}
+              className="bg-custom-blue hover:bg-custom-blue/90"
+            >
+              Next
+            </Button>
+          </div>
         </TabsContent>
 
         <TabsContent value="appearance">
@@ -90,6 +157,20 @@ const MultiStepForm = ({
             formData={formData}
             onChange={onChange}
           />
+          <div className="mt-6 flex justify-between">
+            <Button 
+              onClick={handleBack}
+              variant="outline"
+            >
+              Back
+            </Button>
+            <Button 
+              onClick={handleNext}
+              className="bg-custom-blue hover:bg-custom-blue/90"
+            >
+              Next
+            </Button>
+          </div>
         </TabsContent>
 
         <TabsContent value="condition">
@@ -98,6 +179,20 @@ const MultiStepForm = ({
             onChange={onChange}
             onSelectChange={onSelectChange}
           />
+          <div className="mt-6 flex justify-between">
+            <Button 
+              onClick={handleBack}
+              variant="outline"
+            >
+              Back
+            </Button>
+            <Button 
+              onClick={handleNext}
+              className="bg-custom-blue hover:bg-custom-blue/90"
+            >
+              Next
+            </Button>
+          </div>
         </TabsContent>
 
         <TabsContent value="buyers">
@@ -157,13 +252,21 @@ const MultiStepForm = ({
               </div>
             </ScrollArea>
           </div>
-          <Button 
-            onClick={onSubmit}
-            className="w-full mt-4 text-sm py-2 bg-custom-blue hover:bg-custom-blue/90"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </Button>
+          <div className="mt-6 flex justify-between">
+            <Button 
+              onClick={handleBack}
+              variant="outline"
+            >
+              Back
+            </Button>
+            <Button 
+              onClick={onSubmit}
+              className="bg-custom-blue hover:bg-custom-blue/90"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
+          </div>
 
           <Dialog open={isAddBuyerOpen} onOpenChange={setIsAddBuyerOpen}>
             <DialogContent>
