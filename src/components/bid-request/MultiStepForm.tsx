@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import BasicVehicleInfo from "./BasicVehicleInfo";
@@ -179,20 +178,6 @@ const MultiStepForm = ({
             onChange={onChange}
             onSelectChange={onSelectChange}
           />
-          <div className="mt-6 flex justify-between">
-            <Button 
-              onClick={handleBack}
-              variant="outline"
-            >
-              Back
-            </Button>
-            <Button 
-              onClick={handleNext}
-              className="bg-custom-blue hover:bg-custom-blue/90"
-            >
-              Next
-            </Button>
-          </div>
         </TabsContent>
 
         <TabsContent value="buyers">
@@ -302,4 +287,3 @@ const MultiStepForm = ({
 };
 
 export default MultiStepForm;
-
