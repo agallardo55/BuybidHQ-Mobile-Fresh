@@ -57,115 +57,64 @@ const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [bidRequests, setBidRequests] = useState<BidRequest[]>([]);
+  const [bidRequests, setBidRequests] = useState<BidRequest[]>([
+    {
+      id: "1",
+      year: 2020,
+      make: "Toyota",
+      model: "Camry",
+      trim: "SE",
+      vin: "1HGCM82633A123456",
+      mileage: 45000,
+      buyer: "John Smith",
+      dealership: "ABC Motors",
+      highestOffer: 18500,
+      status: "Pending"
+    },
+    {
+      id: "2",
+      year: 2019,
+      make: "Honda",
+      model: "CR-V",
+      trim: "EX-L",
+      vin: "2HKRW2H54JH123456",
+      mileage: 35000,
+      buyer: "Sarah Johnson",
+      dealership: "XYZ Auto",
+      highestOffer: 22000,
+      status: "Approved"
+    },
+    {
+      id: "3",
+      year: 2021,
+      make: "Ford",
+      model: "F-150",
+      trim: "XLT",
+      vin: "1FTEW1E53MFB12345",
+      mileage: 28000,
+      buyer: "Michael Brown",
+      dealership: "Premium Cars",
+      highestOffer: 35000,
+      status: "Declined"
+    }
+  ]);
   const itemsPerPage = 5;
   const { toast } = useToast();
 
   // Function to update status
   const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
-    try {
-      const { error } = await supabase
-        .from('bid_requests')
-        .update({ status: newStatus })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Status Updated",
-        description: `Bid request status changed to ${newStatus}`,
-      });
-    } catch (error) {
-      console.error('Error updating status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update status",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Set up realtime subscription
-  useEffect(() => {
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'bid_requests'
-        },
-        (payload) => {
-          console.log('Change received!', payload);
-          // Refresh the data when changes occur
-          fetchBidRequests();
-        }
+    // For now, just update the local state
+    setBidRequests(prevRequests =>
+      prevRequests.map(request =>
+        request.id === id ? { ...request, status: newStatus } : request
       )
-      .subscribe();
+    );
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  // Fetch bid requests
-  const fetchBidRequests = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('bid_requests')
-        .select(`
-          id,
-          vehicles (
-            year,
-            make,
-            model,
-            trim,
-            vin,
-            mileage
-          ),
-          buyers (
-            buyer_name,
-            dealer_name
-          ),
-          offers (
-            offer_amount
-          ),
-          status
-        `);
-
-      if (error) throw error;
-
-      if (data) {
-        const formattedData = data.map(item => ({
-          id: item.id,
-          year: parseInt(item.vehicles?.year || '0'),
-          make: item.vehicles?.make || '',
-          model: item.vehicles?.model || '',
-          trim: item.vehicles?.trim || '',
-          vin: item.vehicles?.vin || '',
-          mileage: parseInt(item.vehicles?.mileage || '0'),
-          buyer: item.buyers?.buyer_name || '',
-          dealership: item.buyers?.dealer_name || '',
-          highestOffer: parseFloat(item.offers?.offer_amount || '0'),
-          status: item.status as "Pending" | "Approved" | "Declined"
-        }));
-        setBidRequests(formattedData);
-      }
-    } catch (error) {
-      console.error('Error fetching bid requests:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch bid requests",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Status Updated",
+      description: `Bid request status changed to ${newStatus}`,
+    });
   };
-
-  // Initial fetch
-  useEffect(() => {
-    fetchBidRequests();
-  }, []);
 
   const filteredRequests = bidRequests.filter((request) => {
     const searchString = searchTerm.toLowerCase();
@@ -310,4 +259,3 @@ const BidRequestDashboard = () => {
 };
 
 export default BidRequestDashboard;
-
