@@ -8,7 +8,7 @@ const Footer = () => {
 
   if (isAdminPage) {
     return (
-      <footer className="bg-white py-8 mt-auto border-t">
+      <footer className="bg-white py-6 mt-auto border-t">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between">
             <Link to="/" className="flex items-center">
@@ -29,7 +29,7 @@ const Footer = () => {
 
   if (isBidResponsePage) {
     return (
-      <footer className="bg-primary text-white py-12 mt-auto">
+      <footer className="bg-primary text-white py-9 mt-auto">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between">
             <Link to="/" className="flex items-center">
@@ -49,7 +49,7 @@ const Footer = () => {
   }
 
   return (
-    <footer className="bg-primary text-white py-12 mt-auto">
+    <footer className="bg-primary text-white py-9 mt-auto">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="space-y-4 col-span-2 md:col-span-1">
