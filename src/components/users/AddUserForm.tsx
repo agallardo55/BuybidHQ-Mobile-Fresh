@@ -48,7 +48,7 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
           <Label htmlFor="role">Role</Label>
           <Select
             value={formData.role}
-            onValueChange={(value) => onFormDataChange({ role: value })}
+            onValueChange={(value: "admin" | "dealer" | "basic") => onFormDataChange({ role: value })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select role" />
