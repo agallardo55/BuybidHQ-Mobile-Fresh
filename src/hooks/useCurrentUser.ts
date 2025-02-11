@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { shouldEnforceRoleChecks } from "@/config/features";
 
 export type UserRole = 'admin' | 'dealer' | 'basic';
 
@@ -28,15 +29,16 @@ export const useCurrentUser = () => {
         
       if (userError) throw userError;
 
-      if (!userData) {
+      if (!userData && shouldEnforceRoleChecks()) {
         throw new Error("User data not found");
       }
 
-      return userData as UserData;
+      // During development, provide a default role if none exists
+      return userData || { role: 'admin' as UserRole, status: 'active' };
     },
     meta: {
       onSuccess: (data: UserData) => {
-        if (data.role !== 'admin' && data.role !== 'dealer') {
+        if (shouldEnforceRoleChecks() && data.role !== 'admin' && data.role !== 'dealer') {
           toast.error("You don't have permission to access this page");
           navigate('/dashboard');
         }
@@ -46,3 +48,4 @@ export const useCurrentUser = () => {
 
   return { currentUser, isLoading };
 };
+

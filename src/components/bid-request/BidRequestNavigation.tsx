@@ -2,6 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { hasRequiredRole } from "@/config/features";
 
 const BidRequestNavigation = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const BidRequestNavigation = () => {
             >
               Buyers
             </Link>
-            {!isLoading && (currentUser?.role === 'admin' || currentUser?.role === 'dealer') && (
+            {(!isLoading && hasRequiredRole(currentUser?.role)) && (
               <Link 
                 to="/users" 
                 className="text-gray-700 hover:text-accent transition-colors"

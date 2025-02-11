@@ -5,6 +5,7 @@ import { UserRound, Bell, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useToast } from "@/hooks/use-toast";
+import { hasRequiredRole } from "@/config/features";
 
 const DashboardNavigation = () => {
   const navigate = useNavigate();
@@ -16,9 +17,7 @@ const DashboardNavigation = () => {
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
-    ...(currentUser?.role === 'admin' || currentUser?.role === 'dealer' 
-      ? [{ name: "Users", href: "/users" }] 
-      : []),
+    ...(hasRequiredRole(currentUser?.role) ? [{ name: "Users", href: "/users" }] : []),
     { name: "Marketplace", href: "#" },
   ];
 
