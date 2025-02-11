@@ -29,7 +29,7 @@ const AppDownload = () => {
             <div className="relative cursor-not-allowed">
               <div className="opacity-80">
                 <img
-                  src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/360px-Google_Play_Store_badge_EN.svg.png"
                   alt="Get it on Google Play"
                   style={{ height: "40px", width: "auto" }}
                   className="min-h-[40px]"
