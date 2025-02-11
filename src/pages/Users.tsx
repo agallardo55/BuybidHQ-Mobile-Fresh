@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -57,13 +58,15 @@ const Users = () => {
       if (userError) throw userError;
       return userData;
     },
-    onSuccess: (data) => {
-      // Redirect if user is not admin or dealer
-      if (data.role !== 'admin' && data.role !== 'dealer') {
-        toast.error("You don't have permission to access this page");
-        navigate('/dashboard');
+    meta: {
+      onSuccess: (data: { role: string }) => {
+        // Redirect if user is not admin or dealer
+        if (data.role !== 'admin' && data.role !== 'dealer') {
+          toast.error("You don't have permission to access this page");
+          navigate('/dashboard');
+        }
       }
-    },
+    }
   });
 
   const { data: users = [], isLoading } = useQuery({
