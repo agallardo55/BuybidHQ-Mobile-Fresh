@@ -13,11 +13,17 @@ const AppDownload = () => {
             Download our mobile app for instant access to bid requests and vehicle listing management on the go
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="flex items-center gap-2 bg-black/80 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-80">
-              <Clock className="h-6 w-6" />
-              <div className="text-left">
-                <div className="text-xs">Download on</div>
-                <div className="text-lg font-semibold">App Store</div>
+            <div className="relative cursor-not-allowed">
+              <div className="opacity-80">
+                <img
+                  src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us"
+                  alt="Download on the App Store"
+                  style={{ height: "40px", width: "auto" }}
+                  className="min-h-[40px]"
+                />
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded">
+                <Clock className="h-5 w-5 text-gray-700" />
               </div>
             </div>
             <div className="flex items-center gap-2 bg-black/80 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-80">
