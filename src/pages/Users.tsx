@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import DashboardNavigation from "@/components/DashboardNavigation";
-import Footer from "@/components/Footer";
+import AdminFooter from "@/components/footer/AdminFooter";
 import { User, UserFormData } from "@/types/users";
 import UsersTable from "@/components/users/UsersTable";
 import AddUserForm from "@/components/users/AddUserForm";
@@ -171,7 +171,7 @@ const Users = () => {
             </div>
           </div>
         </div>
-        <Footer />
+        <AdminFooter />
       </div>
     );
   }
@@ -234,7 +234,7 @@ const Users = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Footer />
+      <AdminFooter />
     </div>
   );
 };
