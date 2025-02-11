@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -225,7 +224,7 @@ const Buyers = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
       <DashboardNavigation />
 
       <div className="pt-24 px-4 sm:px-8 flex-grow pb-8">
@@ -486,4 +485,3 @@ const Buyers = () => {
 };
 
 export default Buyers;
-
