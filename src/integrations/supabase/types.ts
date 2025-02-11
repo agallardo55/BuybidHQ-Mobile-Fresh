@@ -169,7 +169,7 @@ export type Database = {
           mobile_number: string | null
           password_hash: string | null
           profile_photo: string | null
-          role: string | null
+          role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
         }
         Insert: {
@@ -183,7 +183,7 @@ export type Database = {
           mobile_number?: string | null
           password_hash?: string | null
           profile_photo?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
         }
         Update: {
@@ -197,7 +197,7 @@ export type Database = {
           mobile_number?: string | null
           password_hash?: string | null
           profile_photo?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
         }
         Relationships: [
@@ -561,6 +561,7 @@ export type Database = {
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
+      user_role: "admin" | "dealer" | "basic"
     }
     CompositeTypes: {
       [_ in never]: never
