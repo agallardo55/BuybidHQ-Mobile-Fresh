@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,7 @@ interface Buyer {
   email: string;
   phone: string;
   location: string;
-  totalBids: number;
+  acceptedBids: number;
   successfulBids: number;
   joinedDate: string;
 }
@@ -136,7 +137,7 @@ const Buyers = () => {
       email: "john.smith@email.com",
       phone: "(555) 123-4567",
       location: "Los Angeles, CA",
-      totalBids: 15,
+      acceptedBids: 12,
       successfulBids: 8,
       joinedDate: "2023-08-15",
     },
@@ -146,7 +147,7 @@ const Buyers = () => {
       email: "sarah.w@email.com",
       phone: "(555) 234-5678",
       location: "New York, NY",
-      totalBids: 23,
+      acceptedBids: 18,
       successfulBids: 12,
       joinedDate: "2023-06-20",
     },
@@ -156,7 +157,7 @@ const Buyers = () => {
       email: "mike.j@email.com",
       phone: "(555) 345-6789",
       location: "Chicago, IL",
-      totalBids: 8,
+      acceptedBids: 6,
       successfulBids: 3,
       joinedDate: "2023-09-10",
     },
@@ -166,7 +167,7 @@ const Buyers = () => {
       email: "emily.b@email.com",
       phone: "(555) 456-7890",
       location: "Houston, TX",
-      totalBids: 19,
+      acceptedBids: 15,
       successfulBids: 7,
       joinedDate: "2023-07-25",
     },
@@ -176,7 +177,7 @@ const Buyers = () => {
       email: "david.w@email.com",
       phone: "(555) 567-8901",
       location: "Miami, FL",
-      totalBids: 12,
+      acceptedBids: 9,
       successfulBids: 5,
       joinedDate: "2023-10-05",
     },
@@ -186,7 +187,7 @@ const Buyers = () => {
       email: "lisa.a@email.com",
       phone: "(555) 678-9012",
       location: "Seattle, WA",
-      totalBids: 27,
+      acceptedBids: 22,
       successfulBids: 15,
       joinedDate: "2023-05-30",
     }
@@ -427,7 +428,7 @@ const Buyers = () => {
                     <TableHead>Email</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Location</TableHead>
-                    <TableHead>Total Bids</TableHead>
+                    <TableHead>Accepted</TableHead>
                     <TableHead>Successful Bids</TableHead>
                     <TableHead>Joined Date</TableHead>
                   </TableRow>
@@ -439,7 +440,7 @@ const Buyers = () => {
                       <TableCell>{buyer.email}</TableCell>
                       <TableCell>{buyer.phone}</TableCell>
                       <TableCell>{buyer.location}</TableCell>
-                      <TableCell>{buyer.totalBids}</TableCell>
+                      <TableCell>{buyer.acceptedBids}</TableCell>
                       <TableCell>{buyer.successfulBids}</TableCell>
                       <TableCell>{new Date(buyer.joinedDate).toLocaleDateString()}</TableCell>
                     </TableRow>
