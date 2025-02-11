@@ -3,8 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useToast } from "@/hooks/use-toast";
 
 const DashboardNavigation = () => {
@@ -12,23 +11,7 @@ const DashboardNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
-
-  const { data: currentUser } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      
-      const { data: userData, error: userError } = await supabase
-        .from('buybidhq_users')
-        .select('role')
-        .eq('id', user?.id)
-        .single();
-        
-      if (userError) throw userError;
-      return userData;
-    },
-  });
+  const { currentUser, isLoading } = useCurrentUser();
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
@@ -72,7 +55,7 @@ const DashboardNavigation = () => {
               />
             </Link>
             <div className="hidden md:flex items-center space-x-8 ml-8">
-              {navItems.map((item) => (
+              {!isLoading && navItems.map((item) => (
                 <Link 
                   key={item.name}
                   to={item.href} 
@@ -121,7 +104,7 @@ const DashboardNavigation = () => {
       {isOpen && (
         <div className="md:hidden bg-white border-b">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {navItems.map((item) => (
+            {!isLoading && navItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
