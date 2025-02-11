@@ -10,7 +10,7 @@ const AppDownload = () => {
             Coming Soon
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Coming Soon: Download our mobile app for instant access to bid requests and vehicle listing management on the go
+            Download our mobile app for instant access to bid requests and vehicle listing management on the go
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="flex items-center gap-2 bg-black/80 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-80">
