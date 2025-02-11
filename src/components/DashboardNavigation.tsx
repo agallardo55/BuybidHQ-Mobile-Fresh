@@ -20,6 +20,7 @@ const DashboardNavigation = () => {
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
+    { name: "Users", href: "/users" },
     { name: "Marketplace", href: "#" },
   ];
 
@@ -156,4 +157,3 @@ const DashboardNavigation = () => {
 };
 
 export default DashboardNavigation;
-

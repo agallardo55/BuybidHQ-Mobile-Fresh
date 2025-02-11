@@ -11,6 +11,7 @@ import BidRequestDashboard from "./pages/BidRequestDashboard";
 import CreateBidRequest from "./pages/CreateBidRequest";
 import BidResponse from "./pages/BidResponse";
 import Buyers from "./pages/Buyers";
+import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/create-bid-request" element={<CreateBidRequest />} />
           <Route path="/bid-response" element={<BidResponse />} />
           <Route path="/buyers" element={<Buyers />} />
+          <Route path="/users" element={<Users />} />
           <Route path="/account" element={<Account />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

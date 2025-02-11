@@ -170,6 +170,7 @@ export type Database = {
           password_hash: string | null
           profile_photo: string | null
           role: Database["public"]["Enums"]["user_role"]
+          status: string | null
           updated_at: string | null
         }
         Insert: {
@@ -184,6 +185,7 @@ export type Database = {
           password_hash?: string | null
           profile_photo?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -198,6 +200,7 @@ export type Database = {
           password_hash?: string | null
           profile_photo?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: [
