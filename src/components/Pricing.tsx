@@ -1,3 +1,4 @@
+
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
@@ -94,7 +95,9 @@ const Pricing = () => {
           {/* Enterprise Plan */}
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle className="text-2xl">Enterprise</CardTitle>
+              <CardTitle className="text-2xl">
+                Enterprise <span className="text-sm text-gray-500 font-normal">(coming soon)</span>
+              </CardTitle>
               <CardDescription>For large dealerships</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
