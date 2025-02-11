@@ -1,13 +1,14 @@
 
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import FooterLogo from "./footer/FooterLogo";
+import FooterProduct from "./footer/FooterProduct";
+import FooterSupport from "./footer/FooterSupport";
+import FooterContact from "./footer/FooterContact";
+import AdminFooter from "./footer/AdminFooter";
+import BidResponseFooter from "./footer/BidResponseFooter";
+import TermsDialog from "./footer/TermsDialog";
+import PrivacyDialog from "./footer/PrivacyDialog";
 
 const Footer = () => {
   const location = useLocation();
@@ -36,45 +37,11 @@ const Footer = () => {
   };
 
   if (isAdminPage) {
-    return (
-      <footer className="bg-white py-6 mt-auto border-t">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between">
-            <Link to="/" className="flex items-center">
-              <img 
-                src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-                alt="BuyBidHQ Logo" 
-                className="h-8 w-auto"
-              />
-            </Link>
-            <p className="text-sm text-gray-500 mt-4 sm:mt-0">
-              © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
-    );
+    return <AdminFooter />;
   }
 
   if (isBidResponsePage) {
-    return (
-      <footer className="bg-primary text-white py-9 mt-auto">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between">
-            <Link to="/" className="flex items-center">
-              <img 
-                src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-                alt="BuyBidHQ Logo" 
-                className="h-8 w-auto brightness-0 invert"
-              />
-            </Link>
-            <p className="text-sm text-gray-400 mt-4 sm:mt-0">
-              © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
-    );
+    return <BidResponseFooter />;
   }
 
   return (
@@ -82,197 +49,27 @@ const Footer = () => {
       <footer className="bg-primary text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div className="md:col-span-1">
-              <Link to="/" className="inline-block mb-6">
-                <img 
-                  src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-                  alt="BuyBidHQ Logo" 
-                  className="h-8 w-auto brightness-0 invert"
-                />
-              </Link>
-              <p className="text-gray-400 mb-6">
-                © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-lg mb-4">Product</h3>
-              <ul className="space-y-3">
-                <li>
-                  <button
-                    onClick={(e) => handleSectionScroll(e, 'features')}
-                    className="text-gray-400 hover:text-white transition-colors text-left"
-                  >
-                    Features
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={(e) => handleSectionScroll(e, 'pricing')}
-                    className="text-gray-400 hover:text-white transition-colors text-left"
-                  >
-                    Pricing
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-lg mb-4">Support</h3>
-              <ul className="space-y-3">
-                <li>
-                  <button
-                    onClick={handleContactClick}
-                    className="text-gray-400 hover:text-white transition-colors text-left"
-                  >
-                    Contact Us
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setShowTerms(true)}
-                    className="text-gray-400 hover:text-white transition-colors text-left"
-                  >
-                    Terms of Service
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setShowPrivacy(true)}
-                    className="text-gray-400 hover:text-white transition-colors text-left"
-                  >
-                    Privacy Policy
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-lg mb-4">Contact</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li>1234 Street Name</li>
-                <li>City, ST 12345</li>
-                <li>Email: info@buybidhq.com</li>
-                <li>Phone: (555) 123-4567</li>
-              </ul>
-            </div>
+            <FooterLogo />
+            <FooterProduct onSectionScroll={handleSectionScroll} />
+            <FooterSupport 
+              onContactClick={handleContactClick}
+              onShowTerms={() => setShowTerms(true)}
+              onShowPrivacy={() => setShowPrivacy(true)}
+            />
+            <FooterContact />
           </div>
         </div>
       </footer>
 
-      <Dialog open={showTerms} onOpenChange={() => setShowTerms(false)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>BuybidHQ Terms of Service</DialogTitle>
-          </DialogHeader>
-          <DialogDescription>
-            <div className="space-y-6 text-left">
-              <div>
-                <h3 className="text-lg font-semibold">1. Introduction</h3>
-                <p>Welcome to BuybidHQ! By accessing or using our platform, you agree to comply with and be bound by these Terms of Service. If you do not agree, please do not use BuybidHQ.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">2. Description of Service</h3>
-                <p>BuybidHQ is a web-based application that allows auto dealers to send bid requests for used vehicles via SMS and manage related vehicle details. The app includes features such as VIN scanning, vehicle information management, condition description, photo capture, and SMS communication with contacts.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">3. User Roles and Access</h3>
-                <p>BuybidHQ provides different user roles with varying access permissions:</p>
-                <ul className="list-disc pl-6 mt-2 space-y-1">
-                  <li>Basic: Trial or free plan with limited functionality.</li>
-                  <li>Independent: Single-user plan.</li>
-                  <li>User: Dealer employee under admin-level control.</li>
-                  <li>Admin: Dealer administrator with full access.</li>
-                </ul>
-                <p className="mt-2">You are responsible for maintaining the confidentiality of your login credentials and any activity under your account.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">4. Acceptable Use</h3>
-                <p>When using BuybidHQ, you agree to:</p>
-                <ul className="list-disc pl-6 mt-2 space-y-1">
-                  <li>Use the platform for lawful purposes only.</li>
-                  <li>Not misuse the app for unauthorized data collection or distribution.</li>
-                  <li>Avoid any activity that could compromise the security of the service.</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">5. Data and Privacy</h3>
-                <p>BuybidHQ collects and processes information necessary for service functionality, including vehicle data and SMS contact information. We do not track users for marketing or advertising purposes. For more details, refer to our Privacy Policy.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">6. SMS Communication</h3>
-                <p>By using BuybidHQ's SMS feature, you confirm that you have obtained consent from recipients to send them bid requests. Misuse of this feature may result in account suspension or termination.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">7. Modifications and Updates</h3>
-                <p>We reserve the right to update or modify these Terms at any time without prior notice. Continued use of the service after changes are made constitutes acceptance of the new terms.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">8. Termination</h3>
-                <p>We may suspend or terminate your access to BuybidHQ at our sole discretion, with or without notice, for any violation of these Terms or for other reasons deemed necessary.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">9. Disclaimer of Warranties</h3>
-                <p>BuybidHQ is provided on an "as is" and "as available" basis. We make no warranties, expressed or implied, regarding the reliability, availability, or accuracy of the service.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">10. Limitation of Liability</h3>
-                <p>To the fullest extent permitted by law, BuybidHQ and its affiliates will not be liable for any indirect, incidental, or consequential damages resulting from the use of the service.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">11. Governing Law</h3>
-                <p>These Terms are governed by the laws of [Your State/Region], without regard to conflict of law principles.</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold">12. Contact Us</h3>
-                <p>If you have any questions about these Terms, please contact us at support@buybidHQ.com.</p>
-              </div>
-            </div>
-          </DialogDescription>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showPrivacy} onOpenChange={() => setShowPrivacy(false)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Privacy Policy</DialogTitle>
-          </DialogHeader>
-          <DialogDescription>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">1. Information Collection</h3>
-              <p>
-                We collect information that you provide directly to us, including personal information such as your name, email address, and business details.
-              </p>
-
-              <h3 className="text-lg font-semibold">2. Use of Information</h3>
-              <p>
-                We use the information we collect to provide, maintain, and improve our services, and to communicate with you about your account and updates.
-              </p>
-
-              <h3 className="text-lg font-semibold">3. Data Security</h3>
-              <p>
-                We implement appropriate security measures to protect your personal information from unauthorized access, alteration, or disclosure.
-              </p>
-
-              <h3 className="text-lg font-semibold">4. Your Rights</h3>
-              <p>
-                You have the right to access, correct, or delete your personal information. Contact us to exercise these rights.
-              </p>
-            </div>
-          </DialogDescription>
-        </DialogContent>
-      </Dialog>
+      <TermsDialog 
+        open={showTerms} 
+        onOpenChange={setShowTerms} 
+      />
+      
+      <PrivacyDialog 
+        open={showPrivacy} 
+        onOpenChange={setShowPrivacy} 
+      />
     </>
   );
 };
