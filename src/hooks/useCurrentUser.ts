@@ -4,6 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+export type UserRole = 'admin' | 'dealer' | 'basic';
+
+interface UserData {
+  role: UserRole;
+  status: string;
+}
+
 export const useCurrentUser = () => {
   const navigate = useNavigate();
 
@@ -15,15 +22,20 @@ export const useCurrentUser = () => {
       
       const { data: userData, error: userError } = await supabase
         .from('buybidhq_users')
-        .select('role')
+        .select('role, status')
         .eq('id', user?.id)
-        .single();
+        .maybeSingle();
         
       if (userError) throw userError;
-      return userData;
+
+      if (!userData) {
+        throw new Error("User data not found");
+      }
+
+      return userData as UserData;
     },
     meta: {
-      onSuccess: (data: { role: string }) => {
+      onSuccess: (data: UserData) => {
         if (data.role !== 'admin' && data.role !== 'dealer') {
           toast.error("You don't have permission to access this page");
           navigate('/dashboard');
