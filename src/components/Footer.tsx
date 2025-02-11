@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -22,6 +23,15 @@ const Footer = () => {
       window.location.href = '/#contact';
     } else {
       document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleSectionScroll = (e: React.MouseEvent, sectionId: string) => {
+    e.preventDefault();
+    if (location.pathname !== '/') {
+      window.location.href = `/#${sectionId}`;
+    } else {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -89,14 +99,20 @@ const Footer = () => {
               <h3 className="font-semibold text-lg mb-4">Product</h3>
               <ul className="space-y-3">
                 <li>
-                  <Link to="/features" className="text-gray-400 hover:text-white transition-colors">
+                  <button
+                    onClick={(e) => handleSectionScroll(e, 'features')}
+                    className="text-gray-400 hover:text-white transition-colors text-left"
+                  >
                     Features
-                  </Link>
+                  </button>
                 </li>
                 <li>
-                  <Link to="/pricing" className="text-gray-400 hover:text-white transition-colors">
+                  <button
+                    onClick={(e) => handleSectionScroll(e, 'pricing')}
+                    className="text-gray-400 hover:text-white transition-colors text-left"
+                  >
                     Pricing
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>
