@@ -83,16 +83,18 @@ const Users = () => {
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: UserFormData) => {
+      // Create a properly structured object for Supabase insert
+      const insertData = {
+        full_name: userData.fullName,
+        email: userData.email,
+        role: userData.role,
+        mobile_number: userData.mobileNumber,
+        status: 'active'
+      };
+
       const { data, error } = await supabase
         .from('buybidhq_users')
-        .insert([
-          {
-            full_name: userData.fullName,
-            email: userData.email,
-            role: userData.role,
-            mobile_number: userData.mobileNumber,
-          }
-        ])
+        .insert(insertData)
         .select()
         .single();
 
