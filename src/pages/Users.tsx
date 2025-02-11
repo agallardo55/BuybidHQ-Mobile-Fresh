@@ -8,11 +8,14 @@ import AddUserDialog from "@/components/users/AddUserDialog";
 import DeleteUserDialog from "@/components/users/DeleteUserDialog";
 import { useUsers } from "@/hooks/useUsers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 const Users = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   
   const [formData, setFormData] = useState<UserFormData>({
     fullName: "",
@@ -56,6 +59,12 @@ const Users = () => {
     }
   };
 
+  const filteredUsers = users.filter(user => 
+    user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
@@ -81,19 +90,31 @@ const Users = () => {
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-              {currentUser?.role === 'admin' && (
-                <AddUserDialog
-                  isOpen={isDialogOpen}
-                  onOpenChange={setIsDialogOpen}
-                  onSubmit={handleSubmit}
-                  formData={formData}
-                  onFormDataChange={handleFormDataChange}
-                />
-              )}
+              <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-4 sm:items-center">
+                <div className="relative w-full sm:w-[300px]">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search users..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                {currentUser?.role === 'admin' && (
+                  <AddUserDialog
+                    isOpen={isDialogOpen}
+                    onOpenChange={setIsDialogOpen}
+                    onSubmit={handleSubmit}
+                    formData={formData}
+                    onFormDataChange={handleFormDataChange}
+                  />
+                )}
+              </div>
             </div>
             <div className="overflow-x-auto">
               <UsersTable
-                users={users}
+                users={filteredUsers}
                 onEdit={() => {}}
                 onDelete={handleDelete}
                 onView={() => {}}
