@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ interface Buyer {
   id: string;
   name: string;
   email: string;
+  dealership: string;
   phone: string;
   location: string;
   acceptedBids: number;
@@ -134,6 +136,7 @@ const Buyers = () => {
       id: "1",
       name: "John Smith",
       email: "john.smith@email.com",
+      dealership: "Smith Auto Sales",
       phone: "(555) 123-4567",
       location: "Los Angeles, CA",
       acceptedBids: 12,
@@ -144,6 +147,7 @@ const Buyers = () => {
       id: "2",
       name: "Sarah Williams",
       email: "sarah.w@email.com",
+      dealership: "Williams Motors",
       phone: "(555) 234-5678",
       location: "New York, NY",
       acceptedBids: 18,
@@ -154,6 +158,7 @@ const Buyers = () => {
       id: "3",
       name: "Mike Johnson",
       email: "mike.j@email.com",
+      dealership: "Johnson Dealership",
       phone: "(555) 345-6789",
       location: "Chicago, IL",
       acceptedBids: 6,
@@ -164,6 +169,7 @@ const Buyers = () => {
       id: "4",
       name: "Emily Brown",
       email: "emily.b@email.com",
+      dealership: "Brown Auto Group",
       phone: "(555) 456-7890",
       location: "Houston, TX",
       acceptedBids: 15,
@@ -174,6 +180,7 @@ const Buyers = () => {
       id: "5",
       name: "David Wilson",
       email: "david.w@email.com",
+      dealership: "Wilson Cars",
       phone: "(555) 567-8901",
       location: "Miami, FL",
       acceptedBids: 9,
@@ -184,6 +191,7 @@ const Buyers = () => {
       id: "6",
       name: "Lisa Anderson",
       email: "lisa.a@email.com",
+      dealership: "Anderson Autos",
       phone: "(555) 678-9012",
       location: "Seattle, WA",
       acceptedBids: 22,
@@ -425,6 +433,7 @@ const Buyers = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Dealership</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Location</TableHead>
                     <TableHead>Accepted</TableHead>
@@ -437,6 +446,7 @@ const Buyers = () => {
                     <TableRow key={buyer.id}>
                       <TableCell>{buyer.name}</TableCell>
                       <TableCell>{buyer.email}</TableCell>
+                      <TableCell>{buyer.dealership}</TableCell>
                       <TableCell>{buyer.phone}</TableCell>
                       <TableCell>{buyer.location}</TableCell>
                       <TableCell>{buyer.acceptedBids}</TableCell>
