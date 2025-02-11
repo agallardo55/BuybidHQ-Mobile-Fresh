@@ -46,7 +46,7 @@ interface Buyer {
   location: string;
   acceptedBids: number;
   pendingBids: number;
-  joinedDate: string;
+  declinedBids: number;
 }
 
 const Buyers = () => {
@@ -139,7 +139,7 @@ const Buyers = () => {
       location: "Los Angeles, CA",
       acceptedBids: 12,
       pendingBids: 4,
-      joinedDate: "2023-08-15",
+      declinedBids: 3,
     },
     {
       id: "2",
@@ -149,7 +149,7 @@ const Buyers = () => {
       location: "New York, NY",
       acceptedBids: 18,
       pendingBids: 6,
-      joinedDate: "2023-06-20",
+      declinedBids: 5,
     },
     {
       id: "3",
@@ -159,7 +159,7 @@ const Buyers = () => {
       location: "Chicago, IL",
       acceptedBids: 6,
       pendingBids: 3,
-      joinedDate: "2023-09-10",
+      declinedBids: 2,
     },
     {
       id: "4",
@@ -169,7 +169,7 @@ const Buyers = () => {
       location: "Houston, TX",
       acceptedBids: 15,
       pendingBids: 8,
-      joinedDate: "2023-07-25",
+      declinedBids: 4,
     },
     {
       id: "5",
@@ -179,7 +179,7 @@ const Buyers = () => {
       location: "Miami, FL",
       acceptedBids: 9,
       pendingBids: 4,
-      joinedDate: "2023-10-05",
+      declinedBids: 3,
     },
     {
       id: "6",
@@ -189,7 +189,7 @@ const Buyers = () => {
       location: "Seattle, WA",
       acceptedBids: 22,
       pendingBids: 7,
-      joinedDate: "2023-05-30",
+      declinedBids: 6,
     }
   ];
 
@@ -430,7 +430,7 @@ const Buyers = () => {
                     <TableHead>Location</TableHead>
                     <TableHead>Accepted</TableHead>
                     <TableHead>Pending</TableHead>
-                    <TableHead>Joined Date</TableHead>
+                    <TableHead>Declined</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -442,7 +442,7 @@ const Buyers = () => {
                       <TableCell>{buyer.location}</TableCell>
                       <TableCell>{buyer.acceptedBids}</TableCell>
                       <TableCell>{buyer.pendingBids}</TableCell>
-                      <TableCell>{new Date(buyer.joinedDate).toLocaleDateString()}</TableCell>
+                      <TableCell>{buyer.declinedBids}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -486,3 +486,4 @@ const Buyers = () => {
 };
 
 export default Buyers;
+
