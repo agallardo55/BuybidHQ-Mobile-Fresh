@@ -7,6 +7,7 @@ import Pricing from "@/components/Pricing";
 import ContactUs from "@/components/ContactUs";
 import AppDownload from "@/components/AppDownload";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
 
 const Index = () => {
   return (
@@ -21,6 +22,7 @@ const Index = () => {
         <AppDownload />
       </div>
       <Footer />
+      <CookieConsent />
     </div>
   );
 };
