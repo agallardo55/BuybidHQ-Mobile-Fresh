@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import DashboardNavigation from "@/components/DashboardNavigation";
+import Footer from "@/components/Footer";
 
 interface Buyer {
   id: string;
@@ -477,6 +478,8 @@ const Buyers = () => {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };
