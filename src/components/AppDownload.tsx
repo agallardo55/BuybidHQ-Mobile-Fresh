@@ -22,7 +22,7 @@ const AppDownload = () => {
                   className="min-h-[40px]"
                 />
               </div>
-              <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded">
+              <div className="absolute inset-0 flex items-center justify-center">
                 <Clock className="h-5 w-5 text-gray-700" />
               </div>
             </div>
@@ -35,7 +35,7 @@ const AppDownload = () => {
                   className="min-h-[40px]"
                 />
               </div>
-              <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded">
+              <div className="absolute inset-0 flex items-center justify-center">
                 <Clock className="h-5 w-5 text-gray-700" />
               </div>
             </div>
