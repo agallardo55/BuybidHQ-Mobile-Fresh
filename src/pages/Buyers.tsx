@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
@@ -23,12 +24,15 @@ import { Buyer, BuyerFormData } from "@/types/buyers";
 import BuyersTable from "@/components/buyers/BuyersTable";
 import AddBuyerForm from "@/components/buyers/AddBuyerForm";
 import BuyersSearch from "@/components/buyers/BuyersSearch";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const itemsPerPage = 5;
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState<BuyerFormData>({
     fullName: "",
@@ -43,6 +47,82 @@ const Buyers = () => {
     zipCode: "",
   });
 
+  const { data: buyers = [], isLoading } = useQuery({
+    queryKey: ['buyers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('buyers')
+        .select('*');
+
+      if (error) {
+        toast.error("Failed to fetch buyers: " + error.message);
+        throw error;
+      }
+
+      return data.map(buyer => ({
+        id: buyer.id,
+        name: buyer.buyer_name || '',
+        email: buyer.email,
+        dealership: buyer.dealer_name || '',
+        phone: buyer.buyer_phone || '',
+        location: `${buyer.city || ''}, ${buyer.state || ''}`,
+        acceptedBids: 0, // These would need to be calculated from bid_requests table
+        pendingBids: 0,
+        declinedBids: 0,
+      }));
+    },
+  });
+
+  const createBuyerMutation = useMutation({
+    mutationFn: async (buyerData: BuyerFormData) => {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+
+      const { data, error } = await supabase
+        .from('buyers')
+        .insert([
+          {
+            user_id: userData.user.id,
+            buyer_name: buyerData.fullName,
+            email: buyerData.email,
+            buyer_mobile: buyerData.mobileNumber,
+            buyer_phone: buyerData.businessNumber,
+            dealer_name: buyerData.dealershipName,
+            dealer_number: buyerData.licenseNumber,
+            address: buyerData.dealershipAddress,
+            city: buyerData.city,
+            state: buyerData.state,
+            zip_code: buyerData.zipCode,
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buyers'] });
+      toast.success("Buyer added successfully!");
+      setIsDialogOpen(false);
+      setFormData({
+        fullName: "",
+        email: "",
+        mobileNumber: "",
+        businessNumber: "",
+        dealershipName: "",
+        licenseNumber: "",
+        dealershipAddress: "",
+        city: "",
+        state: "",
+        zipCode: "",
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to add buyer: " + error.message);
+    },
+  });
+
   const handleFormDataChange = (data: Partial<BuyerFormData>) => {
     setFormData((prev) => ({
       ...prev,
@@ -50,93 +130,10 @@ const Buyers = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("New buyer data:", formData);
-    toast.success("Buyer added successfully!");
-    setIsDialogOpen(false);
-    setFormData({
-      fullName: "",
-      email: "",
-      mobileNumber: "",
-      businessNumber: "",
-      dealershipName: "",
-      licenseNumber: "",
-      dealershipAddress: "",
-      city: "",
-      state: "",
-      zipCode: "",
-    });
+    createBuyerMutation.mutate(formData);
   };
-
-  const buyers: Buyer[] = [
-    {
-      id: "1",
-      name: "John Smith",
-      email: "john.smith@email.com",
-      dealership: "Smith Auto Sales",
-      phone: "(555) 123-4567",
-      location: "Los Angeles, CA",
-      acceptedBids: 12,
-      pendingBids: 4,
-      declinedBids: 3,
-    },
-    {
-      id: "2",
-      name: "Sarah Williams",
-      email: "sarah.w@email.com",
-      dealership: "Williams Motors",
-      phone: "(555) 234-5678",
-      location: "New York, NY",
-      acceptedBids: 18,
-      pendingBids: 6,
-      declinedBids: 5,
-    },
-    {
-      id: "3",
-      name: "Mike Johnson",
-      email: "mike.j@email.com",
-      dealership: "Johnson Dealership",
-      phone: "(555) 345-6789",
-      location: "Chicago, IL",
-      acceptedBids: 6,
-      pendingBids: 3,
-      declinedBids: 2,
-    },
-    {
-      id: "4",
-      name: "Emily Brown",
-      email: "emily.b@email.com",
-      dealership: "Brown Auto Group",
-      phone: "(555) 456-7890",
-      location: "Houston, TX",
-      acceptedBids: 15,
-      pendingBids: 8,
-      declinedBids: 4,
-    },
-    {
-      id: "5",
-      name: "David Wilson",
-      email: "david.w@email.com",
-      dealership: "Wilson Cars",
-      phone: "(555) 567-8901",
-      location: "Miami, FL",
-      acceptedBids: 9,
-      pendingBids: 4,
-      declinedBids: 3,
-    },
-    {
-      id: "6",
-      name: "Lisa Anderson",
-      email: "lisa.a@email.com",
-      dealership: "Anderson Autos",
-      phone: "(555) 678-9012",
-      location: "Seattle, WA",
-      acceptedBids: 22,
-      pendingBids: 7,
-      declinedBids: 6,
-    }
-  ];
 
   const filteredBuyers = buyers.filter((buyer) => {
     const searchString = searchTerm.toLowerCase();
@@ -153,6 +150,22 @@ const Buyers = () => {
     startIndex,
     startIndex + itemsPerPage
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
+        <DashboardNavigation />
+        <div className="pt-24 px-4 sm:px-8 flex-grow">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+              Loading buyers...
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
