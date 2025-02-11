@@ -159,49 +159,70 @@ export type Database = {
       }
       buybidhq_users: {
         Row: {
+          address: string | null
           agreed_at: string | null
           buyers: string | null
+          city: string | null
+          company: string | null
           created_at: string
           dealership_id: string | null
           email: string
           full_name: string | null
           id: string
+          is_active: boolean | null
           mobile_number: string | null
           password_hash: string | null
           profile_photo: string | null
           role: Database["public"]["Enums"]["user_role"]
+          state: string | null
           status: string | null
           updated_at: string | null
+          website: string | null
+          zip_code: string | null
         }
         Insert: {
+          address?: string | null
           agreed_at?: string | null
           buyers?: string | null
+          city?: string | null
+          company?: string | null
           created_at?: string
           dealership_id?: string | null
           email: string
           full_name?: string | null
           id?: string
+          is_active?: boolean | null
           mobile_number?: string | null
           password_hash?: string | null
           profile_photo?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
           status?: string | null
           updated_at?: string | null
+          website?: string | null
+          zip_code?: string | null
         }
         Update: {
+          address?: string | null
           agreed_at?: string | null
           buyers?: string | null
+          city?: string | null
+          company?: string | null
           created_at?: string
           dealership_id?: string | null
           email?: string
           full_name?: string | null
           id?: string
+          is_active?: boolean | null
           mobile_number?: string | null
           password_hash?: string | null
           profile_photo?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
           status?: string | null
           updated_at?: string | null
+          website?: string | null
+          zip_code?: string | null
         }
         Relationships: [
           {

@@ -26,6 +26,13 @@ export const useUsers = () => {
         role: user.role,
         status: user.status || 'active',
         mobileNumber: user.mobile_number,
+        address: user.address,
+        city: user.city,
+        state: user.state,
+        zipCode: user.zip_code,
+        company: user.company,
+        website: user.website,
+        isActive: user.is_active
       }));
     },
   });
@@ -37,6 +44,13 @@ export const useUsers = () => {
         email: userData.email,
         role: userData.role,
         mobile_number: userData.mobileNumber,
+        address: userData.address,
+        city: userData.city,
+        state: userData.state,
+        zip_code: userData.zipCode,
+        company: userData.company,
+        website: userData.website,
+        is_active: userData.isActive,
         status: 'active'
       };
 
