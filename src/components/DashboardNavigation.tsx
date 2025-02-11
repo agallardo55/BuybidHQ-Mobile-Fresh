@@ -23,6 +23,10 @@ const DashboardNavigation = () => {
     { name: "Marketplace", href: "#" },
   ];
 
+  const handleNotificationsToggle = () => {
+    setShowNotifications(!showNotifications);
+  };
+
   return (
     <>
       <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
@@ -61,7 +65,7 @@ const DashboardNavigation = () => {
                 <button 
                   className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
                   aria-label="Notifications"
-                  onClick={() => setShowNotifications(true)}
+                  onClick={handleNotificationsToggle}
                 >
                   <Bell className="h-5 w-5" />
                   <span className="absolute top-0.5 right-0.5 flex h-2.5 w-2.5">
@@ -109,7 +113,7 @@ const DashboardNavigation = () => {
                   className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
                   aria-label="Notifications"
                   onClick={() => {
-                    setShowNotifications(true);
+                    handleNotificationsToggle();
                     setIsOpen(false);
                   }}
                 >
@@ -127,7 +131,7 @@ const DashboardNavigation = () => {
 
       <AlertDialog 
         open={showNotifications} 
-        onOpenChange={(open) => setShowNotifications(open)}
+        onOpenChange={setShowNotifications}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
