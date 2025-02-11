@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -38,11 +39,14 @@ const AddUserDialog = ({
         <DialogHeader>
           <DialogTitle>Add New User</DialogTitle>
         </DialogHeader>
-        <AddUserForm
-          onSubmit={onSubmit}
-          formData={formData}
-          onFormDataChange={onFormDataChange}
-        />
+        <div className="px-6">
+          <AddUserForm
+            onSubmit={onSubmit}
+            formData={formData}
+            onFormDataChange={onFormDataChange}
+          />
+        </div>
+        <DialogFooter className="h-4" />
       </DialogContent>
     </Dialog>
   );
