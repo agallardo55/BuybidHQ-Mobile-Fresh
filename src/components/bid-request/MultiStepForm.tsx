@@ -1,14 +1,15 @@
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { BidRequestFormData, FormErrors } from "./types";
-import { useState } from "react";
 import BasicVehicleInfo from "./BasicVehicleInfo";
 import ColorsAndAccessories from "./ColorsAndAccessories";
 import VehicleCondition from "./VehicleCondition";
 import FormProgress from "./FormProgress";
 import BuyersSection from "./BuyersSection";
 import AddBuyerDialog from "./AddBuyerDialog";
+import FormTabs from "./FormTabs";
+import { useFormNavigation } from "./hooks/useFormNavigation";
 
 interface MultiStepFormProps {
   formData: BidRequestFormData;
@@ -42,47 +43,15 @@ const MultiStepForm = ({
   onSubmit,
   isSubmitting,
 }: MultiStepFormProps) => {
-  const [currentStep, setCurrentStep] = useState<"basic-info" | "appearance" | "condition" | "buyers">("basic-info");
-  const [isAddBuyerOpen, setIsAddBuyerOpen] = useState(false);
-  
-  const progressMap = {
-    "basic-info": 25,
-    "appearance": 50,
-    "condition": 75,
-    "buyers": 100
-  };
-
-  const handleNext = () => {
-    switch (currentStep) {
-      case "basic-info":
-        setCurrentStep("appearance");
-        break;
-      case "appearance":
-        setCurrentStep("condition");
-        break;
-      case "condition":
-        setCurrentStep("buyers");
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleBack = () => {
-    switch (currentStep) {
-      case "appearance":
-        setCurrentStep("basic-info");
-        break;
-      case "condition":
-        setCurrentStep("appearance");
-        break;
-      case "buyers":
-        setCurrentStep("condition");
-        break;
-      default:
-        break;
-    }
-  };
+  const {
+    currentStep,
+    setCurrentStep,
+    isAddBuyerOpen,
+    setIsAddBuyerOpen,
+    progressMap,
+    handleNext,
+    handleBack
+  } = useFormNavigation();
 
   return (
     <Tabs 
@@ -91,13 +60,7 @@ const MultiStepForm = ({
       onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "buyers")}
     >
       <FormProgress currentStep={currentStep} progressMap={progressMap} />
-
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="basic-info">Vehicle</TabsTrigger>
-        <TabsTrigger value="appearance">Appearance</TabsTrigger>
-        <TabsTrigger value="condition">Condition</TabsTrigger>
-        <TabsTrigger value="buyers">Buyers</TabsTrigger>
-      </TabsList>
+      <FormTabs />
 
       <div className="mt-6">
         <TabsContent value="basic-info">
@@ -184,4 +147,3 @@ const MultiStepForm = ({
 };
 
 export default MultiStepForm;
-
