@@ -34,7 +34,7 @@ const AddUserDialog = ({
           Add User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[640px]">
         <DialogHeader>
           <DialogTitle>Add New User</DialogTitle>
         </DialogHeader>
