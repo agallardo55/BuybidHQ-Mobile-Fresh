@@ -2,7 +2,6 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 
 interface VehicleConditionProps {
   formData: {
@@ -128,21 +127,6 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           placeholder="Enter reconditioning details..."
           className="min-h-[100px]"
         />
-      </div>
-
-      <div className="pt-6">
-        <Button 
-          type="button"
-          className="w-full bg-custom-blue hover:bg-custom-blue/90"
-          onClick={() => {
-            const buyersTab = document.querySelector('[value="buyers"]') as HTMLElement;
-            if (buyersTab) {
-              buyersTab.click();
-            }
-          }}
-        >
-          Next
-        </Button>
       </div>
     </div>
   );
