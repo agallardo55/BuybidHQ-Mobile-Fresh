@@ -9,8 +9,9 @@ import { BidRequestFormData, FormErrors } from "./types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, UserRound } from "lucide-react";
+import { Plus, UserRound, X } from "lucide-react";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface MultiStepFormProps {
   formData: BidRequestFormData;
@@ -45,6 +46,7 @@ const MultiStepForm = ({
   isSubmitting,
 }: MultiStepFormProps) => {
   const [currentStep, setCurrentStep] = useState<"basic-info" | "appearance" | "condition" | "buyers">("basic-info");
+  const [isAddBuyerOpen, setIsAddBuyerOpen] = useState(false);
   
   const progressMap = {
     "basic-info": 25,
@@ -111,7 +113,11 @@ const MultiStepForm = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="flex-1"
               />
-              <Button variant="outline" className="flex items-center gap-2 bg-custom-blue text-white hover:bg-custom-blue/90">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 bg-custom-blue text-white hover:bg-custom-blue/90"
+                onClick={() => setIsAddBuyerOpen(true)}
+              >
                 <Plus className="h-4 w-4" />
                 <span>Buyer</span>
               </Button>
@@ -158,6 +164,34 @@ const MultiStepForm = ({
           >
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
+
+          <Dialog open={isAddBuyerOpen} onOpenChange={setIsAddBuyerOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Buyer</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Name</label>
+                  <Input placeholder="Enter buyer name" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Dealership</label>
+                  <Input placeholder="Enter dealership name" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Mobile</label>
+                  <Input placeholder="Enter mobile number" />
+                </div>
+                <Button 
+                  className="w-full bg-custom-blue hover:bg-custom-blue/90 text-white"
+                  onClick={() => setIsAddBuyerOpen(false)}
+                >
+                  Add Buyer
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
       </div>
     </Tabs>
