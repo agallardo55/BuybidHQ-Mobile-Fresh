@@ -1,6 +1,5 @@
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import VinSection from "./VinSection";
 
 interface BasicVehicleInfoProps {
@@ -165,20 +164,6 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               placeholder="AWD"
             />
           </div>
-          <div className="pt-6">
-            <Button 
-              type="button"
-              className="w-full bg-custom-blue hover:bg-custom-blue/90"
-              onClick={() => {
-                const appearanceTab = document.querySelector('[value="appearance"]') as HTMLElement;
-                if (appearanceTab) {
-                  appearanceTab.click();
-                }
-              }}
-            >
-              Next
-            </Button>
-          </div>
         </div>
       </div>
     </div>
@@ -186,4 +171,3 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
 };
 
 export default BasicVehicleInfo;
-
