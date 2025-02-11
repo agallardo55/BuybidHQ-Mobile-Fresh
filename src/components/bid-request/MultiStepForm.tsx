@@ -9,7 +9,7 @@ import { BidRequestFormData, FormErrors } from "./types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, UserRound } from "lucide-react";
+import { Plus, UserRound } from "lucide-react";
 import { useState } from "react";
 
 interface MultiStepFormProps {
@@ -103,15 +103,18 @@ const MultiStepForm = ({
             {errors.buyers && (
               <p className="text-xs text-red-500 mb-2">{errors.buyers}</p>
             )}
-            <div className="relative mb-2">
-              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <div className="flex gap-2 mb-2">
               <Input
                 type="text"
-                placeholder="Search buyers..."
+                placeholder="Enter buyer name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 w-full text-sm"
+                className="flex-1"
               />
+              <Button variant="outline" className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                <span>Buyer</span>
+              </Button>
             </div>
             <ScrollArea className="h-[400px]">
               <div className="space-y-2">
@@ -162,3 +165,4 @@ const MultiStepForm = ({
 };
 
 export default MultiStepForm;
+
