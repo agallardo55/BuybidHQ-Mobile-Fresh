@@ -117,12 +117,12 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dealership">Dealership</Label>
+          <Label htmlFor="dealershipId">Dealership</Label>
           <Input
-            id="dealership"
+            id="dealershipId"
             placeholder="Enter dealership name"
-            value={formData.dealership}
-            onChange={(e) => onFormDataChange({ dealership: e.target.value })}
+            value={formData.dealershipId}
+            onChange={(e) => onFormDataChange({ dealershipId: e.target.value })}
           />
         </div>
 
@@ -134,7 +134,6 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
           />
           <Label htmlFor="isActive">Active User</Label>
         </div>
-
       </div>
 
       <Button type="submit" className="w-full">

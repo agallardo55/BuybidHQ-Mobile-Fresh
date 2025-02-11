@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
@@ -25,7 +26,7 @@ const Users = () => {
     city: "",
     state: "",
     zipCode: "",
-    dealership: "",
+    dealershipId: "",
     isActive: true,
   });
 
@@ -52,7 +53,7 @@ const Users = () => {
       city: "",
       state: "",
       zipCode: "",
-      dealership: "",
+      dealershipId: "",
       isActive: true,
     });
   };
