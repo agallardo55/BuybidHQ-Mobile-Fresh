@@ -7,7 +7,7 @@ const AppDownload = () => {
       <div className="container mx-auto px-4">
         <div className="text-center space-y-6">
           <h2 className="text-2xl md:text-3xl font-bold text-primary">
-            Coming Soon: Our Mobile App
+            Coming Soon
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Coming Soon: Download our mobile app for instant access to bid requests and vehicle listing management on the go
