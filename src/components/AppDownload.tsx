@@ -14,7 +14,7 @@ const AppDownload = () => {
             <div className="cursor-not-allowed">
               <div className="opacity-80">
                 <img
-                  src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg"
+                  src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83"
                   alt="Download on the App Store"
                   style={{ height: "40px", width: "auto" }}
                   className="min-h-[40px]"
