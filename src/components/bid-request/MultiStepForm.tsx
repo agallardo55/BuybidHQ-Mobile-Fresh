@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import BasicVehicleInfo from "./BasicVehicleInfo";
@@ -178,6 +179,20 @@ const MultiStepForm = ({
             onChange={onChange}
             onSelectChange={onSelectChange}
           />
+          <div className="mt-6 flex justify-between">
+            <Button 
+              onClick={handleBack}
+              variant="outline"
+            >
+              Back
+            </Button>
+            <Button 
+              onClick={handleNext}
+              className="bg-custom-blue hover:bg-custom-blue/90"
+            >
+              Next
+            </Button>
+          </div>
         </TabsContent>
 
         <TabsContent value="buyers">
@@ -252,36 +267,36 @@ const MultiStepForm = ({
               {isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           </div>
-
-          <Dialog open={isAddBuyerOpen} onOpenChange={setIsAddBuyerOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Buyer</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Name</label>
-                  <Input placeholder="Enter buyer name" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Dealership</label>
-                  <Input placeholder="Enter dealership name" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Mobile</label>
-                  <Input placeholder="Enter mobile number" />
-                </div>
-                <Button 
-                  className="w-full bg-custom-blue hover:bg-custom-blue/90 text-white"
-                  onClick={() => setIsAddBuyerOpen(false)}
-                >
-                  Add Buyer
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
         </TabsContent>
       </div>
+
+      <Dialog open={isAddBuyerOpen} onOpenChange={setIsAddBuyerOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Buyer</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Name</label>
+              <Input placeholder="Enter buyer name" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Dealership</label>
+              <Input placeholder="Enter dealership name" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Mobile</label>
+              <Input placeholder="Enter mobile number" />
+            </div>
+            <Button 
+              className="w-full bg-custom-blue hover:bg-custom-blue/90 text-white"
+              onClick={() => setIsAddBuyerOpen(false)}
+            >
+              Add Buyer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Tabs>
   );
 };
