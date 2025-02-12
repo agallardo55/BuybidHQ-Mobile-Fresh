@@ -21,6 +21,7 @@ const interiorColors = ["Black", "Tan", "Grey", "Red", "White", "Brown"];
 const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedFileUrls, setSelectedFileUrls] = useState<string[]>([]);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -174,7 +175,11 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
           <div className="w-full max-w-[95%] mx-auto overflow-x-auto">
             <div className="flex gap-4 pb-4">
               {selectedFileUrls.map((url, index) => (
-                <div key={index} className="flex-none">
+                <div 
+                  key={index} 
+                  className="flex-none cursor-pointer"
+                  onClick={() => setPreviewImage(url)}
+                >
                   <div className="h-32 relative rounded-lg overflow-hidden">
                     <img
                       src={url}
@@ -188,6 +193,20 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
           </div>
         </div>
       )}
+
+      <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+        <DialogContent className="sm:max-w-3xl p-0">
+          <div className="relative w-full h-[80vh]">
+            {previewImage && (
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="w-full h-full object-contain"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
