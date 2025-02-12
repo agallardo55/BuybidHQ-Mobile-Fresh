@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -60,12 +61,17 @@ export const useSubscription = () => {
         .maybeSingle();
 
       if (!existingSub) {
+        // When creating a new subscription, ensure required fields are present
+        const newSubscription = {
+          user_id: user.id,
+          plan_type: updatedData.plan_type || 'beta-access',
+          status: updatedData.status || 'active',
+          ...updatedData,
+        };
+
         const { data, error } = await supabase
           .from('subscriptions')
-          .insert({
-            ...updatedData,
-            user_id: user.id,
-          })
+          .insert(newSubscription)
           .select()
           .single();
 
