@@ -30,9 +30,13 @@ serve(async (req) => {
       )
     }
 
+    // Format the authorization header with Bearer prefix
+    const authHeader = `Bearer ${apiKey}`
+    console.log('Making request to CarAPI with authorization header:', authHeader)
+
     const response = await fetch(`https://api.carapi.app/vin/${vin}`, {
       headers: {
-        'Authorization': apiKey // Changed from 'authorization' to 'Authorization'
+        'Authorization': authHeader
       }
     })
 
