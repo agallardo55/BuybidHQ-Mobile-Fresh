@@ -31,8 +31,7 @@ serve(async (req) => {
     }
 
     console.log('Making request to CarAPI with VIN:', vin)
-    // Use the correct API endpoint structure
-    const apiUrl = `https://api.carapi.app/v1/vin/${vin}`
+    const apiUrl = `https://carapi.app/api/v1/decode/${vin}`
     console.log('API Endpoint:', apiUrl)
     console.log('Using API Key (first 4 chars):', apiKey.substring(0, 4))
 
@@ -40,7 +39,6 @@ serve(async (req) => {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
     })
