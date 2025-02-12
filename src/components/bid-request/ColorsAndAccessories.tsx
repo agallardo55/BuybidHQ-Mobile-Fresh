@@ -177,11 +177,11 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
               {selectedFileUrls.map((url, index) => (
                 <CarouselItem key={index}>
                   <div className="p-1">
-                    <div className="h-32 relative rounded-lg overflow-hidden">
+                    <div className="h-32 flex justify-start relative rounded-lg overflow-hidden">
                       <img
                         src={url}
                         alt={`Vehicle photo ${index + 1}`}
-                        className="object-cover w-full h-full"
+                        className="h-full w-auto object-contain"
                       />
                     </div>
                   </div>
@@ -198,3 +198,4 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
 };
 
 export default ColorsAndAccessories;
+
