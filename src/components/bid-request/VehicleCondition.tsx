@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,6 +17,33 @@ interface VehicleConditionProps {
 }
 
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
+  const formatDollarAmount = (value: string) => {
+    // Remove any non-digit characters
+    const numericValue = value.replace(/\D/g, '');
+    // Format as dollar amount
+    const formattedValue = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Number(numericValue));
+    
+    return formattedValue;
+  };
+
+  const handleReconEstimateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Extract numeric value for storing
+    const numericValue = e.target.value.replace(/\D/g, '');
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: numericValue
+      }
+    };
+    onChange(syntheticEvent);
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -107,15 +133,16 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
 
       <div>
         <label htmlFor="reconEstimate" className="block text-sm font-medium text-gray-700 mb-1">
-          Recon Estimate ($)
+          Recon Estimate
         </label>
         <Input
           id="reconEstimate"
           name="reconEstimate"
-          type="number"
-          value={formData.reconEstimate}
-          onChange={onChange}
-          placeholder="0"
+          type="text"
+          value={formData.reconEstimate ? formatDollarAmount(formData.reconEstimate) : ''}
+          onChange={handleReconEstimateChange}
+          placeholder="$0"
+          className="font-mono"
         />
       </div>
 
