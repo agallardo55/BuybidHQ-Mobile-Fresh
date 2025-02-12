@@ -15,20 +15,6 @@ export const SecurityTab = () => {
     <form onSubmit={handlePasswordUpdate} className="space-y-4 sm:space-y-6">
       <div className="space-y-4">
         <div>
-          <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
-            Current Password
-          </label>
-          <Input
-            id="currentPassword"
-            name="currentPassword"
-            type="password"
-            value={passwordData.currentPassword}
-            onChange={handlePasswordChange}
-            required
-            minLength={6}
-          />
-        </div>
-        <div>
           <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
             New Password
           </label>
