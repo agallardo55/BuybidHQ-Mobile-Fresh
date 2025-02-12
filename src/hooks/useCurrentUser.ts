@@ -8,6 +8,7 @@ import { shouldEnforceRoleChecks } from "@/config/features";
 export type UserRole = 'admin' | 'dealer' | 'basic';
 
 interface UserData {
+  id: string;
   role: UserRole;
   status: string;
 }
@@ -34,7 +35,10 @@ export const useCurrentUser = () => {
       }
 
       // During development, provide a default role if none exists
-      return userData || { role: 'admin' as UserRole, status: 'active' };
+      return {
+        id: user?.id,
+        ...userData || { role: 'admin' as UserRole, status: 'active' }
+      };
     },
     meta: {
       onSuccess: (data: UserData) => {
@@ -48,4 +52,3 @@ export const useCurrentUser = () => {
 
   return { currentUser, isLoading };
 };
-
