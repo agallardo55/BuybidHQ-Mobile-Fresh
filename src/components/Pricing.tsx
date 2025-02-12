@@ -1,25 +1,21 @@
-
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
-
 const Pricing = () => {
   const navigate = useNavigate();
-
   const handleSignUp = () => {
     navigate('/signup');
   };
-
   const scrollToContact = () => {
     const contactSection = document.getElementById('contact');
     if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
+      contactSection.scrollIntoView({
+        behavior: 'smooth'
+      });
     }
   };
-
-  return (
-    <section id="pricing" className="py-24 bg-gray-50">
+  return <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Simple, Transparent Pricing</h2>
@@ -66,7 +62,7 @@ const Pricing = () => {
             </div>
             <CardHeader>
               <CardTitle className="text-2xl">Individual</CardTitle>
-              <CardDescription>For small/wholesale dealers</CardDescription>
+              <CardDescription>Small/wholesale dealers</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
@@ -141,8 +137,6 @@ const Pricing = () => {
           </Card>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Pricing;
