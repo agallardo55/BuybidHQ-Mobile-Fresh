@@ -12,51 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
 const Users = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  
-  const [formData, setFormData] = useState<UserFormData>({
-    fullName: "",
-    email: "",
-    role: "basic",
-    mobileNumber: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    dealershipId: "",
-    isActive: true,
-  });
 
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
-  const { users, isLoading, createUser, deleteUser } = useUsers();
-
-  const handleFormDataChange = (data: Partial<UserFormData>) => {
-    setFormData((prev) => ({
-      ...prev,
-      ...data,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    createUser(formData);
-    setIsDialogOpen(false);
-    setFormData({
-      fullName: "",
-      email: "",
-      role: "basic",
-      mobileNumber: "",
-      address: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      dealershipId: "",
-      isActive: true,
-    });
-  };
+  const { users, isLoading, deleteUser } = useUsers();
 
   const handleDelete = (userId: string) => {
     setUserToDelete(userId);
@@ -113,14 +74,7 @@ const Users = () => {
                     className="pl-10"
                   />
                 </div>
-                {/* TODO: Implement proper authentication and role-based access control later */}
-                <AddUserDialog
-                  isOpen={isDialogOpen}
-                  onOpenChange={setIsDialogOpen}
-                  onSubmit={handleSubmit}
-                  formData={formData}
-                  onFormDataChange={handleFormDataChange}
-                />
+                <AddUserDialog />
               </div>
             </div>
             <div className="overflow-x-auto">
