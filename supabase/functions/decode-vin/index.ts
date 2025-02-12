@@ -32,7 +32,7 @@ serve(async (req) => {
 
     console.log('Making request to CarAPI with VIN:', vin)
     // Try different API endpoint structure
-    const apiUrl = `https://api.carapi.app/api/v1/vin/${vin}`
+    const apiUrl = `https://api.carapi.app/vin/${vin}`
     console.log('API Endpoint:', apiUrl)
     console.log('Using API Key (first 4 chars):', apiKey.substring(0, 4))
 
