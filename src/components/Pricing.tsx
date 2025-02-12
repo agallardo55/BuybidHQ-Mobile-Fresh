@@ -99,17 +99,15 @@ const Pricing = () => {
             </CardFooter>
           </Card>
 
-          {/* Enterprise Plan */}
+          {/* Dealership Plan */}
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle className="text-2xl">
-                Enterprise <span className="text-sm text-gray-500 font-normal">(Coming soon)</span>
-              </CardTitle>
+              <CardTitle className="text-2xl">Dealership</CardTitle>
               <CardDescription>For large dealerships</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
-                <span className="text-3xl font-bold">TBD</span>
+                <span className="text-3xl font-bold">Custom</span>
                 <span className="ml-1 text-gray-500">/month</span>
               </div>
               <ul className="mt-6 space-y-4">

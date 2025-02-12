@@ -9,10 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
 
 export const SubscriptionTab = () => {
   const { formData, setFormData } = useAccountForm();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubscriptionChange = (value: string) => {
     setFormData((prev) => ({
@@ -41,8 +43,30 @@ export const SubscriptionTab = () => {
 
   const handleUpgradeSubscription = async () => {
     try {
+      const currentPlan = formData.subscriptionType;
+
+      // If upgrading to Dealership plan, redirect to contact form
+      if (currentPlan === "beta-access" || currentPlan === "individual") {
+        const contactSection = document.getElementById('contact');
+        if (contactSection) {
+          toast({
+            title: "Contact Sales",
+            description: "Please contact our sales team to upgrade to the Dealership plan.",
+          });
+          contactSection.scrollIntoView({ behavior: 'smooth' });
+          return;
+        } else {
+          // If not on homepage, navigate there first
+          navigate('/#contact');
+          return;
+        }
+      }
+
+      // For other upgrades, will use Stripe Checkout
       // TODO: Replace with actual Stripe Checkout Session creation
-      // const { url } = await createStripeCheckoutSession();
+      // const { url } = await createStripeCheckoutSession({
+      //   priceId: getPriceIdForPlan(formData.subscriptionType)
+      // });
       // window.location.href = url;
       toast({
         title: "Coming Soon",
@@ -57,18 +81,31 @@ export const SubscriptionTab = () => {
     }
   };
 
+  const getCurrentPlanLabel = () => {
+    switch (formData.subscriptionType) {
+      case "beta-access":
+        return "Beta Access (Free)";
+      case "individual":
+        return "Individual ($49/month)";
+      case "dealership":
+        return "Dealership (Custom)";
+      default:
+        return "Select plan";
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900">Current Subscription</h3>
         <Select onValueChange={handleSubscriptionChange} value={formData.subscriptionType}>
           <SelectTrigger>
-            <SelectValue placeholder="Select plan" />
+            <SelectValue placeholder={getCurrentPlanLabel()} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="basic">Basic Plan</SelectItem>
-            <SelectItem value="pro">Pro Plan</SelectItem>
-            <SelectItem value="enterprise">Enterprise Plan</SelectItem>
+            <SelectItem value="beta-access">Beta Access (Free)</SelectItem>
+            <SelectItem value="individual">Individual ($49/month)</SelectItem>
+            <SelectItem value="dealership">Dealership (Custom)</SelectItem>
           </SelectContent>
         </Select>
       </div>
