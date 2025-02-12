@@ -32,8 +32,9 @@ serve(async (req) => {
 
     console.log('Making request to CarAPI with VIN:', vin)
     const apiUrl = `https://carapi.app/api/vin/${vin}?api_token=${apiKey}`
-    console.log('API Endpoint:', apiUrl)
-    console.log('Using API Key (first 4 chars):', apiKey.substring(0, 4))
+    
+    // Log API request details (without the token)
+    console.log('API Endpoint:', apiUrl.replace(apiKey, '***'))
 
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -43,7 +44,6 @@ serve(async (req) => {
     })
 
     console.log('CarAPI response status:', response.status)
-    console.log('CarAPI response headers:', Object.fromEntries(response.headers.entries()))
     
     // Get the raw response text first
     const responseText = await response.text()
@@ -53,40 +53,55 @@ serve(async (req) => {
     try {
       // Try to parse the response as JSON
       data = JSON.parse(responseText)
+      console.log('CarAPI parsed data:', {
+        year: data.year,
+        make: data.make,
+        model: data.model,
+        engine: data.engine,
+        transmission: data.transmission,
+        drivetrain: data.drivetrain
+      })
     } catch (parseError) {
       console.error('Failed to parse CarAPI response as JSON:', parseError)
-      console.error('Raw response was:', responseText)
       return new Response(
         JSON.stringify({ 
           error: 'Invalid API response format',
-          details: responseText.substring(0, 500) // Limit the response size
+          details: responseText.substring(0, 500)
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 502 }
       )
     }
-    
-    console.log('CarAPI parsed response:', data)
 
     if (!response.ok) {
       console.error('CarAPI error response:', {
         status: response.status,
         statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
         data: data
       })
       return new Response(
         JSON.stringify({ 
-          error: 'Failed to decode VIN', 
-          details: data,
-          status: response.status,
-          statusText: response.statusText
+          error: 'Failed to decode VIN',
+          details: data
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
       )
     }
 
+    // Transform the response to match our expected structure
+    const transformedData = {
+      year: data.year?.toString() || "",
+      make: data.make || "",
+      model: data.model || "",
+      trim: data.trim || "",
+      engineCylinders: data.engine?.configuration || data.engine?.cylinders || "",
+      transmission: data.transmission?.type || data.transmission?.name || "",
+      drivetrain: data.drive_type || data.drivetrain || "",
+    }
+
+    console.log('Transformed response data:', transformedData)
+
     return new Response(
-      JSON.stringify(data),
+      JSON.stringify(transformedData),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
