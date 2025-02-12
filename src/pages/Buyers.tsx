@@ -1,29 +1,11 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
 import { BuyerFormData } from "@/types/buyers";
-import BuyersTable from "@/components/buyers/BuyersTable";
-import AddBuyerForm from "@/components/buyers/AddBuyerForm";
-import BuyersSearch from "@/components/buyers/BuyersSearch";
 import { useBuyers } from "@/hooks/useBuyers";
+import BuyersHeader from "@/components/buyers/BuyersHeader";
+import BuyersList from "@/components/buyers/BuyersList";
 
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -109,72 +91,27 @@ const Buyers = () => {
   return (
     <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
       <DashboardNavigation />
-
       <div className="pt-24 px-4 sm:px-8 flex-grow pb-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Buyers</h1>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
-                <BuyersSearch 
-                  searchTerm={searchTerm} 
-                  onSearchChange={setSearchTerm} 
-                />
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
-                      <Plus className="h-4 w-4" />
-                      Buyer
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="w-[95vw] max-w-[672px] h-[90vh] sm:h-auto overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Add New Buyer</DialogTitle>
-                    </DialogHeader>
-                    <AddBuyerForm
-                      onSubmit={handleSubmit}
-                      formData={formData}
-                      onFormDataChange={handleFormDataChange}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <BuyersTable buyers={paginatedBuyers} />
-              <div className="mt-4 flex justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                    {Array.from({ length: totalPages }).map((_, index) => (
-                      <PaginationItem key={index + 1}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(index + 1)}
-                          isActive={currentPage === index + 1}
-                        >
-                          {index + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            </div>
+            <BuyersHeader
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              isDialogOpen={isDialogOpen}
+              setIsDialogOpen={setIsDialogOpen}
+              formData={formData}
+              onFormDataChange={handleFormDataChange}
+              onSubmit={handleSubmit}
+            />
+            <BuyersList
+              buyers={paginatedBuyers}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   );
