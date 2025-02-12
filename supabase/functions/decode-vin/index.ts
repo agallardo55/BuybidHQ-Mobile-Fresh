@@ -31,11 +31,15 @@ serve(async (req) => {
     }
 
     console.log('Making request to CarAPI with VIN:', vin)
-    console.log('API Endpoint:', `https://api.carapi.app/vin/${vin}`)
+    const apiUrl = `https://api.carapi.app/api/vin/${vin}`
+    console.log('API Endpoint:', apiUrl)
 
-    const response = await fetch(`https://api.carapi.app/vin/${vin}`, {
+    const response = await fetch(apiUrl, {
+      method: 'GET',
       headers: {
-        'authorization': apiKey
+        'authorization': apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       }
     })
 
