@@ -1,7 +1,7 @@
 
 // This file manages feature flags and development settings
 // Set this to true when deploying to production
-const isProduction = false;
+const isProduction = true;
 
 export const shouldEnforceRoleChecks = () => {
   return isProduction;
