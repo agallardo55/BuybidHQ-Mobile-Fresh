@@ -29,9 +29,10 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             <SelectValue placeholder="Choose One" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="good">Good</SelectItem>
-            <SelectItem value="fair">Fair</SelectItem>
-            <SelectItem value="poor">Poor</SelectItem>
+            <SelectItem value="clear">Clear</SelectItem>
+            <SelectItem value="chips">Chips</SelectItem>
+            <SelectItem value="smallCracks">Small cracks</SelectItem>
+            <SelectItem value="largeCracks">Large cracks</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -133,4 +134,3 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
 };
 
 export default VehicleCondition;
-
