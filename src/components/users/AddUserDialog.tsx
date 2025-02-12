@@ -32,7 +32,7 @@ const AddUserDialog = ({
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2 bg-accent hover:bg-accent/90">
           <Plus className="h-4 w-4" />
-          Add User
+          User
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[640px]">
