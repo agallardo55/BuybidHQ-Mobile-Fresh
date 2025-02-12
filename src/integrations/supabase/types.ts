@@ -243,6 +243,7 @@ export type Database = {
       }
       buyers: {
         Row: {
+          accepted_bids: number | null
           address: string | null
           buyer_mobile: string | null
           buyer_name: string | null
@@ -251,14 +252,17 @@ export type Database = {
           created_at: string
           dealer_name: string | null
           dealer_number: string | null
+          declined_bids: number | null
           email: string
           id: string
+          pending_bids: number | null
           state: string | null
           updated_at: string | null
           user_id: string | null
           zip_code: string | null
         }
         Insert: {
+          accepted_bids?: number | null
           address?: string | null
           buyer_mobile?: string | null
           buyer_name?: string | null
@@ -267,14 +271,17 @@ export type Database = {
           created_at?: string
           dealer_name?: string | null
           dealer_number?: string | null
+          declined_bids?: number | null
           email: string
           id?: string
+          pending_bids?: number | null
           state?: string | null
           updated_at?: string | null
           user_id?: string | null
           zip_code?: string | null
         }
         Update: {
+          accepted_bids?: number | null
           address?: string | null
           buyer_mobile?: string | null
           buyer_name?: string | null
@@ -283,8 +290,10 @@ export type Database = {
           created_at?: string
           dealer_name?: string | null
           dealer_number?: string | null
+          declined_bids?: number | null
           email?: string
           id?: string
+          pending_bids?: number | null
           state?: string | null
           updated_at?: string | null
           user_id?: string | null

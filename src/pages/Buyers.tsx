@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
@@ -17,22 +17,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
-import { Buyer, BuyerFormData } from "@/types/buyers";
+import { BuyerFormData } from "@/types/buyers";
 import BuyersTable from "@/components/buyers/BuyersTable";
 import AddBuyerForm from "@/components/buyers/AddBuyerForm";
 import BuyersSearch from "@/components/buyers/BuyersSearch";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useBuyers } from "@/hooks/useBuyers";
 
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const itemsPerPage = 5;
-  const queryClient = useQueryClient();
+
+  const { buyers, isLoading, createBuyer } = useBuyers();
 
   const [formData, setFormData] = useState<BuyerFormData>({
     fullName: "",
@@ -47,82 +46,6 @@ const Buyers = () => {
     zipCode: "",
   });
 
-  const { data: buyers = [], isLoading } = useQuery({
-    queryKey: ['buyers'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('buyers')
-        .select('*');
-
-      if (error) {
-        toast.error("Failed to fetch buyers: " + error.message);
-        throw error;
-      }
-
-      return data.map(buyer => ({
-        id: buyer.id,
-        name: buyer.buyer_name || '',
-        email: buyer.email,
-        dealership: buyer.dealer_name || '',
-        phone: buyer.buyer_phone || '',
-        location: `${buyer.city || ''}, ${buyer.state || ''}`,
-        acceptedBids: 0, // These would need to be calculated from bid_requests table
-        pendingBids: 0,
-        declinedBids: 0,
-      }));
-    },
-  });
-
-  const createBuyerMutation = useMutation({
-    mutationFn: async (buyerData: BuyerFormData) => {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-
-      const { data, error } = await supabase
-        .from('buyers')
-        .insert([
-          {
-            user_id: userData.user.id,
-            buyer_name: buyerData.fullName,
-            email: buyerData.email,
-            buyer_mobile: buyerData.mobileNumber,
-            buyer_phone: buyerData.businessNumber,
-            dealer_name: buyerData.dealershipName,
-            dealer_number: buyerData.licenseNumber,
-            address: buyerData.dealershipAddress,
-            city: buyerData.city,
-            state: buyerData.state,
-            zip_code: buyerData.zipCode,
-          }
-        ])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['buyers'] });
-      toast.success("Buyer added successfully!");
-      setIsDialogOpen(false);
-      setFormData({
-        fullName: "",
-        email: "",
-        mobileNumber: "",
-        businessNumber: "",
-        dealershipName: "",
-        licenseNumber: "",
-        dealershipAddress: "",
-        city: "",
-        state: "",
-        zipCode: "",
-      });
-    },
-    onError: (error) => {
-      toast.error("Failed to add buyer: " + error.message);
-    },
-  });
-
   const handleFormDataChange = (data: Partial<BuyerFormData>) => {
     setFormData((prev) => ({
       ...prev,
@@ -132,7 +55,23 @@ const Buyers = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createBuyerMutation.mutate(formData);
+    createBuyer(formData, {
+      onSuccess: () => {
+        setIsDialogOpen(false);
+        setFormData({
+          fullName: "",
+          email: "",
+          mobileNumber: "",
+          businessNumber: "",
+          dealershipName: "",
+          licenseNumber: "",
+          dealershipAddress: "",
+          city: "",
+          state: "",
+          zipCode: "",
+        });
+      }
+    });
   };
 
   const filteredBuyers = buyers.filter((buyer) => {

@@ -23,3 +23,9 @@ export interface BuyerFormData {
   state: string;
   zipCode: string;
 }
+
+export interface BuyerWithBids extends Buyer {
+  acceptedBids: number;
+  pendingBids: number;
+  declinedBids: number;
+}
