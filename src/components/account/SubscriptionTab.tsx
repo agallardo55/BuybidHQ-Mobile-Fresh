@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export const SubscriptionTab = () => {
   const { formData, setFormData } = useAccountForm();
@@ -25,14 +26,16 @@ export const SubscriptionTab = () => {
 
   const handleManageSubscription = async () => {
     try {
-      // TODO: Replace with actual Stripe Customer Portal creation
-      // const { url } = await createStripePortalSession();
-      // window.location.href = url;
-      toast({
-        title: "Coming Soon",
-        description: "Subscription management will be available soon.",
+      const { data, error } = await supabase.functions.invoke('create-stripe-portal', {
+        method: 'POST',
       });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
     } catch (error) {
+      console.error('Error creating portal session:', error);
       toast({
         title: "Error",
         description: "Unable to access subscription management. Please try again later.",
@@ -62,17 +65,20 @@ export const SubscriptionTab = () => {
         }
       }
 
-      // For other upgrades, will use Stripe Checkout
-      // TODO: Replace with actual Stripe Checkout Session creation
-      // const { url } = await createStripeCheckoutSession({
-      //   priceId: getPriceIdForPlan(formData.subscriptionType)
-      // });
-      // window.location.href = url;
-      toast({
-        title: "Coming Soon",
-        description: "Subscription upgrades will be available soon.",
+      // For Individual plan upgrades, use Stripe Checkout
+      const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
+        method: 'POST',
+        body: {
+          currentPlan,
+        },
       });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
     } catch (error) {
+      console.error('Error creating checkout session:', error);
       toast({
         title: "Error",
         description: "Unable to process upgrade request. Please try again later.",
