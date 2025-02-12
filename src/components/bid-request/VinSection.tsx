@@ -42,13 +42,14 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
         return;
       }
 
+      // The data structure is now directly what we expect from the edge function
       const vehicleData = {
-        year: data.year?.toString() || "",
+        year: data.year || "",
         make: data.make || "",
         model: data.model || "",
         trim: data.trim || "",
-        engineCylinders: data.engine?.configuration || "",
-        transmission: data.transmission?.type || "",
+        engineCylinders: data.engineCylinders || "",
+        transmission: data.transmission || "",
         drivetrain: data.drivetrain || "",
       };
 
