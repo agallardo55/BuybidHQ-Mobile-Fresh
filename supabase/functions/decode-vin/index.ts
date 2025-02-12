@@ -30,19 +30,26 @@ serve(async (req) => {
       )
     }
 
-    console.log('Making request to CarAPI...')
+    console.log('Making request to CarAPI with VIN:', vin)
+    console.log('API Endpoint:', `https://api.carapi.app/vin/${vin}`)
 
     const response = await fetch(`https://api.carapi.app/vin/${vin}`, {
       headers: {
-        'Authorization': apiKey
+        'authorization': apiKey
       }
     })
 
+    console.log('CarAPI response status:', response.status)
     const data = await response.json()
     
-    console.log('CarAPI response:', data)
+    console.log('CarAPI response body:', data)
 
     if (!response.ok) {
+      console.error('CarAPI error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: data
+      })
       return new Response(
         JSON.stringify({ error: 'Failed to decode VIN', details: data }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
