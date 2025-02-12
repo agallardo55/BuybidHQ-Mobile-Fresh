@@ -80,10 +80,10 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             <SelectValue placeholder="Choose One" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="good">Good</SelectItem>
-            <SelectItem value="fair">Fair</SelectItem>
-            <SelectItem value="poor">Poor</SelectItem>
+            <SelectItem value="acceptable">Acceptable</SelectItem>
+            <SelectItem value="replaceFront">Replace front</SelectItem>
+            <SelectItem value="replaceRear">Replace rear</SelectItem>
+            <SelectItem value="replaceAll">Replace all</SelectItem>
           </SelectContent>
         </Select>
       </div>
