@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const ResetPassword = () => {
@@ -13,9 +13,28 @@ const ResetPassword = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const validatePassword = (password: string) => {
+    if (password.length < 6) {
+      return "Password must be at least 6 characters long";
+    }
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Validate password
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      toast({
+        title: "Error",
+        description: passwordError,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast({
@@ -39,6 +58,7 @@ const ResetPassword = () => {
         description: "Your password has been successfully reset. Please sign in with your new password.",
       });
       
+      // After successful password reset, navigate to sign in
       navigate("/signin");
     } catch (error: any) {
       toast({
@@ -81,6 +101,9 @@ const ResetPassword = () => {
                 className="mt-1"
                 minLength={6}
               />
+              <p className="mt-1 text-sm text-gray-500">
+                Password must be at least 6 characters long
+              </p>
             </div>
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
