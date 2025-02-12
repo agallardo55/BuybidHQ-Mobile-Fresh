@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -17,7 +16,7 @@ const BidRequestNavigation = () => {
               <img 
                 src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
                 alt="BuyBidHQ Logo" 
-                className="h-8 w-auto"
+                className="h-10 w-auto"
               />
             </Link>
             <Link 
@@ -73,4 +72,3 @@ const BidRequestNavigation = () => {
 };
 
 export default BidRequestNavigation;
-

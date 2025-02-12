@@ -8,7 +8,7 @@ const FooterLogo = () => {
         <img 
           src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
           alt="BuyBidHQ Logo" 
-          className="h-8 w-auto brightness-0 invert"
+          className="h-9 w-auto brightness-0 invert"
         />
       </Link>
       <p className="text-gray-400 mb-6">
