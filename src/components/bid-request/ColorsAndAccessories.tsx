@@ -177,7 +177,7 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
               {selectedFileUrls.map((url, index) => (
                 <CarouselItem key={index}>
                   <div className="p-1">
-                    <div className="aspect-square relative rounded-lg overflow-hidden">
+                    <div className="h-32 relative rounded-lg overflow-hidden">
                       <img
                         src={url}
                         alt={`Vehicle photo ${index + 1}`}
@@ -188,8 +188,8 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="-left-8" />
+            <CarouselNext className="-right-8" />
           </Carousel>
         </div>
       )}
