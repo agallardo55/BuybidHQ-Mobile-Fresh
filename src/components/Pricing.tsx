@@ -121,12 +121,9 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Advanced analytics & reporting</span>
+                  <span>Bid request dashboard</span>
                 </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Custom integrations</span>
-                </li>
+                
               </ul>
             </CardContent>
             <CardFooter>
