@@ -26,7 +26,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </label>
         <Select name="windshield" onValueChange={(value) => onSelectChange(value, "windshield")}>
           <SelectTrigger>
-            <SelectValue placeholder="Choose One" />
+            <SelectValue placeholder="Clear" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="clear">Clear</SelectItem>
@@ -43,7 +43,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </label>
         <Select name="engineLights" onValueChange={(value) => onSelectChange(value, "engineLights")}>
           <SelectTrigger>
-            <SelectValue placeholder="Choose One" />
+            <SelectValue placeholder="None" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">None</SelectItem>
@@ -60,7 +60,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </label>
         <Select name="brakes" onValueChange={(value) => onSelectChange(value, "brakes")}>
           <SelectTrigger>
-            <SelectValue placeholder="Choose One" />
+            <SelectValue placeholder="Acceptable" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="acceptable">Acceptable</SelectItem>
@@ -77,7 +77,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </label>
         <Select name="tire" onValueChange={(value) => onSelectChange(value, "tire")}>
           <SelectTrigger>
-            <SelectValue placeholder="Choose One" />
+            <SelectValue placeholder="Acceptable" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="acceptable">Acceptable</SelectItem>
@@ -94,7 +94,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </label>
         <Select name="maintenance" onValueChange={(value) => onSelectChange(value, "maintenance")}>
           <SelectTrigger>
-            <SelectValue placeholder="Choose One" />
+            <SelectValue placeholder="Up to date" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="upToDate">Up to date</SelectItem>
