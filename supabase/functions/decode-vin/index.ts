@@ -32,7 +32,7 @@ serve(async (req) => {
 
     const response = await fetch(`https://api.carapi.app/vin/${vin}`, {
       headers: {
-        'authorization': apiKey
+        'Authorization': apiKey // Changed from 'authorization' to 'Authorization'
       }
     })
 
@@ -42,7 +42,7 @@ serve(async (req) => {
 
     if (!response.ok) {
       return new Response(
-        JSON.stringify({ error: 'Failed to decode VIN' }),
+        JSON.stringify({ error: 'Failed to decode VIN', details: data }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
       )
     }
