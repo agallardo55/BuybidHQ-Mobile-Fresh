@@ -28,6 +28,7 @@ interface MultiStepFormProps {
   setSearchTerm: (term: string) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
+  onImagesUploaded?: (urls: string[]) => void;
 }
 
 const MultiStepForm = ({
@@ -42,6 +43,7 @@ const MultiStepForm = ({
   setSearchTerm,
   onSubmit,
   isSubmitting,
+  onImagesUploaded
 }: MultiStepFormProps) => {
   const {
     currentStep,
@@ -83,6 +85,7 @@ const MultiStepForm = ({
           <ColorsAndAccessories 
             formData={formData}
             onChange={onChange}
+            onImagesUploaded={onImagesUploaded}
           />
           <div className="mt-6 flex justify-between">
             <Button 

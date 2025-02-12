@@ -626,7 +626,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_complete_bid_request: {
+        Args: {
+          vehicle_data: Json
+          recon_data: Json
+          image_urls: string[]
+          buyer_ids: string[]
+          creator_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"

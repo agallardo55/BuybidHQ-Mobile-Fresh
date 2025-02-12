@@ -6,13 +6,17 @@ import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
 import { BidRequestFormData, FormErrors } from "@/components/bid-request/types";
 import MultiStepForm from "@/components/bid-request/MultiStepForm";
+import { supabase } from "@/integrations/supabase/client";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const CreateBidRequest = () => {
   const navigate = useNavigate();
+  const { currentUser } = useCurrentUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedBuyers, setSelectedBuyers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
   const [formData, setFormData] = useState<BidRequestFormData>({
     year: "",
     make: "",
@@ -76,20 +80,59 @@ const CreateBidRequest = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before submitting");
       return;
     }
 
+    if (!currentUser?.id) {
+      toast.error("You must be logged in to create a bid request");
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      toast.success("Bid request submitted successfully!");
+
+    try {
+      const { data, error } = await supabase.rpc('create_complete_bid_request', {
+        vehicle_data: {
+          year: formData.year,
+          make: formData.make,
+          model: formData.model,
+          trim: formData.trim,
+          vin: formData.vin,
+          mileage: formData.mileage,
+          engine: formData.engineCylinders,
+          transmission: formData.transmission,
+          drivetrain: formData.drivetrain,
+          exterior: formData.exteriorColor,
+          interior: formData.interiorColor,
+          options: formData.accessories
+        },
+        recon_data: {
+          windshield: formData.windshield,
+          engineLights: formData.engineLights,
+          brakes: formData.brakes,
+          tire: formData.tire,
+          maintenance: formData.maintenance,
+          reconEstimate: formData.reconEstimate,
+          reconDetails: formData.reconDetails
+        },
+        image_urls: uploadedImageUrls,
+        buyer_ids: selectedBuyers,
+        creator_id: currentUser.id
+      });
+
+      if (error) throw error;
+
+      toast.success("Bid request created successfully!");
       navigate("/dashboard");
+    } catch (error) {
+      console.error('Error creating bid request:', error);
+      toast.error("Failed to create bid request. Please try again.");
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const handleChange = (
@@ -113,6 +156,10 @@ const CreateBidRequest = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleImagesUploaded = (urls: string[]) => {
+    setUploadedImageUrls(prev => [...prev, ...urls]);
   };
 
   const toggleBuyer = (buyerId: string) => {
@@ -146,6 +193,7 @@ const CreateBidRequest = () => {
               setSearchTerm={setSearchTerm}
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
+              onImagesUploaded={handleImagesUploaded}
             />
             <div className="mt-6 pt-4 border-t border-gray-200 bg-white">
               <p className="text-sm text-gray-500 text-center">
