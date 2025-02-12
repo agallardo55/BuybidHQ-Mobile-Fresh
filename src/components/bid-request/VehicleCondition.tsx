@@ -47,7 +47,9 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">None</SelectItem>
-            <SelectItem value="on">On</SelectItem>
+            <SelectItem value="engine">Engine Light</SelectItem>
+            <SelectItem value="maintenance">Maintenance Required</SelectItem>
+            <SelectItem value="mobile">Mobile Device</SelectItem>
           </SelectContent>
         </Select>
       </div>
