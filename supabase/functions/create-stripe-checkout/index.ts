@@ -8,13 +8,13 @@ const corsHeaders = {
 }
 
 interface StripeCheckoutRequest {
-  priceId: string;
-  userId: string;
-  currentPlan: string;
+  currentPlan: 'beta-access' | 'individual' | 'dealership';
+  successUrl?: string;
+  cancelUrl?: string;
 }
 
 const PRICE_IDS = {
-  'individual': 'price_XXXX', // Replace with actual Stripe price ID for Individual plan
+  'individual': process.env.STRIPE_INDIVIDUAL_PRICE_ID,
 }
 
 Deno.serve(async (req) => {
@@ -50,16 +50,46 @@ Deno.serve(async (req) => {
       )
     }
 
-    const { priceId, currentPlan } = await req.json() as StripeCheckoutRequest
+    const { currentPlan, successUrl, cancelUrl } = await req.json() as StripeCheckoutRequest
+
+    // If dealership plan is requested, return error suggesting contact
+    if (currentPlan === 'dealership') {
+      return new Response(
+        JSON.stringify({ error: 'Please contact sales for dealership plan', contact: true }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
       apiVersion: '2023-10-16',
     })
 
+    // Get or create Stripe customer
+    const { data: subscriptions } = await supabaseClient
+      .from('subscriptions')
+      .select('stripe_customer_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    let customerId = subscriptions?.stripe_customer_id
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        metadata: {
+          supabase_user_id: user.id,
+        },
+      })
+      customerId = customer.id
+    }
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
-      customer_email: user.email,
+      customer: customerId,
       line_items: [
         {
           price: PRICE_IDS[currentPlan as keyof typeof PRICE_IDS],
@@ -67,21 +97,23 @@ Deno.serve(async (req) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${req.headers.get('origin')}/account?success=true`,
-      cancel_url: `${req.headers.get('origin')}/account?canceled=true`,
+      success_url: successUrl ?? `${req.headers.get('origin')}/account?success=true`,
+      cancel_url: cancelUrl ?? `${req.headers.get('origin')}/account?canceled=true`,
       metadata: {
         userId: user.id,
+        planType: currentPlan,
       },
     })
 
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({ url: session.url, sessionId: session.id }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
   } catch (error) {
+    console.error('Stripe checkout error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
