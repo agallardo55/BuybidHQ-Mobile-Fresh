@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute, AuthRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -25,20 +27,92 @@ const App = () => (
       <Toaster />
       <Sonner position="top-center" />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/dashboard" element={<BidRequestDashboard />} />
-          <Route path="/create-bid-request" element={<CreateBidRequest />} />
-          <Route path="/bid-response" element={<BidResponse />} />
-          <Route path="/buyers" element={<Buyers />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route 
+              path="/signin" 
+              element={
+                <AuthRoute>
+                  <SignIn />
+                </AuthRoute>
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                <AuthRoute>
+                  <SignUp />
+                </AuthRoute>
+              } 
+            />
+            <Route 
+              path="/forgot-password" 
+              element={
+                <AuthRoute>
+                  <ForgotPassword />
+                </AuthRoute>
+              } 
+            />
+            <Route 
+              path="/reset-password" 
+              element={
+                <AuthRoute>
+                  <ResetPassword />
+                </AuthRoute>
+              } 
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <BidRequestDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/create-bid-request"
+              element={
+                <ProtectedRoute>
+                  <CreateBidRequest />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bid-response"
+              element={
+                <ProtectedRoute>
+                  <BidResponse />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/buyers"
+              element={
+                <ProtectedRoute>
+                  <Buyers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/account"
+              element={
+                <ProtectedRoute>
+                  <Account />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
