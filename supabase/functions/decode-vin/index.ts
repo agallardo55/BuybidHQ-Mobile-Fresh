@@ -31,8 +31,10 @@ serve(async (req) => {
     }
 
     console.log('Making request to CarAPI with VIN:', vin)
-    const apiUrl = `https://api.carapi.app/api/vin/${vin}`
+    // Try different API endpoint structure
+    const apiUrl = `https://api.carapi.app/api/v1/vin/${vin}`
     console.log('API Endpoint:', apiUrl)
+    console.log('Using API Key (first 4 chars):', apiKey.substring(0, 4))
 
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -44,18 +46,44 @@ serve(async (req) => {
     })
 
     console.log('CarAPI response status:', response.status)
-    const data = await response.json()
+    console.log('CarAPI response headers:', Object.fromEntries(response.headers.entries()))
     
-    console.log('CarAPI response body:', data)
+    // Get the raw response text first
+    const responseText = await response.text()
+    console.log('CarAPI raw response:', responseText)
+
+    let data
+    try {
+      // Try to parse the response as JSON
+      data = JSON.parse(responseText)
+    } catch (parseError) {
+      console.error('Failed to parse CarAPI response as JSON:', parseError)
+      console.error('Raw response was:', responseText)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid API response format',
+          details: responseText.substring(0, 500) // Limit the response size
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 502 }
+      )
+    }
+    
+    console.log('CarAPI parsed response:', data)
 
     if (!response.ok) {
       console.error('CarAPI error response:', {
         status: response.status,
         statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
         data: data
       })
       return new Response(
-        JSON.stringify({ error: 'Failed to decode VIN', details: data }),
+        JSON.stringify({ 
+          error: 'Failed to decode VIN', 
+          details: data,
+          status: response.status,
+          statusText: response.statusText
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
       )
     }
@@ -67,7 +95,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing request:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ 
+        error: 'Internal server error',
+        details: error.message
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
