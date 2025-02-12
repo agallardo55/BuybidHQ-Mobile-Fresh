@@ -1,14 +1,16 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCurrentUser } from "./useCurrentUser";
 
 export const useAccountForm = () => {
+  const { currentUser, isLoading } = useCurrentUser();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     mobileNumber: "",
     businessNumber: "",
     dealershipName: "",
-    licenseNumber: "", // Now optional
+    licenseNumber: "",
     dealershipAddress: "",
     city: "",
     state: "",
@@ -19,6 +21,21 @@ export const useAccountForm = () => {
     cardCvc: "",
     cardName: "",
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: currentUser.full_name || "",
+        email: currentUser.email || "",
+        mobileNumber: currentUser.mobile_number || "",
+        dealershipAddress: currentUser.address || "",
+        city: currentUser.city || "",
+        state: currentUser.state || "",
+        zipCode: currentUser.zip_code || "",
+      }));
+    }
+  }, [currentUser]);
 
   const formatPhoneNumber = (value: string) => {
     const phoneNumber = value.replace(/\D/g, '');
@@ -82,5 +99,6 @@ export const useAccountForm = () => {
     formData,
     setFormData,
     handleChange,
+    isLoading
   };
 };

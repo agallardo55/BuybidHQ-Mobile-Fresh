@@ -3,19 +3,49 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAccountForm } from "@/hooks/useAccountForm";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const PersonalInfoTab = () => {
-  const { formData, handleChange } = useAccountForm();
+  const { formData, handleChange, isLoading } = useAccountForm();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Updated account data:", formData);
-    toast({
-      title: "Account updated",
-      description: "Your account details have been successfully updated.",
-    });
+
+    try {
+      const { error } = await supabase
+        .from('buybidhq_users')
+        .update({
+          full_name: formData.fullName,
+          email: formData.email,
+          mobile_number: formData.mobileNumber,
+        })
+        .eq('id', (await supabase.auth.getUser()).data.user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Account updated",
+        description: "Your account details have been successfully updated.",
+      });
+    } catch (error) {
+      console.error('Error updating account:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update account details. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">

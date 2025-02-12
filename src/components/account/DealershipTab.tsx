@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAccountForm } from "@/hooks/useAccountForm";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -20,7 +22,7 @@ const states = [
 ];
 
 export const DealershipTab = () => {
-  const { formData, setFormData, handleChange } = useAccountForm();
+  const { formData, setFormData, handleChange, isLoading } = useAccountForm();
   const { toast } = useToast();
 
   const handleStateChange = (value: string) => {
@@ -30,14 +32,43 @@ export const DealershipTab = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Updated dealership data:", formData);
-    toast({
-      title: "Dealership updated",
-      description: "Your dealership details have been successfully updated.",
-    });
+
+    try {
+      const { error } = await supabase
+        .from('buybidhq_users')
+        .update({
+          address: formData.dealershipAddress,
+          city: formData.city,
+          state: formData.state,
+          zip_code: formData.zipCode,
+        })
+        .eq('id', (await supabase.auth.getUser()).data.user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Dealership updated",
+        description: "Your dealership details have been successfully updated.",
+      });
+    } catch (error) {
+      console.error('Error updating dealership:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update dealership details. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">

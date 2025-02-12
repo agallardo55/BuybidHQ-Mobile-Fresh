@@ -11,6 +11,15 @@ interface UserData {
   id: string;
   role: UserRole;
   status: string;
+  full_name: string | null;
+  email: string;
+  mobile_number: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  company: string | null;
+  dealership_id: string | null;
 }
 
 export const useCurrentUser = () => {
@@ -24,7 +33,7 @@ export const useCurrentUser = () => {
       
       const { data: userData, error: userError } = await supabase
         .from('buybidhq_users')
-        .select('role, status')
+        .select('*, dealerships:dealership_id(*)')
         .eq('id', user?.id)
         .maybeSingle();
         
@@ -34,10 +43,21 @@ export const useCurrentUser = () => {
         throw new Error("User data not found");
       }
 
-      // During development, provide a default role if none exists
       return {
         id: user?.id,
-        ...userData || { role: 'admin' as UserRole, status: 'active' }
+        ...userData || { 
+          role: 'admin' as UserRole, 
+          status: 'active',
+          full_name: '',
+          email: user?.email || '',
+          mobile_number: '',
+          address: '',
+          city: '',
+          state: '',
+          zip_code: '',
+          company: '',
+          dealership_id: null,
+        }
       };
     },
     meta: {
