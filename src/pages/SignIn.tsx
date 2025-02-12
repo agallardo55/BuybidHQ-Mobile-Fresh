@@ -1,12 +1,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -14,6 +15,16 @@ const SignIn = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+
+  // If user is already authenticated, redirect them
+  useEffect(() => {
+    if (user) {
+      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +37,7 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data: { session }, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -35,9 +46,12 @@ const SignIn = () => {
         throw error;
       }
 
-      if (data.user) {
+      if (session) {
+        const from = (location.state as any)?.from?.pathname || '/dashboard';
         toast.success("Successfully signed in!");
-        navigate("/dashboard");
+        navigate(from, { replace: true });
+      } else {
+        toast.error("Something went wrong. Please try again.");
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
