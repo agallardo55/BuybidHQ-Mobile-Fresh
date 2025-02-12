@@ -25,6 +25,27 @@ interface BasicVehicleInfoProps {
 }
 
 const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps) => {
+  const handleVehicleDataFetched = (data: {
+    year: string;
+    make: string;
+    model: string;
+    trim: string;
+    engineCylinders: string;
+    transmission: string;
+    drivetrain: string;
+  }) => {
+    // Create synthetic events to update each field
+    Object.entries(data).forEach(([key, value]) => {
+      const syntheticEvent = {
+        target: {
+          name: key,
+          value: value
+        }
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(syntheticEvent);
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -34,6 +55,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
             vin={formData.vin}
             onChange={onChange}
             error={errors.vin}
+            onVehicleDataFetched={handleVehicleDataFetched}
           />
           <div>
             <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
