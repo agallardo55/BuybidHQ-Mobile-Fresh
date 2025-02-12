@@ -1,9 +1,12 @@
+
 import { ImagePlus, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ColorsAndAccessoriesProps {
   formData: {
@@ -12,15 +15,17 @@ interface ColorsAndAccessoriesProps {
     accessories: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onImagesUploaded?: (urls: string[]) => void;
 }
 
 const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
 const interiorColors = ["Black", "Tan", "Grey", "Red", "White", "Brown"];
 
-const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps) => {
+const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAndAccessoriesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedFileUrls, setSelectedFileUrls] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -34,8 +39,46 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
     }
   };
 
-  const handleUpload = () => {
-    console.log('Files to upload:', selectedFiles);
+  const handleUpload = async () => {
+    if (selectedFiles.length === 0) return;
+
+    setIsUploading(true);
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (const file of selectedFiles) {
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${crypto.randomUUID()}.${fileExt}`;
+
+        const { error: uploadError, data } = await supabase.storage
+          .from('vehicle_images')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('vehicle_images')
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push(publicUrl);
+      }
+
+      toast.success(`Successfully uploaded ${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''}`);
+      onImagesUploaded?.(uploadedUrls);
+      
+      // Clear selected files after successful upload
+      setSelectedFiles([]);
+      // Cleanup preview URLs
+      selectedFileUrls.forEach(url => URL.revokeObjectURL(url));
+      setSelectedFileUrls([]);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload images. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSelectChange = (value: string, name: string) => {
@@ -160,9 +203,13 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
               <Button 
                 onClick={handleUpload} 
                 className="w-full"
-                disabled={selectedFiles.length === 0}
+                disabled={selectedFiles.length === 0 || isUploading}
               >
-                Upload {selectedFiles.length} {selectedFiles.length === 1 ? 'Photo' : 'Photos'}
+                {isUploading ? (
+                  'Uploading...'
+                ) : (
+                  `Upload ${selectedFiles.length} ${selectedFiles.length === 1 ? 'Photo' : 'Photos'}`
+                )}
               </Button>
             </div>
           </div>
