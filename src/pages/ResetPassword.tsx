@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,8 +10,33 @@ const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if we have access to reset the password
+    const checkAccess = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        setIsExpired(true);
+        toast({
+          title: "Error",
+          description: "This password reset link is invalid or has expired. Please request a new one.",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          navigate("/forgot-password");
+        }, 3000);
+      }
+    };
+
+    checkAccess();
+  }, [navigate, toast]);
 
   const validatePassword = (password: string) => {
     if (password.length < 6) {
@@ -58,6 +83,9 @@ const ResetPassword = () => {
         description: "Your password has been successfully reset. Please sign in with your new password.",
       });
       
+      // Sign out the user after password reset
+      await supabase.auth.signOut();
+      
       // After successful password reset, navigate to sign in
       navigate("/signin");
     } catch (error: any) {
@@ -70,6 +98,19 @@ const ResetPassword = () => {
       setIsLoading(false);
     }
   };
+
+  if (isExpired) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Invalid or Expired Link</h2>
+          <p className="text-gray-600">
+            This password reset link is invalid or has expired. Redirecting you to request a new one...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
