@@ -99,7 +99,7 @@ const Pricing = () => {
           <Card className="flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl">Dealership</CardTitle>
-              <CardDescription>For large dealerships</CardDescription>
+              <CardDescription>Large dealers</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
