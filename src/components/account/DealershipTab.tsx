@@ -58,7 +58,7 @@ export const DealershipTab = () => {
           </div>
           <div>
             <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
-              Dealer ID (Optional)
+              Dealer ID
             </label>
             <Input
               id="licenseNumber"
