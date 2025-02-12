@@ -97,9 +97,10 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             <SelectValue placeholder="Choose One" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="upToDate">Up to Date</SelectItem>
-            <SelectItem value="needsService">Needs Service</SelectItem>
-            <SelectItem value="overdue">Overdue</SelectItem>
+            <SelectItem value="upToDate">Up to date</SelectItem>
+            <SelectItem value="basicService">Basic service needed</SelectItem>
+            <SelectItem value="minorService">Minor service needed</SelectItem>
+            <SelectItem value="majorService">Major service needed</SelectItem>
           </SelectContent>
         </Select>
       </div>
