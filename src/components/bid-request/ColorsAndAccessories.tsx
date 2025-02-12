@@ -1,10 +1,10 @@
 
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { ImagePlus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface ColorsAndAccessoriesProps {
   formData: {
@@ -14,6 +14,9 @@ interface ColorsAndAccessoriesProps {
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
+
+const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
+const interiorColors = ["Black", "Tan", "Grey", "Red", "White", "Brown"];
 
 const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -30,36 +33,61 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
     console.log('Files to upload:', selectedFiles);
   };
 
+  const handleSelectChange = (value: string, name: string) => {
+    // Create a synthetic event object to match the onChange prop type
+    const syntheticEvent = {
+      target: {
+        name,
+        value
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
+  };
+
   return (
     <div className="space-y-4">
       <div>
         <label htmlFor="exteriorColor" className="block text-sm font-medium text-gray-700 mb-1">
           Exterior Color
         </label>
-        <Input
-          id="exteriorColor"
-          name="exteriorColor"
-          type="text"
+        <Select
           value={formData.exteriorColor}
-          onChange={onChange}
-          required
-          placeholder="Midnight Black"
-        />
+          onValueChange={(value) => handleSelectChange(value, "exteriorColor")}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select exterior color" />
+          </SelectTrigger>
+          <SelectContent>
+            {exteriorColors.map((color) => (
+              <SelectItem key={color} value={color}>
+                {color}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
       <div>
         <label htmlFor="interiorColor" className="block text-sm font-medium text-gray-700 mb-1">
           Interior Color
         </label>
-        <Input
-          id="interiorColor"
-          name="interiorColor"
-          type="text"
+        <Select
           value={formData.interiorColor}
-          onChange={onChange}
-          required
-          placeholder="Black Leather"
-        />
+          onValueChange={(value) => handleSelectChange(value, "interiorColor")}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select interior color" />
+          </SelectTrigger>
+          <SelectContent>
+            {interiorColors.map((color) => (
+              <SelectItem key={color} value={color}>
+                {color}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
       <div>
         <label htmlFor="accessories" className="block text-sm font-medium text-gray-700 mb-1">
           Additional Equipment/Accessories
