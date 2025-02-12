@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 interface ColorsAndAccessoriesProps {
   formData: {
@@ -20,12 +21,17 @@ const interiorColors = ["Black", "Tan", "Grey", "Red", "White", "Brown"];
 
 const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFileUrls, setSelectedFileUrls] = useState<string[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
       const filesArray = Array.from(files);
       setSelectedFiles(prev => [...prev, ...filesArray]);
+      
+      // Create URLs for preview
+      const newUrls = filesArray.map(file => URL.createObjectURL(file));
+      setSelectedFileUrls(prev => [...prev, ...newUrls]);
     }
   };
 
@@ -163,6 +169,30 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
           </div>
         </DialogContent>
       </Dialog>
+
+      {selectedFileUrls.length > 0 && (
+        <div className="mt-4">
+          <Carousel className="w-full max-w-xl mx-auto">
+            <CarouselContent>
+              {selectedFileUrls.map((url, index) => (
+                <CarouselItem key={index}>
+                  <div className="p-1">
+                    <div className="aspect-square relative rounded-lg overflow-hidden">
+                      <img
+                        src={url}
+                        alt={`Vehicle photo ${index + 1}`}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </div>
+      )}
     </div>
   );
 };
