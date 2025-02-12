@@ -15,6 +15,7 @@ import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<BidRequestDashboard />} />
           <Route path="/create-bid-request" element={<CreateBidRequest />} />
           <Route path="/bid-response" element={<BidResponse />} />
