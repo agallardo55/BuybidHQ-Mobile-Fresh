@@ -171,7 +171,7 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
 
       {selectedFileUrls.length > 0 && (
         <div className="mt-4">
-          <div className="w-full max-w-[90%] mx-auto overflow-x-auto">
+          <div className="w-full max-w-[95%] mx-auto overflow-x-auto">
             <div className="flex gap-4 pb-4">
               {selectedFileUrls.map((url, index) => (
                 <div key={index} className="flex-none">
