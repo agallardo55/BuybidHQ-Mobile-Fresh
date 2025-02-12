@@ -38,7 +38,7 @@ serve(async (req) => {
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': apiKey,
         'Accept': 'application/json'
       }
     })
