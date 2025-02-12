@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 interface ColorsAndAccessoriesProps {
   formData: {
@@ -172,25 +171,21 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
 
       {selectedFileUrls.length > 0 && (
         <div className="mt-4">
-          <Carousel className="w-full max-w-[90%] mx-auto">
-            <CarouselContent className="-ml-0">
+          <div className="w-full max-w-[90%] mx-auto overflow-x-auto">
+            <div className="flex gap-4 pb-4">
               {selectedFileUrls.map((url, index) => (
-                <CarouselItem key={index} className="pl-0">
-                  <div>
-                    <div className="h-32 flex justify-start relative rounded-lg overflow-hidden">
-                      <img
-                        src={url}
-                        alt={`Vehicle photo ${index + 1}`}
-                        className="h-full w-auto object-contain"
-                      />
-                    </div>
+                <div key={index} className="flex-none">
+                  <div className="h-32 relative rounded-lg overflow-hidden">
+                    <img
+                      src={url}
+                      alt={`Vehicle photo ${index + 1}`}
+                      className="h-full w-auto object-contain"
+                    />
                   </div>
-                </CarouselItem>
+                </div>
               ))}
-            </CarouselContent>
-            <CarouselPrevious className="-left-8" />
-            <CarouselNext className="-right-8" />
-          </Carousel>
+            </div>
+          </div>
         </div>
       )}
     </div>
