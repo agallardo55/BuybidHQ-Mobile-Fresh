@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useAccountForm } from "@/hooks/useAccountForm";
 import {
   Select,
   SelectContent,
@@ -11,18 +10,13 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useSubscription } from "@/hooks/useSubscription";
+import { Loader2 } from "lucide-react";
 
 export const SubscriptionTab = () => {
-  const { formData, setFormData } = useAccountForm();
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  const handleSubscriptionChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      subscriptionType: value,
-    }));
-  };
+  const { subscription, isLoading } = useSubscription();
 
   const handleManageSubscription = async () => {
     try {
@@ -46,7 +40,7 @@ export const SubscriptionTab = () => {
 
   const handleUpgradeSubscription = async () => {
     try {
-      const currentPlan = formData.subscriptionType;
+      const currentPlan = subscription?.plan_type;
 
       // If upgrading to Dealership plan, redirect to contact form
       if (currentPlan === "beta-access" || currentPlan === "individual") {
@@ -88,7 +82,9 @@ export const SubscriptionTab = () => {
   };
 
   const getCurrentPlanLabel = () => {
-    switch (formData.subscriptionType) {
+    if (!subscription) return "Loading...";
+    
+    switch (subscription.plan_type) {
       case "beta-access":
         return "Beta Access (Free)";
       case "individual":
@@ -100,20 +96,31 @@ export const SubscriptionTab = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900">Current Subscription</h3>
-        <Select onValueChange={handleSubscriptionChange} value={formData.subscriptionType}>
-          <SelectTrigger>
-            <SelectValue placeholder={getCurrentPlanLabel()} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="beta-access">Beta Access (Free)</SelectItem>
-            <SelectItem value="individual">Individual ($49/month)</SelectItem>
-            <SelectItem value="dealership">Dealership (Custom)</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <p className="font-medium">{getCurrentPlanLabel()}</p>
+            <p className="text-sm text-gray-500">
+              Status: {subscription?.status.charAt(0).toUpperCase() + subscription?.status.slice(1)}
+            </p>
+          </div>
+          {subscription?.current_period_end && (
+            <p className="text-sm text-gray-500">
+              Renews: {new Date(subscription.current_period_end).toLocaleDateString()}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -122,17 +129,20 @@ export const SubscriptionTab = () => {
             type="button"
             onClick={handleUpgradeSubscription}
             className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+            disabled={subscription?.plan_type === 'dealership'}
           >
-            Upgrade Subscription
+            {subscription?.plan_type === 'dealership' ? 'Current Plan' : 'Upgrade Subscription'}
           </Button>
-          <Button
-            type="button"
-            onClick={handleManageSubscription}
-            variant="outline"
-            className="w-full"
-          >
-            Manage Payment Methods
-          </Button>
+          {subscription?.stripe_subscription_id && (
+            <Button
+              type="button"
+              onClick={handleManageSubscription}
+              variant="outline"
+              className="w-full"
+            >
+              Manage Payment Methods
+            </Button>
+          )}
         </div>
 
         <div className="text-sm text-gray-500">

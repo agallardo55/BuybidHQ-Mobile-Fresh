@@ -454,6 +454,42 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          id: string
+          plan_type: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_type: string
+          status: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_type?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       superadmin: {
         Row: {
           created_at: string | null
@@ -585,7 +621,7 @@ export type Database = {
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
-      user_role: "admin" | "dealer" | "basic"
+      user_role: "admin" | "dealer" | "basic" | "individual"
     }
     CompositeTypes: {
       [_ in never]: never
