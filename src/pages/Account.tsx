@@ -24,8 +24,8 @@ const Account = () => {
             <TabsList className="mb-4 w-full flex flex-wrap gap-2">
               <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
               <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>
-              <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>
               <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
+              <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>
             </TabsList>
 
             <TabsContent value="personal">
@@ -36,12 +36,12 @@ const Account = () => {
               <DealershipTab />
             </TabsContent>
 
-            <TabsContent value="subscription">
-              <SubscriptionTab />
-            </TabsContent>
-
             <TabsContent value="security">
               <SecurityTab />
+            </TabsContent>
+
+            <TabsContent value="subscription">
+              <SubscriptionTab />
             </TabsContent>
           </Tabs>
         </div>
