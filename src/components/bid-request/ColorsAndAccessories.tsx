@@ -195,7 +195,7 @@ const ColorsAndAccessories = ({ formData, onChange }: ColorsAndAccessoriesProps)
       )}
 
       <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-        <DialogContent className="sm:max-w-3xl p-0">
+        <DialogContent className="sm:max-w-3xl p-0 bg-black">
           <div className="relative w-full h-[80vh]">
             {previewImage && (
               <img
