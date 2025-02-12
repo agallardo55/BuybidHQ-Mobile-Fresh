@@ -8,7 +8,7 @@ export const useAccountForm = () => {
     mobileNumber: "",
     businessNumber: "",
     dealershipName: "",
-    licenseNumber: "",
+    licenseNumber: "", // Now optional
     dealershipAddress: "",
     city: "",
     state: "",

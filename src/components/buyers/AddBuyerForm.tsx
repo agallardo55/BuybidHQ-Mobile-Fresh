@@ -138,13 +138,13 @@ const AddBuyerForm = ({ onSubmit, formData, onFormDataChange }: AddBuyerFormProp
           </div>
           <div>
             <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
-              Dealer ID
+              Dealer ID (Optional)
             </label>
             <Input
               id="licenseNumber"
               name="licenseNumber"
               type="text"
-              required
+              placeholder="(Optional)"
               value={formData.licenseNumber}
               onChange={handleChange}
             />
