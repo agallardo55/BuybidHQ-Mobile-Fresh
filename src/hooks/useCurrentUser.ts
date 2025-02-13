@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { shouldEnforceRoleChecks } from "@/config/features";
 
-export type UserRole = 'admin' | 'dealer' | 'basic';
+export type UserRole = 'admin' | 'dealer' | 'basic' | 'individual';
 
 interface UserData {
   id: string;
@@ -43,21 +43,19 @@ export const useCurrentUser = () => {
         throw new Error("User data not found");
       }
 
-      return {
+      return userData || { 
         id: user?.id,
-        ...userData || { 
-          role: 'admin' as UserRole, 
-          status: 'active',
-          full_name: '',
-          email: user?.email || '',
-          mobile_number: '',
-          address: '',
-          city: '',
-          state: '',
-          zip_code: '',
-          company: '',
-          dealership_id: null,
-        }
+        role: 'admin' as UserRole, 
+        status: 'active',
+        full_name: '',
+        email: user?.email || '',
+        mobile_number: '',
+        address: '',
+        city: '',
+        state: '',
+        zip_code: '',
+        company: '',
+        dealership_id: null,
       };
     },
     meta: {

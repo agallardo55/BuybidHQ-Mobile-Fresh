@@ -80,25 +80,6 @@ export const useUsers = () => {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      // Check if the user exists and get their role
-      const { data: userToDelete, error: fetchError } = await supabase
-        .from('buybidhq_users')
-        .select('role, dealership_id')
-        .eq('id', userId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      // Validate deletion permissions
-      if (currentUser?.role === 'dealer') {
-        if (!['basic', 'individual'].includes(userToDelete.role)) {
-          throw new Error("Dealers can only delete basic or individual users");
-        }
-        if (userToDelete.dealership_id !== currentUser.dealership_id) {
-          throw new Error("You can only delete users from your dealership");
-        }
-      }
-
       const { error } = await supabase
         .from('buybidhq_users')
         .delete()

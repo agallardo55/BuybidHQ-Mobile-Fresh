@@ -636,6 +636,18 @@ export type Database = {
         }
         Returns: string
       }
+      get_user_dealership: {
+        Args: {
+          user_id: string
+        }
+        Returns: string
+      }
+      get_user_role: {
+        Args: {
+          user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
