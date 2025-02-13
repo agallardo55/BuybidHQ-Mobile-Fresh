@@ -64,7 +64,7 @@ const AddUserDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600">
+        <Button className="flex items-center gap-2 bg-custom-blue hover:bg-custom-blue/90">
           <Plus className="h-4 w-4" />
           User
         </Button>
