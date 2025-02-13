@@ -2,18 +2,24 @@
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
-import { BuyerFormData } from "@/types/buyers";
+import { BuyerFormData, Buyer } from "@/types/buyers";
 import { useBuyers } from "@/hooks/useBuyers";
 import BuyersHeader from "@/components/buyers/BuyersHeader";
 import BuyersList from "@/components/buyers/BuyersList";
+import ViewBuyerDialog from "@/components/buyers/ViewBuyerDialog";
+import DeleteBuyerDialog from "@/components/buyers/DeleteBuyerDialog";
 
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
+  const [buyerToDelete, setBuyerToDelete] = useState<string | null>(null);
 
-  const { buyers, isLoading, createBuyer } = useBuyers();
+  const { buyers, isLoading, createBuyer, deleteBuyer } = useBuyers();
 
   const [formData, setFormData] = useState<BuyerFormData>({
     fullName: "",
@@ -59,6 +65,23 @@ const Buyers = () => {
   const handlePageSizeChange = (newSize: number) => {
     setPageSize(newSize);
     setCurrentPage(1);
+  };
+
+  const handleView = (buyer: Buyer) => {
+    setSelectedBuyer(buyer);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleDelete = (buyerId: string) => {
+    setBuyerToDelete(buyerId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = (reason?: string) => {
+    if (buyerToDelete) {
+      deleteBuyer(buyerToDelete);
+      setBuyerToDelete(null);
+    }
   };
 
   const filteredBuyers = buyers.filter((buyer) => {
@@ -116,10 +139,25 @@ const Buyers = () => {
               pageSize={pageSize}
               onPageSizeChange={handlePageSizeChange}
               totalItems={filteredBuyers.length}
+              onView={handleView}
+              onDelete={handleDelete}
             />
           </div>
         </div>
       </div>
+
+      <ViewBuyerDialog
+        buyer={selectedBuyer}
+        isOpen={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+      />
+
+      <DeleteBuyerDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={confirmDelete}
+      />
+
       <Footer />
     </div>
   );

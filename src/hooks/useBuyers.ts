@@ -41,7 +41,7 @@ export const useBuyers = () => {
         declinedBids: buyer.declined_bids || 0
       }));
     },
-    enabled: !!currentUser, // Only run query when currentUser is available
+    enabled: !!currentUser,
   });
 
   const createBuyerMutation = useMutation({
@@ -84,9 +84,28 @@ export const useBuyers = () => {
     },
   });
 
+  const deleteBuyerMutation = useMutation({
+    mutationFn: async (buyerId: string) => {
+      const { error } = await supabase
+        .from('buyers')
+        .delete()
+        .eq('id', buyerId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buyers'] });
+      toast.success("Buyer deleted successfully!");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete buyer: " + error.message);
+    },
+  });
+
   return {
     buyers,
     isLoading,
     createBuyer: createBuyerMutation.mutate,
+    deleteBuyer: deleteBuyerMutation.mutate,
   };
 };
