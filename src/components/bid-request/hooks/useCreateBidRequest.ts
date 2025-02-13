@@ -22,11 +22,11 @@ export const useCreateBidRequest = () => {
     exteriorColor: "",
     interiorColor: "",
     accessories: "",
-    windshield: "",
-    engineLights: "",
-    brakes: "",
-    tire: "",
-    maintenance: "",
+    windshield: "clear",
+    engineLights: "none",
+    brakes: "acceptable",
+    tire: "acceptable",
+    maintenance: "upToDate",
     reconEstimate: "",
     reconDetails: "",
     engineCylinders: "",
@@ -37,7 +37,6 @@ export const useCreateBidRequest = () => {
   const validateForm = () => {
     const newErrors: FormErrors = {};
     
-    // Core vehicle information validation
     if (!formData.year) newErrors.year = "Year is required";
     if (!formData.make) newErrors.make = "Make is required";
     if (!formData.model) newErrors.model = "Model is required";
@@ -46,19 +45,16 @@ export const useCreateBidRequest = () => {
     if (!formData.mileage) newErrors.mileage = "Mileage is required";
     if (selectedBuyers.length === 0) newErrors.buyers = "Please select at least one buyer";
     
-    // VIN validation
     if (formData.vin && formData.vin.length !== 17) {
       newErrors.vin = "VIN must be 17 characters";
     }
     
-    // Year validation
     const currentYear = new Date().getFullYear();
     const year = parseInt(formData.year);
     if (year < 1900 || year > currentYear + 1) {
       newErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
     }
 
-    // Mileage validation
     if (parseInt(formData.mileage) < 0) {
       newErrors.mileage = "Mileage cannot be negative";
     }
@@ -81,35 +77,6 @@ export const useCreateBidRequest = () => {
     setIsSubmitting(true);
 
     try {
-      console.log('Submitting bid request with data:', {
-        vehicle_data: {
-          year: formData.year,
-          make: formData.make,
-          model: formData.model,
-          trim: formData.trim,
-          vin: formData.vin,
-          mileage: formData.mileage,
-          engine: formData.engineCylinders,
-          transmission: formData.transmission,
-          drivetrain: formData.drivetrain,
-          exterior: formData.exteriorColor,
-          interior: formData.interiorColor,
-          options: formData.accessories
-        },
-        recon_data: {
-          windshield: formData.windshield,
-          engineLights: formData.engineLights,
-          brakes: formData.brakes,
-          tire: formData.tire,
-          maintenance: formData.maintenance,
-          reconEstimate: formData.reconEstimate,
-          reconDetails: formData.reconDetails
-        },
-        image_urls: uploadedImageUrls,
-        buyer_ids: selectedBuyers,
-        creator_id: userId
-      });
-
       const { data, error } = await supabase.rpc('create_complete_bid_request', {
         vehicle_data: {
           year: formData.year,
@@ -126,11 +93,11 @@ export const useCreateBidRequest = () => {
           options: formData.accessories
         },
         recon_data: {
-          windshield: formData.windshield,
-          engineLights: formData.engineLights,
-          brakes: formData.brakes,
-          tire: formData.tire,
-          maintenance: formData.maintenance,
+          windshield: formData.windshield || "clear",
+          engineLights: formData.engineLights || "none",
+          brakes: formData.brakes || "acceptable",
+          tire: formData.tire || "acceptable",
+          maintenance: formData.maintenance || "upToDate",
           reconEstimate: formData.reconEstimate,
           reconDetails: formData.reconDetails
         },
