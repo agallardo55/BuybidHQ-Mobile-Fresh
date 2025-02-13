@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
@@ -122,7 +121,7 @@ const Users = () => {
                 onView={() => {}}
               />
             </div>
-            <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="mt-4 flex flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Rows per page:</span>
                 <Select
