@@ -5,28 +5,13 @@ import { useBidRequestSubmission } from "./useBidRequestSubmission";
 import { toast } from "sonner";
 
 export const useCreateBidRequest = () => {
-  const {
-    formData,
-    errors,
-    isSubmitting,
-    selectedBuyers,
-    searchTerm,
-    uploadedImageUrls,
-    setIsSubmitting,
-    setErrors,
-    setSearchTerm,
-    handleChange,
-    handleSelectChange,
-    handleImagesUploaded,
-    toggleBuyer,
-  } = useFormState();
-
+  const formState = useFormState();
   const { validateForm } = useFormValidation();
   const { submitBidRequest } = useBidRequestSubmission();
 
   const handleSubmit = async (userId: string) => {
-    const newErrors = validateForm(formData, selectedBuyers);
-    setErrors(newErrors);
+    const newErrors = validateForm(formState.formData, formState.selectedBuyers);
+    formState.setErrors(newErrors);
     
     if (Object.keys(newErrors).length > 0) {
       toast.error("Please complete all required fields");
@@ -38,27 +23,18 @@ export const useCreateBidRequest = () => {
       return;
     }
 
-    setIsSubmitting(true);
+    formState.setIsSubmitting(true);
     await submitBidRequest({
-      formData,
-      uploadedImageUrls,
-      selectedBuyers,
+      formData: formState.formData,
+      uploadedImageUrls: formState.uploadedImageUrls,
+      selectedBuyers: formState.selectedBuyers,
       userId,
-      setIsSubmitting
+      setIsSubmitting: formState.setIsSubmitting
     });
   };
 
   return {
-    formData,
-    errors,
-    isSubmitting,
-    selectedBuyers,
-    searchTerm,
-    setSearchTerm,
-    handleChange,
-    handleSelectChange,
-    handleImagesUploaded,
-    toggleBuyer,
+    ...formState,
     handleSubmit,
   };
 };
