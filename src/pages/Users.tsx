@@ -3,9 +3,10 @@ import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
 import UsersTable from "@/components/users/UsersTable";
-import { UserFormData } from "@/types/users";
+import { User, UserFormData } from "@/types/users";
 import AddUserDialog from "@/components/users/AddUserDialog";
 import DeleteUserDialog from "@/components/users/DeleteUserDialog";
+import ViewUserDialog from "@/components/users/ViewUserDialog";
 import { useUsers } from "@/hooks/useUsers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,9 @@ import {
 
 const Users = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -43,6 +46,11 @@ const Users = () => {
   const handleDelete = (userId: string) => {
     setUserToDelete(userId);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleView = (user: User) => {
+    setSelectedUser(user);
+    setIsViewDialogOpen(true);
   };
 
   const confirmDelete = () => {
@@ -117,7 +125,7 @@ const Users = () => {
                 users={users}
                 onEdit={() => {}}
                 onDelete={handleDelete}
-                onView={() => {}}
+                onView={handleView}
               />
             </div>
             <div className="mt-4 flex flex-row justify-between items-center gap-2">
@@ -179,6 +187,12 @@ const Users = () => {
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={confirmDelete}
+      />
+
+      <ViewUserDialog
+        user={selectedUser}
+        isOpen={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
       />
 
       <AdminFooter />
