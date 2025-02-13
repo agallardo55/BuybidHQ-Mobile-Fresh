@@ -31,14 +31,14 @@ const BuyersTable = ({ buyers }: BuyersTableProps) => {
       <TableBody>
         {buyers.map((buyer) => (
           <TableRow key={buyer.id}>
-            <TableCell>{buyer.name}</TableCell>
-            <TableCell>{buyer.email}</TableCell>
-            <TableCell>{buyer.dealership}</TableCell>
-            <TableCell>{buyer.phone}</TableCell>
-            <TableCell>{buyer.location}</TableCell>
-            <TableCell>{buyer.acceptedBids}</TableCell>
-            <TableCell>{buyer.pendingBids}</TableCell>
-            <TableCell>{buyer.declinedBids}</TableCell>
+            <TableCell className="py-2 px-4">{buyer.name}</TableCell>
+            <TableCell className="py-2 px-4">{buyer.email}</TableCell>
+            <TableCell className="py-2 px-4">{buyer.dealership}</TableCell>
+            <TableCell className="py-2 px-4">{buyer.phone}</TableCell>
+            <TableCell className="py-2 px-4">{buyer.location}</TableCell>
+            <TableCell className="py-2 px-4">{buyer.acceptedBids}</TableCell>
+            <TableCell className="py-2 px-4">{buyer.pendingBids}</TableCell>
+            <TableCell className="py-2 px-4">{buyer.declinedBids}</TableCell>
           </TableRow>
         ))}
       </TableBody>

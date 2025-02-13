@@ -30,16 +30,16 @@ const BidRequestTable = ({ requests, onStatusUpdate }: BidRequestTableProps) => 
           <TableBody>
             {requests.map((request) => (
               <TableRow key={request.id}>
-                <TableCell>{request.year}</TableCell>
-                <TableCell>{request.make}</TableCell>
-                <TableCell>{request.model}</TableCell>
-                <TableCell>{request.trim}</TableCell>
-                <TableCell>{request.vin}</TableCell>
-                <TableCell>{request.mileage.toLocaleString()}</TableCell>
-                <TableCell>{request.buyer}</TableCell>
-                <TableCell>{request.dealership}</TableCell>
-                <TableCell>${request.highestOffer.toLocaleString()}</TableCell>
-                <TableCell>
+                <TableCell className="py-2 px-4">{request.year}</TableCell>
+                <TableCell className="py-2 px-4">{request.make}</TableCell>
+                <TableCell className="py-2 px-4">{request.model}</TableCell>
+                <TableCell className="py-2 px-4">{request.trim}</TableCell>
+                <TableCell className="py-2 px-4">{request.vin}</TableCell>
+                <TableCell className="py-2 px-4">{request.mileage.toLocaleString()}</TableCell>
+                <TableCell className="py-2 px-4">{request.buyer}</TableCell>
+                <TableCell className="py-2 px-4">{request.dealership}</TableCell>
+                <TableCell className="py-2 px-4">${request.highestOffer.toLocaleString()}</TableCell>
+                <TableCell className="py-2 px-4">
                   <Select
                     value={request.status}
                     onValueChange={(value: "Pending" | "Approved" | "Declined") => 
