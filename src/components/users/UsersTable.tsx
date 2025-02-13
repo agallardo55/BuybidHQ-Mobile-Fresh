@@ -48,18 +48,18 @@ const UsersTable = ({ users, onEdit, onDelete, onView }: UsersTableProps) => {
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id}>
-            <TableCell className="py-2 px-4">{user.fullName || 'N/A'}</TableCell>
-            <TableCell className="py-2 px-4">{user.email}</TableCell>
-            <TableCell className="py-2 px-4 capitalize">{user.role}</TableCell>
-            <TableCell className="py-2 px-4 capitalize">{user.status}</TableCell>
-            <TableCell className="py-2 px-4">{user.dealershipName || 'N/A'}</TableCell>
-            <TableCell className="py-2 px-4">
+            <TableCell className="py-2 px-4 min-h-[44px]">{user.fullName || 'N/A'}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px]">{user.email}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] capitalize">{user.role}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] capitalize">{user.status}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px]">{user.dealershipName || 'N/A'}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px]">
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => onView(user)}
-                  className="h-8 w-8"
+                  className="h-7 w-7"
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -69,7 +69,7 @@ const UsersTable = ({ users, onEdit, onDelete, onView }: UsersTableProps) => {
                       variant="ghost"
                       size="icon"
                       onClick={() => onEdit(user)}
-                      className="h-8 w-8"
+                      className="h-7 w-7"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -77,7 +77,7 @@ const UsersTable = ({ users, onEdit, onDelete, onView }: UsersTableProps) => {
                       variant="ghost"
                       size="icon"
                       onClick={() => onDelete(user.id)}
-                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      className="h-7 w-7 text-destructive hover:text-destructive"
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
