@@ -121,9 +121,10 @@ const Users = () => {
                 onView={() => {}}
               />
             </div>
-            <div className="mt-4 flex flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Rows per page:</span>
+            <div className="mt-4 flex flex-row justify-between items-center gap-2">
+              <div className="flex items-center gap-1 min-w-[280px] whitespace-nowrap">
+                <span className="text-sm text-gray-500 hidden sm:inline">Rows per page:</span>
+                <span className="text-sm text-gray-500 sm:hidden">Per page:</span>
                 <Select
                   value={pageSize.toString()}
                   onValueChange={(value) => {
@@ -131,7 +132,7 @@ const Users = () => {
                     setCurrentPage(1);
                   }}
                 >
-                  <SelectTrigger className="w-[70px]">
+                  <SelectTrigger className="w-[60px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -140,7 +141,7 @@ const Users = () => {
                     <SelectItem value="100">100</SelectItem>
                   </SelectContent>
                 </Select>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 truncate">
                   {startIndex + 1}-{Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length}
                 </span>
               </div>
