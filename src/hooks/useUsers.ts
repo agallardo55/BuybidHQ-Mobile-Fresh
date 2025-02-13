@@ -30,7 +30,7 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
         .is('deleted_at', null);  // Only count non-deleted users
 
       if (searchTerm) {
-        query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role::text.ilike.%${searchTerm}%`);
+        query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
       }
 
       const { count, error: countError } = await query;
@@ -47,12 +47,13 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
       let dataQuery = supabase
         .from('buybidhq_users')
         .select('*, dealerships:dealership_id(*)')
-        .is('deleted_at', null)  // Only fetch non-deleted users
-        .range(startRange, endRange);
+        .is('deleted_at', null);  // Only fetch non-deleted users
 
       if (searchTerm) {
-        dataQuery = dataQuery.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role::text.ilike.%${searchTerm}%`);
+        dataQuery = dataQuery.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
       }
+
+      dataQuery = dataQuery.range(startRange, endRange);
 
       const { data: users, error } = await dataQuery;
 
