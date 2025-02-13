@@ -173,7 +173,7 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
         </div>
       </div>
 
-      <Button type="submit" className="w-full mt-6 bg-blue-500 hover:bg-blue-600">
+      <Button type="submit" className="w-full mt-6 bg-custom-blue hover:bg-custom-blue/90">
         Add User
       </Button>
     </form>
