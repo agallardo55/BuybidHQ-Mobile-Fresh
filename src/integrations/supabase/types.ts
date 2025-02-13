@@ -695,6 +695,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_user: {
+        Args: {
+          manager_id: string
+          target_user_id: string
+        }
+        Returns: boolean
+      }
       create_complete_bid_request: {
         Args: {
           vehicle_data: Json

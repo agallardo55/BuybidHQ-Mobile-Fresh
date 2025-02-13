@@ -7,6 +7,7 @@ import { User, UserFormData } from "@/types/users";
 import AddUserDialog from "@/components/users/AddUserDialog";
 import DeleteUserDialog from "@/components/users/DeleteUserDialog";
 import ViewUserDialog from "@/components/users/ViewUserDialog";
+import EditUserDialog from "@/components/users/EditUserDialog";
 import { useUsers } from "@/hooks/useUsers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ import {
 const Users = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,7 +39,7 @@ const Users = () => {
   const [pageSize, setPageSize] = useState(20);
 
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
-  const { users, total, isLoading, deleteUser } = useUsers({
+  const { users, total, isLoading, deleteUser, updateUser } = useUsers({
     pageSize,
     currentPage,
     searchTerm,
@@ -51,6 +53,11 @@ const Users = () => {
   const handleView = (user: User) => {
     setSelectedUser(user);
     setIsViewDialogOpen(true);
+  };
+
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setIsEditDialogOpen(true);
   };
 
   const confirmDelete = () => {
@@ -123,7 +130,7 @@ const Users = () => {
             <div className="overflow-x-auto">
               <UsersTable
                 users={users}
-                onEdit={() => {}}
+                onEdit={handleEdit}
                 onDelete={handleDelete}
                 onView={handleView}
               />
@@ -193,6 +200,13 @@ const Users = () => {
         user={selectedUser}
         isOpen={isViewDialogOpen}
         onOpenChange={setIsViewDialogOpen}
+      />
+
+      <EditUserDialog
+        user={selectedUser}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onUpdate={(userId, userData) => updateUser({ userId, userData })}
       />
 
       <AdminFooter />

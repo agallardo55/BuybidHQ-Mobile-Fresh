@@ -118,6 +118,50 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
     },
   });
 
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, userData }: { userId: string; userData: UserFormData }) => {
+      if (!currentUser) throw new Error("Not authenticated");
+
+      const { data: canManage } = await supabase
+        .rpc('can_manage_user', {
+          manager_id: currentUser.id,
+          target_user_id: userId
+        });
+
+      if (!canManage) {
+        throw new Error("You don't have permission to update this user");
+      }
+
+      const { data, error } = await supabase
+        .from('buybidhq_users')
+        .update({
+          full_name: userData.fullName,
+          email: userData.email,
+          role: userData.role,
+          mobile_number: userData.mobileNumber,
+          address: userData.address,
+          city: userData.city,
+          state: userData.state,
+          zip_code: userData.zipCode,
+          dealership_id: currentUser?.role === 'dealer' ? currentUser.dealership_id : userData.dealershipId,
+          is_active: userData.isActive
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success("User updated successfully!");
+    },
+    onError: (error) => {
+      toast.error("Failed to update user: " + error.message);
+    },
+  });
+
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
       const { error } = await supabase
@@ -141,6 +185,7 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
     total: data?.total || 0,
     isLoading,
     createUser: createUserMutation.mutate,
+    updateUser: updateUserMutation.mutate,
     deleteUser: deleteUserMutation.mutate,
   };
 };
