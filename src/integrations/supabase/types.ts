@@ -119,6 +119,54 @@ export type Database = {
           },
         ]
       }
+      bid_responses: {
+        Row: {
+          bid_request_id: string
+          buyer_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          offer_amount: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bid_request_id: string
+          buyer_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          offer_amount: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bid_request_id?: string
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          offer_amount?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_responses_bid_request_id_fkey"
+            columns: ["bid_request_id"]
+            isOneToOne: false
+            referencedRelation: "bid_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_responses_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookValues: {
         Row: {
           blackbook: string | null
@@ -789,6 +837,39 @@ export type Database = {
           creator_id: string
         }
         Returns: string
+      }
+      get_bid_response_details: {
+        Args: {
+          bid_response_id: string
+        }
+        Returns: {
+          response_id: string
+          request_id: string
+          year: string
+          make: string
+          model: string
+          trim_level: string
+          vin: string
+          mileage: string
+          exterior_color: string
+          interior_color: string
+          windshield: string
+          engine_lights: string
+          brakes: string
+          tire: string
+          maintenance: string
+          recon_estimate: string
+          recon_details: string
+          accessories: string
+          transmission: string
+          engine_cylinders: string
+          drivetrain: string
+          user_full_name: string
+          dealership: string
+          mobile_number: string
+          offer_amount: number
+          status: string
+        }[]
       }
       get_user_dealership: {
         Args: {
