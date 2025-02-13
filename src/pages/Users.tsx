@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
@@ -33,7 +34,11 @@ const Users = () => {
   const [pageSize, setPageSize] = useState(20);
 
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
-  const { users, isLoading, deleteUser } = useUsers();
+  const { users, total, isLoading, deleteUser } = useUsers({
+    pageSize,
+    currentPage,
+    searchTerm,
+  });
 
   const handleDelete = (userId: string) => {
     setUserToDelete(userId);
@@ -48,17 +53,8 @@ const Users = () => {
     }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // Pagination calculations
-  const totalPages = Math.ceil(filteredUsers.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(total / pageSize);
 
   // Generate page numbers array
   const getPageNumbers = () => {
@@ -106,7 +102,10 @@ const Users = () => {
                     type="text"
                     placeholder="Search users..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setCurrentPage(1); // Reset to first page on search
+                    }}
                     className="pl-10"
                   />
                 </div>
@@ -115,7 +114,7 @@ const Users = () => {
             </div>
             <div className="overflow-x-auto">
               <UsersTable
-                users={currentUsers}
+                users={users}
                 onEdit={() => {}}
                 onDelete={handleDelete}
                 onView={() => {}}
@@ -142,7 +141,7 @@ const Users = () => {
                   </SelectContent>
                 </Select>
                 <span className="text-sm text-gray-500 truncate">
-                  {startIndex + 1}-{Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length}
+                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, total)} of {total}
                 </span>
               </div>
               <Pagination>

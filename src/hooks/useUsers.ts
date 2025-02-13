@@ -5,43 +5,83 @@ import { UserFormData } from "@/types/users";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
 
-export const useUsers = () => {
+interface UsePaginatedUsersProps {
+  pageSize: number;
+  currentPage: number;
+  searchTerm?: string;
+}
+
+interface PaginatedResponse {
+  users: any[];
+  total: number;
+}
+
+export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUsersProps) => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ['users'],
-    queryFn: async () => {
-      const { data, error } = await supabase
+  const { data, isLoading } = useQuery({
+    queryKey: ['users', currentPage, pageSize, searchTerm],
+    queryFn: async (): Promise<PaginatedResponse> => {
+      // First, get total count with search filter if present
+      let query = supabase
         .from('buybidhq_users')
-        .select('*, dealerships:dealership_id(*)');
+        .select('count', { count: 'exact' });
+
+      if (searchTerm) {
+        query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role.ilike.%${searchTerm}%`);
+      }
+
+      const { count, error: countError } = await query;
+
+      if (countError) {
+        toast.error("Failed to fetch total users count: " + countError.message);
+        throw countError;
+      }
+
+      // Then get paginated data
+      const startRange = (currentPage - 1) * pageSize;
+      const endRange = startRange + pageSize - 1;
+
+      let dataQuery = supabase
+        .from('buybidhq_users')
+        .select('*, dealerships:dealership_id(*)')
+        .range(startRange, endRange);
+
+      if (searchTerm) {
+        dataQuery = dataQuery.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role.ilike.%${searchTerm}%`);
+      }
+
+      const { data: users, error } = await dataQuery;
 
       if (error) {
         toast.error("Failed to fetch users: " + error.message);
         throw error;
       }
 
-      return data.map(user => ({
-        id: user.id,
-        email: user.email,
-        fullName: user.full_name,
-        role: user.role,
-        status: user.status || 'active',
-        mobileNumber: user.mobile_number,
-        address: user.address,
-        city: user.city,
-        state: user.state,
-        zipCode: user.zip_code,
-        dealershipId: user.dealership_id,
-        dealershipName: user.dealerships?.dealer_name,
-        isActive: user.is_active
-      }));
+      return {
+        users: users.map(user => ({
+          id: user.id,
+          email: user.email,
+          fullName: user.full_name,
+          role: user.role,
+          status: user.status || 'active',
+          mobileNumber: user.mobile_number,
+          address: user.address,
+          city: user.city,
+          state: user.state,
+          zipCode: user.zip_code,
+          dealershipId: user.dealership_id,
+          dealershipName: user.dealerships?.dealer_name,
+          isActive: user.is_active
+        })),
+        total: count || 0
+      };
     },
   });
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: UserFormData) => {
-      // Validate role assignment based on current user's role
       if (currentUser?.role === 'dealer' && !['basic', 'individual'].includes(userData.role)) {
         throw new Error("Dealers can only create basic or individual users");
       }
@@ -97,7 +137,8 @@ export const useUsers = () => {
   });
 
   return {
-    users,
+    users: data?.users || [],
+    total: data?.total || 0,
     isLoading,
     createUser: createUserMutation.mutate,
     deleteUser: deleteUserMutation.mutate,
