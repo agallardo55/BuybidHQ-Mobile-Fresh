@@ -30,7 +30,7 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
         .is('deleted_at', null);  // Only count non-deleted users
 
       if (searchTerm) {
-        query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role.ilike.%${searchTerm}%`);
+        query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role::text.ilike.%${searchTerm}%`);
       }
 
       const { count, error: countError } = await query;
@@ -51,7 +51,7 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
         .range(startRange, endRange);
 
       if (searchTerm) {
-        dataQuery = dataQuery.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role.ilike.%${searchTerm}%`);
+        dataQuery = dataQuery.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role::text.ilike.%${searchTerm}%`);
       }
 
       const { data: users, error } = await dataQuery;
