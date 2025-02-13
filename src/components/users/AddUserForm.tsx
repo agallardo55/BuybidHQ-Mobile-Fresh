@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -171,7 +172,7 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
         </div>
       </div>
 
-      <Button type="submit" className="w-full mt-6">
+      <Button type="submit" className="w-full mt-6 bg-blue-500 hover:bg-blue-600">
         Add User
       </Button>
     </form>
