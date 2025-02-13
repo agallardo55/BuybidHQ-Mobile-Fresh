@@ -87,9 +87,12 @@ Deno.serve(async (req) => {
       customerId = customer.id
     }
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session with enhanced configuration
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
+      payment_method_collection: 'always',
+      payment_method_types: ['card'],
+      billing_address_collection: 'auto',
       line_items: [
         {
           price: PRICE_IDS[currentPlan as keyof typeof PRICE_IDS],
@@ -97,6 +100,10 @@ Deno.serve(async (req) => {
         },
       ],
       mode: 'subscription',
+      subscription_data: {
+        trial_period_days: 14, // Optional: Add a trial period
+      },
+      allow_promotion_codes: true,
       success_url: successUrl ?? `${req.headers.get('origin')}/account?success=true`,
       cancel_url: cancelUrl ?? `${req.headers.get('origin')}/account?canceled=true`,
       metadata: {
