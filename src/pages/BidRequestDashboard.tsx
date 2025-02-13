@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardNavigation from "@/components/DashboardNavigation";
-import Footer from "@/components/Footer";
+import AdminFooter from "@/components/footer/AdminFooter";
 import { supabase } from "@/integrations/supabase/client";
 
 interface BidRequest {
@@ -57,6 +57,7 @@ const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [bidRequests, setBidRequests] = useState<BidRequest[]>([
     {
       id: "1",
@@ -98,12 +99,10 @@ const BidRequestDashboard = () => {
       status: "Declined"
     }
   ]);
-  const itemsPerPage = 5;
   const { toast } = useToast();
 
   // Function to update status
   const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
-    // For now, just update the local state
     setBidRequests(prevRequests =>
       prevRequests.map(request =>
         request.id === id ? { ...request, status: newStatus } : request
@@ -128,11 +127,26 @@ const BidRequestDashboard = () => {
     );
   });
 
-  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
+  const totalPages = Math.ceil(filteredRequests.length / pageSize);
+
+  // Generate page numbers with delta
+  const getPageNumbers = () => {
+    const delta = 2;
+    const range = [];
+    for (
+      let i = Math.max(1, currentPage - delta);
+      i <= Math.min(totalPages, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+    return range;
+  };
+
+  const startIndex = (currentPage - 1) * pageSize;
   const paginatedRequests = filteredRequests.slice(
     startIndex,
-    startIndex + itemsPerPage
+    startIndex + pageSize
   );
 
   return (
@@ -219,41 +233,62 @@ const BidRequestDashboard = () => {
                 </Table>
               </div>
             </div>
-            {filteredRequests.length > itemsPerPage && (
-              <div className="mt-4 flex justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                    {Array.from({ length: totalPages }).map((_, index) => (
-                      <PaginationItem key={index + 1}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(index + 1)}
-                          isActive={currentPage === index + 1}
-                        >
-                          {index + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
+            <div className="mt-4 flex flex-row justify-between items-center gap-2">
+              <div className="flex items-center gap-1 min-w-[280px] whitespace-nowrap">
+                <span className="text-sm text-gray-500 hidden sm:inline">Rows per page:</span>
+                <span className="text-sm text-gray-500 sm:hidden">Per page:</span>
+                <Select
+                  value={pageSize.toString()}
+                  onValueChange={(value) => {
+                    setPageSize(Number(value));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[60px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-gray-500 truncate">
+                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredRequests.length)} of {filteredRequests.length}
+                </span>
               </div>
-            )}
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  {getPageNumbers().map((pageNum) => (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(pageNum)}
+                        isActive={currentPage === pageNum}
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
         </div>
       </div>
 
-      <Footer />
+      <AdminFooter />
     </div>
   );
 };
