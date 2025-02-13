@@ -16,7 +16,12 @@ import { useState } from "react";
 
 const AddUserDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { createUser } = useUsers();
+  const { createUser } = useUsers({
+    pageSize: 20,
+    currentPage: 1,
+    searchTerm: ""
+  });
+  
   const [formData, setFormData] = useState<UserFormData>({
     fullName: "",
     email: "",
