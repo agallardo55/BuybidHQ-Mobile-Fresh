@@ -838,6 +838,36 @@ export type Database = {
         }
         Returns: string
       }
+      get_bid_request_details: {
+        Args: {
+          p_request_id: string
+        }
+        Returns: {
+          request_id: string
+          year: string
+          make: string
+          model: string
+          trim_level: string
+          vin: string
+          mileage: string
+          exterior_color: string
+          interior_color: string
+          windshield: string
+          engine_lights: string
+          brakes: string
+          tire: string
+          maintenance: string
+          recon_estimate: string
+          recon_details: string
+          accessories: string
+          transmission: string
+          engine_cylinders: string
+          drivetrain: string
+          user_full_name: string
+          dealership: string
+          mobile_number: string
+        }[]
+      }
       get_bid_response_details: {
         Args: {
           bid_response_id: string

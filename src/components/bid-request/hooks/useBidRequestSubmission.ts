@@ -50,6 +50,12 @@ export const useBidRequestSubmission = () => {
         throw error;
       }
 
+      // Generate unique URLs for each selected buyer
+      selectedBuyers.forEach(buyerId => {
+        const bidResponseUrl = `${window.location.origin}/bid-response?request=${data}&buyer=${buyerId}`;
+        console.log(`Bid response URL for buyer ${buyerId}: ${bidResponseUrl}`);
+      });
+
       toast.success("Bid request created successfully!");
       navigate("/dashboard");
     } catch (error: any) {
