@@ -1,14 +1,7 @@
 
 import { Buyer } from "@/types/buyers";
 import BuyersTable from "./BuyersTable";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import TableFooter from "@/components/bid-request/TableFooter";
 
 interface BuyersListProps {
   buyers: Buyer[];
@@ -18,37 +11,33 @@ interface BuyersListProps {
 }
 
 const BuyersList = ({ buyers, currentPage, totalPages, onPageChange }: BuyersListProps) => {
+  const pageSize = 5; // Default page size from Buyers.tsx
+
+  const getPageNumbers = () => {
+    const delta = 2;
+    const range = [];
+    for (
+      let i = Math.max(1, currentPage - delta);
+      i <= Math.min(totalPages, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+    return range;
+  };
+
   return (
     <div className="overflow-x-auto">
       <BuyersTable buyers={buyers} />
-      <div className="mt-4 flex justify-center">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-            {Array.from({ length: totalPages }).map((_, index) => (
-              <PaginationItem key={index + 1}>
-                <PaginationLink
-                  onClick={() => onPageChange(index + 1)}
-                  isActive={currentPage === index + 1}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
+      <TableFooter
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={buyers.length}
+        onPageChange={onPageChange}
+        onPageSizeChange={() => {}} // We'll keep the page size fixed at 5 for now
+        getPageNumbers={getPageNumbers}
+      />
     </div>
   );
 };
