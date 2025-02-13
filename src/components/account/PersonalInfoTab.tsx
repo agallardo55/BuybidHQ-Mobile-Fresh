@@ -14,16 +14,38 @@ export const PersonalInfoTab = () => {
     e.preventDefault();
 
     try {
-      const { error } = await supabase
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) throw new Error("No user found");
+
+      // First update user data
+      const { error: userError } = await supabase
         .from('buybidhq_users')
         .update({
           full_name: formData.fullName,
           email: formData.email,
           mobile_number: formData.mobileNumber,
         })
-        .eq('id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('id', user.id);
 
-      if (error) throw error;
+      if (userError) throw userError;
+
+      // Then update dealership data if user has a dealership
+      const { data: userData } = await supabase
+        .from('buybidhq_users')
+        .select('dealership_id')
+        .eq('id', user.id)
+        .single();
+
+      if (userData?.dealership_id) {
+        const { error: dealershipError } = await supabase
+          .from('dealerships')
+          .update({
+            business_phone: formData.businessNumber,
+          })
+          .eq('id', userData.dealership_id);
+
+        if (dealershipError) throw dealershipError;
+      }
 
       toast({
         title: "Account updated",

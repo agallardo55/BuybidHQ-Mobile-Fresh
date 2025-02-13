@@ -20,6 +20,16 @@ interface UserData {
   zip_code: string | null;
   company: string | null;
   dealership_id: string | null;
+  dealerships: {
+    id: string;
+    dealer_name: string | null;
+    business_phone: string | null;
+    business_email: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    zip_code: string | null;
+  } | null;
 }
 
 export const useCurrentUser = () => {
@@ -33,7 +43,19 @@ export const useCurrentUser = () => {
       
       const { data: userData, error: userError } = await supabase
         .from('buybidhq_users')
-        .select('*, dealerships:dealership_id(*)')
+        .select(`
+          *,
+          dealerships:dealership_id (
+            id,
+            dealer_name,
+            business_phone,
+            business_email,
+            address,
+            city,
+            state,
+            zip_code
+          )
+        `)
         .eq('id', user?.id)
         .maybeSingle();
         
@@ -56,6 +78,7 @@ export const useCurrentUser = () => {
         zip_code: '',
         company: '',
         dealership_id: null,
+        dealerships: null,
       };
     },
     meta: {
