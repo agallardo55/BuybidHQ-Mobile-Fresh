@@ -29,8 +29,21 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
         .select('count', { count: 'exact' })
         .is('deleted_at', null);  // Only count non-deleted users
 
+      // For role search, we'll handle each role type explicitly
       if (searchTerm) {
-        query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+        const searchTermLower = searchTerm.toLowerCase();
+        const possibleRoles = ['admin', 'dealer', 'basic', 'individual'];
+        const matchingRoles = possibleRoles.filter(role => role.includes(searchTermLower));
+        
+        if (matchingRoles.length > 0) {
+          query = query.or(
+            `full_name.ilike.%${searchTerm}%,` +
+            `email.ilike.%${searchTerm}%,` +
+            matchingRoles.map(role => `role.eq.${role}`).join(',')
+          );
+        } else {
+          query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+        }
       }
 
       const { count, error: countError } = await query;
@@ -50,7 +63,19 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
         .is('deleted_at', null);  // Only fetch non-deleted users
 
       if (searchTerm) {
-        dataQuery = dataQuery.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+        const searchTermLower = searchTerm.toLowerCase();
+        const possibleRoles = ['admin', 'dealer', 'basic', 'individual'];
+        const matchingRoles = possibleRoles.filter(role => role.includes(searchTermLower));
+        
+        if (matchingRoles.length > 0) {
+          dataQuery = dataQuery.or(
+            `full_name.ilike.%${searchTerm}%,` +
+            `email.ilike.%${searchTerm}%,` +
+            matchingRoles.map(role => `role.eq.${role}`).join(',')
+          );
+        } else {
+          dataQuery = dataQuery.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+        }
       }
 
       dataQuery = dataQuery.range(startRange, endRange);
