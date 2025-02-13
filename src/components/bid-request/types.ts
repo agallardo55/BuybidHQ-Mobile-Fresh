@@ -51,6 +51,7 @@ export interface FormState {
   selectedBuyers: string[];
   uploadedImageUrls: string[];
   isSubmitting: boolean;
+  searchTerm: string;
 }
 
 export interface FormStateActions {
@@ -59,6 +60,7 @@ export interface FormStateActions {
   setSelectedBuyers: (buyers: string[]) => void;
   setUploadedImageUrls: (urls: string[]) => void;
   setIsSubmitting: (isSubmitting: boolean) => void;
+  setSearchTerm: (term: string) => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSelectChange: (value: string, name: string) => void;
   handleImagesUploaded: (urls: string[]) => void;
