@@ -3,9 +3,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BuyerFormData } from "@/types/buyers";
 import { toast } from "sonner";
+import { useCurrentUser } from "./useCurrentUser";
 
 export const useBuyers = () => {
   const queryClient = useQueryClient();
+  const { currentUser } = useCurrentUser();
 
   const { data: buyers = [], isLoading } = useQuery({
     queryKey: ['buyers'],
@@ -13,10 +15,14 @@ export const useBuyers = () => {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
 
-      const { data, error } = await supabase
-        .from('buyers')
-        .select('*')
-        .eq('user_id', userData.user.id);
+      let query = supabase.from('buyers').select('*');
+      
+      // Only filter by user_id if not an admin
+      if (currentUser?.role !== 'admin') {
+        query = query.eq('user_id', userData.user.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         toast.error("Failed to fetch buyers: " + error.message);
