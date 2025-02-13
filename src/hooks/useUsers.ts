@@ -26,7 +26,8 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
       // First, get total count with search filter if present
       let query = supabase
         .from('buybidhq_users')
-        .select('count', { count: 'exact' });
+        .select('count', { count: 'exact' })
+        .is('deleted_at', null);  // Only count non-deleted users
 
       if (searchTerm) {
         query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,role.ilike.%${searchTerm}%`);
@@ -46,6 +47,7 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
       let dataQuery = supabase
         .from('buybidhq_users')
         .select('*, dealerships:dealership_id(*)')
+        .is('deleted_at', null)  // Only fetch non-deleted users
         .range(startRange, endRange);
 
       if (searchTerm) {
@@ -163,11 +165,15 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: async (userId: string) => {
+    mutationFn: async ({ userId, reason }: { userId: string; reason?: string }) => {
+      if (!currentUser) throw new Error("Not authenticated");
+
       const { error } = await supabase
-        .from('buybidhq_users')
-        .delete()
-        .eq('id', userId);
+        .rpc('handle_user_deletion', {
+          user_id: userId,
+          deleted_by_id: currentUser.id,
+          deletion_reason: reason || null
+        });
 
       if (error) throw error;
     },

@@ -166,6 +166,7 @@ export type Database = {
           company: string | null
           created_at: string
           dealership_id: string | null
+          deleted_at: string | null
           email: string
           full_name: string | null
           id: string
@@ -188,6 +189,7 @@ export type Database = {
           company?: string | null
           created_at?: string
           dealership_id?: string | null
+          deleted_at?: string | null
           email: string
           full_name?: string | null
           id?: string
@@ -210,6 +212,7 @@ export type Database = {
           company?: string | null
           created_at?: string
           dealership_id?: string | null
+          deleted_at?: string | null
           email?: string
           full_name?: string | null
           id?: string
@@ -423,6 +426,81 @@ export type Database = {
           zip_code?: string | null
         }
         Relationships: []
+      }
+      deleted_users: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          dealership_id: string | null
+          deleted_at: string
+          deleted_by: string | null
+          deletion_reason: string | null
+          email: string
+          full_name: string | null
+          id: string
+          is_active: boolean | null
+          mobile_number: string | null
+          original_created_at: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          state: string | null
+          status: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          dealership_id?: string | null
+          deleted_at?: string
+          deleted_by?: string | null
+          deletion_reason?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          is_active?: boolean | null
+          mobile_number?: string | null
+          original_created_at?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          status?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          dealership_id?: string | null
+          deleted_at?: string
+          deleted_by?: string | null
+          deletion_reason?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          mobile_number?: string | null
+          original_created_at?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          status?: string | null
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deleted_users_dealership_id_fkey"
+            columns: ["dealership_id"]
+            isOneToOne: false
+            referencedRelation: "dealerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deleted_users_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       images: {
         Row: {
@@ -723,6 +801,14 @@ export type Database = {
           user_id: string
         }
         Returns: string
+      }
+      handle_user_deletion: {
+        Args: {
+          user_id: string
+          deleted_by_id: string
+          deletion_reason?: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

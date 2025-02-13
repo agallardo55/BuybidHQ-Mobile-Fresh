@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
@@ -60,9 +59,9 @@ const Users = () => {
     setIsEditDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = (reason?: string) => {
     if (userToDelete) {
-      deleteUser(userToDelete);
+      deleteUser({ userId: userToDelete, reason });
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
     }
