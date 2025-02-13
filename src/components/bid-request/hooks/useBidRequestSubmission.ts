@@ -51,8 +51,9 @@ export const useBidRequestSubmission = () => {
       }
 
       // Generate unique URLs for each selected buyer
+      const requestId = data;
       selectedBuyers.forEach(buyerId => {
-        const bidResponseUrl = `${window.location.origin}/bid-response?request=${data}&buyer=${buyerId}`;
+        const bidResponseUrl = `${window.location.origin}/bid-response?request=${requestId}&buyer=${buyerId}`;
         console.log(`Bid response URL for buyer ${buyerId}: ${bidResponseUrl}`);
       });
 

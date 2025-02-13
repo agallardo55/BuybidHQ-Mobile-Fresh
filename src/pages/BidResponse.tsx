@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { BidResponseFormData, VehicleDetails } from "@/components/bid-response/types";
 import VehicleDetailsSection from "@/components/bid-response/VehicleDetailsSection";
@@ -7,51 +7,137 @@ import BidForm from "@/components/bid-response/BidForm";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const BidResponse = () => {
   const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock vehicle details - in a real app, this would come from an API based on the URL params
-  const vehicleDetails: VehicleDetails = {
-    year: "2024",
-    make: "Toyota",
-    model: "Camry",
-    trim: "XSE",
-    mileage: "15000",
-    exteriorColor: "Midnight Black",
-    interiorColor: "Black Leather",
-    vin: "1HGCM82633A123456",
-    windshield: "good",
-    engineLights: "none",
-    brakes: "excellent",
-    tire: "good",
-    maintenance: "upToDate",
-    reconEstimate: "2500",
-    reconDetails: "Minor paint correction needed on front bumper, detail service required",
-    accessories: "Premium Audio Package, Navigation System, Sunroof",
-    transmission: "8-Speed Automatic",
-    engineCylinders: "4-Cylinder",
-    drivetrain: "FWD",
-    userFullName: "John Smith",
-    dealership: "ABC Motors",
-    mobileNumber: "(555) 123-4567"
-  };
+  const requestId = searchParams.get('request');
+  const buyerId = searchParams.get('buyer');
+
+  useEffect(() => {
+    const fetchBidRequestDetails = async () => {
+      if (!requestId) {
+        setError('Invalid request ID');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.rpc('get_bid_request_details', {
+          p_request_id: requestId
+        });
+
+        if (error) throw error;
+
+        if (data && data[0]) {
+          setVehicleDetails({
+            year: data[0].year,
+            make: data[0].make,
+            model: data[0].model,
+            trim: data[0].trim_level,
+            mileage: data[0].mileage,
+            exteriorColor: data[0].exterior_color,
+            interiorColor: data[0].interior_color,
+            vin: data[0].vin,
+            windshield: data[0].windshield,
+            engineLights: data[0].engine_lights,
+            brakes: data[0].brakes,
+            tire: data[0].tire,
+            maintenance: data[0].maintenance,
+            reconEstimate: data[0].recon_estimate,
+            reconDetails: data[0].recon_details,
+            accessories: data[0].accessories,
+            transmission: data[0].transmission,
+            engineCylinders: data[0].engine_cylinders,
+            drivetrain: data[0].drivetrain,
+            userFullName: data[0].user_full_name,
+            dealership: data[0].dealership,
+            mobileNumber: data[0].mobile_number
+          });
+        } else {
+          setError('Bid request not found');
+        }
+      } catch (err) {
+        console.error('Error fetching bid request:', err);
+        setError('Failed to load bid request details');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBidRequestDetails();
+  }, [requestId]);
 
   const handleSubmit = async (formData: BidResponseFormData) => {
+    if (!requestId || !buyerId) {
+      toast.error("Invalid request or buyer ID");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('bid_responses')
+        .insert({
+          bid_request_id: requestId,
+          buyer_id: buyerId,
+          offer_amount: parseFloat(formData.offerAmount),
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
       toast.success("Your bid has been submitted successfully!");
       setSubmitted(true);
     } catch (error) {
+      console.error('Error submitting bid:', error);
       toast.error("Failed to submit bid. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <header className="w-full bg-white shadow-sm py-4">
+          <div className="max-w-2xl mx-auto px-4">
+            <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
+          </div>
+        </header>
+        <div className="flex-grow flex items-center justify-center p-4">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Error</h2>
+            <p className="text-gray-600">{error}</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <header className="w-full bg-white shadow-sm py-4">
+          <div className="max-w-2xl mx-auto px-4">
+            <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
+          </div>
+        </header>
+        <div className="flex-grow flex items-center justify-center p-4">
+          <div className="text-center">
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -77,6 +163,10 @@ const BidResponse = () => {
         <Footer />
       </div>
     );
+  }
+
+  if (!vehicleDetails) {
+    return null;
   }
 
   return (
