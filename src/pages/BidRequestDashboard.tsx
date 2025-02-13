@@ -1,61 +1,15 @@
 
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Search, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
-import { supabase } from "@/integrations/supabase/client";
-
-interface BidRequest {
-  id: string;
-  year: number;
-  make: string;
-  model: string;
-  trim: string;
-  vin: string;
-  mileage: number;
-  buyer: string;
-  dealership: string;
-  highestOffer: number;
-  status: "Pending" | "Approved" | "Declined";
-}
+import SearchHeader from "@/components/bid-request/SearchHeader";
+import BidRequestTable from "@/components/bid-request/BidRequestTable";
+import TableFooter from "@/components/bid-request/TableFooter";
+import { BidRequest } from "@/components/bid-request/types";
 
 const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [showComingSoon, setShowComingSoon] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [bidRequests, setBidRequests] = useState<BidRequest[]>([
@@ -101,7 +55,6 @@ const BidRequestDashboard = () => {
   ]);
   const { toast } = useToast();
 
-  // Function to update status
   const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
     setBidRequests(prevRequests =>
       prevRequests.map(request =>
@@ -129,7 +82,6 @@ const BidRequestDashboard = () => {
 
   const totalPages = Math.ceil(filteredRequests.length / pageSize);
 
-  // Generate page numbers with delta
   const getPageNumbers = () => {
     const delta = 2;
     const range = [];
@@ -149,6 +101,11 @@ const BidRequestDashboard = () => {
     startIndex + pageSize
   );
 
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <DashboardNavigation />
@@ -156,134 +113,25 @@ const BidRequestDashboard = () => {
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
-                <div className="relative w-full sm:w-[225px]">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    type="text"
-                    placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-full"
-                  />
-                </div>
-                <Link to="/create-bid-request" className="w-full sm:w-auto">
-                  <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
-                    <Plus className="h-4 w-4" />
-                    Bid Request
-                  </Button>
-                </Link>
-              </div>
-            </div>
-            <div className="overflow-x-auto -mx-4 sm:-mx-6">
-              <div className="inline-block min-w-full align-middle px-4 sm:px-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="whitespace-nowrap">Year</TableHead>
-                      <TableHead className="whitespace-nowrap">Make</TableHead>
-                      <TableHead className="whitespace-nowrap">Model</TableHead>
-                      <TableHead className="whitespace-nowrap">Trim</TableHead>
-                      <TableHead className="whitespace-nowrap">VIN</TableHead>
-                      <TableHead className="whitespace-nowrap">Mileage</TableHead>
-                      <TableHead className="whitespace-nowrap">Buyer</TableHead>
-                      <TableHead className="whitespace-nowrap">Dealership</TableHead>
-                      <TableHead className="whitespace-nowrap">Highest Offer</TableHead>
-                      <TableHead className="whitespace-nowrap">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedRequests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell>{request.year}</TableCell>
-                        <TableCell>{request.make}</TableCell>
-                        <TableCell>{request.model}</TableCell>
-                        <TableCell>{request.trim}</TableCell>
-                        <TableCell>{request.vin}</TableCell>
-                        <TableCell>{request.mileage.toLocaleString()}</TableCell>
-                        <TableCell>{request.buyer}</TableCell>
-                        <TableCell>{request.dealership}</TableCell>
-                        <TableCell>${request.highestOffer.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Select
-                            value={request.status}
-                            onValueChange={(value: "Pending" | "Approved" | "Declined") => 
-                              updateStatus(request.id, value)
-                            }
-                          >
-                            <SelectTrigger className={`w-[110px] h-7 text-xs font-medium
-                              ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                              ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                              ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
-                            `}>
-                              <SelectValue>{request.status}</SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Pending">Pending</SelectItem>
-                              <SelectItem value="Approved">Approved</SelectItem>
-                              <SelectItem value="Declined">Declined</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-            <div className="mt-4 flex flex-row justify-between items-center gap-2">
-              <div className="flex items-center gap-1 min-w-[280px] whitespace-nowrap">
-                <span className="text-sm text-gray-500 hidden sm:inline">Rows per page:</span>
-                <span className="text-sm text-gray-500 sm:hidden">Per page:</span>
-                <Select
-                  value={pageSize.toString()}
-                  onValueChange={(value) => {
-                    setPageSize(Number(value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-[60px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-                <span className="text-sm text-gray-500 truncate">
-                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredRequests.length)} of {filteredRequests.length}
-                </span>
-              </div>
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                    />
-                  </PaginationItem>
-                  {getPageNumbers().map((pageNum) => (
-                    <PaginationItem key={pageNum}>
-                      <PaginationLink
-                        onClick={() => setCurrentPage(pageNum)}
-                        isActive={currentPage === pageNum}
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
+            <SearchHeader 
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+            />
+            
+            <BidRequestTable 
+              requests={paginatedRequests}
+              onStatusUpdate={updateStatus}
+            />
+
+            <TableFooter
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredRequests.length}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={handlePageSizeChange}
+              getPageNumbers={getPageNumbers}
+            />
           </div>
         </div>
       </div>

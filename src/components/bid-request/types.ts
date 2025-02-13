@@ -1,27 +1,14 @@
 
-export interface BidRequestFormData {
-  year: string;
+export interface BidRequest {
+  id: string;
+  year: number;
   make: string;
   model: string;
   trim: string;
   vin: string;
-  mileage: string;
-  exteriorColor: string;
-  interiorColor: string;
-  accessories: string;
-  windshield: string;
-  engineLights: string;
-  brakes: string;
-  tire: string;
-  maintenance: string;
-  reconEstimate: string;
-  reconDetails: string;
-  engineCylinders: string;
-  transmission: string;
-  drivetrain: string;
+  mileage: number;
+  buyer: string;
+  dealership: string;
+  highestOffer: number;
+  status: "Pending" | "Approved" | "Declined";
 }
-
-export interface FormErrors {
-  [key: string]: string;
-}
-
