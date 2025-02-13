@@ -11,6 +11,8 @@ interface BuyersListProps {
   pageSize: number;
   onPageSizeChange: (size: number) => void;
   totalItems: number;
+  onView: (buyer: Buyer) => void;
+  onDelete: (buyerId: string) => void;
 }
 
 const BuyersList = ({ 
@@ -20,7 +22,9 @@ const BuyersList = ({
   onPageChange,
   pageSize,
   onPageSizeChange,
-  totalItems
+  totalItems,
+  onView,
+  onDelete
 }: BuyersListProps) => {
   const getPageNumbers = () => {
     const delta = 2;
@@ -37,7 +41,11 @@ const BuyersList = ({
 
   return (
     <div className="overflow-x-auto">
-      <BuyersTable buyers={buyers} />
+      <BuyersTable 
+        buyers={buyers} 
+        onView={onView}
+        onDelete={onDelete}
+      />
       <TableFooter
         currentPage={currentPage}
         totalPages={totalPages}
