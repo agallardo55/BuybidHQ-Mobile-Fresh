@@ -10,8 +10,8 @@ import BuyersList from "@/components/buyers/BuyersList";
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const itemsPerPage = 5;
 
   const { buyers, isLoading, createBuyer } = useBuyers();
 
@@ -56,6 +56,11 @@ const Buyers = () => {
     });
   };
 
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
   const filteredBuyers = buyers.filter((buyer) => {
     const searchString = searchTerm.toLowerCase();
     return (
@@ -65,11 +70,11 @@ const Buyers = () => {
     );
   });
 
-  const totalPages = Math.ceil(filteredBuyers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
+  const totalPages = Math.ceil(filteredBuyers.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
   const paginatedBuyers = filteredBuyers.slice(
     startIndex,
-    startIndex + itemsPerPage
+    startIndex + pageSize
   );
 
   if (isLoading) {
@@ -108,6 +113,9 @@ const Buyers = () => {
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
+              pageSize={pageSize}
+              onPageSizeChange={handlePageSizeChange}
+              totalItems={filteredBuyers.length}
             />
           </div>
         </div>

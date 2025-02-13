@@ -8,11 +8,20 @@ interface BuyersListProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  pageSize: number;
+  onPageSizeChange: (size: number) => void;
+  totalItems: number;
 }
 
-const BuyersList = ({ buyers, currentPage, totalPages, onPageChange }: BuyersListProps) => {
-  const pageSize = 5; // Default page size from Buyers.tsx
-
+const BuyersList = ({ 
+  buyers, 
+  currentPage, 
+  totalPages, 
+  onPageChange,
+  pageSize,
+  onPageSizeChange,
+  totalItems
+}: BuyersListProps) => {
   const getPageNumbers = () => {
     const delta = 2;
     const range = [];
@@ -33,9 +42,9 @@ const BuyersList = ({ buyers, currentPage, totalPages, onPageChange }: BuyersLis
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}
-        totalItems={buyers.length}
+        totalItems={totalItems}
         onPageChange={onPageChange}
-        onPageSizeChange={() => {}} // We'll keep the page size fixed at 5 for now
+        onPageSizeChange={onPageSizeChange}
         getPageNumbers={getPageNumbers}
       />
     </div>
