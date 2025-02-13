@@ -1,3 +1,4 @@
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,9 +19,7 @@ interface VehicleConditionProps {
 
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
   const formatDollarAmount = (value: string) => {
-    // Remove any non-digit characters
     const numericValue = value.replace(/\D/g, '');
-    // Format as dollar amount
     const formattedValue = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -32,7 +31,6 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   };
 
   const handleReconEstimateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Extract numeric value for storing
     const numericValue = e.target.value.replace(/\D/g, '');
     const syntheticEvent = {
       ...e,
@@ -50,7 +48,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="windshield" className="block text-sm font-medium text-gray-700 mb-1">
           Windshield
         </label>
-        <Select name="windshield" onValueChange={(value) => onSelectChange(value, "windshield")}>
+        <Select name="windshield" onValueChange={(value) => onSelectChange(value, "windshield")} value={formData.windshield || "clear"}>
           <SelectTrigger>
             <SelectValue placeholder="Clear" />
           </SelectTrigger>
@@ -67,7 +65,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="engineLights" className="block text-sm font-medium text-gray-700 mb-1">
           Engine Lights
         </label>
-        <Select name="engineLights" onValueChange={(value) => onSelectChange(value, "engineLights")}>
+        <Select name="engineLights" onValueChange={(value) => onSelectChange(value, "engineLights")} value={formData.engineLights || "none"}>
           <SelectTrigger>
             <SelectValue placeholder="None" />
           </SelectTrigger>
@@ -84,7 +82,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="brakes" className="block text-sm font-medium text-gray-700 mb-1">
           Brakes
         </label>
-        <Select name="brakes" onValueChange={(value) => onSelectChange(value, "brakes")}>
+        <Select name="brakes" onValueChange={(value) => onSelectChange(value, "brakes")} value={formData.brakes || "acceptable"}>
           <SelectTrigger>
             <SelectValue placeholder="Acceptable" />
           </SelectTrigger>
@@ -101,7 +99,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="tire" className="block text-sm font-medium text-gray-700 mb-1">
           Tire
         </label>
-        <Select name="tire" onValueChange={(value) => onSelectChange(value, "tire")}>
+        <Select name="tire" onValueChange={(value) => onSelectChange(value, "tire")} value={formData.tire || "acceptable"}>
           <SelectTrigger>
             <SelectValue placeholder="Acceptable" />
           </SelectTrigger>
@@ -118,7 +116,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="maintenance" className="block text-sm font-medium text-gray-700 mb-1">
           Maintenance
         </label>
-        <Select name="maintenance" onValueChange={(value) => onSelectChange(value, "maintenance")}>
+        <Select name="maintenance" onValueChange={(value) => onSelectChange(value, "maintenance")} value={formData.maintenance || "upToDate"}>
           <SelectTrigger>
             <SelectValue placeholder="Up to date" />
           </SelectTrigger>
