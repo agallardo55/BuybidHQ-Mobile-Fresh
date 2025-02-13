@@ -20,7 +20,7 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
 
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
   const { users, total, isLoading, deleteUser, updateUser } = useUsers({
@@ -54,15 +54,14 @@ const Users = () => {
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   };
 
   const handlePageSizeChange = (newSize: number) => {
     setPageSize(newSize);
-    setCurrentPage(1); // Reset to first page when changing page size
+    setCurrentPage(1);
   };
 
-  // Pagination calculations
   const totalPages = Math.ceil(total / pageSize);
 
   if (isLoading) {

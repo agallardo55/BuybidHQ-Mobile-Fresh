@@ -10,7 +10,7 @@ import BuyersList from "@/components/buyers/BuyersList";
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { buyers, isLoading, createBuyer } = useBuyers();
@@ -58,7 +58,7 @@ const Buyers = () => {
 
   const handlePageSizeChange = (newSize: number) => {
     setPageSize(newSize);
-    setCurrentPage(1); // Reset to first page when changing page size
+    setCurrentPage(1);
   };
 
   const filteredBuyers = buyers.filter((buyer) => {

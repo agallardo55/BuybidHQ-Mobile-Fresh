@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardNavigation from "@/components/DashboardNavigation";
@@ -11,7 +10,7 @@ import { BidRequest } from "@/components/bid-request/types";
 const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(10);
   const [bidRequests, setBidRequests] = useState<BidRequest[]>([
     {
       id: "1",
