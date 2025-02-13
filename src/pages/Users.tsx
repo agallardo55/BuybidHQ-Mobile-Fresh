@@ -1,31 +1,16 @@
+
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
-import UsersTable from "@/components/users/UsersTable";
-import { User, UserFormData } from "@/types/users";
+import { User } from "@/types/users";
 import AddUserDialog from "@/components/users/AddUserDialog";
 import DeleteUserDialog from "@/components/users/DeleteUserDialog";
 import ViewUserDialog from "@/components/users/ViewUserDialog";
 import EditUserDialog from "@/components/users/EditUserDialog";
 import { useUsers } from "@/hooks/useUsers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import UsersSearch from "@/components/users/UsersSearch";
+import UsersTableWrapper from "@/components/users/UsersTableWrapper";
 
 const Users = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -67,22 +52,18 @@ const Users = () => {
     }
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page on search
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
   // Pagination calculations
   const totalPages = Math.ceil(total / pageSize);
-
-  // Generate page numbers array
-  const getPageNumbers = () => {
-    const delta = 2;
-    const range = [];
-    for (
-      let i = Math.max(1, currentPage - delta);
-      i <= Math.min(totalPages, currentPage + delta);
-      i++
-    ) {
-      range.push(i);
-    }
-    return range;
-  };
 
   if (isLoading) {
     return (
@@ -110,81 +91,26 @@ const Users = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Users</h1>
               <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-4 sm:items-center">
-                <div className="relative w-full sm:w-[300px]">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setCurrentPage(1); // Reset to first page on search
-                    }}
-                    className="pl-10"
-                  />
-                </div>
+                <UsersSearch 
+                  searchTerm={searchTerm}
+                  onSearchChange={handleSearchChange}
+                />
                 <AddUserDialog />
               </div>
             </div>
-            <div className="overflow-x-auto">
-              <UsersTable
-                users={users}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onView={handleView}
-              />
-            </div>
-            <div className="mt-4 flex flex-row justify-between items-center gap-2">
-              <div className="flex items-center gap-1 min-w-[280px] whitespace-nowrap">
-                <span className="text-sm text-gray-500 hidden sm:inline">Rows per page:</span>
-                <span className="text-sm text-gray-500 sm:hidden">Per page:</span>
-                <Select
-                  value={pageSize.toString()}
-                  onValueChange={(value) => {
-                    setPageSize(Number(value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-[60px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-                <span className="text-sm text-gray-500 truncate">
-                  {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, total)} of {total}
-                </span>
-              </div>
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                  {getPageNumbers().map((pageNum) => (
-                    <PaginationItem key={pageNum}>
-                      <PaginationLink
-                        onClick={() => setCurrentPage(pageNum)}
-                        isActive={currentPage === pageNum}
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
+            
+            <UsersTableWrapper
+              users={users}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              total={total}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={handlePageSizeChange}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onView={handleView}
+            />
           </div>
         </div>
       </div>
