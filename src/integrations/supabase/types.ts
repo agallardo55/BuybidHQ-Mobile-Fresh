@@ -241,6 +241,75 @@ export type Database = {
           },
         ]
       }
+      buybidhq_users_backup_temp: {
+        Row: {
+          address: string | null
+          agreed_at: string | null
+          buyers: string | null
+          city: string | null
+          company: string | null
+          created_at: string | null
+          dealership_id: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          is_active: boolean | null
+          mobile_number: string | null
+          password_hash: string | null
+          profile_photo: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          state: string | null
+          status: string | null
+          updated_at: string | null
+          website: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          agreed_at?: string | null
+          buyers?: string | null
+          city?: string | null
+          company?: string | null
+          created_at?: string | null
+          dealership_id?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          mobile_number?: string | null
+          password_hash?: string | null
+          profile_photo?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          agreed_at?: string | null
+          buyers?: string | null
+          city?: string | null
+          company?: string | null
+          created_at?: string | null
+          dealership_id?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          mobile_number?: string | null
+          password_hash?: string | null
+          profile_photo?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
       buyers: {
         Row: {
           accepted_bids: number | null
