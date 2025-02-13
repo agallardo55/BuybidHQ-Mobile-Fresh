@@ -69,13 +69,47 @@ export const useCreateBidRequest = () => {
 
   const handleSubmit = async (userId: string) => {
     if (!validateForm()) {
-      toast.error("You must complete the required fields to sent your bid request");
+      toast.error("Please complete all required fields");
+      return;
+    }
+
+    if (!userId) {
+      toast.error("User ID is required to create a bid request");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      console.log('Submitting bid request with data:', {
+        vehicle_data: {
+          year: formData.year,
+          make: formData.make,
+          model: formData.model,
+          trim: formData.trim,
+          vin: formData.vin,
+          mileage: formData.mileage,
+          engine: formData.engineCylinders,
+          transmission: formData.transmission,
+          drivetrain: formData.drivetrain,
+          exterior: formData.exteriorColor,
+          interior: formData.interiorColor,
+          options: formData.accessories
+        },
+        recon_data: {
+          windshield: formData.windshield,
+          engineLights: formData.engineLights,
+          brakes: formData.brakes,
+          tire: formData.tire,
+          maintenance: formData.maintenance,
+          reconEstimate: formData.reconEstimate,
+          reconDetails: formData.reconDetails
+        },
+        image_urls: uploadedImageUrls,
+        buyer_ids: selectedBuyers,
+        creator_id: userId
+      });
+
       const { data, error } = await supabase.rpc('create_complete_bid_request', {
         vehicle_data: {
           year: formData.year,
@@ -105,13 +139,20 @@ export const useCreateBidRequest = () => {
         creator_id: userId
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Bid request error:', error);
+        throw error;
+      }
 
       toast.success("Bid request created successfully!");
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating bid request:', error);
-      toast.error("Failed to create bid request. Please try again.");
+      if (error.message?.includes('uuid')) {
+        toast.error("Invalid buyer selection. Please try again.");
+      } else {
+        toast.error("Failed to create bid request. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
