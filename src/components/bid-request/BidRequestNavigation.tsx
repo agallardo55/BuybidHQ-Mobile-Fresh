@@ -1,11 +1,18 @@
+
 import { Link, useNavigate } from "react-router-dom";
-import { UserRound, Bell } from "lucide-react";
+import { UserRound, Bell, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { hasRequiredRole } from "@/config/features";
+import { supabase } from "@/integrations/supabase/client";
 
 const BidRequestNavigation = () => {
   const navigate = useNavigate();
   const { currentUser, isLoading } = useCurrentUser();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
@@ -64,6 +71,13 @@ const BidRequestNavigation = () => {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
               </span>
             </button>
+            <button 
+              onClick={handleLogout}
+              className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
+              aria-label="Log out"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>
@@ -72,3 +86,4 @@ const BidRequestNavigation = () => {
 };
 
 export default BidRequestNavigation;
+

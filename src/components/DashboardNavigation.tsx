@@ -1,11 +1,12 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { UserRound, Bell, Menu, X } from "lucide-react";
+import { UserRound, Bell, Menu, X, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useToast } from "@/hooks/use-toast";
 import { hasRequiredRole } from "@/config/features";
+import { supabase } from "@/integrations/supabase/client";
 
 const DashboardNavigation = () => {
   const navigate = useNavigate();
@@ -39,6 +40,11 @@ const DashboardNavigation = () => {
         </div>
       ),
     });
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
   };
 
   return (
@@ -85,6 +91,13 @@ const DashboardNavigation = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
                 </span>
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
+                aria-label="Log out"
+              >
+                <LogOut className="h-5 w-5" />
               </button>
             </div>
             <div className="md:hidden">
@@ -135,6 +148,16 @@ const DashboardNavigation = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
                 </span>
+              </button>
+              <button 
+                onClick={() => {
+                  handleLogout();
+                  setIsOpen(false);
+                }}
+                className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
+                aria-label="Log out"
+              >
+                <LogOut className="h-5 w-5" />
               </button>
             </div>
           </div>
