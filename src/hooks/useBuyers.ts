@@ -10,16 +10,16 @@ export const useBuyers = () => {
   const { currentUser } = useCurrentUser();
 
   const { data: buyers = [], isLoading } = useQuery({
-    queryKey: ['buyers'],
+    queryKey: ['buyers', currentUser?.role],
     queryFn: async () => {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
 
-      let query = supabase.from('buyers').select('*');
+      const query = supabase.from('buyers').select('*');
       
-      // Only filter by user_id if not an admin
+      // Apply filter based on role that was determined before the query
       if (currentUser?.role !== 'admin') {
-        query = query.eq('user_id', userData.user.id);
+        query.eq('user_id', userData.user.id);
       }
 
       const { data, error } = await query;
@@ -41,6 +41,7 @@ export const useBuyers = () => {
         declinedBids: buyer.declined_bids || 0
       }));
     },
+    enabled: !!currentUser, // Only run query when currentUser is available
   });
 
   const createBuyerMutation = useMutation({
