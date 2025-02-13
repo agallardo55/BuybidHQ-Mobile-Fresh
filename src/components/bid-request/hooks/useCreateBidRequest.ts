@@ -69,7 +69,7 @@ export const useCreateBidRequest = () => {
 
   const handleSubmit = async (userId: string) => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before submitting");
+      toast.error("You must complete the required fields to sent your bid request");
       return;
     }
 
