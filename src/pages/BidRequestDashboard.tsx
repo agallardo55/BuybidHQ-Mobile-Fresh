@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
@@ -7,53 +6,36 @@ import SearchHeader from "@/components/bid-request/SearchHeader";
 import BidRequestTable from "@/components/bid-request/BidRequestTable";
 import TableFooter from "@/components/bid-request/TableFooter";
 import { BidRequest } from "@/components/bid-request/types";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [bidRequests, setBidRequests] = useState<BidRequest[]>([
-    {
-      id: "1",
-      year: 2020,
-      make: "Toyota",
-      model: "Camry",
-      trim: "SE",
-      vin: "1HGCM82633A123456",
-      mileage: 45000,
-      buyer: "John Smith",
-      dealership: "ABC Motors",
-      highestOffer: 18500,
-      status: "Pending"
-    },
-    {
-      id: "2",
-      year: 2019,
-      make: "Honda",
-      model: "CR-V",
-      trim: "EX-L",
-      vin: "2HKRW2H54JH123456",
-      mileage: 35000,
-      buyer: "Sarah Johnson",
-      dealership: "XYZ Auto",
-      highestOffer: 22000,
-      status: "Approved"
-    },
-    {
-      id: "3",
-      year: 2021,
-      make: "Ford",
-      model: "F-150",
-      trim: "XLT",
-      vin: "1FTEW1E53MFB12345",
-      mileage: 28000,
-      buyer: "Michael Brown",
-      dealership: "Premium Cars",
-      highestOffer: 35000,
-      status: "Declined"
-    }
-  ]);
+  const [bidRequests, setBidRequests] = useState<BidRequest[]>([]);
+  const [lastRequestUrl, setLastRequestUrl] = useState<string | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchLastRequest = async () => {
+      const { data, error } = await supabase
+        .from('bid_requests')
+        .select('id')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (data && !error) {
+        // For demo purposes, using a fixed buyer ID. In production, this should be dynamic
+        const demoUrl = `/bid-response?request=${data.id}&buyer=cc051b17-ce03-440f-9e44-31b293d53460`;
+        setLastRequestUrl(demoUrl);
+      }
+    };
+
+    fetchLastRequest();
+  }, []);
 
   const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
     setBidRequests(prevRequests =>
@@ -113,6 +95,17 @@ const BidRequestDashboard = () => {
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-semibold text-gray-900">Bid Requests</h1>
+              {lastRequestUrl && (
+                <Link to={lastRequestUrl} target="_blank">
+                  <Button variant="outline" className="border-custom-blue text-custom-blue hover:bg-custom-blue/10">
+                    View Last Request
+                  </Button>
+                </Link>
+              )}
+            </div>
+            
             <SearchHeader 
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
