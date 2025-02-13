@@ -43,7 +43,7 @@ const TableFooter = ({
           value={pageSize.toString()}
           onValueChange={(value) => onPageSizeChange(Number(value))}
         >
-          <SelectTrigger className="w-[60px]">
+          <SelectTrigger className="w-[60px] focus:ring-0 focus:ring-offset-0">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
