@@ -48,12 +48,12 @@ const UsersTable = ({ users, onEdit, onDelete, onView }: UsersTableProps) => {
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id}>
-            <TableCell>{user.fullName || 'N/A'}</TableCell>
-            <TableCell>{user.email}</TableCell>
-            <TableCell className="capitalize">{user.role}</TableCell>
-            <TableCell className="capitalize">{user.status}</TableCell>
-            <TableCell>{user.dealershipName || 'N/A'}</TableCell>
-            <TableCell>
+            <TableCell className="py-2 px-4">{user.fullName || 'N/A'}</TableCell>
+            <TableCell className="py-2 px-4">{user.email}</TableCell>
+            <TableCell className="py-2 px-4 capitalize">{user.role}</TableCell>
+            <TableCell className="py-2 px-4 capitalize">{user.status}</TableCell>
+            <TableCell className="py-2 px-4">{user.dealershipName || 'N/A'}</TableCell>
+            <TableCell className="py-2 px-4">
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
