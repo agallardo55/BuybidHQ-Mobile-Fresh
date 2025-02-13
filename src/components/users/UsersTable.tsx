@@ -10,16 +10,29 @@ import {
 import { Edit, Trash, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { User } from "@/types/users";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface UsersTableProps {
   users: User[];
   onEdit: (user: User) => void;
   onDelete: (userId: string) => void;
   onView: (user: User) => void;
-  currentUserRole?: string;
 }
 
-const UsersTable = ({ users, onEdit, onDelete, onView, currentUserRole }: UsersTableProps) => {
+const UsersTable = ({ users, onEdit, onDelete, onView }: UsersTableProps) => {
+  const { currentUser } = useCurrentUser();
+
+  const canManageUser = (user: User) => {
+    if (currentUser?.role === 'admin') return true;
+    if (currentUser?.role === 'dealer') {
+      return (
+        user.dealershipId === currentUser.dealership_id &&
+        ['basic', 'individual'].includes(user.role)
+      );
+    }
+    return false;
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -28,6 +41,7 @@ const UsersTable = ({ users, onEdit, onDelete, onView, currentUserRole }: UsersT
           <TableHead>Email</TableHead>
           <TableHead>Role</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Dealership</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -38,6 +52,7 @@ const UsersTable = ({ users, onEdit, onDelete, onView, currentUserRole }: UsersT
             <TableCell>{user.email}</TableCell>
             <TableCell className="capitalize">{user.role}</TableCell>
             <TableCell className="capitalize">{user.status}</TableCell>
+            <TableCell>{user.dealershipName || 'N/A'}</TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
                 <Button
@@ -48,7 +63,7 @@ const UsersTable = ({ users, onEdit, onDelete, onView, currentUserRole }: UsersT
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
-                {currentUserRole === 'admin' && (
+                {canManageUser(user) && (
                   <>
                     <Button
                       variant="ghost"

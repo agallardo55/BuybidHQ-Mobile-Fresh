@@ -3,16 +3,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { UserFormData } from "@/types/users";
 import { toast } from "sonner";
+import { useCurrentUser } from "./useCurrentUser";
 
 export const useUsers = () => {
   const queryClient = useQueryClient();
+  const { currentUser } = useCurrentUser();
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('buybidhq_users')
-        .select('*');
+        .select('*, dealerships:dealership_id(*)');
 
       if (error) {
         toast.error("Failed to fetch users: " + error.message);
@@ -31,6 +33,7 @@ export const useUsers = () => {
         state: user.state,
         zipCode: user.zip_code,
         dealershipId: user.dealership_id,
+        dealershipName: user.dealerships?.dealer_name,
         isActive: user.is_active
       }));
     },
@@ -38,6 +41,11 @@ export const useUsers = () => {
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: UserFormData) => {
+      // Validate role assignment based on current user's role
+      if (currentUser?.role === 'dealer' && !['basic', 'individual'].includes(userData.role)) {
+        throw new Error("Dealers can only create basic or individual users");
+      }
+
       const insertData = {
         full_name: userData.fullName,
         email: userData.email,
@@ -47,7 +55,7 @@ export const useUsers = () => {
         city: userData.city,
         state: userData.state,
         zip_code: userData.zipCode,
-        dealership_id: userData.dealershipId,
+        dealership_id: currentUser?.role === 'dealer' ? currentUser.dealership_id : userData.dealershipId,
         is_active: userData.isActive,
         status: 'active'
       };
@@ -72,6 +80,25 @@ export const useUsers = () => {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
+      // Check if the user exists and get their role
+      const { data: userToDelete, error: fetchError } = await supabase
+        .from('buybidhq_users')
+        .select('role, dealership_id')
+        .eq('id', userId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Validate deletion permissions
+      if (currentUser?.role === 'dealer') {
+        if (!['basic', 'individual'].includes(userToDelete.role)) {
+          throw new Error("Dealers can only delete basic or individual users");
+        }
+        if (userToDelete.dealership_id !== currentUser.dealership_id) {
+          throw new Error("You can only delete users from your dealership");
+        }
+      }
+
       const { error } = await supabase
         .from('buybidhq_users')
         .delete()

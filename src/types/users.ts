@@ -11,6 +11,7 @@ export interface User {
   state: string | null;
   zipCode: string | null;
   dealershipId: string | null;
+  dealershipName?: string | null;
   isActive: boolean;
 }
 

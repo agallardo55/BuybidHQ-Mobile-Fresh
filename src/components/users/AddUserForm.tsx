@@ -14,6 +14,7 @@ import {
   Switch
 } from "@/components/ui/switch";
 import { UserFormData } from "@/types/users";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface AddUserFormProps {
   onSubmit: (e: React.FormEvent) => void;
@@ -22,6 +23,13 @@ interface AddUserFormProps {
 }
 
 const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps) => {
+  const { currentUser } = useCurrentUser();
+  
+  // Determine available roles based on current user's role
+  const availableRoles = currentUser?.role === 'admin' 
+    ? ['admin', 'dealer', 'basic', 'individual']
+    : ['basic', 'individual'];
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -54,15 +62,18 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
             <Label htmlFor="role">Role</Label>
             <Select
               value={formData.role}
-              onValueChange={(value: "admin" | "dealer" | "basic") => onFormDataChange({ role: value })}
+              onValueChange={(value: "admin" | "dealer" | "basic" | "individual") => 
+                onFormDataChange({ role: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="basic">Basic</SelectItem>
-                <SelectItem value="dealer">Dealer</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                {availableRoles.map(role => (
+                  <SelectItem key={role} value={role} className="capitalize">
+                    {role}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -78,15 +89,17 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="dealershipId">Dealership</Label>
-            <Input
-              id="dealershipId"
-              placeholder="Enter dealership name"
-              value={formData.dealershipId}
-              onChange={(e) => onFormDataChange({ dealershipId: e.target.value })}
-            />
-          </div>
+          {currentUser?.role === 'admin' && (
+            <div className="space-y-2">
+              <Label htmlFor="dealershipId">Dealership</Label>
+              <Input
+                id="dealershipId"
+                placeholder="Enter dealership name"
+                value={formData.dealershipId}
+                onChange={(e) => onFormDataChange({ dealershipId: e.target.value })}
+              />
+            </div>
+          )}
         </div>
 
         {/* Right Column */}
