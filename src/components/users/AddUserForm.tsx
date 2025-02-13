@@ -166,6 +166,7 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
               id="isActive"
               checked={formData.isActive}
               onCheckedChange={(checked) => onFormDataChange({ isActive: checked })}
+              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-input"
             />
             <Label htmlFor="isActive">Active User</Label>
           </div>
