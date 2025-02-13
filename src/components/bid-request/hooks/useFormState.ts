@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { BidRequestFormData, FormErrors } from "../types";
+import { BidRequestFormData, FormErrors, FormState, FormStateActions } from "../types";
 
 const initialFormData: BidRequestFormData = {
   year: "",
@@ -24,63 +24,76 @@ const initialFormData: BidRequestFormData = {
   drivetrain: "",
 };
 
-export const useFormState = () => {
-  const [formData, setFormData] = useState<BidRequestFormData>(initialFormData);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [selectedBuyers, setSelectedBuyers] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export const useFormState = (): FormState & FormStateActions => {
+  const [state, setState] = useState<FormState>({
+    formData: initialFormData,
+    errors: {},
+    selectedBuyers: [],
+    uploadedImageUrls: [],
+    isSubmitting: false,
+  });
+
+  const setFormData = (data: Partial<BidRequestFormData>) => {
+    setState(prev => ({
+      ...prev,
+      formData: { ...prev.formData, ...data }
+    }));
+  };
+
+  const setErrors = (errors: FormErrors) => {
+    setState(prev => ({ ...prev, errors }));
+  };
+
+  const setSelectedBuyers = (buyers: string[]) => {
+    setState(prev => ({ ...prev, selectedBuyers: buyers }));
+  };
+
+  const setUploadedImageUrls = (urls: string[]) => {
+    setState(prev => ({ ...prev, uploadedImageUrls: urls }));
+  };
+
+  const setIsSubmitting = (isSubmitting: boolean) => {
+    setState(prev => ({ ...prev, isSubmitting }));
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ""
-      }));
+    setFormData({ [name]: value });
+    
+    if (state.errors[name]) {
+      setErrors({ ...state.errors, [name]: "" });
     }
   };
 
   const handleSelectChange = (value: string, name: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData({ [name]: value });
   };
 
   const handleImagesUploaded = (urls: string[]) => {
-    setUploadedImageUrls(prev => [...prev, ...urls]);
+    setUploadedImageUrls([...state.uploadedImageUrls, ...urls]);
   };
 
   const toggleBuyer = (buyerId: string) => {
-    setSelectedBuyers(prev => {
-      if (prev.includes(buyerId)) {
-        return prev.filter(id => id !== buyerId);
-      }
-      return [...prev, buyerId];
-    });
-    if (errors.buyers) {
-      setErrors(prev => ({ ...prev, buyers: "" }));
+    const newBuyers = state.selectedBuyers.includes(buyerId)
+      ? state.selectedBuyers.filter(id => id !== buyerId)
+      : [...state.selectedBuyers, buyerId];
+    
+    setSelectedBuyers(newBuyers);
+    
+    if (state.errors.buyers) {
+      setErrors({ ...state.errors, buyers: "" });
     }
   };
 
   return {
-    formData,
-    errors,
-    isSubmitting,
-    selectedBuyers,
-    searchTerm,
-    uploadedImageUrls,
-    setIsSubmitting,
+    ...state,
+    setFormData,
     setErrors,
-    setSearchTerm,
+    setSelectedBuyers,
+    setUploadedImageUrls,
+    setIsSubmitting,
     handleChange,
     handleSelectChange,
     handleImagesUploaded,

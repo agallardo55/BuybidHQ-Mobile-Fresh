@@ -24,13 +24,16 @@ export const useCreateBidRequest = () => {
     }
 
     formState.setIsSubmitting(true);
-    await submitBidRequest({
-      formData: formState.formData,
-      uploadedImageUrls: formState.uploadedImageUrls,
-      selectedBuyers: formState.selectedBuyers,
-      userId,
-      setIsSubmitting: formState.setIsSubmitting
-    });
+    try {
+      await submitBidRequest({
+        formState,
+        userId,
+      });
+    } catch (error) {
+      // Error is already handled in submitBidRequest
+    } finally {
+      formState.setIsSubmitting(false);
+    }
   };
 
   return {

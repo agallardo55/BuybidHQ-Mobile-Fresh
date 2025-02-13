@@ -44,3 +44,23 @@ export interface FormErrors {
   buyers?: string;
   [key: string]: string | undefined;
 }
+
+export interface FormState {
+  formData: BidRequestFormData;
+  errors: FormErrors;
+  selectedBuyers: string[];
+  uploadedImageUrls: string[];
+  isSubmitting: boolean;
+}
+
+export interface FormStateActions {
+  setFormData: (data: Partial<BidRequestFormData>) => void;
+  setErrors: (errors: FormErrors) => void;
+  setSelectedBuyers: (buyers: string[]) => void;
+  setUploadedImageUrls: (urls: string[]) => void;
+  setIsSubmitting: (isSubmitting: boolean) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleSelectChange: (value: string, name: string) => void;
+  handleImagesUploaded: (urls: string[]) => void;
+  toggleBuyer: (buyerId: string) => void;
+}

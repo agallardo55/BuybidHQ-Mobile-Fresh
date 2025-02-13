@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { BidRequestFormData } from "../types";
+import { FormState } from "../types";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -8,18 +8,14 @@ export const useBidRequestSubmission = () => {
   const navigate = useNavigate();
 
   const submitBidRequest = async ({
-    formData,
-    uploadedImageUrls,
-    selectedBuyers,
+    formState,
     userId,
-    setIsSubmitting
   }: {
-    formData: BidRequestFormData;
-    uploadedImageUrls: string[];
-    selectedBuyers: string[];
+    formState: FormState;
     userId: string;
-    setIsSubmitting: (value: boolean) => void;
   }) => {
+    const { formData, uploadedImageUrls, selectedBuyers } = formState;
+    
     try {
       const { data, error } = await supabase.rpc('create_complete_bid_request', {
         vehicle_data: {
@@ -63,8 +59,7 @@ export const useBidRequestSubmission = () => {
       } else {
         toast.error("Failed to create bid request. Please try again.");
       }
-    } finally {
-      setIsSubmitting(false);
+      throw error;
     }
   };
 
