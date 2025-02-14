@@ -19,7 +19,7 @@ export const useBuyers = () => {
         .from('buyers')
         .select(`
           *,
-          buybidhq_users!buyers_user_id_fkey (
+          buybidhq_users!fk_contacts_user (
             full_name,
             email
           )
@@ -47,8 +47,8 @@ export const useBuyers = () => {
         acceptedBids: buyer.accepted_bids || 0,
         pendingBids: buyer.pending_bids || 0,
         declinedBids: buyer.declined_bids || 0,
-        ownerName: buyer.buybidhq_users.full_name,
-        ownerEmail: buyer.buybidhq_users.email
+        ownerName: buyer.buybidhq_users?.full_name || 'N/A',
+        ownerEmail: buyer.buybidhq_users?.email || 'N/A'
       }));
     },
     enabled: !!currentUser,
