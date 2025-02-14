@@ -79,7 +79,7 @@ const BidResponse = () => {
       ) : isLoading ? (
         <LoadingState />
       ) : submitted ? (
-        <SubmittedState />
+        <SubmittedState message="The offer for this bid request has been submitted" />
       ) : vehicleDetails ? (
         <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
           <VehicleDetailsSection vehicle={vehicleDetails} />
@@ -92,3 +92,4 @@ const BidResponse = () => {
 };
 
 export default BidResponse;
+
