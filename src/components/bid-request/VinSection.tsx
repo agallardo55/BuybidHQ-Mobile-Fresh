@@ -77,7 +77,7 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
           onChange={onChange}
           required
           placeholder="1HGCM82633A123456"
-          className={error ? "border-red-500" : ""}
+          className={`${error ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
           maxLength={17}
         />
         <Button 
