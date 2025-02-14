@@ -31,6 +31,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
           <DialogTitle>User Details</DialogTitle>
         </DialogHeader>
         <div className="mt-4">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Personal Information</h3>
           <InfoRow label="Full Name" value={user.fullName} />
           <InfoRow label="Email" value={user.email} />
           <InfoRow label="Role" value={user.role} />
@@ -40,9 +41,23 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
           <InfoRow label="City" value={user.city} />
           <InfoRow label="State" value={user.state} />
           <InfoRow label="ZIP Code" value={user.zipCode} />
-          <InfoRow label="Dealership" value={user.dealershipName} />
+          
+          {user.role === 'dealer' && user.dealershipInfo && (
+            <>
+              <h3 className="text-sm font-medium text-gray-900 mt-6 mb-3">Dealership Information</h3>
+              <InfoRow label="Dealership Name" value={user.dealershipInfo.dealerName} />
+              <InfoRow label="Dealer ID" value={user.dealershipInfo.dealerId} />
+              <InfoRow label="Business Phone" value={user.dealershipInfo.businessPhone} />
+              <InfoRow label="Business Email" value={user.dealershipInfo.businessEmail} />
+              <InfoRow label="Address" value={user.dealershipInfo.address} />
+              <InfoRow label="City" value={user.dealershipInfo.city} />
+              <InfoRow label="State" value={user.dealershipInfo.state} />
+              <InfoRow label="ZIP Code" value={user.dealershipInfo.zipCode} />
+            </>
+          )}
+
           <div className={cn(
-            "mt-2 px-2 py-1 text-xs font-medium rounded-full w-fit",
+            "mt-4 px-2 py-1 text-xs font-medium rounded-full w-fit",
             user.isActive
               ? "bg-green-100 text-green-700"
               : "bg-red-100 text-red-700"

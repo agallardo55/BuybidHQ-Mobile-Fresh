@@ -33,34 +33,24 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginate
         throw countError;
       }
 
-      // Then get paginated data
+      // Then get paginated data with dealership information
       const startRange = (currentPage - 1) * pageSize;
       const endRange = startRange + pageSize - 1;
 
       let dataQuery = supabase
         .from('buybidhq_users')
         .select(`
-          id,
-          email,
-          full_name,
-          role,
-          status,
-          mobile_number,
-          address,
-          city,
-          state,
-          zip_code,
-          dealership_id,
-          is_active,
+          *,
           dealerships:dealership_id (
+            id,
             dealer_name,
             business_phone,
             business_email,
+            dealer_id,
             address,
             city,
             state,
-            zip_code,
-            dealer_id
+            zip_code
           )
         `)
         .is('deleted_at', null);
@@ -98,7 +88,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginate
           city: user.city,
           state: user.state,
           zipCode: user.zip_code,
-          dealershipId: user.dealership_id || undefined,
+          dealershipId: user.dealership_id,
           dealershipName: user.dealerships?.dealer_name,
           dealershipInfo: user.dealerships ? {
             dealerName: user.dealerships.dealer_name,

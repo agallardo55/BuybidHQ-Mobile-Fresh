@@ -57,10 +57,10 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
           dealerId: user.dealershipInfo.dealerId,
           businessPhone: user.dealershipInfo.businessPhone,
           businessEmail: user.dealershipInfo.businessEmail,
-          address: user.dealershipInfo.address,
-          city: user.dealershipInfo.city,
-          state: user.dealershipInfo.state,
-          zipCode: user.dealershipInfo.zipCode
+          address: user.dealershipInfo.address || "",
+          city: user.dealershipInfo.city || "",
+          state: user.dealershipInfo.state || "",
+          zipCode: user.dealershipInfo.zipCode || ""
         });
       }
     }
@@ -69,7 +69,11 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
-      onUpdate(user.id, formData, formData.role === 'dealer' ? dealershipData : undefined);
+      onUpdate(
+        user.id, 
+        formData, 
+        formData.role === 'dealer' ? dealershipData : undefined
+      );
       onOpenChange(false);
     }
   };
