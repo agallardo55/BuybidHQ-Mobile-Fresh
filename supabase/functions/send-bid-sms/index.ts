@@ -58,10 +58,8 @@ serve(async (req) => {
       fromNumber
     })
 
-    // Initialize Twilio client correctly for API key authentication
-    const client = twilio(authToken, accountSid, {
-      accountSid: accountSid
-    })
+    // Initialize Twilio client with auth token first, then account SID
+    const client = twilio(authToken, accountSid)
 
     let messageBody: string;
 
