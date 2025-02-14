@@ -1,6 +1,6 @@
 
 // Database User Role type matching Supabase enum
-export type UserRole = 'basic' | 'individual' | 'dealer' | 'associate' | 'admin';
+export type UserRole = 'basic' | 'individual' | 'dealer' | 'associate';
 
 // Base user interface matching database schema
 export interface BaseUser {
@@ -68,7 +68,7 @@ export interface DealershipFormData {
 
 // Type guard for UserRole
 export const isUserRole = (role: string): role is UserRole => {
-  return ['basic', 'individual', 'dealer', 'associate', 'admin'].includes(role);
+  return ['basic', 'individual', 'dealer', 'associate'].includes(role);
 };
 
 // Utility type for transforming snake_case to camelCase
