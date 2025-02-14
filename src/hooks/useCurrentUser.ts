@@ -21,7 +21,7 @@ interface UserData extends BaseUser {
 export const useCurrentUser = () => {
   const navigate = useNavigate();
 
-  const { data: currentUser, isLoading } = useQuery({
+  const { data: currentUser, isLoading } = useQuery<UserData | null>({
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
@@ -37,14 +37,19 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // First check if user is a superadmin
+        // First check if user is a superadmin using maybeSingle()
         const { data: superadminData, error: superadminError } = await supabase
           .from('superadmin')
           .select('*')
           .eq('email', session.user.email)
-          .single();
+          .maybeSingle();
 
-        if (superadminData && !superadminError) {
+        if (superadminError) {
+          console.error('Error checking superadmin:', superadminError);
+        }
+
+        if (superadminData) {
+          console.log('User is a superadmin');
           return {
             id: session.user.id,
             email: superadminData.email,
@@ -63,17 +68,14 @@ export const useCurrentUser = () => {
           };
         }
 
-        // If not superadmin, get regular user data
+        // If not superadmin, get regular user data using rpc function to avoid recursion
         const { data: userData, error: userError } = await supabase
-          .from('buybidhq_users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+          .rpc('get_user_profile', { user_id: session.user.id });
 
         if (userError) {
           console.error('Error fetching user data:', userError);
           
-          // Only create new profile if the error is that the record doesn't exist
+          // Only create new profile if we couldn't find the user
           if (userError.code === 'PGRST116') {
             console.log('Creating new user profile');
             const basicProfile = {
@@ -112,13 +114,17 @@ export const useCurrentUser = () => {
           throw userError;
         }
 
+        if (!userData) {
+          throw new Error('No user data found');
+        }
+
         // If user has a dealership_id, fetch the dealership data
-        if (userData?.dealership_id) {
+        if (userData.dealership_id) {
           const { data: dealership, error: dealershipError } = await supabase
             .from('dealerships')
             .select('*')
             .eq('id', userData.dealership_id)
-            .single();
+            .maybeSingle();
 
           if (dealershipError) {
             console.error('Error fetching dealership:', dealershipError);
