@@ -52,7 +52,7 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit }: BuyersTableProps) => 
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.acceptedBids}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.pendingBids}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.declinedBids}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
