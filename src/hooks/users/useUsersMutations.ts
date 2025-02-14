@@ -45,13 +45,46 @@ export const useUsersMutations = () => {
       userData: UserFormData; 
       dealershipData?: DealershipFormData;
     }) => {
+      // Validate userId
       if (!userId?.trim()) {
         throw new Error('User ID is required for update');
       }
 
-      // If it's a dealer and we have dealership data, update or create dealership first
-      let dealershipId = userData.dealershipId;
+      // If role is not dealer, ensure dealership data is cleared
+      if (userData.role !== 'dealer') {
+        const { error: clearDealershipError } = await supabase
+          .from('buybidhq_users')
+          .update({
+            dealership_id: null
+          })
+          .eq('id', userId);
+
+        if (clearDealershipError) throw clearDealershipError;
+        
+        // Update user without dealership data
+        const { error } = await supabase
+          .from('buybidhq_users')
+          .update({
+            email: userData.email,
+            full_name: userData.fullName,
+            role: userData.role,
+            mobile_number: userData.mobileNumber || null,
+            address: userData.address || null,
+            city: userData.city || null,
+            state: userData.state || null,
+            zip_code: userData.zipCode || null,
+            is_active: userData.isActive
+          })
+          .eq('id', userId);
+
+        if (error) throw error;
+        return;
+      }
+
+      // Handle dealer role with dealership data
       if (userData.role === 'dealer' && dealershipData) {
+        let dealershipId = userData.dealershipId;
+
         if (dealershipId) {
           // Update existing dealership
           const { error: dealershipError } = await supabase
@@ -89,26 +122,26 @@ export const useUsersMutations = () => {
           if (dealershipError) throw dealershipError;
           dealershipId = newDealership.id;
         }
+
+        // Update user with dealership data
+        const { error } = await supabase
+          .from('buybidhq_users')
+          .update({
+            email: userData.email,
+            full_name: userData.fullName,
+            role: userData.role,
+            mobile_number: userData.mobileNumber || null,
+            address: userData.address || null,
+            city: userData.city || null,
+            state: userData.state || null,
+            zip_code: userData.zipCode || null,
+            dealership_id: dealershipId,
+            is_active: userData.isActive
+          })
+          .eq('id', userId);
+
+        if (error) throw error;
       }
-
-      // Update user
-      const { error } = await supabase
-        .from('buybidhq_users')
-        .update({
-          email: userData.email,
-          full_name: userData.fullName,
-          role: userData.role,
-          mobile_number: userData.mobileNumber || null,
-          address: userData.address || null,
-          city: userData.city || null,
-          state: userData.state || null,
-          zip_code: userData.zipCode || null,
-          dealership_id: dealershipId,
-          is_active: userData.isActive
-        })
-        .eq('id', userId);
-
-      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -125,11 +158,17 @@ export const useUsersMutations = () => {
         throw new Error('User ID is required for deletion');
       }
 
-      const currentUser = await supabase.auth.getUser();
+      const { data: currentUser, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+
+      if (!currentUser.user?.id) {
+        throw new Error('Current user not found');
+      }
+
       const { error } = await supabase
         .rpc('handle_user_deletion', { 
           user_id: userId, 
-          deleted_by_id: currentUser.data.user?.id,
+          deleted_by_id: currentUser.user.id,
           deletion_reason: reason || null 
         });
 
