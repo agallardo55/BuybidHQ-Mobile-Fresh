@@ -38,52 +38,89 @@ export const useCurrentUser = () => {
   const { data: currentUser, isLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      
-      const { data: userData, error: userError } = await supabase
-        .from('buybidhq_users')
-        .select(`
-          *,
-          dealerships:dealership_id (
+      try {
+        // First check if we have a session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (!sessionData.session) {
+          console.log('No active session found');
+          return null;
+        }
+
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+        if (!user) {
+          console.log('No authenticated user found');
+          return null;
+        }
+
+        console.log('Fetching user data for ID:', user.id);
+        
+        const { data: userData, error: profileError } = await supabase
+          .from('buybidhq_users')
+          .select(`
             id,
-            dealer_name,
-            business_phone,
-            business_email,
+            role,
+            status,
+            full_name,
+            email,
+            mobile_number,
             address,
             city,
             state,
-            zip_code
-          )
-        `)
-        .eq('id', user?.id)
-        .maybeSingle();
-        
-      if (userError) throw userError;
+            zip_code,
+            company,
+            dealership_id,
+            dealerships:dealership_id (
+              id,
+              dealer_name,
+              business_phone,
+              business_email,
+              address,
+              city,
+              state,
+              zip_code
+            )
+          `)
+          .eq('id', user.id)
+          .maybeSingle();
 
-      if (!userData && shouldEnforceRoleChecks()) {
-        throw new Error("User data not found");
+        if (profileError) {
+          console.error('Error fetching user profile:', profileError);
+          throw profileError;
+        }
+
+        if (!userData && shouldEnforceRoleChecks()) {
+          console.log('No user data found, creating basic profile');
+          return {
+            id: user.id,
+            role: 'basic' as UserRole,
+            status: 'active',
+            full_name: '',
+            email: user.email || '',
+            mobile_number: '',
+            address: '',
+            city: '',
+            state: '',
+            zip_code: '',
+            company: '',
+            dealership_id: null,
+            dealerships: null,
+          };
+        }
+
+        console.log('Successfully fetched user data:', userData);
+        return userData;
+      } catch (error) {
+        console.error('Error in useCurrentUser:', error);
+        throw error;
       }
-
-      return userData || { 
-        id: user?.id,
-        role: 'basic' as UserRole, 
-        status: 'active',
-        full_name: '',
-        email: user?.email || '',
-        mobile_number: '',
-        address: '',
-        city: '',
-        state: '',
-        zip_code: '',
-        company: '',
-        dealership_id: null,
-        dealerships: null,
-      };
     },
+    retry: 1,
+    retryDelay: 1000,
     meta: {
       onError: (error: Error) => {
-        console.error('Error fetching user data:', error);
+        console.error('Query error in useCurrentUser:', error);
         toast.error("Error loading user data. Please try signing in again.");
         navigate('/signin');
       }
