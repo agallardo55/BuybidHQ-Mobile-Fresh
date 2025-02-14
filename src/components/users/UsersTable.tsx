@@ -7,19 +7,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash, Eye } from "lucide-react";
+import { Edit, Trash, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { User } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { cn } from "@/lib/utils";
 
 interface UsersTableProps {
   users: User[];
   onEdit: (user: User) => void;
   onDelete: (userId: string) => void;
   onView: (user: User) => void;
+  sortConfig: {
+    field: keyof User | null;
+    direction: 'asc' | 'desc' | null;
+  };
+  onSort: (field: keyof User) => void;
 }
 
-const UsersTable = ({ users, onEdit, onDelete, onView }: UsersTableProps) => {
+const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: UsersTableProps) => {
   const { currentUser } = useCurrentUser();
 
   const canManageUser = (user: User) => {
@@ -33,15 +39,41 @@ const UsersTable = ({ users, onEdit, onDelete, onView }: UsersTableProps) => {
     return false;
   };
 
+  const SortIcon = ({ field }: { field: keyof User }) => {
+    if (sortConfig.field !== field) {
+      return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="h-4 w-4 ml-1" />
+    ) : (
+      <ArrowDown className="h-4 w-4 ml-1" />
+    );
+  };
+
+  const SortableHeader = ({ field, children }: { field: keyof User; children: React.ReactNode }) => (
+    <TableHead 
+      className={cn(
+        "whitespace-nowrap text-xs cursor-pointer select-none",
+        sortConfig.field === field && "text-primary"
+      )}
+      onClick={() => onSort(field)}
+    >
+      <div className="flex items-center">
+        {children}
+        <SortIcon field={field} />
+      </div>
+    </TableHead>
+  );
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Dealership</TableHead>
+          <SortableHeader field="fullName">Name</SortableHeader>
+          <SortableHeader field="email">Email</SortableHeader>
+          <SortableHeader field="role">Role</SortableHeader>
+          <SortableHeader field="status">Status</SortableHeader>
+          <SortableHeader field="dealershipName">Dealership</SortableHeader>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>

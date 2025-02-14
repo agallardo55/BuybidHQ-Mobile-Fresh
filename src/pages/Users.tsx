@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
@@ -12,6 +11,11 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import UsersSearch from "@/components/users/UsersSearch";
 import UsersTableWrapper from "@/components/users/UsersTableWrapper";
 
+type SortConfig = {
+  field: keyof User | null;
+  direction: 'asc' | 'desc' | null;
+};
+
 const Users = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -21,6 +25,7 @@ const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'fullName', direction: 'asc' });
 
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
   const { users, total, isLoading, deleteUser, updateUser } = useUsers({
@@ -28,6 +33,40 @@ const Users = () => {
     currentPage,
     searchTerm,
   });
+
+  const handleSort = (field: keyof User) => {
+    setSortConfig((currentConfig) => {
+      if (currentConfig.field === field) {
+        if (currentConfig.direction === 'asc') {
+          return { field, direction: 'desc' };
+        } else if (currentConfig.direction === 'desc') {
+          return { field: null, direction: null };
+        }
+      }
+      return { field, direction: 'asc' };
+    });
+  };
+
+  const sortUsers = (users: User[]) => {
+    if (!sortConfig.field || !sortConfig.direction) {
+      return users;
+    }
+
+    return [...users].sort((a, b) => {
+      const aValue = a[sortConfig.field!];
+      const bValue = b[sortConfig.field!];
+
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+
+      const stringA = String(aValue).toLowerCase();
+      const stringB = String(bValue).toLowerCase();
+      
+      return sortConfig.direction === 'asc'
+        ? stringA.localeCompare(stringB)
+        : stringB.localeCompare(stringA);
+    });
+  };
 
   const handleDelete = (userId: string) => {
     setUserToDelete(userId);
@@ -64,6 +103,8 @@ const Users = () => {
 
   const totalPages = Math.ceil(total / pageSize);
 
+  const sortedUsers = sortUsers(users);
+
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
@@ -99,7 +140,7 @@ const Users = () => {
             </div>
             
             <UsersTableWrapper
-              users={users}
+              users={sortedUsers}
               currentPage={currentPage}
               totalPages={totalPages}
               pageSize={pageSize}
@@ -109,6 +150,8 @@ const Users = () => {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onView={handleView}
+              sortConfig={sortConfig}
+              onSort={handleSort}
             />
           </div>
         </div>

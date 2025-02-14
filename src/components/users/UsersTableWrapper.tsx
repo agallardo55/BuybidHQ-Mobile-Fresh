@@ -14,6 +14,11 @@ interface UsersTableWrapperProps {
   onEdit: (user: User) => void;
   onDelete: (userId: string) => void;
   onView: (user: User) => void;
+  sortConfig: {
+    field: keyof User | null;
+    direction: 'asc' | 'desc' | null;
+  };
+  onSort: (field: keyof User) => void;
 }
 
 const UsersTableWrapper = ({
@@ -27,6 +32,8 @@ const UsersTableWrapper = ({
   onEdit,
   onDelete,
   onView,
+  sortConfig,
+  onSort,
 }: UsersTableWrapperProps) => {
   const getPageNumbers = () => {
     const delta = 2;
@@ -49,6 +56,8 @@ const UsersTableWrapper = ({
           onEdit={onEdit}
           onDelete={onDelete}
           onView={onView}
+          sortConfig={sortConfig}
+          onSort={onSort}
         />
       </div>
       <UsersTableFooter

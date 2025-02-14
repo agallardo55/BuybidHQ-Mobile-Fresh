@@ -7,34 +7,66 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Trash, Edit, Check, AlertCircle, XCircle } from "lucide-react";
+import { Eye, Trash, Edit, Check, AlertCircle, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Buyer } from "@/types/buyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { cn } from "@/lib/utils";
 
 interface BuyersTableProps {
   buyers: Buyer[];
   onDelete: (buyerId: string) => void;
   onView: (buyer: Buyer) => void;
   onEdit: (buyer: Buyer) => void;
+  sortConfig: {
+    field: keyof Buyer | null;
+    direction: 'asc' | 'desc' | null;
+  };
+  onSort: (field: keyof Buyer) => void;
 }
 
-const BuyersTable = ({ buyers, onDelete, onView, onEdit }: BuyersTableProps) => {
+const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: BuyersTableProps) => {
   const { currentUser } = useCurrentUser();
 
   const canManageBuyer = () => {
     return currentUser?.role === 'admin' || currentUser?.role === 'dealer';
   };
 
+  const SortIcon = ({ field }: { field: keyof Buyer }) => {
+    if (sortConfig.field !== field) {
+      return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="h-4 w-4 ml-1" />
+    ) : (
+      <ArrowDown className="h-4 w-4 ml-1" />
+    );
+  };
+
+  const SortableHeader = ({ field, children }: { field: keyof Buyer; children: React.ReactNode }) => (
+    <TableHead 
+      className={cn(
+        "text-sm cursor-pointer select-none",
+        sortConfig.field === field && "text-primary"
+      )}
+      onClick={() => onSort(field)}
+    >
+      <div className="flex items-center gap-1">
+        {children}
+        <SortIcon field={field} />
+      </div>
+    </TableHead>
+  );
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="text-sm">Name</TableHead>
-          <TableHead className="text-sm">Email</TableHead>
-          <TableHead className="text-sm">Dealership</TableHead>
-          <TableHead className="text-sm">Phone</TableHead>
-          <TableHead className="text-sm">Location</TableHead>
+          <SortableHeader field="name">Name</SortableHeader>
+          <SortableHeader field="email">Email</SortableHeader>
+          <SortableHeader field="dealership">Dealership</SortableHeader>
+          <SortableHeader field="phone">Phone</SortableHeader>
+          <SortableHeader field="location">Location</SortableHeader>
           <TableHead className="text-sm">
             <div className="flex items-center gap-1">
               <Check className="h-4 w-4" />

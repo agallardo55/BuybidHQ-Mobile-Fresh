@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
@@ -10,6 +9,11 @@ import ViewBuyerDialog from "@/components/buyers/ViewBuyerDialog";
 import DeleteBuyerDialog from "@/components/buyers/DeleteBuyerDialog";
 import EditBuyerDialog from "@/components/buyers/EditBuyerDialog";
 
+type SortConfig = {
+  field: keyof Buyer | null;
+  direction: 'asc' | 'desc' | null;
+};
+
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,21 +24,66 @@ const Buyers = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
   const [buyerToDelete, setBuyerToDelete] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'name', direction: 'asc' });
 
   const { buyers, isLoading, createBuyer, deleteBuyer, updateBuyer } = useBuyers();
 
-  const [formData, setFormData] = useState<BuyerFormData>({
-    fullName: "",
-    email: "",
-    mobileNumber: "",
-    businessNumber: "",
-    dealershipName: "",
-    licenseNumber: "",
-    dealershipAddress: "",
-    city: "",
-    state: "",
-    zipCode: "",
+  const handleSort = (field: keyof Buyer) => {
+    setSortConfig((currentConfig) => {
+      if (currentConfig.field === field) {
+        if (currentConfig.direction === 'asc') {
+          return { field, direction: 'desc' };
+        } else if (currentConfig.direction === 'desc') {
+          return { field: null, direction: null };
+        }
+      }
+      return { field, direction: 'asc' };
+    });
+  };
+
+  const sortBuyers = (buyers: Buyer[]) => {
+    if (!sortConfig.field || !sortConfig.direction) {
+      return buyers;
+    }
+
+    return [...buyers].sort((a, b) => {
+      const aValue = a[sortConfig.field!];
+      const bValue = b[sortConfig.field!];
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+
+      const stringA = String(aValue).toLowerCase();
+      const stringB = String(bValue).toLowerCase();
+      
+      return sortConfig.direction === 'asc'
+        ? stringA.localeCompare(stringB)
+        : stringB.localeCompare(stringA);
+    });
+  };
+
+  const filteredBuyers = buyers.filter((buyer) => {
+    const searchString = searchTerm.toLowerCase();
+    return (
+      buyer.name.toLowerCase().includes(searchString) ||
+      buyer.email.toLowerCase().includes(searchString) ||
+      buyer.location.toLowerCase().includes(searchString)
+    );
   });
+
+  const sortedBuyers = sortBuyers(filteredBuyers);
+  const totalPages = Math.ceil(sortedBuyers.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedBuyers = sortedBuyers.slice(
+    startIndex,
+    startIndex + pageSize
+  );
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
 
   const handleFormDataChange = (data: Partial<BuyerFormData>) => {
     setFormData((prev) => ({
@@ -43,30 +92,9 @@ const Buyers = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    createBuyer(formData, {
-      onSuccess: () => {
-        setIsDialogOpen(false);
-        setFormData({
-          fullName: "",
-          email: "",
-          mobileNumber: "",
-          businessNumber: "",
-          dealershipName: "",
-          licenseNumber: "",
-          dealershipAddress: "",
-          city: "",
-          state: "",
-          zipCode: "",
-        });
-      }
-    });
-  };
-
-  const handlePageSizeChange = (newSize: number) => {
-    setPageSize(newSize);
-    setCurrentPage(1);
+  const handleDelete = (buyerId: string) => {
+    setBuyerToDelete(buyerId);
+    setIsDeleteDialogOpen(true);
   };
 
   const handleView = (buyer: Buyer) => {
@@ -79,33 +107,13 @@ const Buyers = () => {
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = (buyerId: string) => {
-    setBuyerToDelete(buyerId);
-    setIsDeleteDialogOpen(true);
-  };
-
   const confirmDelete = (reason?: string) => {
     if (buyerToDelete) {
       deleteBuyer(buyerToDelete);
       setBuyerToDelete(null);
+      setIsDeleteDialogOpen(false);
     }
   };
-
-  const filteredBuyers = buyers.filter((buyer) => {
-    const searchString = searchTerm.toLowerCase();
-    return (
-      buyer.name.toLowerCase().includes(searchString) ||
-      buyer.email.toLowerCase().includes(searchString) ||
-      buyer.location.toLowerCase().includes(searchString)
-    );
-  });
-
-  const totalPages = Math.ceil(filteredBuyers.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const paginatedBuyers = filteredBuyers.slice(
-    startIndex,
-    startIndex + pageSize
-  );
 
   if (isLoading) {
     return (
@@ -149,6 +157,8 @@ const Buyers = () => {
               onView={handleView}
               onDelete={handleDelete}
               onEdit={handleEdit}
+              sortConfig={sortConfig}
+              onSort={handleSort}
             />
           </div>
         </div>
