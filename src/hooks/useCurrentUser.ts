@@ -40,32 +40,25 @@ export const useCurrentUser = () => {
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
-        console.log('Starting user data fetch...');
-        
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
-        if (!sessionData.session) return null;
+        if (!session) return null;
 
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
-        if (!user) return null;
-
-        // First fetch the user data
-        const { data: userData, error: profileError } = await supabase
+        const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
           .select('*')
-          .eq('id', user.id)
+          .eq('id', session.user.id)
           .single();
 
-        if (profileError) throw profileError;
+        if (userError) throw userError;
 
         if (!userData) {
-          const basicProfile: UserData = {
-            id: user.id,
+          const basicProfile: Omit<UserData, 'dealership'> = {
+            id: session.user.id,
             role: 'basic',
             status: 'active',
             full_name: '',
-            email: user.email || '',
+            email: session.user.email || '',
             mobile_number: '',
             address: '',
             city: '',
@@ -73,7 +66,6 @@ export const useCurrentUser = () => {
             zip_code: '',
             company: '',
             dealership_id: null,
-            dealership: null,
           };
 
           const { data: newProfile, error: insertError } = await supabase
@@ -83,11 +75,10 @@ export const useCurrentUser = () => {
             .single();
 
           if (insertError) throw insertError;
-          return { ...newProfile, dealership: null } as UserData;
+          return { ...newProfile, dealership: null };
         }
 
-        // If user has a dealership_id, fetch the dealership data separately
-        let dealershipData = null;
+        // If user has a dealership_id, fetch the dealership data in a separate query
         if (userData.dealership_id) {
           const { data: dealership, error: dealershipError } = await supabase
             .from('dealerships')
@@ -95,18 +86,19 @@ export const useCurrentUser = () => {
             .eq('id', userData.dealership_id)
             .single();
 
-          if (dealershipError) {
-            console.error('Error fetching dealership:', dealershipError);
-          } else {
-            dealershipData = dealership;
+          if (!dealershipError && dealership) {
+            return {
+              ...userData,
+              dealership
+            };
           }
         }
 
         return {
           ...userData,
-          dealership: dealershipData
-        } as UserData;
-      } catch (error) {
+          dealership: null
+        };
+      } catch (error: any) {
         console.error('Error in useCurrentUser:', error);
         toast.error("Error loading user data. Please try signing in again.");
         navigate('/signin');
