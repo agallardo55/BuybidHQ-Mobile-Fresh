@@ -1,4 +1,3 @@
-
 import { ImagePlus, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { useState } from "react";
@@ -7,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
 interface ColorsAndAccessoriesProps {
   formData: {
     exteriorColor: string;
@@ -17,57 +15,53 @@ interface ColorsAndAccessoriesProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onImagesUploaded?: (urls: string[]) => void;
 }
-
 const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
 const interiorColors = ["Black", "Tan", "Grey", "Red", "White", "Brown"];
-
-const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAndAccessoriesProps) => {
+const ColorsAndAccessories = ({
+  formData,
+  onChange,
+  onImagesUploaded
+}: ColorsAndAccessoriesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedFileUrls, setSelectedFileUrls] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
       const filesArray = Array.from(files);
       setSelectedFiles(prev => [...prev, ...filesArray]);
-      
+
       // Create URLs for preview
       const newUrls = filesArray.map(file => URL.createObjectURL(file));
       setSelectedFileUrls(prev => [...prev, ...newUrls]);
     }
   };
-
   const handleUpload = async () => {
     if (selectedFiles.length === 0) return;
-
     setIsUploading(true);
     const uploadedUrls: string[] = [];
-
     try {
       for (const file of selectedFiles) {
         const fileExt = file.name.split('.').pop();
         const filePath = `${crypto.randomUUID()}.${fileExt}`;
-
-        const { error: uploadError, data } = await supabase.storage
-          .from('vehicle_images')
-          .upload(filePath, file);
-
+        const {
+          error: uploadError,
+          data
+        } = await supabase.storage.from('vehicle_images').upload(filePath, file);
         if (uploadError) {
           throw uploadError;
         }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('vehicle_images')
-          .getPublicUrl(filePath);
-
+        const {
+          data: {
+            publicUrl
+          }
+        } = supabase.storage.from('vehicle_images').getPublicUrl(filePath);
         uploadedUrls.push(publicUrl);
       }
-
       toast.success(`Successfully uploaded ${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''}`);
       onImagesUploaded?.(uploadedUrls);
-      
+
       // Clear selected files after successful upload
       setSelectedFiles([]);
       // Cleanup preview URLs
@@ -80,7 +74,6 @@ const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAn
       setIsUploading(false);
     }
   };
-
   const handleSelectChange = (value: string, name: string) => {
     // Create a synthetic event object to match the onChange prop type
     const syntheticEvent = {
@@ -91,26 +84,19 @@ const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAn
     } as React.ChangeEvent<HTMLInputElement>;
     onChange(syntheticEvent);
   };
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div>
         <label htmlFor="exteriorColor" className="block text-sm font-medium text-gray-700 mb-1">
           Exterior Color
         </label>
-        <Select
-          value={formData.exteriorColor}
-          onValueChange={(value) => handleSelectChange(value, "exteriorColor")}
-        >
+        <Select value={formData.exteriorColor} onValueChange={value => handleSelectChange(value, "exteriorColor")}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select exterior color" />
           </SelectTrigger>
           <SelectContent>
-            {exteriorColors.map((color) => (
-              <SelectItem key={color} value={color}>
+            {exteriorColors.map(color => <SelectItem key={color} value={color}>
                 {color}
-              </SelectItem>
-            ))}
+              </SelectItem>)}
           </SelectContent>
         </Select>
       </div>
@@ -119,19 +105,14 @@ const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAn
         <label htmlFor="interiorColor" className="block text-sm font-medium text-gray-700 mb-1">
           Interior Color
         </label>
-        <Select
-          value={formData.interiorColor}
-          onValueChange={(value) => handleSelectChange(value, "interiorColor")}
-        >
+        <Select value={formData.interiorColor} onValueChange={value => handleSelectChange(value, "interiorColor")}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select interior color" />
           </SelectTrigger>
           <SelectContent>
-            {interiorColors.map((color) => (
-              <SelectItem key={color} value={color}>
+            {interiorColors.map(color => <SelectItem key={color} value={color}>
                 {color}
-              </SelectItem>
-            ))}
+              </SelectItem>)}
           </SelectContent>
         </Select>
       </div>
@@ -140,14 +121,7 @@ const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAn
         <label htmlFor="accessories" className="block text-sm font-medium text-gray-700 mb-1">
           Additional Equipment/Accessories
         </label>
-        <Textarea
-          id="accessories"
-          name="accessories"
-          value={formData.accessories}
-          onChange={onChange}
-          placeholder="List any additional equipment or accessories..."
-          className="min-h-[100px]"
-        />
+        <Textarea id="accessories" name="accessories" value={formData.accessories} onChange={onChange} placeholder="List any additional equipment or accessories..." className="min-h-[100px] bg-[325AE7]" />
       </div>
 
       <Dialog>
@@ -163,10 +137,7 @@ const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAn
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex flex-col items-center justify-center gap-4">
-              <label 
-                htmlFor="photos" 
-                className="w-full cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors"
-              >
+              <label htmlFor="photos" className="w-full cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
                 <div className="flex flex-col items-center gap-2">
                   <Upload className="h-8 w-8 text-gray-400" />
                   <span className="text-sm text-gray-500">
@@ -176,80 +147,43 @@ const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAn
                     Support for multiple photos
                   </span>
                 </div>
-                <input
-                  type="file"
-                  id="photos"
-                  multiple
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
+                <input type="file" id="photos" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
               </label>
               
-              {selectedFiles.length > 0 && (
-                <div className="w-full">
+              {selectedFiles.length > 0 && <div className="w-full">
                   <p className="text-sm font-medium mb-2">Selected files:</p>
                   <div className="max-h-32 overflow-y-auto space-y-1">
-                    {selectedFiles.map((file, index) => (
-                      <div key={index} className="text-sm text-gray-600 flex items-center gap-2">
+                    {selectedFiles.map((file, index) => <div key={index} className="text-sm text-gray-600 flex items-center gap-2">
                         <ImagePlus className="h-4 w-4" />
                         {file.name}
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
-                </div>
-              )}
+                </div>}
               
-              <Button 
-                onClick={handleUpload} 
-                className="w-full"
-                disabled={selectedFiles.length === 0 || isUploading}
-              >
-                {isUploading ? (
-                  'Uploading...'
-                ) : (
-                  `Upload ${selectedFiles.length} ${selectedFiles.length === 1 ? 'Photo' : 'Photos'}`
-                )}
+              <Button onClick={handleUpload} className="w-full" disabled={selectedFiles.length === 0 || isUploading}>
+                {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} ${selectedFiles.length === 1 ? 'Photo' : 'Photos'}`}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {selectedFileUrls.length > 0 && (
-        <div className="mt-4">
+      {selectedFileUrls.length > 0 && <div className="mt-4">
           <div className="w-full max-w-[95%] mx-auto overflow-x-auto">
             <div className="flex gap-4 pb-4">
-              {selectedFileUrls.map((url, index) => (
-                <div 
-                  key={index} 
-                  className="flex-none cursor-pointer"
-                  onClick={() => setPreviewImage(url)}
-                >
+              {selectedFileUrls.map((url, index) => <div key={index} className="flex-none cursor-pointer" onClick={() => setPreviewImage(url)}>
                   <div className="h-32 relative rounded-lg overflow-hidden">
-                    <img
-                      src={url}
-                      alt={`Vehicle photo ${index + 1}`}
-                      className="h-full w-auto object-contain"
-                    />
+                    <img src={url} alt={`Vehicle photo ${index + 1}`} className="h-full w-auto object-contain" />
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
-      <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+      <Dialog open={!!previewImage} onOpenChange={open => !open && setPreviewImage(null)}>
         <DialogContent className="sm:max-w-3xl p-0 bg-black border-black">
           <div className="relative w-full h-[80vh]">
-            {previewImage && (
-              <img
-                src={previewImage}
-                alt="Preview"
-                className="w-full h-full object-contain"
-              />
-            )}
+            {previewImage && <img src={previewImage} alt="Preview" className="w-full h-full object-contain" />}
           </div>
           <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-white">
             <X className="h-4 w-4 text-white" />
@@ -257,8 +191,6 @@ const ColorsAndAccessories = ({ formData, onChange, onImagesUploaded }: ColorsAn
           </DialogClose>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default ColorsAndAccessories;
