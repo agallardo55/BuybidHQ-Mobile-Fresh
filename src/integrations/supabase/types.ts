@@ -63,17 +63,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bid_requests_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_bid_request_user"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "buybidhq_users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_bid_requests_vehicle"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
         ]
