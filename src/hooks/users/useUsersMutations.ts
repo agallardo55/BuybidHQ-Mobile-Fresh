@@ -1,113 +1,13 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { UserFormData } from "@/types/users";
 import { toast } from "sonner";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentUser } from "../useCurrentUser";
 
-interface UsePaginatedUsersProps {
-  pageSize: number;
-  currentPage: number;
-  searchTerm?: string;
-}
-
-interface PaginatedResponse {
-  users: any[];
-  total: number;
-}
-
-export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUsersProps) => {
+export const useUsersMutations = () => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['users', currentPage, pageSize, searchTerm],
-    queryFn: async (): Promise<PaginatedResponse> => {
-      // First, get total count with search filter if present
-      let query = supabase
-        .from('buybidhq_users')
-        .select('count', { count: 'exact' })
-        .is('deleted_at', null);  // Only count non-deleted users
-
-      // For role search, we'll handle each role type explicitly
-      if (searchTerm) {
-        const searchTermLower = searchTerm.toLowerCase();
-        const possibleRoles = ['admin', 'dealer', 'basic', 'individual'];
-        const isRoleSearch = possibleRoles.some(role => role.includes(searchTermLower));
-        
-        if (isRoleSearch) {
-          query = query.filter('role', 'ilike', `%${searchTermLower}%`);
-        } else {
-          query = query.or(
-            `full_name.ilike.%${searchTermLower}%,` +
-            `email.ilike.%${searchTermLower}%`
-          );
-        }
-      }
-
-      const { count, error: countError } = await query;
-
-      if (countError) {
-        toast.error("Failed to fetch total users count: " + countError.message);
-        throw countError;
-      }
-
-      // Then get paginated data
-      const startRange = (currentPage - 1) * pageSize;
-      const endRange = startRange + pageSize - 1;
-
-      let dataQuery = supabase
-        .from('buybidhq_users')
-        .select(`
-          *,
-          dealerships:dealership_id (*)
-        `)
-        .is('deleted_at', null);  // Only fetch non-deleted users
-
-      if (searchTerm) {
-        const searchTermLower = searchTerm.toLowerCase();
-        const possibleRoles = ['admin', 'dealer', 'basic', 'individual'];
-        const isRoleSearch = possibleRoles.some(role => role.includes(searchTermLower));
-        
-        if (isRoleSearch) {
-          dataQuery = dataQuery.filter('role', 'ilike', `%${searchTermLower}%`);
-        } else {
-          dataQuery = dataQuery.or(
-            `full_name.ilike.%${searchTermLower}%,` +
-            `email.ilike.%${searchTermLower}%`
-          );
-        }
-      }
-
-      dataQuery = dataQuery.range(startRange, endRange);
-
-      const { data: users, error } = await dataQuery;
-
-      if (error) {
-        toast.error("Failed to fetch users: " + error.message);
-        throw error;
-      }
-
-      return {
-        users: users.map(user => ({
-          id: user.id,
-          email: user.email,
-          fullName: user.full_name,
-          role: user.role,
-          status: user.status || 'active',
-          mobileNumber: user.mobile_number,
-          address: user.address,
-          city: user.city,
-          state: user.state,
-          zipCode: user.zip_code,
-          dealershipId: user.dealership_id,
-          dealershipName: user.dealerships?.dealer_name,
-          isActive: user.is_active
-        })),
-        total: count || 0
-      };
-    },
-  });
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: UserFormData) => {
@@ -214,9 +114,6 @@ export const useUsers = ({ pageSize, currentPage, searchTerm }: UsePaginatedUser
   });
 
   return {
-    users: data?.users || [],
-    total: data?.total || 0,
-    isLoading,
     createUser: createUserMutation.mutate,
     updateUser: updateUserMutation.mutate,
     deleteUser: deleteUserMutation.mutate,
