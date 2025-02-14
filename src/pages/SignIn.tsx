@@ -37,12 +37,14 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
+      // Set session configuration based on remember me choice
+      if (rememberMe) {
+        await supabase.auth.setSession({ access_token: '', refresh_token: '' });
+      }
+
       const { data: { session }, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
-        options: {
-          persistSession: rememberMe // This ensures session persistence based on user choice
-        }
+        password
       });
 
       if (error) {
