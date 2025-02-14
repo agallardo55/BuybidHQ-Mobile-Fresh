@@ -29,12 +29,16 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
   const { currentUser } = useCurrentUser();
 
   const canManageUser = (user: User) => {
-    if (currentUser?.role === 'dealer') {
+    if (!currentUser) return false;
+    
+    // Dealers can only manage associates from their dealership
+    if (currentUser.role === 'dealer') {
       return (
         user.dealership_id === currentUser.dealership_id &&
         user.role === 'associate'
       );
     }
+    
     return false;
   };
 
