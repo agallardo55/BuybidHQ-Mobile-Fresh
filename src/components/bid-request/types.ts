@@ -62,8 +62,9 @@ export interface FormStateActions {
   setUploadedImageUrls: (urls: string[]) => void;
   setIsSubmitting: (isSubmitting: boolean) => void;
   setSearchTerm: (term: string) => void;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string } }) => void;
   handleSelectChange: (value: string, name: string) => void;
   handleImagesUploaded: (urls: string[]) => void;
   toggleBuyer: (buyerId: string) => void;
+  handleBatchChanges: (changes: Array<{ name: string; value: string }>) => void;
 }
