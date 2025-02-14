@@ -21,7 +21,7 @@ export const useBidRequests = () => {
           .select(`
             id,
             status,
-            vehicles!inner (
+            vehicle:vehicle_id (
               year,
               make,
               model,
@@ -29,7 +29,7 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyers!inner (
+            buyer:user_id (
               buyer_name,
               dealer_name
             ),
@@ -56,14 +56,14 @@ export const useBidRequests = () => {
 
         return data.map(request => ({
           id: request.id,
-          year: parseInt(request.vehicles.year),
-          make: request.vehicles.make,
-          model: request.vehicles.model,
-          trim: request.vehicles.trim,
-          vin: request.vehicles.vin,
-          mileage: parseInt(request.vehicles.mileage),
-          buyer: request.buyers.buyer_name,
-          dealership: request.buyers.dealer_name,
+          year: parseInt(request.vehicle.year),
+          make: request.vehicle.make,
+          model: request.vehicle.model,
+          trim: request.vehicle.trim,
+          vin: request.vehicle.vin,
+          mileage: parseInt(request.vehicle.mileage),
+          buyer: request.buyer.buyer_name,
+          dealership: request.buyer.dealer_name,
           highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
           status: request.status as "Pending" | "Approved" | "Declined"
         }));
