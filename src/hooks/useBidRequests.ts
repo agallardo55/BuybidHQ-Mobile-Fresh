@@ -21,7 +21,7 @@ export const useBidRequests = () => {
           .select(`
             id,
             status,
-            vehicle:vehicle_id (
+            vehicle:vehicles (
               year,
               make,
               model,
@@ -29,9 +29,11 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyer:user_id (
-              buyer_name,
-              dealer_name
+            buyer:buybidhq_users (
+              full_name,
+              dealership:dealerships (
+                dealer_name
+              )
             ),
             bid_responses (
               offer_amount
@@ -67,8 +69,8 @@ export const useBidRequests = () => {
             trim: vehicle?.trim || '',
             vin: vehicle?.vin || '',
             mileage: vehicle ? parseInt(vehicle.mileage) : 0,
-            buyer: buyer?.buyer_name || '',
-            dealership: buyer?.dealer_name || '',
+            buyer: buyer?.full_name || '',
+            dealership: buyer?.dealership?.dealer_name || '',
             highestOffer: Math.max(...(offers.map(r => Number(r.offer_amount)) || [0])),
             status: request.status as "Pending" | "Approved" | "Declined"
           };
