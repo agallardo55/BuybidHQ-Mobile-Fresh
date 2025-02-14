@@ -21,7 +21,7 @@ interface UserData extends BaseUser {
 export const useCurrentUser = () => {
   const navigate = useNavigate();
 
-  const { data: currentUser, isLoading } = useQuery<UserData | null>({
+  const { data: currentUser, isLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
@@ -37,7 +37,33 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // First try to get existing user data
+        // First check if user is a superadmin
+        const { data: superadminData, error: superadminError } = await supabase
+          .from('superadmin')
+          .select('*')
+          .eq('email', session.user.email)
+          .single();
+
+        if (superadminData && !superadminError) {
+          return {
+            id: session.user.id,
+            email: superadminData.email,
+            role: 'dealer' as UserRole, // Use dealer role for UI compatibility
+            status: superadminData.status || 'active',
+            full_name: superadminData.full_name,
+            mobile_number: superadminData.mobile_number,
+            address: null,
+            city: null,
+            state: null,
+            zip_code: null,
+            company: null,
+            dealership_id: null,
+            is_active: true,
+            dealership: null
+          };
+        }
+
+        // If not superadmin, get regular user data
         const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
           .select('*')
