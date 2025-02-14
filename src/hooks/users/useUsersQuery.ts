@@ -14,11 +14,28 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
         const from = (currentPage - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        // First, check if we have a session
+        // Get current user's session and role
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError || !session) {
-          toast.error('Please sign in to view users.');
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw new Error('Authentication error');
+        }
+
+        if (!session?.user?.id) {
+          console.error('No active session');
           throw new Error('No active session');
+        }
+
+        // Get current user's role and dealership from cache
+        const { data: userCache, error: cacheError } = await supabase
+          .from('user_access_cache')
+          .select('role, dealership_id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (cacheError) {
+          console.error('Error fetching user role:', cacheError);
+          throw cacheError;
         }
 
         let query = supabase
@@ -27,6 +44,17 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
             *,
             dealership:dealerships (*)
           `, { count: 'exact' });
+
+        // Add role-based filters
+        if (userCache.role === 'dealer' && userCache.dealership_id) {
+          // Dealers can only see their associates
+          query = query
+            .eq('dealership_id', userCache.dealership_id)
+            .eq('role', 'associate');
+        } else if (userCache.role !== 'admin') {
+          // Non-admin/dealer users can't see any users
+          query = query.eq('id', session.user.id);
+        }
 
         // Add search filter if searchTerm is provided
         if (searchTerm) {
@@ -45,7 +73,6 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
 
         if (error) {
           console.error('Error fetching users:', error);
-          toast.error('Failed to load users. Please try again.');
           throw error;
         }
 
@@ -53,8 +80,9 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           users: data || [],
           total: count || 0
         };
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error in useUsersQuery:', error);
+        toast.error('Failed to load users. Please try again.');
         throw error;
       }
     },
