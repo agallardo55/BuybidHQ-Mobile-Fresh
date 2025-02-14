@@ -1,7 +1,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { BidRequest } from "./types";
 
 interface BidRequestTableProps {
@@ -10,6 +10,15 @@ interface BidRequestTableProps {
 }
 
 const BidRequestTable = ({ requests, onStatusUpdate }: BidRequestTableProps) => {
+  const formatDate = (dateString: string) => {
+    try {
+      return format(parseISO(dateString), 'MM/dd/yyyy');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date';
+    }
+  };
+
   return (
     <div className="overflow-x-auto -mx-4 sm:-mx-6">
       <div className="inline-block min-w-full align-middle px-4 sm:px-6">
@@ -33,7 +42,7 @@ const BidRequestTable = ({ requests, onStatusUpdate }: BidRequestTableProps) => 
             {requests.map((request) => (
               <TableRow key={request.id}>
                 <TableCell className="py-2 px-4">
-                  {format(new Date(request.createdAt), 'MM/dd/yyyy')}
+                  {formatDate(request.createdAt)}
                 </TableCell>
                 <TableCell className="py-2 px-4">{request.year}</TableCell>
                 <TableCell className="py-2 px-4">{request.make}</TableCell>

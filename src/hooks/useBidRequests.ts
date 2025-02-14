@@ -30,6 +30,7 @@ type BidResponse = {
 
 type BidRequestResponse = {
   id: string;
+  created_at: string;
   status: "Pending" | "Approved" | "Declined";
   vehicle: Vehicle | null;
   buyer: Buyer | null;
@@ -54,6 +55,7 @@ export const useBidRequests = () => {
           .from('bid_requests')
           .select(`
             id,
+            created_at,
             status,
             vehicles!inner (
               year,
@@ -95,6 +97,7 @@ export const useBidRequests = () => {
 
         const mappedRequests = data.map(request => ({
           id: request.id,
+          createdAt: request.created_at,
           year: request.vehicles?.year ? parseInt(request.vehicles.year) : 0,
           make: request.vehicles?.make || '',
           model: request.vehicles?.model || '',
