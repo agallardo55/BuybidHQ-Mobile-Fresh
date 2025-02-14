@@ -40,12 +40,26 @@ export const useUsersMutations = () => {
         dealershipId = newDealership.id;
       }
 
-      // Create user record without specifying id (it will use auth.uid() default)
+      // First create the auth user
+      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+        email: userData.email,
+        email_confirm: true,
+        user_metadata: {
+          full_name: userData.fullName,
+          role: userData.role
+        }
+      });
+
+      if (authError) throw authError;
+
+      // Wait a moment for the trigger to create the user record
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Update the buybidhq_users record with additional information
       const { data, error } = await supabase
         .from('buybidhq_users')
-        .insert({
+        .update({
           full_name: userData.fullName,
-          email: userData.email,
           role: userData.role,
           mobile_number: userData.mobileNumber,
           address: userData.address,
@@ -56,6 +70,7 @@ export const useUsersMutations = () => {
           is_active: userData.isActive,
           status: 'active'
         })
+        .eq('id', authUser.user.id)
         .select()
         .single();
 
