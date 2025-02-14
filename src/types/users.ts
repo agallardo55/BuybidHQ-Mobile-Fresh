@@ -22,8 +22,6 @@ export interface UserFormData {
   email: string;
   role: "admin" | "dealer" | "basic" | "individual";
   mobileNumber: string;
-  dealershipId: string;
-  dealerId?: string;
   isActive: boolean;
 }
 

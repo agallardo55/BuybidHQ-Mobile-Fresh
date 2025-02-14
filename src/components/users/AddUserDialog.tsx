@@ -27,11 +27,6 @@ const AddUserDialog = () => {
     email: "",
     role: "basic",
     mobileNumber: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    dealershipId: "",
     isActive: true,
   });
 
@@ -49,11 +44,6 @@ const AddUserDialog = () => {
         email: "",
         role: "basic",
         mobileNumber: "",
-        address: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        dealershipId: "",
         isActive: true,
       });
     } catch (error) {
