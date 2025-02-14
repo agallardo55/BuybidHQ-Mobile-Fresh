@@ -32,7 +32,7 @@ type BidRequestResponse = {
   id: string;
   created_at: string;
   status: "Pending" | "Approved" | "Declined";
-  vehicles: Vehicle | null;
+  vehicle: Vehicle | null;
   buyer: Buyer | null;
   bid_responses: BidResponse[] | null;
 };
@@ -57,7 +57,7 @@ export const useBidRequests = () => {
             id,
             created_at,
             status,
-            vehicles!fk_bid_requests_vehicle (
+            vehicle:vehicle_id (
               year,
               make,
               model,
@@ -98,12 +98,12 @@ export const useBidRequests = () => {
         const mappedRequests = data.map(request => ({
           id: request.id,
           createdAt: request.created_at,
-          year: request.vehicles?.year ? parseInt(request.vehicles.year) : 0,
-          make: request.vehicles?.make || '',
-          model: request.vehicles?.model || '',
-          trim: request.vehicles?.trim || '',
-          vin: request.vehicles?.vin || '',
-          mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
+          year: request.vehicle?.year ? parseInt(request.vehicle.year) : 0,
+          make: request.vehicle?.make || '',
+          model: request.vehicle?.model || '',
+          trim: request.vehicle?.trim || '',
+          vin: request.vehicle?.vin || '',
+          mileage: request.vehicle?.mileage ? parseInt(request.vehicle.mileage) : 0,
           buyer: request.buyer?.full_name || '',
           dealership: request.buyer?.dealership?.dealer_name || '',
           highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
