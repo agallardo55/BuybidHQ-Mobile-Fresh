@@ -47,13 +47,18 @@ export const useCurrentUser = () => {
             )
           `)
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
           toast.error("Error loading user data. Please try signing in again.");
           navigate('/signin');
           throw userError;
+        }
+
+        if (!userData) {
+          console.log('No user data found');
+          return null;
         }
 
         return userData;
