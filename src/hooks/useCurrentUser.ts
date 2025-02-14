@@ -68,7 +68,7 @@ export const useCurrentUser = () => {
           };
         }
 
-        // If not superadmin, get regular user data using rpc function to avoid recursion
+        // If not superadmin, get regular user data using rpc function
         const { data: userData, error: userError } = await supabase
           .rpc('get_user_profile', { user_id: session.user.id });
 
