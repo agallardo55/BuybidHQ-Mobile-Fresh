@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import twilio from 'npm:twilio'
+import { Twilio } from 'npm:twilio'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -58,8 +58,8 @@ serve(async (req) => {
       fromNumber
     })
 
-    // Initialize Twilio client with auth token first, then account SID
-    const client = twilio(authToken, accountSid)
+    // Initialize Twilio client
+    const client = new Twilio(accountSid, authToken)
 
     let messageBody: string;
 
