@@ -17,7 +17,7 @@ export const useBidRequestSubmission = () => {
     const { formData, uploadedImageUrls, selectedBuyers } = formState;
     
     try {
-      const { data, error } = await supabase.rpc('create_complete_bid_request', {
+      const { data: requestId, error } = await supabase.rpc('create_complete_bid_request', {
         vehicle_data: {
           year: formData.year,
           make: formData.make,
@@ -50,12 +50,51 @@ export const useBidRequestSubmission = () => {
         throw error;
       }
 
-      // Generate unique URLs for each selected buyer
-      const requestId = data;
-      selectedBuyers.forEach(buyerId => {
-        const bidResponseUrl = `${window.location.origin}/bid-response?request=${requestId}&buyer=${buyerId}`;
-        console.log(`Bid response URL for buyer ${buyerId}: ${bidResponseUrl}`);
-      });
+      // Fetch buyer details for SMS notifications
+      const { data: buyers, error: buyersError } = await supabase
+        .from('buyers')
+        .select('id, buyer_mobile, buyer_name')
+        .in('id', selectedBuyers);
+
+      if (buyersError) {
+        console.error('Error fetching buyers:', buyersError);
+        throw buyersError;
+      }
+
+      // Send SMS to each buyer
+      for (const buyer of buyers) {
+        if (!buyer.buyer_mobile) {
+          console.warn(`No mobile number found for buyer ${buyer.id}`);
+          continue;
+        }
+
+        const bidResponseUrl = `${window.location.origin}/bid-response?request=${requestId}&buyer=${buyer.id}`;
+        
+        try {
+          const { error: smsError } = await supabase.functions.invoke('send-bid-sms', {
+            body: {
+              type: 'bid_request',
+              phoneNumber: buyer.buyer_mobile,
+              vehicleDetails: {
+                year: formData.year,
+                make: formData.make,
+                model: formData.model
+              },
+              bidRequestUrl: bidResponseUrl
+            }
+          });
+
+          if (smsError) {
+            console.error(`Error sending SMS to buyer ${buyer.id}:`, smsError);
+            toast.error(`Failed to send notification to ${buyer.buyer_name}`);
+          } else {
+            console.log(`SMS sent successfully to buyer ${buyer.id} at ${buyer.buyer_mobile}`);
+          }
+        } catch (smsError) {
+          console.error(`Error invoking SMS function for buyer ${buyer.id}:`, smsError);
+          toast.error(`Failed to send notification to ${buyer.buyer_name}`);
+        }
+      }
 
       toast.success("Bid request created successfully!");
       navigate("/dashboard");
