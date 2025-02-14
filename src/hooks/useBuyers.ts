@@ -17,7 +17,13 @@ export const useBuyers = () => {
 
       const query = supabase
         .from('buyers')
-        .select('*, buybidhq_users!inner(full_name, email)');
+        .select(`
+          *,
+          buybidhq_users!buyers_user_id_fkey (
+            full_name,
+            email
+          )
+        `);
       
       // Apply filter based on role that was determined before the query
       if (currentUser?.role !== 'admin') {
