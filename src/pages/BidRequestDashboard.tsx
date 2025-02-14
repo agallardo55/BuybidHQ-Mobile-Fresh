@@ -1,70 +1,20 @@
+
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
 import SearchHeader from "@/components/bid-request/SearchHeader";
 import BidRequestTable from "@/components/bid-request/BidRequestTable";
 import TableFooter from "@/components/bid-request/TableFooter";
-import { BidRequest } from "@/components/bid-request/types";
+import { useBidRequests } from "@/hooks/useBidRequests";
 
 const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [bidRequests, setBidRequests] = useState<BidRequest[]>([
-    {
-      id: "1",
-      year: 2020,
-      make: "Toyota",
-      model: "Camry",
-      trim: "SE",
-      vin: "1HGCM82633A123456",
-      mileage: 45000,
-      buyer: "John Smith",
-      dealership: "ABC Motors",
-      highestOffer: 18500,
-      status: "Pending"
-    },
-    {
-      id: "2",
-      year: 2019,
-      make: "Honda",
-      model: "CR-V",
-      trim: "EX-L",
-      vin: "2HKRW2H54JH123456",
-      mileage: 35000,
-      buyer: "Sarah Johnson",
-      dealership: "XYZ Auto",
-      highestOffer: 22000,
-      status: "Approved"
-    },
-    {
-      id: "3",
-      year: 2021,
-      make: "Ford",
-      model: "F-150",
-      trim: "XLT",
-      vin: "1FTEW1E53MFB12345",
-      mileage: 28000,
-      buyer: "Michael Brown",
-      dealership: "Premium Cars",
-      highestOffer: 35000,
-      status: "Declined"
-    }
-  ]);
-  const { toast } = useToast();
+  const { bidRequests, isLoading, updateBidRequest } = useBidRequests();
 
   const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
-    setBidRequests(prevRequests =>
-      prevRequests.map(request =>
-        request.id === id ? { ...request, status: newStatus } : request
-      )
-    );
-
-    toast({
-      title: "Status Updated",
-      description: `Bid request status changed to ${newStatus}`,
-    });
+    updateBidRequest({ id, status: newStatus });
   };
 
   const filteredRequests = bidRequests.filter((request) => {
@@ -117,20 +67,26 @@ const BidRequestDashboard = () => {
               setSearchTerm={setSearchTerm}
             />
             
-            <BidRequestTable 
-              requests={paginatedRequests}
-              onStatusUpdate={updateStatus}
-            />
+            {isLoading ? (
+              <div className="text-center py-4">Loading bid requests...</div>
+            ) : (
+              <>
+                <BidRequestTable 
+                  requests={paginatedRequests}
+                  onStatusUpdate={updateStatus}
+                />
 
-            <TableFooter
-              currentPage={currentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              totalItems={filteredRequests.length}
-              onPageChange={setCurrentPage}
-              onPageSizeChange={handlePageSizeChange}
-              getPageNumbers={getPageNumbers}
-            />
+                <TableFooter
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  totalItems={filteredRequests.length}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={handlePageSizeChange}
+                  getPageNumbers={getPageNumbers}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
