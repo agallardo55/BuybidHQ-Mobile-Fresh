@@ -16,12 +16,20 @@ const DashboardNavigation = () => {
   const { toast } = useToast();
   const { currentUser, isLoading } = useCurrentUser();
 
+  // Add debug logs
+  console.log('Current user:', currentUser);
+  console.log('Current user role:', currentUser?.role);
+  console.log('Is loading:', isLoading);
+
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
     ...((!isLoading && currentUser?.role === 'dealer') ? [{ name: "Users", href: "/users" }] : []),
     { name: "Marketplace", href: "#" },
   ];
+
+  // Add debug log for nav items
+  console.log('Nav items:', navItems);
 
   const handleNotificationsToggle = () => {
     toast({
