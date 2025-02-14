@@ -686,6 +686,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_user_role: {
+        Args: {
+          user_id: string
+          required_role: string
+        }
+        Returns: boolean
+      }
       create_complete_bid_request: {
         Args: {
           vehicle_data: Json
