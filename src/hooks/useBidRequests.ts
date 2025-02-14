@@ -5,38 +5,6 @@ import { BidRequest } from "@/components/bid-request/types";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
 
-// Define types for the database response
-type Vehicle = {
-  year: string | null;
-  make: string | null;
-  model: string | null;
-  trim: string | null;
-  vin: string | null;
-  mileage: string | null;
-};
-
-type Dealership = {
-  dealer_name: string | null;
-};
-
-type Buyer = {
-  full_name: string | null;
-  dealership: Dealership | null;
-};
-
-type BidResponse = {
-  offer_amount: number;
-};
-
-type BidRequestResponse = {
-  id: string;
-  created_at: string;
-  status: "Pending" | "Approved" | "Declined";
-  vehicle: Vehicle | null;
-  buyer: Buyer | null;
-  bid_responses: BidResponse[] | null;
-};
-
 export const useBidRequests = () => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
@@ -57,7 +25,7 @@ export const useBidRequests = () => {
             id,
             created_at,
             status,
-            vehicle:vehicle_id (
+            vehicles:vehicle_id (
               year,
               make,
               model,
@@ -65,7 +33,7 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            user:user_id (
+            buyer:user_id (
               full_name,
               dealership:dealership_id (
                 dealer_name
@@ -98,14 +66,14 @@ export const useBidRequests = () => {
         const mappedRequests = data.map(request => ({
           id: request.id,
           createdAt: request.created_at,
-          year: request.vehicle?.year ? parseInt(request.vehicle.year) : 0,
-          make: request.vehicle?.make || '',
-          model: request.vehicle?.model || '',
-          trim: request.vehicle?.trim || '',
-          vin: request.vehicle?.vin || '',
-          mileage: request.vehicle?.mileage ? parseInt(request.vehicle.mileage) : 0,
-          buyer: request.user?.full_name || '',
-          dealership: request.user?.dealership?.dealer_name || '',
+          year: request.vehicles?.year ? parseInt(request.vehicles.year) : 0,
+          make: request.vehicles?.make || '',
+          model: request.vehicles?.model || '',
+          trim: request.vehicles?.trim || '',
+          vin: request.vehicles?.vin || '',
+          mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
+          buyer: request.buyer?.full_name || '',
+          dealership: request.buyer?.dealership?.dealer_name || '',
           highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
           status: request.status
         }));

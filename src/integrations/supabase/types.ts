@@ -15,36 +15,30 @@ export type Database = {
           created_at: string
           id: string
           images_id: string | null
-          offers: string | null
           recon: string | null
           status: Database["public"]["Enums"]["bid_status"] | null
           user_id: string | null
           vehicle_id: string | null
-          vehicles: string | null
         }
         Insert: {
           contacts?: string | null
           created_at?: string
           id?: string
           images_id?: string | null
-          offers?: string | null
           recon?: string | null
           status?: Database["public"]["Enums"]["bid_status"] | null
           user_id?: string | null
           vehicle_id?: string | null
-          vehicles?: string | null
         }
         Update: {
           contacts?: string | null
           created_at?: string
           id?: string
           images_id?: string | null
-          offers?: string | null
           recon?: string | null
           status?: Database["public"]["Enums"]["bid_status"] | null
           user_id?: string | null
           vehicle_id?: string | null
-          vehicles?: string | null
         }
         Relationships: [
           {
@@ -77,6 +71,13 @@ export type Database = {
           },
           {
             foreignKeyName: "fk_bid_request_vehicle"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_bid_requests_vehicle"
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
