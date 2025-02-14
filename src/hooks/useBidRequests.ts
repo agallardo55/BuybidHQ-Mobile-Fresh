@@ -21,7 +21,7 @@ export const useBidRequests = () => {
           .select(`
             id,
             status,
-            vehicle:vehicles (
+            vehicles!vehicle_id (
               year,
               make,
               model,
@@ -29,9 +29,9 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyer:buybidhq_users (
+            buybidhq_users!user_id (
               full_name,
-              dealership:dealerships (
+              dealerships!dealership_id (
                 dealer_name
               )
             ),
@@ -57,8 +57,8 @@ export const useBidRequests = () => {
         }
 
         return data.map(request => {
-          const vehicle = request.vehicle;
-          const buyer = request.buyer;
+          const vehicle = request.vehicles;
+          const buyer = request.buybidhq_users;
           const offers = request.bid_responses || [];
 
           return {
@@ -70,10 +70,10 @@ export const useBidRequests = () => {
             vin: vehicle?.vin || '',
             mileage: vehicle ? parseInt(vehicle.mileage) : 0,
             buyer: buyer?.full_name || '',
-            dealership: buyer?.dealership?.dealer_name || '',
+            dealership: buyer?.dealerships?.dealer_name || '',
             highestOffer: Math.max(...(offers.map(r => Number(r.offer_amount)) || [0])),
             status: request.status as "Pending" | "Approved" | "Declined"
-          };
+          } satisfies BidRequest;
         });
       } catch (error) {
         console.error("Error in bid requests query:", error);
