@@ -19,25 +19,41 @@ export const useUsersMutations = () => {
 
       let dealershipId = currentUser?.role === 'dealer' ? currentUser.dealership_id : userData.dealershipId;
 
-      // If this is a dealer user and we have dealership data, create the dealership first
+      // If this is a dealer user and we have dealership data, handle dealership creation/lookup
       if (userData.role === 'dealer' && dealershipData) {
-        const { data: newDealership, error: dealershipError } = await supabase
+        // First check if dealership with this dealer_id already exists
+        const { data: existingDealership, error: lookupError } = await supabase
           .from('dealerships')
-          .insert({
-            dealer_name: dealershipData.dealerName,
-            business_phone: dealershipData.businessPhone,
-            business_email: dealershipData.businessEmail,
-            address: dealershipData.address,
-            city: dealershipData.city,
-            state: dealershipData.state,
-            zip_code: dealershipData.zipCode,
-            dealer_id: dealershipData.dealerId
-          })
           .select()
+          .eq('dealer_id', dealershipData.dealerId)
           .single();
 
-        if (dealershipError) throw dealershipError;
-        dealershipId = newDealership.id;
+        if (lookupError && lookupError.code !== 'PGRST116') { // PGRST116 is "not found" error
+          throw lookupError;
+        }
+
+        if (existingDealership) {
+          dealershipId = existingDealership.id;
+        } else {
+          // Create new dealership if none exists
+          const { data: newDealership, error: dealershipError } = await supabase
+            .from('dealerships')
+            .insert({
+              dealer_name: dealershipData.dealerName,
+              business_phone: dealershipData.businessPhone,
+              business_email: dealershipData.businessEmail,
+              address: dealershipData.address,
+              city: dealershipData.city,
+              state: dealershipData.state,
+              zip_code: dealershipData.zipCode,
+              dealer_id: dealershipData.dealerId
+            })
+            .select()
+            .single();
+
+          if (dealershipError) throw dealershipError;
+          dealershipId = newDealership.id;
+        }
       }
 
       // First create the auth user
