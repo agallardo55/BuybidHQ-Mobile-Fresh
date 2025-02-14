@@ -22,6 +22,11 @@ export interface UserFormData {
   email: string;
   role: "admin" | "dealer" | "basic" | "individual";
   mobileNumber: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  dealershipId?: string;
   isActive: boolean;
 }
 
@@ -30,4 +35,8 @@ export interface DealershipFormData {
   dealerId: string;
   businessPhone: string;
   businessEmail: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
 }

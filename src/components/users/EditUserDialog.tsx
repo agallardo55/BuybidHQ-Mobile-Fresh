@@ -22,11 +22,6 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
     email: "",
     role: "basic",
     mobileNumber: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    dealershipId: "",
     isActive: true,
   });
 
@@ -41,7 +36,7 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
         city: user.city || "",
         state: user.state || "",
         zipCode: user.zipCode || "",
-        dealershipId: user.dealershipId || "", // Keep the ID for form submission
+        dealershipId: user.dealershipId || "",
         isActive: user.isActive,
       });
     }
@@ -65,7 +60,7 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
           onSubmit={handleSubmit}
           formData={formData}
           onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-          readOnlyDealership={user?.dealershipName || ""} // Pass dealership name to display
+          readOnlyDealership={user?.dealershipName || ""}
         />
       </DialogContent>
     </Dialog>
