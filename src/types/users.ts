@@ -1,27 +1,51 @@
 
-export interface User {
+// Database User Role type matching Supabase enum
+export type UserRole = 'basic' | 'individual' | 'dealer' | 'associate';
+
+// Base user interface matching database schema
+export interface BaseUser {
   id: string;
   email: string;
-  fullName: string | null;
-  role: "basic" | "individual" | "dealer" | "associate";
+  role: UserRole;
   status: string;
-  mobileNumber: string | null;
-  businessNumber: string | null;
+  full_name: string | null;
+  mobile_number: string | null;
   address: string | null;
   city: string | null;
   state: string | null;
-  zipCode: string | null;
-  dealershipId: string | null;
-  dealershipName?: string | null;
-  dealershipInfo?: DealershipFormData;
-  dealerId?: string | null;
-  isActive: boolean;
+  zip_code: string | null;
+  company: string | null;
+  dealership_id: string | null;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string | null;
+  deleted_at?: string | null;
 }
 
+// Dealership interface matching database schema
+export interface Dealership {
+  id: string;
+  dealer_name: string;
+  dealer_id: string | null;
+  business_phone: string;
+  business_email: string;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  created_at?: string;
+}
+
+// Extended user interface with dealership information
+export interface User extends BaseUser {
+  dealership?: Dealership | null;
+}
+
+// Form data interfaces for consistent shape across components
 export interface UserFormData {
   fullName: string;
   email: string;
-  role: "basic" | "individual" | "dealer" | "associate";
+  role: UserRole;
   mobileNumber: string;
   address?: string;
   city?: string;
@@ -41,3 +65,45 @@ export interface DealershipFormData {
   state?: string;
   zipCode?: string;
 }
+
+// Type guard for UserRole
+export const isUserRole = (role: string): role is UserRole => {
+  return ['basic', 'individual', 'dealer', 'associate'].includes(role);
+};
+
+// Utility type for transforming snake_case to camelCase
+type SnakeToCamel<S extends string> = S extends `${infer T}_${infer U}`
+  ? `${T}${Capitalize<SnakeToCamel<U>>}`
+  : S;
+
+// Database to frontend type transformer
+export const transformDatabaseUser = (dbUser: BaseUser): UserFormData => {
+  return {
+    fullName: dbUser.full_name || '',
+    email: dbUser.email,
+    role: dbUser.role,
+    mobileNumber: dbUser.mobile_number || '',
+    address: dbUser.address || '',
+    city: dbUser.city || '',
+    state: dbUser.state || '',
+    zipCode: dbUser.zip_code || '',
+    dealershipId: dbUser.dealership_id || undefined,
+    isActive: dbUser.is_active
+  };
+};
+
+// Frontend to database type transformer
+export const transformFormUser = (formData: UserFormData): Partial<BaseUser> => {
+  return {
+    full_name: formData.fullName,
+    email: formData.email,
+    role: formData.role,
+    mobile_number: formData.mobileNumber,
+    address: formData.address || null,
+    city: formData.city || null,
+    state: formData.state || null,
+    zip_code: formData.zipCode || null,
+    dealership_id: formData.dealershipId || null,
+    is_active: formData.isActive
+  };
+};
