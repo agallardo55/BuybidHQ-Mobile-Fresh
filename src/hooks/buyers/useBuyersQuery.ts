@@ -77,7 +77,9 @@ export const useBuyersQuery = () => {
 
         console.log("Raw buyers data:", data);
 
-        const mappedBuyers: MappedBuyer[] = (data as BuyerResponse[]).map(buyer => ({
+        // Cast the response to an array of BuyerResponse type
+        const typedData = data as unknown as BuyerResponse[];
+        const mappedBuyers: MappedBuyer[] = typedData.map(buyer => ({
           id: buyer.id,
           name: buyer.buyer_name || '',
           email: buyer.email || '',
