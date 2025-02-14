@@ -105,6 +105,8 @@ serve(async (req) => {
 
     // Get engine info
     const engineInfo = (() => {
+      console.log('Processing engine data:', data.engine);
+      if (typeof data.engine === 'string') return data.engine;
       if (data.engine?.size) return `${data.engine.size}L`;
       if (data.engine?.displacement) return `${data.engine.displacement}L`;
       if (data.engine?.configuration && data.engine?.cylinders) {
@@ -117,6 +119,8 @@ serve(async (req) => {
 
     // Get transmission info
     const transmissionInfo = (() => {
+      console.log('Processing transmission data:', data.transmission);
+      if (typeof data.transmission === 'string') return data.transmission;
       const parts = [];
       if (data.transmission?.speeds) parts.push(`${data.transmission.speeds}-speed`);
       if (data.transmission?.name) parts.push(data.transmission.name);
@@ -126,8 +130,22 @@ serve(async (req) => {
 
     // Get drivetrain info
     const drivetrainInfo = (() => {
-      return data.drive_line || data.drive_type || data.drivetrain || "";
+      console.log('Processing drivetrain data:', {
+        drive_line: data.drive_line,
+        drive_type: data.drive_type,
+        drivetrain: data.drivetrain
+      });
+      if (typeof data.drive_line === 'string') return data.drive_line;
+      if (typeof data.drive_type === 'string') return data.drive_type;
+      if (typeof data.drivetrain === 'string') return data.drivetrain;
+      return "";
     })();
+
+    console.log('Processed technical specs:', {
+      engine: engineInfo,
+      transmission: transmissionInfo,
+      drivetrain: drivetrainInfo
+    });
 
     // Transform the response to match our expected structure
     const transformedData = {
