@@ -101,28 +101,35 @@ export const useCurrentUser = () => {
 
         if (!userData) {
           console.log('No user profile found in buybidhq_users table');
-          if (shouldEnforceRoleChecks()) {
-            console.log('Creating basic profile');
-            return {
-              id: user.id,
-              role: 'basic' as UserRole,
-              status: 'active',
-              full_name: '',
-              email: user.email || '',
-              mobile_number: '',
-              address: '',
-              city: '',
-              state: '',
-              zip_code: '',
-              company: '',
-              dealership_id: null,
-              dealerships: null,
-            };
+          // Always create a basic profile if none exists
+          const basicProfile = {
+            id: user.id,
+            role: 'basic' as UserRole,
+            status: 'active',
+            full_name: '',
+            email: user.email || '',
+            mobile_number: '',
+            address: '',
+            city: '',
+            state: '',
+            zip_code: '',
+            company: '',
+            dealership_id: null,
+            dealerships: null,
+          };
+
+          // Attempt to create the profile in the database
+          const { error: insertError } = await supabase
+            .from('buybidhq_users')
+            .insert([basicProfile]);
+
+          if (insertError) {
+            console.error('Error creating basic profile:', insertError);
+            throw insertError;
           }
-          // If role checks are not enforced and no profile exists, redirect to signin
-          toast.error("User profile not found. Please contact support.");
-          navigate('/signin');
-          return null;
+
+          console.log('Created basic profile for user');
+          return basicProfile;
         }
 
         console.log('Successfully fetched user profile:', userData);
