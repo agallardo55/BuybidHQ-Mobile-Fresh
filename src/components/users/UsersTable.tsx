@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Edit, Trash, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { User } from "@/types/users";
+import { User, UserRole } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { cn } from "@/lib/utils";
 
@@ -30,11 +30,6 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
 
   const canManageUser = (user: User) => {
     if (!currentUser) return false;
-    
-    // Admin can manage all users
-    if (currentUser.role === 'admin') {
-      return true;
-    }
     
     // Dealers can only manage associates from their dealership
     if (currentUser.role === 'dealer') {
