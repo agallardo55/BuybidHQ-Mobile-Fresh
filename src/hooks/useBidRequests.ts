@@ -5,6 +5,37 @@ import { BidRequest } from "@/components/bid-request/types";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
 
+// Define types for the database response
+type Vehicle = {
+  year: string | null;
+  make: string | null;
+  model: string | null;
+  trim: string | null;
+  vin: string | null;
+  mileage: string | null;
+};
+
+type Dealership = {
+  dealer_name: string | null;
+};
+
+type Buyer = {
+  full_name: string | null;
+  dealership: Dealership | null;
+};
+
+type BidResponse = {
+  offer_amount: number;
+};
+
+type BidRequestResponse = {
+  id: string;
+  status: "Pending" | "Approved" | "Declined";
+  vehicle: Vehicle | null;
+  buyer: Buyer | null;
+  bid_responses: BidResponse[] | null;
+};
+
 export const useBidRequests = () => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
@@ -56,25 +87,19 @@ export const useBidRequests = () => {
           return [];
         }
 
-        return data.map(request => {
-          const vehicle = request.vehicle || {};
-          const buyer = request.buyer || {};
-          const offers = request.bid_responses || [];
-          
-          return {
-            id: request.id,
-            year: vehicle.year ? parseInt(vehicle.year) : 0,
-            make: vehicle.make || '',
-            model: vehicle.model || '',
-            trim: vehicle.trim || '',
-            vin: vehicle.vin || '',
-            mileage: vehicle.mileage ? parseInt(vehicle.mileage) : 0,
-            buyer: buyer.full_name || '',
-            dealership: buyer.dealership?.dealer_name || '',
-            highestOffer: Math.max(...(offers.map(r => Number(r.offer_amount)) || [0])),
-            status: request.status as "Pending" | "Approved" | "Declined"
-          } satisfies BidRequest;
-        });
+        return (data as BidRequestResponse[]).map(request => ({
+          id: request.id,
+          year: request.vehicle?.year ? parseInt(request.vehicle.year) : 0,
+          make: request.vehicle?.make || '',
+          model: request.vehicle?.model || '',
+          trim: request.vehicle?.trim || '',
+          vin: request.vehicle?.vin || '',
+          mileage: request.vehicle?.mileage ? parseInt(request.vehicle.mileage) : 0,
+          buyer: request.buyer?.full_name || '',
+          dealership: request.buyer?.dealership?.dealer_name || '',
+          highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
+          status: request.status
+        }));
       } catch (error) {
         console.error("Error in bid requests query:", error);
         toast.error("Failed to fetch bid requests. Please try again.");
