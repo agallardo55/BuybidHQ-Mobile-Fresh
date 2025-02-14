@@ -57,16 +57,20 @@ export const useUsersMutations = () => {
       }
 
       // First check if the user already exists
-      const { data: existingUsers } = await supabase
+      const { data: existingUser, error: existingUserError } = await supabase
         .from('buybidhq_users')
         .select('id, email')
         .eq('email', userData.email)
         .single();
 
+      if (existingUserError && existingUserError.code !== 'PGRST116') {
+        throw existingUserError;
+      }
+
       let userId: string;
 
-      if (existingUsers) {
-        userId = existingUsers.id;
+      if (existingUser) {
+        userId = existingUser.id;
         
         // Update the auth metadata for existing user when changing to dealer role
         if (userData.role === 'dealer') {
@@ -103,6 +107,11 @@ export const useUsersMutations = () => {
 
         // Wait a moment for the trigger to create the user record
         await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      // Make sure we have a valid userId before updating
+      if (!userId) {
+        throw new Error("No valid user ID found for update operation");
       }
 
       // Update the buybidhq_users record with additional information
