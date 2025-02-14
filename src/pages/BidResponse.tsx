@@ -8,6 +8,8 @@ import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Send } from "lucide-react";
 
 const BidResponse = () => {
   const [searchParams] = useSearchParams();
@@ -16,9 +18,41 @@ const BidResponse = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isSendingSMS, setIsSendingSMS] = useState(false);
 
   const requestId = searchParams.get('request');
   const buyerId = searchParams.get('buyer');
+
+  const handleSendSMS = async () => {
+    if (!phoneNumber) {
+      toast.error("Please enter a phone number");
+      return;
+    }
+
+    setIsSendingSMS(true);
+    try {
+      // Construct the bid request URL
+      const bidRequestUrl = `${window.location.origin}/bid-response?request=${requestId}&buyer=${buyerId}`;
+
+      const { data, error } = await supabase.functions.invoke('send-bid-sms', {
+        body: {
+          phoneNumber,
+          bidRequestUrl
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("SMS sent successfully!");
+      setPhoneNumber(""); // Clear the input after successful send
+    } catch (err) {
+      console.error('Error sending SMS:', err);
+      toast.error("Failed to send SMS. Please try again.");
+    } finally {
+      setIsSendingSMS(false);
+    }
+  };
 
   useEffect(() => {
     const fetchBidRequestDetails = async () => {
@@ -183,6 +217,26 @@ const BidResponse = () => {
       </header>
       <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
         <VehicleDetailsSection vehicle={vehicleDetails} />
+        <div className="bg-white rounded-lg p-6 shadow-sm space-y-4">
+          <h3 className="text-lg font-semibold">Share Bid Request</h3>
+          <div className="flex gap-2">
+            <Input
+              type="tel"
+              placeholder="Enter phone number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              onClick={handleSendSMS}
+              disabled={isSendingSMS}
+              className="flex items-center gap-2"
+            >
+              <Send className="h-4 w-4" />
+              {isSendingSMS ? "Sending..." : "Send SMS"}
+            </Button>
+          </div>
+        </div>
         <BidForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
         <div className="bg-gray-50 rounded-lg p-6 shadow-sm space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Why Join BuyBidHQ?</h3>
