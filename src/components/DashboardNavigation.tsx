@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, Menu, X, LogOut } from "lucide-react";
@@ -7,6 +6,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useToast } from "@/hooks/use-toast";
 import { hasRequiredRole } from "@/config/features";
 import { supabase } from "@/integrations/supabase/client";
+import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 
 const DashboardNavigation = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const DashboardNavigation = () => {
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
     ...(hasRequiredRole(currentUser?.role) ? [{ name: "Users", href: "/users" }] : []),
-    { name: "Marketplace", href: "#" },
+    { name: "Marketplace", href: "#", comingSoon: true },
   ];
 
   const handleNotificationsToggle = () => {
@@ -61,13 +61,19 @@ const DashboardNavigation = () => {
             </Link>
             <div className="hidden md:flex items-center space-x-8 ml-8">
               {!isLoading && navItems.map((item) => (
-                <Link 
-                  key={item.name}
-                  to={item.href} 
-                  className="text-gray-700 hover:text-accent transition-colors"
-                >
-                  {item.name}
-                </Link>
+                <div key={item.name} className="relative">
+                  <Link 
+                    to={item.href} 
+                    className="text-gray-700 hover:text-accent transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                  {item.comingSoon && (
+                    <div className="absolute -top-3 -right-3">
+                      <ComingSoonBadge />
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -117,14 +123,20 @@ const DashboardNavigation = () => {
         <div className="md:hidden bg-white border-b">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {!isLoading && navItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
-                onClick={() => setIsOpen(false)}
-              >
-                {item.name}
-              </Link>
+              <div key={item.name} className="relative">
+                <Link
+                  to={item.href}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.name}
+                </Link>
+                {item.comingSoon && (
+                  <div className="absolute top-0 right-2">
+                    <ComingSoonBadge />
+                  </div>
+                )}
+              </div>
             ))}
             <div className="flex items-center space-x-4 px-3 py-2">
               <Link 
@@ -168,4 +180,3 @@ const DashboardNavigation = () => {
 };
 
 export default DashboardNavigation;
-
