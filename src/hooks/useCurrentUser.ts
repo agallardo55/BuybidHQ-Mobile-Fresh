@@ -42,24 +42,30 @@ export const useCurrentUser = () => {
       try {
         // Get session first
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
-        if (!session) return null;
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          return null;
+        }
+        
+        if (!session?.user?.id) {
+          console.log('No active session');
+          return null;
+        }
 
-        // Simple query to get user data
+        // First try to get existing user data
         const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
-          .select(`
-            *,
-            dealership:dealerships(*)
-          `)
+          .select('*')
           .eq('id', session.user.id)
           .single();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
+          
+          // Only create new profile if the error is that the record doesn't exist
           if (userError.code === 'PGRST116') {
-            // If user doesn't exist, create basic profile
-            const basicProfile: Omit<UserData, 'dealership'> = {
+            console.log('Creating new user profile');
+            const basicProfile = {
               id: session.user.id,
               role: 'basic',
               status: 'active',
@@ -77,19 +83,49 @@ export const useCurrentUser = () => {
             const { data: newProfile, error: insertError } = await supabase
               .from('buybidhq_users')
               .insert([basicProfile])
-              .select(`
-                *,
-                dealership:dealerships(*)
-              `)
+              .select()
               .single();
 
-            if (insertError) throw insertError;
-            return newProfile;
+            if (insertError) {
+              console.error('Error creating user profile:', insertError);
+              throw insertError;
+            }
+
+            return {
+              ...newProfile,
+              dealership: null
+            };
           }
+          
           throw userError;
         }
 
-        return userData;
+        // If user has a dealership_id, fetch the dealership data
+        if (userData?.dealership_id) {
+          const { data: dealership, error: dealershipError } = await supabase
+            .from('dealerships')
+            .select('*')
+            .eq('id', userData.dealership_id)
+            .single();
+
+          if (dealershipError) {
+            console.error('Error fetching dealership:', dealershipError);
+            return {
+              ...userData,
+              dealership: null
+            };
+          }
+
+          return {
+            ...userData,
+            dealership
+          };
+        }
+
+        return {
+          ...userData,
+          dealership: null
+        };
       } catch (error: any) {
         console.error('Error in useCurrentUser:', error);
         toast.error("Error loading user data. Please try signing in again.");
