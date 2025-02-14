@@ -581,6 +581,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_access_cache: {
+        Row: {
+          dealership_id: string | null
+          id: string
+          is_active: boolean | null
+          last_updated: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          dealership_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_updated?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          dealership_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_updated?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_access_cache_dealership_id_fkey"
+            columns: ["dealership_id"]
+            isOneToOne: false
+            referencedRelation: "dealerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_history: {
         Row: {
           autocheck_report: string | null
