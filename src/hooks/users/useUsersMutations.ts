@@ -56,26 +56,42 @@ export const useUsersMutations = () => {
         }
       }
 
-      // Generate a random password for the new user
-      const tempPassword = Math.random().toString(36).slice(-8);
+      // First check if the user already exists
+      const { data: existingUsers } = await supabase
+        .from('buybidhq_users')
+        .select('id')
+        .eq('email', userData.email)
+        .single();
 
-      // Create the auth user using signUp
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: userData.email,
-        password: tempPassword,
-        options: {
-          data: {
-            full_name: userData.fullName,
-            role: userData.role
+      let userId: string;
+
+      if (existingUsers) {
+        userId = existingUsers.id;
+      } else {
+        // Generate a random password for the new user
+        const tempPassword = Math.random().toString(36).slice(-8);
+
+        // Create the auth user using signUp
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: userData.email,
+          password: tempPassword,
+          options: {
+            data: {
+              full_name: userData.fullName,
+              role: userData.role
+            }
           }
-        }
-      });
+        });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Failed to create user");
+        if (authError) throw authError;
+        if (!authData.user) throw new Error("Failed to create user");
 
-      // Wait a moment for the trigger to create the user record
-      await new Promise(resolve => setTimeout(resolve, 1000));
+        userId = authData.user.id;
+        toast.info(`Temporary password for ${userData.email}: ${tempPassword}`);
+
+        // Wait a moment for the trigger to create the user record
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
 
       // Update the buybidhq_users record with additional information
       const { data, error } = await supabase
@@ -92,13 +108,11 @@ export const useUsersMutations = () => {
           is_active: userData.isActive,
           status: 'active'
         })
-        .eq('id', authData.user.id)
+        .eq('id', userId)
         .select()
         .single();
 
       if (error) throw error;
-      
-      toast.info(`Temporary password for ${userData.email}: ${tempPassword}`);
       return data;
     },
     onSuccess: () => {
