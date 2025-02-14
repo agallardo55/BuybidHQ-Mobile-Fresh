@@ -29,11 +29,10 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
   const { currentUser } = useCurrentUser();
 
   const canManageUser = (user: User) => {
-    if (currentUser?.role === 'admin') return true;
     if (currentUser?.role === 'dealer') {
       return (
         user.dealershipId === currentUser.dealership_id &&
-        ['basic', 'individual'].includes(user.role)
+        user.role === 'associate'
       );
     }
     return false;

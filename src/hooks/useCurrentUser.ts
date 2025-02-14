@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { shouldEnforceRoleChecks } from "@/config/features";
 
-export type UserRole = 'admin' | 'dealer' | 'basic' | 'individual';
+export type UserRole = 'basic' | 'individual' | 'dealer' | 'associate';
 
 interface UserData {
   id: string;
@@ -67,7 +67,7 @@ export const useCurrentUser = () => {
 
       return userData || { 
         id: user?.id,
-        role: 'admin' as UserRole, 
+        role: 'basic' as UserRole, 
         status: 'active',
         full_name: '',
         email: user?.email || '',
@@ -83,7 +83,7 @@ export const useCurrentUser = () => {
     },
     meta: {
       onSuccess: (data: UserData) => {
-        if (shouldEnforceRoleChecks() && data.role !== 'admin' && data.role !== 'dealer') {
+        if (shouldEnforceRoleChecks() && data.role !== 'dealer' && data.role !== 'associate') {
           toast.error("You don't have permission to access this page");
           navigate('/dashboard');
         }
