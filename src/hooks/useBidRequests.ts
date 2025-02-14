@@ -52,7 +52,7 @@ export const useBidRequests = () => {
           .select(`
             id,
             status,
-            vehicle:vehicles!vehicle_id (
+            vehicle:vehicles!fk_bid_request_vehicle (
               year,
               make,
               model,
@@ -60,7 +60,7 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyer:buybidhq_users!user_id (
+            buyer:buybidhq_users!fk_bid_request_user (
               full_name,
               dealership:dealerships (
                 dealer_name
