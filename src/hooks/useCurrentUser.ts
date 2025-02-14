@@ -39,23 +39,32 @@ export const useCurrentUser = () => {
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
+        console.log('Starting user data fetch...');
+        
         // First check if we have a session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
         if (!sessionData.session) {
           console.log('No active session found');
           return null;
         }
+        console.log('Session found:', sessionData.session.user.id);
 
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
+        if (userError) {
+          console.error('User error:', userError);
+          throw userError;
+        }
         if (!user) {
           console.log('No authenticated user found');
           return null;
         }
+        console.log('Auth user found:', user.id);
 
-        console.log('Fetching user data for ID:', user.id);
-        
+        console.log('Fetching user profile data for ID:', user.id);
         const { data: userData, error: profileError } = await supabase
           .from('buybidhq_users')
           .select(`
@@ -86,30 +95,33 @@ export const useCurrentUser = () => {
           .maybeSingle();
 
         if (profileError) {
-          console.error('Error fetching user profile:', profileError);
+          console.error('Profile error:', profileError);
           throw profileError;
         }
 
-        if (!userData && shouldEnforceRoleChecks()) {
-          console.log('No user data found, creating basic profile');
-          return {
-            id: user.id,
-            role: 'basic' as UserRole,
-            status: 'active',
-            full_name: '',
-            email: user.email || '',
-            mobile_number: '',
-            address: '',
-            city: '',
-            state: '',
-            zip_code: '',
-            company: '',
-            dealership_id: null,
-            dealerships: null,
-          };
+        if (!userData) {
+          console.log('No user profile found in buybidhq_users table');
+          if (shouldEnforceRoleChecks()) {
+            console.log('Creating basic profile');
+            return {
+              id: user.id,
+              role: 'basic' as UserRole,
+              status: 'active',
+              full_name: '',
+              email: user.email || '',
+              mobile_number: '',
+              address: '',
+              city: '',
+              state: '',
+              zip_code: '',
+              company: '',
+              dealership_id: null,
+              dealerships: null,
+            };
+          }
         }
 
-        console.log('Successfully fetched user data:', userData);
+        console.log('Successfully fetched user profile:', userData);
         return userData;
       } catch (error) {
         console.error('Error in useCurrentUser:', error);
