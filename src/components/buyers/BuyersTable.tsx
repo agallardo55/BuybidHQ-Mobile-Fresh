@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -29,7 +28,7 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
   const { currentUser } = useCurrentUser();
 
   const canManageBuyer = () => {
-    return currentUser?.role === 'admin' || currentUser?.role === 'dealer';
+    return currentUser?.role === 'dealer';
   };
 
   const SortIcon = ({ field }: { field: keyof Buyer }) => {

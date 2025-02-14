@@ -75,7 +75,7 @@ export const useBidRequests = () => {
           `);
 
         // Apply filter based on role
-        if (currentUser?.role !== 'admin') {
+        if (currentUser?.role !== 'dealer') {
           query = query.eq('user_id', userData.user.id);
         }
 

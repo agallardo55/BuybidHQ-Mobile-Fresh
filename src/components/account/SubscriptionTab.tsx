@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -12,12 +13,12 @@ export const SubscriptionTab = () => {
   const { subscription, isLoading } = useSubscription();
   const { currentUser } = useCurrentUser();
 
-  // Early return for admin users as a safety measure
-  if (currentUser?.role === 'admin') {
+  // Early return for dealer users as a safety measure
+  if (currentUser?.role === 'dealer') {
     return (
       <div className="p-6 text-center">
         <p className="text-gray-600">
-          Subscription management is not available for admin users.
+          Subscription management is not available for dealer users.
         </p>
       </div>
     );

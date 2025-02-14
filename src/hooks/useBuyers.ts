@@ -26,8 +26,8 @@ export const useBuyers = () => {
             )
           `);
         
-        // Apply filter based on role that was determined before the query
-        if (currentUser?.role !== 'admin') {
+        // Apply filter based on role
+        if (currentUser?.role !== 'dealer') {
           query.eq('user_id', userData.user.id);
         }
 
