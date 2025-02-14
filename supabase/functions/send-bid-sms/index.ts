@@ -38,11 +38,28 @@ serve(async (req) => {
       throw new Error('Phone number and notification type are required')
     }
 
-    // Initialize Twilio client
-    const client = twilio(
-      Deno.env.get('TWILIO_ACCOUNT_SID'),
-      Deno.env.get('TWILIO_AUTH_TOKEN')
-    )
+    const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
+    const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')
+    const fromNumber = Deno.env.get('TWILIO_PHONE_NUMBER')
+
+    // Validate Twilio configuration
+    if (!accountSid || !authToken || !fromNumber) {
+      console.error('Missing Twilio configuration:', {
+        hasAccountSid: !!accountSid,
+        hasAuthToken: !!authToken,
+        hasFromNumber: !!fromNumber
+      })
+      throw new Error('Twilio configuration is incomplete')
+    }
+
+    // Log Twilio configuration (without sensitive data)
+    console.log('Twilio Configuration:', {
+      accountSid: accountSid.substring(0, 5) + '...',
+      fromNumber
+    })
+
+    // Initialize Twilio client with full configuration
+    const client = twilio(accountSid, authToken)
 
     let messageBody: string;
 
@@ -62,11 +79,12 @@ serve(async (req) => {
     console.log('Sending SMS with message:', messageBody);
     console.log('To phone number:', payload.phoneNumber);
 
-    // Send SMS
+    // Send SMS with explicit accountSid
     const message = await client.messages.create({
       body: messageBody,
-      from: Deno.env.get('TWILIO_PHONE_NUMBER'),
-      to: payload.phoneNumber
+      from: fromNumber,
+      to: payload.phoneNumber,
+      accountSid: accountSid  // Explicitly specify the accountSid
     })
 
     console.log('SMS sent successfully:', message.sid)
@@ -81,7 +99,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error sending SMS:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500
