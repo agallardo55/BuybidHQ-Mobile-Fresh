@@ -39,8 +39,20 @@ export const useBuyers = () => {
         let query = supabase
           .from('buyers')
           .select(`
-            *,
-            buybidhq_users!fk_user_id (
+            id,
+            buyer_name,
+            email,
+            dealer_name,
+            buyer_mobile,
+            buyer_phone,
+            city,
+            state,
+            zip_code,
+            accepted_bids,
+            pending_bids,
+            declined_bids,
+            user_id,
+            buybidhq_users (
               full_name,
               email
             )
@@ -71,10 +83,10 @@ export const useBuyers = () => {
 
         const mappedBuyers = data.map(buyer => ({
           id: buyer.id,
-          name: buyer.buyer_name,
-          email: buyer.email,
-          dealership: buyer.dealer_name,
-          phone: buyer.buyer_mobile,
+          name: buyer.buyer_name || '',
+          email: buyer.email || '',
+          dealership: buyer.dealer_name || '',
+          phone: buyer.buyer_mobile || '',
           location: `${buyer.city || ''}, ${buyer.state || ''}`.replace(/, $/, ''),
           acceptedBids: buyer.accepted_bids || 0,
           pendingBids: buyer.pending_bids || 0,
@@ -97,7 +109,6 @@ export const useBuyers = () => {
     },
     enabled: !!currentUser,
     retry: (failureCount, error: any) => {
-      // Don't retry on authentication errors
       if (error?.message?.includes('JWT') || 
           error?.message?.includes('Invalid refresh token')) {
         return false;
