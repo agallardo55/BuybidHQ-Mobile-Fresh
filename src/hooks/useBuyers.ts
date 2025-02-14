@@ -15,7 +15,9 @@ export const useBuyers = () => {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
 
-      const query = supabase.from('buyers').select('*');
+      const query = supabase
+        .from('buyers')
+        .select('*, buybidhq_users!inner(full_name, email)');
       
       // Apply filter based on role that was determined before the query
       if (currentUser?.role !== 'admin') {
@@ -38,7 +40,9 @@ export const useBuyers = () => {
         location: `${buyer.city}, ${buyer.state}`,
         acceptedBids: buyer.accepted_bids || 0,
         pendingBids: buyer.pending_bids || 0,
-        declinedBids: buyer.declined_bids || 0
+        declinedBids: buyer.declined_bids || 0,
+        ownerName: buyer.buybidhq_users.full_name,
+        ownerEmail: buyer.buybidhq_users.email
       }));
     },
     enabled: !!currentUser,

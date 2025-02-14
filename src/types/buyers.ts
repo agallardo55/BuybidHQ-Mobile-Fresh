@@ -9,6 +9,8 @@ export interface Buyer {
   acceptedBids: number;
   pendingBids: number;
   declinedBids: number;
+  ownerName: string;
+  ownerEmail: string;
 }
 
 export interface BuyerFormData {
