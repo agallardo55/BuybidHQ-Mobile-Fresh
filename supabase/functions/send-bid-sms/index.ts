@@ -7,17 +7,28 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface BidSMSRequest {
-  type: 'bid_response'
+interface BaseSMSRequest {
+  type: 'bid_request' | 'bid_response'
   phoneNumber: string
   vehicleDetails: {
     year: string
     make: string
     model: string
   }
+}
+
+interface BidRequestSMS extends BaseSMSRequest {
+  type: 'bid_request'
+  bidRequestUrl: string
+}
+
+interface BidResponseSMS extends BaseSMSRequest {
+  type: 'bid_response'
   offerAmount: string
   buyerName: string
 }
+
+type SMSRequest = BidRequestSMS | BidResponseSMS
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -25,11 +36,8 @@ serve(async (req) => {
   }
 
   try {
-    const { type, phoneNumber, vehicleDetails, offerAmount, buyerName } = await req.json() as BidSMSRequest
-
-    if (type !== 'bid_response') {
-      throw new Error('Invalid notification type')
-    }
+    const requestData = await req.json() as SMSRequest
+    const { type, phoneNumber, vehicleDetails } = requestData
 
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')
@@ -42,7 +50,15 @@ serve(async (req) => {
     const client = twilio(accountSid, authToken)
     const { year, make, model } = vehicleDetails
     
-    const message = `New bid received for your ${year} ${make} ${model}! ${buyerName} has offered $${offerAmount}. Log in to review and respond to this offer.`
+    let message: string
+
+    if (type === 'bid_request') {
+      message = `New bid request for your ${year} ${make} ${model}! Click here to submit your offer: ${requestData.bidRequestUrl}`
+    } else if (type === 'bid_response') {
+      message = `New bid received for your ${year} ${make} ${model}! ${requestData.buyerName} has offered $${requestData.offerAmount}. Log in to review and respond to this offer.`
+    } else {
+      throw new Error('Invalid notification type')
+    }
 
     await client.messages.create({
       body: message,
@@ -60,6 +76,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Error in send-bid-sms function:', error)
     return new Response(
       JSON.stringify({ error: error.message }), 
       { 
