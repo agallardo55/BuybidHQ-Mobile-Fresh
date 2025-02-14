@@ -20,8 +20,8 @@ type Dealership = {
 };
 
 type Buyer = {
-  full_name: string | null;
-  dealership: Dealership | null;
+  buyer_name: string | null;
+  dealer_name: string | null;
 };
 
 type BidResponse = {
@@ -65,11 +65,9 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyer:buybidhq_users!inner (
-              full_name,
-              dealership:dealerships (
-                dealer_name
-              )
+            buyer:buyers (
+              buyer_name,
+              dealer_name
             ),
             bid_responses (
               offer_amount
@@ -104,8 +102,8 @@ export const useBidRequests = () => {
           trim: request.vehicles?.trim || '',
           vin: request.vehicles?.vin || '',
           mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
-          buyer: request.buyer?.full_name || '',
-          dealership: request.buyer?.dealership?.dealer_name || '',
+          buyer: request.buyer?.buyer_name || '',
+          dealership: request.buyer?.dealer_name || '',
           highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
           status: request.status
         }));
