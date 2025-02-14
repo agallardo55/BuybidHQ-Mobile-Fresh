@@ -772,12 +772,6 @@ export type Database = {
         }
         Returns: string
       }
-      get_user_profile: {
-        Args: {
-          user_id: string
-        }
-        Returns: Database["public"]["CompositeTypes"]["user_profile_type"]
-      }
       get_user_role: {
         Args: {
           user_id: string
@@ -795,28 +789,11 @@ export type Database = {
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
-      user_role: "basic" | "individual" | "dealer" | "associate" | "admin"
+      user_role: "basic" | "individual" | "dealer" | "associate"
       user_role_old: "admin" | "dealer" | "associate"
     }
     CompositeTypes: {
-      user_profile_type: {
-        id: string | null
-        email: string | null
-        role: Database["public"]["Enums"]["user_role"] | null
-        status: string | null
-        full_name: string | null
-        mobile_number: string | null
-        address: string | null
-        city: string | null
-        state: string | null
-        zip_code: string | null
-        company: string | null
-        dealership_id: string | null
-        is_active: boolean | null
-        created_at: string | null
-        updated_at: string | null
-        deleted_at: string | null
-      }
+      [_ in never]: never
     }
   }
 }
