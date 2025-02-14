@@ -36,7 +36,19 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // Fetch user data with dealership information
+        // First get user access info from cache
+        const { data: accessData, error: accessError } = await supabase
+          .from('user_access_cache')
+          .select('role, dealership_id, is_active')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (accessError) {
+          console.error('Error fetching user access data:', accessError);
+          return null;
+        }
+
+        // Then fetch full user data with dealership information
         const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
           .select(`
@@ -62,7 +74,12 @@ export const useCurrentUser = () => {
           throw userError;
         }
 
-        return userData;
+        // Combine the data
+        return {
+          ...userData,
+          role: accessData.role,
+          is_active: accessData.is_active
+        };
       } catch (error: any) {
         console.error('Error in useCurrentUser:', error);
         toast.error("Error loading user data. Please try signing in again.");

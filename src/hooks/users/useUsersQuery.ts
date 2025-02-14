@@ -21,6 +21,18 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           throw new Error('No active session');
         }
 
+        // Get current user's access info from cache
+        const { data: accessData, error: accessError } = await supabase
+          .from('user_access_cache')
+          .select('role, dealership_id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (accessError) {
+          console.error('Error fetching user access data:', accessError);
+          throw accessError;
+        }
+
         let query = supabase
           .from('buybidhq_users')
           .select(`
