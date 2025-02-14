@@ -59,7 +59,7 @@ export const useUsersMutations = () => {
       // First check if the user already exists
       const { data: existingUsers } = await supabase
         .from('buybidhq_users')
-        .select('id')
+        .select('id, email')
         .eq('email', userData.email)
         .single();
 
@@ -67,6 +67,18 @@ export const useUsersMutations = () => {
 
       if (existingUsers) {
         userId = existingUsers.id;
+        
+        // Update the auth metadata for existing user when changing to dealer role
+        if (userData.role === 'dealer') {
+          const { error: metadataError } = await supabase.auth.updateUser({
+            data: { 
+              full_name: userData.fullName,
+              role: userData.role
+            }
+          });
+          
+          if (metadataError) throw metadataError;
+        }
       } else {
         // Generate a random password for the new user
         const tempPassword = Math.random().toString(36).slice(-8);
