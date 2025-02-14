@@ -1,7 +1,7 @@
-
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useEffect } from "react";
 
 interface VehicleConditionProps {
   formData: {
@@ -18,8 +18,18 @@ interface VehicleConditionProps {
 }
 
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
+  const [displayValue, setDisplayValue] = useState('');
+
+  useEffect(() => {
+    // Update display value when formData.reconEstimate changes
+    if (formData.reconEstimate) {
+      setDisplayValue(formatDollarAmount(formData.reconEstimate));
+    } else {
+      setDisplayValue('');
+    }
+  }, [formData.reconEstimate]);
+
   const formatDollarAmount = (value: string) => {
-    // Remove any non-digits
     const numericValue = value.replace(/\D/g, '');
     if (!numericValue) return '';
     
@@ -32,19 +42,27 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   };
 
   const handleReconEstimateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Extract just the numbers from the input
-    const numericValue = e.target.value.replace(/\D/g, '');
+    // Allow only numbers
+    const rawValue = e.target.value.replace(/[^0-9]/g, '');
     
-    // Create a synthetic event with the numeric value
+    // Update the form state with raw numeric value
     const syntheticEvent = {
       ...e,
       target: {
         ...e.target,
-        value: numericValue
+        value: rawValue
       }
     };
     
     onChange(syntheticEvent);
+    // Update display value immediately for better UX
+    setDisplayValue(rawValue ? formatDollarAmount(rawValue) : '');
+  };
+
+  const handleReconEstimateBlur = () => {
+    if (formData.reconEstimate) {
+      setDisplayValue(formatDollarAmount(formData.reconEstimate));
+    }
   };
 
   return (
@@ -143,8 +161,9 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           name="reconEstimate"
           type="text"
           inputMode="numeric"
-          value={formData.reconEstimate ? formatDollarAmount(formData.reconEstimate) : ''}
+          value={displayValue}
           onChange={handleReconEstimateChange}
+          onBlur={handleReconEstimateBlur}
           placeholder="$0"
           className="font-mono focus:ring-1 focus:ring-offset-0"
         />
