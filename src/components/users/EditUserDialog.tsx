@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, UserFormData } from "@/types/users";
+import { User, UserFormData, DealershipFormData } from "@/types/users";
 import { useState, useEffect } from "react";
 import AddUserForm from "./AddUserForm";
 
@@ -13,7 +13,7 @@ interface EditUserDialogProps {
   user: User | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (userId: string, userData: UserFormData) => void;
+  onUpdate: (userId: string, userData: UserFormData, dealershipData?: DealershipFormData) => void;
 }
 
 const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialogProps) => {
@@ -23,6 +23,17 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
     role: "basic",
     mobileNumber: "",
     isActive: true,
+  });
+
+  const [dealershipData, setDealershipData] = useState<DealershipFormData>({
+    dealerName: "",
+    dealerId: "",
+    businessPhone: "",
+    businessEmail: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: ""
   });
 
   useEffect(() => {
@@ -39,13 +50,26 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
         dealershipId: user.dealershipId || "",
         isActive: user.isActive,
       });
+
+      if (user.dealershipInfo) {
+        setDealershipData({
+          dealerName: user.dealershipInfo.dealerName,
+          dealerId: user.dealershipInfo.dealerId,
+          businessPhone: user.dealershipInfo.businessPhone,
+          businessEmail: user.dealershipInfo.businessEmail,
+          address: user.dealershipInfo.address,
+          city: user.dealershipInfo.city,
+          state: user.dealershipInfo.state,
+          zipCode: user.dealershipInfo.zipCode
+        });
+      }
     }
   }, [user]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
-      onUpdate(user.id, formData);
+      onUpdate(user.id, formData, formData.role === 'dealer' ? dealershipData : undefined);
       onOpenChange(false);
     }
   };
@@ -60,7 +84,8 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
           onSubmit={handleSubmit}
           formData={formData}
           onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-          readOnlyDealership={user?.dealershipName || ""}
+          initialDealershipData={dealershipData}
+          onDealershipDataChange={setDealershipData}
           submitButtonText="Update"
         />
       </DialogContent>

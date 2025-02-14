@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { UserFormData } from "@/types/users";
+import { UserFormData, DealershipFormData } from "@/types/users";
 
 export const useUsersMutations = () => {
   const queryClient = useQueryClient();
@@ -36,11 +36,62 @@ export const useUsersMutations = () => {
   });
 
   const updateUser = useMutation({
-    mutationFn: async ({ userId, userData }: { userId: string; userData: UserFormData }) => {
+    mutationFn: async ({ 
+      userId, 
+      userData, 
+      dealershipData 
+    }: { 
+      userId: string; 
+      userData: UserFormData; 
+      dealershipData?: DealershipFormData;
+    }) => {
       if (!userId?.trim()) {
         throw new Error('User ID is required for update');
       }
 
+      // If it's a dealer and we have dealership data, update or create dealership first
+      let dealershipId = userData.dealershipId;
+      if (userData.role === 'dealer' && dealershipData) {
+        if (dealershipId) {
+          // Update existing dealership
+          const { error: dealershipError } = await supabase
+            .from('dealerships')
+            .update({
+              dealer_name: dealershipData.dealerName,
+              business_phone: dealershipData.businessPhone,
+              business_email: dealershipData.businessEmail,
+              dealer_id: dealershipData.dealerId,
+              address: dealershipData.address,
+              city: dealershipData.city,
+              state: dealershipData.state,
+              zip_code: dealershipData.zipCode
+            })
+            .eq('id', dealershipId);
+
+          if (dealershipError) throw dealershipError;
+        } else {
+          // Create new dealership
+          const { data: newDealership, error: dealershipError } = await supabase
+            .from('dealerships')
+            .insert({
+              dealer_name: dealershipData.dealerName,
+              business_phone: dealershipData.businessPhone,
+              business_email: dealershipData.businessEmail,
+              dealer_id: dealershipData.dealerId,
+              address: dealershipData.address,
+              city: dealershipData.city,
+              state: dealershipData.state,
+              zip_code: dealershipData.zipCode
+            })
+            .select('id')
+            .single();
+
+          if (dealershipError) throw dealershipError;
+          dealershipId = newDealership.id;
+        }
+      }
+
+      // Update user
       const { error } = await supabase
         .from('buybidhq_users')
         .update({
@@ -52,7 +103,7 @@ export const useUsersMutations = () => {
           city: userData.city || null,
           state: userData.state || null,
           zip_code: userData.zipCode || null,
-          dealership_id: userData.dealershipId || null,
+          dealership_id: dealershipId,
           is_active: userData.isActive
         })
         .eq('id', userId);

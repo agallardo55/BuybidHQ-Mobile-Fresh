@@ -53,7 +53,14 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginate
           dealership_id,
           is_active,
           dealerships:dealership_id (
-            dealer_name
+            dealer_name,
+            business_phone,
+            business_email,
+            address,
+            city,
+            state,
+            zip_code,
+            dealer_id
           )
         `)
         .is('deleted_at', null);
@@ -92,7 +99,17 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginate
           state: user.state,
           zipCode: user.zip_code,
           dealershipId: user.dealership_id || undefined,
-          dealershipName: user.dealerships?.dealer_name || undefined,
+          dealershipName: user.dealerships?.dealer_name,
+          dealershipInfo: user.dealerships ? {
+            dealerName: user.dealerships.dealer_name,
+            dealerId: user.dealerships.dealer_id || '',
+            businessPhone: user.dealerships.business_phone,
+            businessEmail: user.dealerships.business_email,
+            address: user.dealerships.address || '',
+            city: user.dealerships.city || '',
+            state: user.dealerships.state || '',
+            zipCode: user.dealerships.zip_code || ''
+          } : undefined,
           isActive: user.is_active
         })),
         total: count || 0

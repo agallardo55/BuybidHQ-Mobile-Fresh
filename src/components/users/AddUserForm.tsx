@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { UserFormData, DealershipFormData } from "@/types/users";
 import { Separator } from "@/components/ui/separator";
@@ -10,23 +10,41 @@ interface AddUserFormProps {
   onSubmit: (e: React.FormEvent, dealershipData?: DealershipFormData) => void;
   formData: UserFormData;
   onFormDataChange: (data: Partial<UserFormData>) => void;
-  readOnlyDealership?: string;
+  initialDealershipData?: DealershipFormData;
+  onDealershipDataChange?: (data: DealershipFormData) => void;
   submitButtonText?: string;
 }
 
 const AddUserForm = ({ 
   onSubmit, 
   formData, 
-  onFormDataChange, 
-  readOnlyDealership,
-  submitButtonText = 'Add User' // Default value if not provided
+  onFormDataChange,
+  initialDealershipData,
+  onDealershipDataChange,
+  submitButtonText = 'Add User'
 }: AddUserFormProps) => {
   const [dealershipData, setDealershipData] = useState<DealershipFormData>({
     dealerName: '',
     dealerId: '',
     businessPhone: '',
     businessEmail: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: ''
   });
+
+  useEffect(() => {
+    if (initialDealershipData) {
+      setDealershipData(initialDealershipData);
+    }
+  }, [initialDealershipData]);
+
+  const handleDealershipDataChange = (data: Partial<DealershipFormData>) => {
+    const updatedData = { ...dealershipData, ...data };
+    setDealershipData(updatedData);
+    onDealershipDataChange?.(updatedData);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +68,7 @@ const AddUserForm = ({
         formData={formData}
         dealershipData={dealershipData}
         onFormDataChange={onFormDataChange}
-        setDealershipData={setDealershipData}
+        onDealershipDataChange={handleDealershipDataChange}
       />
 
       <Button type="submit" className="w-full mt-6 bg-custom-blue hover:bg-custom-blue/90">
