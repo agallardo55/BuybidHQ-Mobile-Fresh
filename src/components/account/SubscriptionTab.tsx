@@ -1,22 +1,27 @@
-
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Loader2 } from "lucide-react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export const SubscriptionTab = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { subscription, isLoading } = useSubscription();
+  const { currentUser } = useCurrentUser();
+
+  // Early return for admin users as a safety measure
+  if (currentUser?.role === 'admin') {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-gray-600">
+          Subscription management is not available for admin users.
+        </p>
+      </div>
+    );
+  }
 
   const handleManageSubscription = async () => {
     try {

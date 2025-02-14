@@ -11,8 +11,12 @@ import { PersonalInfoTab } from "@/components/account/PersonalInfoTab";
 import { DealershipTab } from "@/components/account/DealershipTab";
 import { SubscriptionTab } from "@/components/account/SubscriptionTab";
 import { SecurityTab } from "@/components/account/SecurityTab";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const Account = () => {
+  const { currentUser, isLoading } = useCurrentUser();
+  const isAdmin = currentUser?.role === 'admin';
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <DashboardNavigation />
@@ -25,7 +29,9 @@ const Account = () => {
               <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
               <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>
               <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
-              <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>
+              {!isAdmin && (
+                <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="personal">
@@ -40,9 +46,11 @@ const Account = () => {
               <SecurityTab />
             </TabsContent>
 
-            <TabsContent value="subscription">
-              <SubscriptionTab />
-            </TabsContent>
+            {!isAdmin && (
+              <TabsContent value="subscription">
+                <SubscriptionTab />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>
