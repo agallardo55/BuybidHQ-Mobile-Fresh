@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Trash, Edit } from "lucide-react";
+import { Eye, Trash, Edit, Check, AlertCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Buyer } from "@/types/buyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -35,9 +35,21 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit }: BuyersTableProps) => 
           <TableHead className="text-sm">Dealership</TableHead>
           <TableHead className="text-sm">Phone</TableHead>
           <TableHead className="text-sm">Location</TableHead>
-          <TableHead className="text-sm">Accepted</TableHead>
-          <TableHead className="text-sm">Pending</TableHead>
-          <TableHead className="text-sm">Declined</TableHead>
+          <TableHead className="text-sm">
+            <div className="flex items-center gap-1">
+              <Check className="h-4 w-4" />
+            </div>
+          </TableHead>
+          <TableHead className="text-sm">
+            <div className="flex items-center gap-1">
+              <AlertCircle className="h-4 w-4" />
+            </div>
+          </TableHead>
+          <TableHead className="text-sm">
+            <div className="flex items-center gap-1">
+              <XCircle className="h-4 w-4" />
+            </div>
+          </TableHead>
           <TableHead className="text-sm">Actions</TableHead>
         </TableRow>
       </TableHeader>
