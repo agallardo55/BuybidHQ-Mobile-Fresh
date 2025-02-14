@@ -6,6 +6,17 @@ import { toast } from "sonner";
 
 export type UserRole = 'basic' | 'individual' | 'dealer' | 'associate';
 
+interface Dealership {
+  id: string;
+  dealer_name: string | null;
+  business_phone: string | null;
+  business_email: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+}
+
 interface UserData {
   id: string;
   role: UserRole;
@@ -19,16 +30,7 @@ interface UserData {
   zip_code: string | null;
   company: string | null;
   dealership_id: string | null;
-  dealerships: {
-    id: string;
-    dealer_name: string | null;
-    business_phone: string | null;
-    business_email: string | null;
-    address: string | null;
-    city: string | null;
-    state: string | null;
-    zip_code: string | null;
-  } | null;
+  dealership?: Dealership | null;
 }
 
 export const useCurrentUser = () => {
@@ -40,46 +42,20 @@ export const useCurrentUser = () => {
       try {
         console.log('Starting user data fetch...');
         
-        // First check if we have a session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          throw sessionError;
-        }
-        if (!sessionData.session) {
-          console.log('No active session found');
-          return null;
-        }
-        console.log('Session found:', sessionData.session.user.id);
+        if (sessionError) throw sessionError;
+        if (!sessionData.session) return null;
 
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) {
-          console.error('User error:', userError);
-          throw userError;
-        }
-        if (!user) {
-          console.log('No authenticated user found');
-          return null;
-        }
-        console.log('Auth user found:', user.id);
+        if (userError) throw userError;
+        if (!user) return null;
 
-        // Try to fetch the user profile
+        // Fetch user data with dealership join
         const { data: userData, error: profileError } = await supabase
           .from('buybidhq_users')
           .select(`
-            id,
-            role,
-            status,
-            full_name,
-            email,
-            mobile_number,
-            address,
-            city,
-            state,
-            zip_code,
-            company,
-            dealership_id,
-            dealerships:dealership_id (
+            *,
+            dealership:dealerships!dealership_id (
               id,
               dealer_name,
               business_phone,
@@ -93,13 +69,9 @@ export const useCurrentUser = () => {
           .eq('id', user.id)
           .maybeSingle();
 
-        if (profileError) {
-          console.error('Profile error:', profileError);
-          throw profileError;
-        }
+        if (profileError) throw profileError;
 
         if (!userData) {
-          console.log('No user profile found, creating basic profile...');
           const basicProfile = {
             id: user.id,
             role: 'basic' as UserRole,
@@ -113,7 +85,7 @@ export const useCurrentUser = () => {
             zip_code: '',
             company: '',
             dealership_id: null,
-            dealerships: null,
+            dealership: null,
           };
 
           const { data: newProfile, error: insertError } = await supabase
@@ -122,16 +94,10 @@ export const useCurrentUser = () => {
             .select()
             .single();
 
-          if (insertError) {
-            console.error('Error creating basic profile:', insertError);
-            throw insertError;
-          }
-
-          console.log('Successfully created basic profile:', newProfile);
+          if (insertError) throw insertError;
           return newProfile;
         }
 
-        console.log('Successfully fetched user profile:', userData);
         return userData;
       } catch (error) {
         console.error('Error in useCurrentUser:', error);
