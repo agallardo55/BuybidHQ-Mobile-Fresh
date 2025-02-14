@@ -31,6 +31,11 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
   const canManageUser = (user: User) => {
     if (!currentUser) return false;
     
+    // Admin can manage all users
+    if (currentUser.role === 'admin') {
+      return true;
+    }
+    
     // Dealers can only manage associates from their dealership
     if (currentUser.role === 'dealer') {
       return (
