@@ -14,19 +14,15 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginate
         .select('count', { count: 'exact' })
         .is('deleted_at', null);  // Only count non-deleted users
 
-      // For role search, we'll handle each role type explicitly
       if (searchTerm) {
         const searchTermLower = searchTerm.toLowerCase();
         const possibleRoles = ['admin', 'dealer', 'basic', 'individual'];
         const isRoleSearch = possibleRoles.some(role => role.includes(searchTermLower));
         
         if (isRoleSearch) {
-          query = query.filter('role', 'ilike', `%${searchTermLower}%`);
+          query = query.ilike('role', `%${searchTermLower}%`);
         } else {
-          query = query.or(
-            `full_name.ilike.%${searchTermLower}%,` +
-            `email.ilike.%${searchTermLower}%`
-          );
+          query = query.or(`full_name.ilike.%${searchTermLower}%,email.ilike.%${searchTermLower}%`);
         }
       }
 
@@ -44,10 +40,23 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginate
       let dataQuery = supabase
         .from('buybidhq_users')
         .select(`
-          *,
-          dealerships:dealership_id (*)
+          id,
+          email,
+          full_name,
+          role,
+          status,
+          mobile_number,
+          address,
+          city,
+          state,
+          zip_code,
+          dealership_id,
+          is_active,
+          dealerships:dealership_id (
+            dealer_name
+          )
         `)
-        .is('deleted_at', null);  // Only fetch non-deleted users
+        .is('deleted_at', null);
 
       if (searchTerm) {
         const searchTermLower = searchTerm.toLowerCase();
@@ -55,12 +64,9 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginate
         const isRoleSearch = possibleRoles.some(role => role.includes(searchTermLower));
         
         if (isRoleSearch) {
-          dataQuery = dataQuery.filter('role', 'ilike', `%${searchTermLower}%`);
+          dataQuery = dataQuery.ilike('role', `%${searchTermLower}%`);
         } else {
-          dataQuery = dataQuery.or(
-            `full_name.ilike.%${searchTermLower}%,` +
-            `email.ilike.%${searchTermLower}%`
-          );
+          dataQuery = dataQuery.or(`full_name.ilike.%${searchTermLower}%,email.ilike.%${searchTermLower}%`);
         }
       }
 
