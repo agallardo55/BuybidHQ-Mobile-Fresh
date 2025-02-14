@@ -311,14 +311,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_contacts_user"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "buybidhq_users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_user_id"
+            foreignKeyName: "buyers_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "buybidhq_users"
