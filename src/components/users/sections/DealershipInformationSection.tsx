@@ -23,6 +23,14 @@ const DealershipInformationSection = ({
   onFormDataChange,
   setDealershipData,
 }: DealershipInformationSectionProps) => {
+  const states = [
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+  ];
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -121,12 +129,21 @@ const DealershipInformationSection = ({
 
               <div className="space-y-2">
                 <Label htmlFor="state">State</Label>
-                <Input
-                  id="state"
-                  placeholder="Enter state"
+                <Select
                   value={dealershipData.state || ''}
-                  onChange={(e) => setDealershipData({ ...dealershipData, state: e.target.value })}
-                />
+                  onValueChange={(value) => setDealershipData({ ...dealershipData, state: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {states.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2 md:col-span-2">
