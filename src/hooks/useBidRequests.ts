@@ -57,7 +57,7 @@ export const useBidRequests = () => {
             id,
             created_at,
             status,
-            vehicle:vehicles!bid_requests_vehicle_id_fkey (
+            vehicles!inner (
               year,
               make,
               model,
@@ -65,9 +65,9 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyer:user_id (
+            buyer:buybidhq_users!inner (
               full_name,
-              dealership:dealership_id (
+              dealership:dealerships (
                 dealer_name
               )
             ),
@@ -98,12 +98,12 @@ export const useBidRequests = () => {
         const mappedRequests = data.map(request => ({
           id: request.id,
           createdAt: request.created_at,
-          year: request.vehicle?.year ? parseInt(request.vehicle.year) : 0,
-          make: request.vehicle?.make || '',
-          model: request.vehicle?.model || '',
-          trim: request.vehicle?.trim || '',
-          vin: request.vehicle?.vin || '',
-          mileage: request.vehicle?.mileage ? parseInt(request.vehicle.mileage) : 0,
+          year: request.vehicles?.year ? parseInt(request.vehicles.year) : 0,
+          make: request.vehicles?.make || '',
+          model: request.vehicles?.model || '',
+          trim: request.vehicles?.trim || '',
+          vin: request.vehicles?.vin || '',
+          mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
           buyer: request.buyer?.full_name || '',
           dealership: request.buyer?.dealership?.dealer_name || '',
           highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
