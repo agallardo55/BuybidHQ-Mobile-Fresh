@@ -69,7 +69,7 @@ const DashboardNavigation = () => {
                     {item.name}
                   </Link>
                   {item.comingSoon && (
-                    <div className="absolute -top-3 -right-3">
+                    <div className="absolute top-0.5 right-0.5 -translate-y-1/2 translate-x-1/2">
                       <ComingSoonBadge />
                     </div>
                   )}
@@ -132,7 +132,7 @@ const DashboardNavigation = () => {
                   {item.name}
                 </Link>
                 {item.comingSoon && (
-                  <div className="absolute top-0 right-2">
+                  <div className="absolute top-0.5 right-2 -translate-y-1/2 translate-x-1/2">
                     <ComingSoonBadge />
                   </div>
                 )}

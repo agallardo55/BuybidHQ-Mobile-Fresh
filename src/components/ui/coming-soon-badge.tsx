@@ -10,10 +10,10 @@ export function ComingSoonBadge({ className }: ComingSoonBadgeProps) {
   return (
     <Badge 
       variant="secondary" 
-      className={`animate-fade-in flex items-center gap-2 bg-accent/10 text-accent ${className}`}
+      className={`flex items-center gap-1 px-1.5 py-0.5 text-[10px] bg-accent text-white rounded-full whitespace-nowrap ${className}`}
     >
-      <Clock size={12} className="animate-pulse" />
-      Coming Soon
+      <Clock size={10} className="animate-pulse" />
+      Soon
     </Badge>
   )
 }
