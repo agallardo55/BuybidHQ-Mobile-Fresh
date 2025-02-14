@@ -57,7 +57,7 @@ export const useBidRequests = () => {
             id,
             created_at,
             status,
-            vehicle:vehicle_id (
+            vehicle:vehicles!bid_requests_vehicle_id_fkey (
               year,
               make,
               model,

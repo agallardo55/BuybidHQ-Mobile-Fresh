@@ -76,13 +76,6 @@ export type Database = {
             referencedRelation: "buybidhq_users"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_bid_requests_vehicle"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       bid_responses: {
