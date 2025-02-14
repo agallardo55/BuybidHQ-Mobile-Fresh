@@ -20,7 +20,7 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
   const [formData, setFormData] = useState<UserFormData>({
     fullName: "",
     email: "",
-    role: "basic",
+    role: "associate",
     mobileNumber: "",
     isActive: true,
   });

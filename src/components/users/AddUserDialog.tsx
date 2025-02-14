@@ -25,7 +25,7 @@ const AddUserDialog = () => {
   const [formData, setFormData] = useState<UserFormData>({
     fullName: "",
     email: "",
-    role: "basic",
+    role: "associate",
     mobileNumber: "",
     isActive: true,
   });
@@ -42,7 +42,7 @@ const AddUserDialog = () => {
       setFormData({
         fullName: "",
         email: "",
-        role: "basic",
+        role: "associate",
         mobileNumber: "",
         isActive: true,
       });
