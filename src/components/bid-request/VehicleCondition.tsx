@@ -19,19 +19,23 @@ interface VehicleConditionProps {
 
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
   const formatDollarAmount = (value: string) => {
+    // Remove any non-digits
     const numericValue = value.replace(/\D/g, '');
-    const formattedValue = new Intl.NumberFormat('en-US', {
+    if (!numericValue) return '';
+    
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(Number(numericValue));
-    
-    return formattedValue;
   };
 
   const handleReconEstimateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Extract just the numbers from the input
     const numericValue = e.target.value.replace(/\D/g, '');
+    
+    // Create a synthetic event with the numeric value
     const syntheticEvent = {
       ...e,
       target: {
@@ -39,6 +43,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         value: numericValue
       }
     };
+    
     onChange(syntheticEvent);
   };
 
@@ -137,6 +142,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           id="reconEstimate"
           name="reconEstimate"
           type="text"
+          inputMode="numeric"
           value={formData.reconEstimate ? formatDollarAmount(formData.reconEstimate) : ''}
           onChange={handleReconEstimateChange}
           placeholder="$0"
