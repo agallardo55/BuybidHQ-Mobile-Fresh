@@ -52,7 +52,7 @@ export const useBidRequests = () => {
           .select(`
             id,
             status,
-            vehicle:vehicles (
+            vehicle:vehicles!vehicle_id (
               year,
               make,
               model,
@@ -60,7 +60,7 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyer:buybidhq_users (
+            buyer:buybidhq_users!user_id (
               full_name,
               dealership:dealerships (
                 dealer_name
