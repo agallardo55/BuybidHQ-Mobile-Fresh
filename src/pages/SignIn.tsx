@@ -37,11 +37,6 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      // Set session configuration based on remember me choice
-      if (rememberMe) {
-        await supabase.auth.setSession({ access_token: '', refresh_token: '' });
-      }
-
       const { data: { session }, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -52,6 +47,13 @@ const SignIn = () => {
       }
 
       if (session) {
+        // If remember me is not checked, set session expiry to 1 hour
+        if (!rememberMe) {
+          await supabase.auth.refreshSession({
+            refresh_token: session.refresh_token
+          });
+        }
+        
         const from = (location.state as any)?.from?.pathname || '/dashboard';
         toast.success("Successfully signed in!");
         navigate(from, { replace: true });
