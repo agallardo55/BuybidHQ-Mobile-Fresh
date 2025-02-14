@@ -58,28 +58,12 @@ serve(async (req) => {
         make: data.make,
         model: data.model,
         trim: data.trim,
-        engine: {
-          configuration: data.engine?.configuration,
-          cylinders: data.engine?.cylinders,
-          displacement: data.engine?.displacement,
-          size: data.engine?.size,
-          fullObject: data.engine
-        },
-        transmission: {
-          type: data.transmission?.type,
-          name: data.transmission?.name,
-          speeds: data.transmission?.speeds,
-          fullObject: data.transmission
-        },
+        engine: data.engine,
+        transmission: data.transmission,
         drivetrainInfo: {
           drive_type: data.drive_type,
           drivetrain: data.drivetrain,
           drive_line: data.drive_line,
-          fullObject: {
-            drive_type: data.drive_type,
-            drivetrain: data.drivetrain,
-            drive_line: data.drive_line
-          }
         }
       })
     } catch (parseError) {
@@ -157,18 +141,12 @@ serve(async (req) => {
     }
 
     console.log('Final transformed data:', transformedData)
-    console.log('Fields comparison:', {
-      working: {
-        year: transformedData.year,
-        make: transformedData.make,
-        model: transformedData.model,
-        trim: transformedData.trim
-      },
-      notWorking: {
-        engineCylinders: transformedData.engineCylinders,
-        transmission: transformedData.transmission,
-        drivetrain: transformedData.drivetrain
-      }
+    console.log('Raw data for debugging:', {
+      engine: data.engine,
+      transmission: data.transmission,
+      drive_type: data.drive_type,
+      drivetrain: data.drivetrain,
+      drive_line: data.drive_line
     })
 
     return new Response(
