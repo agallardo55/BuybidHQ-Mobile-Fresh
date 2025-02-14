@@ -76,42 +76,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bid_requests_vehicles_fkey"
-            columns: ["vehicles"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_bid_requests_user"
+            foreignKeyName: "fk_bid_request_user"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_bid_request_vehicle"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "fk_bid_requests_vehicle"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_user_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "buybidhq_users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_vehicle"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_vehicle_id"
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
