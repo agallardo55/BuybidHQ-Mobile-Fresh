@@ -19,7 +19,7 @@ export const useBidResponseDetails = (requestId: string | null): BidResponseDeta
   useEffect(() => {
     const fetchBidRequestDetails = async () => {
       if (!requestId) {
-        setError('Invalid request ID');
+        setError('The offer for this bid request has been submitted and has timed out. Thank you and see you next time.');
         return;
       }
 
@@ -61,7 +61,7 @@ export const useBidResponseDetails = (requestId: string | null): BidResponseDeta
             fullName: data[0].user_full_name
           });
         } else {
-          setError('Bid request not found');
+          setError('The offer for this bid request has been submitted and has timed out. Thank you and see you next time.');
         }
       } catch (err) {
         console.error('Error fetching bid request:', err);
