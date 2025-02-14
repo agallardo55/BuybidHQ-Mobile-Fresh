@@ -25,23 +25,38 @@ export const useCurrentUser = () => {
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
+        console.log('Fetching current user session...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        // If there's a session error or no session, return null without redirecting
         if (sessionError) {
           console.error('Session error:', sessionError);
           return null;
         }
 
         if (!session?.user?.id) {
-          console.log('No active session');
+          console.log('No active session found');
           return null;
         }
 
+        console.log('Fetching user data for ID:', session.user.id);
         const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
           .select(`
-            *,
+            id,
+            email,
+            role,
+            status,
+            full_name,
+            mobile_number,
+            address,
+            city,
+            state,
+            zip_code,
+            company,
+            dealership_id,
+            is_active,
+            created_at,
+            updated_at,
             dealership:dealerships (
               id,
               dealer_name,
@@ -54,22 +69,23 @@ export const useCurrentUser = () => {
             )
           `)
           .eq('id', session.user.id)
-          .maybeSingle();
+          .single();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
-          // Only show error toast if there's an actual error (not just no data found)
+          // Only show error toast for actual errors (not just no data found)
           if (userError.code !== 'PGRST116') {
-            toast.error("Error loading user data. Please try signing in again.");
+            toast.error("Error loading user data");
           }
           return null;
         }
 
         if (!userData) {
-          console.log('No user data found');
+          console.log('No user data found for ID:', session.user.id);
           return null;
         }
 
+        console.log('Successfully fetched user data');
         return userData;
       } catch (error: any) {
         console.error('Error in useCurrentUser:', error);
