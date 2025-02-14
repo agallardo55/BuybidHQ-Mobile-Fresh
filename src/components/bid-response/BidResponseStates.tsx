@@ -1,3 +1,4 @@
+
 interface ErrorStateProps {
   message: string;
 }
@@ -6,7 +7,7 @@ export const ErrorState = ({
 }: ErrorStateProps) => <div className="flex-grow flex items-center justify-center p-4">
     <div className="text-center">
       <h2 className="text-2xl font-bold text-gray-900 mb-2">This bid request has expired!</h2>
-      <p className="text-gray-600">{message}</p>
+      <p className="text-gray-600">The offer for this vehicle has been submit.</p>
     </div>
   </div>;
 export const LoadingState = () => <div className="flex-grow flex items-center justify-center p-4">
