@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import twilio from "twilio"
+import twilio from "npm:twilio@4.19.0"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
