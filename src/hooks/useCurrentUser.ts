@@ -50,7 +50,7 @@ export const useCurrentUser = () => {
           // Only create new profile if the error is that the record doesn't exist
           if (userError.code === 'PGRST116') {
             console.log('Creating new user profile');
-            const basicProfile: Partial<BaseUser> = {
+            const basicProfile = {
               id: session.user.id,
               role: 'basic' as UserRole,
               status: 'active',
@@ -68,7 +68,7 @@ export const useCurrentUser = () => {
 
             const { data: newProfile, error: insertError } = await supabase
               .from('buybidhq_users')
-              .insert([basicProfile])
+              .insert(basicProfile)
               .select()
               .single();
 

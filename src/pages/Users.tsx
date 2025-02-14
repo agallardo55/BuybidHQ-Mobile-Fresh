@@ -26,7 +26,7 @@ const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'fullName', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'full_name', direction: 'asc' });
 
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
   const { users, total, isLoading, mutations } = useUsers({
