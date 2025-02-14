@@ -14,11 +14,18 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
         const from = (currentPage - 1) * pageSize;
         const to = from + pageSize - 1;
 
+        // First, check if we have a session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session) {
+          toast.error('Please sign in to view users.');
+          throw new Error('No active session');
+        }
+
         let query = supabase
           .from('buybidhq_users')
           .select(`
             *,
-            dealership:dealerships (*)
+            dealership:dealerships!inner (*)
           `, { count: 'exact' });
 
         // Add search filter if searchTerm is provided

@@ -686,13 +686,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      check_user_access: {
-        Args: {
-          viewer_id: string
-          target_id: string
-        }
-        Returns: boolean
-      }
       check_user_role: {
         Args: {
           user_id: string

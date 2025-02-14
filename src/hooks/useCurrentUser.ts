@@ -36,15 +36,24 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // Fetch user data directly since RLS will handle permissions
+        // Fetch user data with dealership information
         const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
           .select(`
             *,
-            dealership:dealerships (*)
+            dealership:dealerships (
+              id,
+              dealer_name,
+              business_phone,
+              business_email,
+              address,
+              city,
+              state,
+              zip_code
+            )
           `)
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
