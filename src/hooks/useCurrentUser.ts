@@ -26,7 +26,14 @@ export const useCurrentUser = () => {
     queryFn: async () => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError || !session?.user?.id) {
+        
+        // If there's a session error or no session, return null without redirecting
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          return null;
+        }
+
+        if (!session?.user?.id) {
           console.log('No active session');
           return null;
         }
@@ -51,9 +58,11 @@ export const useCurrentUser = () => {
 
         if (userError) {
           console.error('Error fetching user data:', userError);
-          toast.error("Error loading user data. Please try signing in again.");
-          navigate('/signin');
-          throw userError;
+          // Only show error toast if there's an actual error (not just no data found)
+          if (userError.code !== 'PGRST116') {
+            toast.error("Error loading user data. Please try signing in again.");
+          }
+          return null;
         }
 
         if (!userData) {
@@ -64,13 +73,13 @@ export const useCurrentUser = () => {
         return userData;
       } catch (error: any) {
         console.error('Error in useCurrentUser:', error);
-        toast.error("Error loading user data. Please try signing in again.");
-        navigate('/signin');
-        throw error;
+        return null;
       }
     },
     retry: 1,
     retryDelay: 1000,
+    // Don't refetch on window focus for authentication queries
+    refetchOnWindowFocus: false,
   });
 
   return { currentUser, isLoading };
