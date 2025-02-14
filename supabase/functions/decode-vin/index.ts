@@ -14,7 +14,10 @@ serve(async (req) => {
 
   try {
     const { vin } = await req.json()
+    console.log('Received VIN request:', vin)
+
     if (!vin || typeof vin !== 'string' || vin.length !== 17) {
+      console.error('Invalid VIN format:', vin)
       return new Response(
         JSON.stringify({ error: 'Invalid VIN provided' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
@@ -30,11 +33,8 @@ serve(async (req) => {
       )
     }
 
-    console.log('Making request to CarAPI with VIN:', vin)
     const apiUrl = `https://carapi.app/api/vin/${vin}?api_token=${apiKey}`
-    
-    // Log API request details (without the token)
-    console.log('API Endpoint:', apiUrl.replace(apiKey, '***'))
+    console.log('Making request to CarAPI for VIN:', vin)
 
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -45,16 +45,16 @@ serve(async (req) => {
 
     console.log('CarAPI response status:', response.status)
     
-    // Get the raw response text first
+    // Get the raw response text
     const responseText = await response.text()
     console.log('CarAPI raw response:', responseText)
 
     let data
     try {
-      // Try to parse the response as JSON
       data = JSON.parse(responseText)
+      console.log('Parsed CarAPI response:', JSON.stringify(data, null, 2))
     } catch (parseError) {
-      console.error('Failed to parse CarAPI response as JSON:', parseError)
+      console.error('Failed to parse CarAPI response:', parseError)
       return new Response(
         JSON.stringify({ 
           error: 'Invalid API response format',
@@ -64,8 +64,8 @@ serve(async (req) => {
       )
     }
 
-    // Handle 404 VIN not found case specifically
     if (response.status === 404) {
+      console.log('VIN not found in CarAPI database')
       return new Response(
         JSON.stringify({ 
           error: 'VIN not found',
@@ -76,7 +76,7 @@ serve(async (req) => {
     }
 
     if (!response.ok) {
-      console.error('CarAPI error response:', {
+      console.error('CarAPI error:', {
         status: response.status,
         statusText: response.statusText,
         data: data
@@ -90,13 +90,21 @@ serve(async (req) => {
       )
     }
 
+    // Log raw engine, transmission, and drivetrain data
+    console.log('Raw engine data:', data.engine)
+    console.log('Raw transmission data:', data.transmission)
+    console.log('Raw drive type data:', {
+      drive_type: data.drive_type,
+      drivetrain: data.drivetrain
+    })
+
     // Transform the response to match our expected structure
     const transformedData = {
       year: data.year?.toString() || "",
       make: data.make || "",
       model: data.model || "",
       trim: data.trim || "",
-      engineCylinders: data.engine?.configuration || data.engine?.cylinders || "",
+      engineCylinders: data.engine?.configuration || data.engine?.cylinders?.toString() || "",
       transmission: data.transmission?.type || data.transmission?.name || "",
       drivetrain: data.drive_type || data.drivetrain || "",
     }
