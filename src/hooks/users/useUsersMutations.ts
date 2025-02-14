@@ -30,7 +30,8 @@ export const useUsersMutations = () => {
             address: dealershipData.address,
             city: dealershipData.city,
             state: dealershipData.state,
-            zip_code: dealershipData.zipCode
+            zip_code: dealershipData.zipCode,
+            dealer_id: dealershipData.dealerId
           })
           .select()
           .single();
@@ -39,6 +40,7 @@ export const useUsersMutations = () => {
         dealershipId = newDealership.id;
       }
 
+      // Create user record without specifying id (it will use auth.uid() default)
       const { data, error } = await supabase
         .from('buybidhq_users')
         .insert({
