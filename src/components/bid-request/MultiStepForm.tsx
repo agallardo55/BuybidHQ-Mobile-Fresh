@@ -29,6 +29,7 @@ interface MultiStepFormProps {
   onSubmit: () => void;
   isSubmitting: boolean;
   onImagesUploaded?: (urls: string[]) => void;
+  onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
 }
 
 const MultiStepForm = ({
@@ -43,7 +44,8 @@ const MultiStepForm = ({
   setSearchTerm,
   onSubmit,
   isSubmitting,
-  onImagesUploaded
+  onImagesUploaded,
+  onBatchChange
 }: MultiStepFormProps) => {
   const {
     currentStep,
@@ -70,6 +72,7 @@ const MultiStepForm = ({
             formData={formData}
             errors={errors}
             onChange={onChange}
+            onBatchChange={onBatchChange}
           />
           <div className="mt-6 flex justify-end">
             <Button 

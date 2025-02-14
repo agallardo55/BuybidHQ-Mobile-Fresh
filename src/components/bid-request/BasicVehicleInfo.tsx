@@ -22,9 +22,10 @@ interface BasicVehicleInfoProps {
     vin?: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
 }
 
-const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps) => {
+const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVehicleInfoProps) => {
   const handleVehicleDataFetched = (data: {
     year: string;
     make: string;
@@ -34,16 +35,25 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
     transmission: string;
     drivetrain: string;
   }) => {
-    // Create synthetic events to update each field
-    Object.entries(data).forEach(([key, value]) => {
-      const syntheticEvent = {
-        target: {
-          name: key,
-          value: value
-        }
-      } as React.ChangeEvent<HTMLInputElement>;
-      onChange(syntheticEvent);
-    });
+    if (onBatchChange) {
+      // Use batch update if available
+      const changes = Object.entries(data).map(([name, value]) => ({
+        name,
+        value: value || "", // Ensure empty string for null/undefined values
+      }));
+      onBatchChange(changes);
+    } else {
+      // Fallback to individual updates
+      Object.entries(data).forEach(([key, value]) => {
+        const syntheticEvent = {
+          target: {
+            name: key,
+            value: value || ""
+          }
+        } as React.ChangeEvent<HTMLInputElement>;
+        onChange(syntheticEvent);
+      });
+    }
   };
 
   return (

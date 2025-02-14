@@ -62,7 +62,7 @@ export const useFormState = (): FormState & FormStateActions => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
     setFormData({ [name]: value });
@@ -70,6 +70,24 @@ export const useFormState = (): FormState & FormStateActions => {
     if (state.errors[name]) {
       setErrors({ ...state.errors, [name]: "" });
     }
+  };
+
+  const handleBatchChanges = (changes: Array<{ name: string; value: string }>) => {
+    const updates: Partial<BidRequestFormData> = {};
+    const newErrors = { ...state.errors };
+
+    changes.forEach(({ name, value }) => {
+      updates[name] = value;
+      if (newErrors[name]) {
+        delete newErrors[name];
+      }
+    });
+
+    setState(prev => ({
+      ...prev,
+      formData: { ...prev.formData, ...updates },
+      errors: newErrors
+    }));
   };
 
   const handleSelectChange = (value: string, name: string) => {
@@ -104,5 +122,6 @@ export const useFormState = (): FormState & FormStateActions => {
     handleSelectChange,
     handleImagesUploaded,
     toggleBuyer,
+    handleBatchChanges,
   };
 };
