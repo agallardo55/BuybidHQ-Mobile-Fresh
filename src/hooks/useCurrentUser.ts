@@ -36,48 +36,24 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // Use the get_user_profile function
+        // Fetch user data directly since RLS will handle permissions
         const { data: userData, error: userError } = await supabase
-          .rpc('get_user_profile', {
-            user_id: session.user.id
-          });
+          .from('buybidhq_users')
+          .select(`
+            *,
+            dealership:dealerships (*)
+          `)
+          .eq('id', session.user.id)
+          .single();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
+          toast.error("Error loading user data. Please try signing in again.");
+          navigate('/signin');
           throw userError;
         }
 
-        if (!userData) {
-          console.log('No user profile found');
-          return null;
-        }
-
-        // If user has a dealership_id, fetch the dealership data
-        if (userData.dealership_id) {
-          const { data: dealership, error: dealershipError } = await supabase
-            .from('dealerships')
-            .select('*')
-            .eq('id', userData.dealership_id)
-            .single();
-
-          if (dealershipError) {
-            console.error('Error fetching dealership:', dealershipError);
-            return {
-              ...userData,
-              dealership: null
-            };
-          }
-
-          return {
-            ...userData,
-            dealership
-          };
-        }
-
-        return {
-          ...userData,
-          dealership: null
-        };
+        return userData;
       } catch (error: any) {
         console.error('Error in useCurrentUser:', error);
         toast.error("Error loading user data. Please try signing in again.");
