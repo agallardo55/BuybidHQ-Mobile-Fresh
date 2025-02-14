@@ -117,7 +117,7 @@ const DealershipInformationSection = ({
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="city">City</Label>
                 <Input
                   id="city"
@@ -146,7 +146,7 @@ const DealershipInformationSection = ({
                 </Select>
               </div>
 
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2">
                 <Label htmlFor="zipCode">ZIP Code</Label>
                 <Input
                   id="zipCode"
