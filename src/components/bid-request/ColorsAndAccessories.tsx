@@ -1,3 +1,4 @@
+
 import { ImagePlus, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { useState } from "react";
@@ -121,7 +122,14 @@ const ColorsAndAccessories = ({
         <label htmlFor="accessories" className="block text-sm font-medium text-gray-700 mb-1">
           Additional Equipment/Accessories
         </label>
-        <Textarea id="accessories" name="accessories" value={formData.accessories} onChange={onChange} placeholder="List any additional equipment or accessories..." className="min-h-[100px] bg-[325AE7]" />
+        <Textarea 
+          id="accessories" 
+          name="accessories" 
+          value={formData.accessories} 
+          onChange={onChange} 
+          placeholder="List any additional equipment or accessories..." 
+          className="min-h-[100px] focus-visible:ring-custom-blue" 
+        />
       </div>
 
       <Dialog>
