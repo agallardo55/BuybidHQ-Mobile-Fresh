@@ -21,7 +21,7 @@ export const useBidRequests = () => {
           .select(`
             id,
             status,
-            vehicle:vehicles!fk_bid_request_vehicle (
+            vehicle:vehicles (
               year,
               make,
               model,
@@ -29,9 +29,9 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyer:buybidhq_users!fk_bid_request_user (
+            buyer:buybidhq_users (
               full_name,
-              dealership:dealerships!dealership_id (
+              dealership:dealerships (
                 dealer_name
               )
             ),
@@ -57,20 +57,20 @@ export const useBidRequests = () => {
         }
 
         return data.map(request => {
-          const vehicle = request.vehicle;
-          const buyer = request.buyer;
+          const vehicle = request.vehicle || {};
+          const buyer = request.buyer || {};
           const offers = request.bid_responses || [];
-
+          
           return {
             id: request.id,
-            year: vehicle ? parseInt(vehicle.year) : 0,
-            make: vehicle?.make || '',
-            model: vehicle?.model || '',
-            trim: vehicle?.trim || '',
-            vin: vehicle?.vin || '',
-            mileage: vehicle ? parseInt(vehicle.mileage) : 0,
-            buyer: buyer?.full_name || '',
-            dealership: buyer?.dealership?.dealer_name || '',
+            year: vehicle.year ? parseInt(vehicle.year) : 0,
+            make: vehicle.make || '',
+            model: vehicle.model || '',
+            trim: vehicle.trim || '',
+            vin: vehicle.vin || '',
+            mileage: vehicle.mileage ? parseInt(vehicle.mileage) : 0,
+            buyer: buyer.full_name || '',
+            dealership: buyer.dealership?.dealer_name || '',
             highestOffer: Math.max(...(offers.map(r => Number(r.offer_amount)) || [0])),
             status: request.status as "Pending" | "Approved" | "Declined"
           } satisfies BidRequest;
