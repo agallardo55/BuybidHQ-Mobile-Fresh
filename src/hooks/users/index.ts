@@ -1,18 +1,19 @@
 
 import { useUsersQuery } from "./useUsersQuery";
 import { useUsersMutations } from "./useUsersMutations";
-import { UsePaginatedUsersProps } from "./types";
+import { UsersQueryParams } from "./types";
 
-export const useUsers = (props: UsePaginatedUsersProps) => {
-  const { data, isLoading } = useUsersQuery(props);
+export const useUsers = (params: UsersQueryParams) => {
+  const { data, isLoading, error } = useUsersQuery(params);
   const mutations = useUsersMutations();
 
   return {
     users: data?.users || [],
     total: data?.total || 0,
     isLoading,
-    mutations,
+    error,
+    mutations
   };
 };
 
-export * from "./types";
+export type * from "./types";

@@ -1,109 +1,43 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { PaginatedResponse, UsePaginatedUsersProps } from "./types";
+import { UsersQueryParams } from "./types";
+import { User } from "@/types/users";
 
-export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginatedUsersProps) => {
-  return useQuery({
-    queryKey: ['users', currentPage, pageSize, searchTerm],
-    queryFn: async (): Promise<PaginatedResponse> => {
-      // First, get total count with search filter if present
+export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryParams) => {
+  return useQuery<{ users: User[]; total: number }>({
+    queryKey: ['users', pageSize, currentPage, searchTerm],
+    queryFn: async () => {
+      // Calculate range for pagination
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize - 1;
+
       let query = supabase
-        .from('buybidhq_users')
-        .select('count', { count: 'exact' })
-        .is('deleted_at', null);  // Only count non-deleted users
-
-      if (searchTerm) {
-        const searchTermLower = searchTerm.toLowerCase();
-        const possibleRoles = ['admin', 'dealer', 'basic', 'individual'];
-        const isRoleSearch = possibleRoles.some(role => role.includes(searchTermLower));
-        
-        if (isRoleSearch) {
-          query = query.ilike('role', `%${searchTermLower}%`);
-        } else {
-          query = query.or(`full_name.ilike.%${searchTermLower}%,email.ilike.%${searchTermLower}%`);
-        }
-      }
-
-      const { count, error: countError } = await query;
-
-      if (countError) {
-        toast.error("Failed to fetch total users count: " + countError.message);
-        throw countError;
-      }
-
-      // Then get paginated data with dealership information
-      const startRange = (currentPage - 1) * pageSize;
-      const endRange = startRange + pageSize - 1;
-
-      let dataQuery = supabase
         .from('buybidhq_users')
         .select(`
           *,
-          dealerships:dealership_id (
-            id,
-            dealer_name,
-            business_phone,
-            business_email,
-            dealer_id,
-            address,
-            city,
-            state,
-            zip_code
-          )
-        `)
-        .is('deleted_at', null);
+          dealership:dealerships (*)
+        `, { count: 'exact' });
 
+      // Add search filter if searchTerm is provided
       if (searchTerm) {
-        const searchTermLower = searchTerm.toLowerCase();
-        const possibleRoles = ['admin', 'dealer', 'basic', 'individual'];
-        const isRoleSearch = possibleRoles.some(role => role.includes(searchTermLower));
-        
-        if (isRoleSearch) {
-          dataQuery = dataQuery.ilike('role', `%${searchTermLower}%`);
-        } else {
-          dataQuery = dataQuery.or(`full_name.ilike.%${searchTermLower}%,email.ilike.%${searchTermLower}%`);
-        }
+        query = query.or(`
+          full_name.ilike.%${searchTerm}%,
+          email.ilike.%${searchTerm}%,
+          role.ilike.%${searchTerm}%
+        `);
       }
 
-      dataQuery = dataQuery.range(startRange, endRange);
+      const { data, error, count } = await query
+        .range(from, to)
+        .order('created_at', { ascending: false });
 
-      const { data: users, error } = await dataQuery;
-
-      if (error) {
-        toast.error("Failed to fetch users: " + error.message);
-        throw error;
-      }
+      if (error) throw error;
 
       return {
-        users: users.map(user => ({
-          id: user.id,
-          email: user.email,
-          fullName: user.full_name,
-          role: user.role,
-          status: user.status || 'active',
-          mobileNumber: user.mobile_number,
-          address: user.address,
-          city: user.city,
-          state: user.state,
-          zipCode: user.zip_code,
-          dealershipId: user.dealership_id,
-          dealershipName: user.dealerships?.dealer_name,
-          dealershipInfo: user.dealerships ? {
-            dealerName: user.dealerships.dealer_name,
-            dealerId: user.dealerships.dealer_id || '',
-            businessPhone: user.dealerships.business_phone,
-            businessEmail: user.dealerships.business_email,
-            address: user.dealerships.address || '',
-            city: user.dealerships.city || '',
-            state: user.dealerships.state || '',
-            zipCode: user.dealerships.zip_code || ''
-          } : undefined,
-          isActive: user.is_active
-        })),
+        users: data || [],
         total: count || 0
       };
-    },
+    }
   });
 };

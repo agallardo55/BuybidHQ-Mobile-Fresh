@@ -2,29 +2,48 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { UserFormData, DealershipFormData } from "@/types/users";
+import { DeleteUserParams, UpdateUserParams, CreateUserParams } from "./types";
+import { transformFormUser } from "@/types/users";
 
 export const useUsersMutations = () => {
   const queryClient = useQueryClient();
 
   const createUser = useMutation({
-    mutationFn: async (userData: UserFormData) => {
-      const { error } = await supabase
-        .from('buybidhq_users')
-        .insert([{
-          email: userData.email,
-          full_name: userData.fullName,
-          role: userData.role,
-          mobile_number: userData.mobileNumber || null,
-          address: userData.address || null,
-          city: userData.city || null,
-          state: userData.state || null,
-          zip_code: userData.zipCode || null,
-          dealership_id: userData.dealershipId || null,
-          is_active: userData.isActive
-        }]);
+    mutationFn: async ({ userData, dealershipData }: CreateUserParams) => {
+      // If it's a dealer, create dealership first
+      let dealershipId = null;
+      if (userData.role === 'dealer' && dealershipData) {
+        const { data: dealership, error: dealershipError } = await supabase
+          .from('dealerships')
+          .insert({
+            dealer_name: dealershipData.dealerName,
+            dealer_id: dealershipData.dealerId,
+            business_phone: dealershipData.businessPhone,
+            business_email: dealershipData.businessEmail,
+            address: dealershipData.address,
+            city: dealershipData.city,
+            state: dealershipData.state,
+            zip_code: dealershipData.zipCode
+          })
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (dealershipError) throw dealershipError;
+        dealershipId = dealership.id;
+      }
+
+      // Create user with dealership reference if applicable
+      const { data: user, error: userError } = await supabase
+        .from('buybidhq_users')
+        .insert({
+          ...transformFormUser(userData),
+          dealership_id: dealershipId
+        })
+        .select()
+        .single();
+
+      if (userError) throw userError;
+      return user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -32,116 +51,40 @@ export const useUsersMutations = () => {
     },
     onError: (error: Error) => {
       toast.error(`Failed to create user: ${error.message}`);
-    },
+    }
   });
 
   const updateUser = useMutation({
-    mutationFn: async ({ 
-      userId, 
-      userData, 
-      dealershipData 
-    }: { 
-      userId: string; 
-      userData: UserFormData; 
-      dealershipData?: DealershipFormData;
-    }) => {
-      // Validate userId
-      if (!userId?.trim()) {
-        throw new Error('User ID is required for update');
-      }
-
-      // If role is not dealer, ensure dealership data is cleared
-      if (userData.role !== 'dealer') {
-        const { error: clearDealershipError } = await supabase
-          .from('buybidhq_users')
-          .update({
-            dealership_id: null
-          })
-          .eq('id', userId);
-
-        if (clearDealershipError) throw clearDealershipError;
-        
-        // Update user without dealership data
-        const { error } = await supabase
-          .from('buybidhq_users')
-          .update({
-            email: userData.email,
-            full_name: userData.fullName,
-            role: userData.role,
-            mobile_number: userData.mobileNumber || null,
-            address: userData.address || null,
-            city: userData.city || null,
-            state: userData.state || null,
-            zip_code: userData.zipCode || null,
-            is_active: userData.isActive
-          })
-          .eq('id', userId);
-
-        if (error) throw error;
-        return;
-      }
-
-      // Handle dealer role with dealership data
+    mutationFn: async ({ userId, userData, dealershipData }: UpdateUserParams) => {
+      // If it's a dealer, update/create dealership
       if (userData.role === 'dealer' && dealershipData) {
-        let dealershipId = userData.dealershipId;
+        const { error: dealershipError } = await supabase
+          .from('dealerships')
+          .upsert({
+            id: userData.dealershipId,
+            dealer_name: dealershipData.dealerName,
+            dealer_id: dealershipData.dealerId,
+            business_phone: dealershipData.businessPhone,
+            business_email: dealershipData.businessEmail,
+            address: dealershipData.address,
+            city: dealershipData.city,
+            state: dealershipData.state,
+            zip_code: dealershipData.zipCode
+          });
 
-        if (dealershipId) {
-          // Update existing dealership
-          const { error: dealershipError } = await supabase
-            .from('dealerships')
-            .update({
-              dealer_name: dealershipData.dealerName,
-              business_phone: dealershipData.businessPhone,
-              business_email: dealershipData.businessEmail,
-              dealer_id: dealershipData.dealerId,
-              address: dealershipData.address,
-              city: dealershipData.city,
-              state: dealershipData.state,
-              zip_code: dealershipData.zipCode
-            })
-            .eq('id', dealershipId);
-
-          if (dealershipError) throw dealershipError;
-        } else {
-          // Create new dealership
-          const { data: newDealership, error: dealershipError } = await supabase
-            .from('dealerships')
-            .insert({
-              dealer_name: dealershipData.dealerName,
-              business_phone: dealershipData.businessPhone,
-              business_email: dealershipData.businessEmail,
-              dealer_id: dealershipData.dealerId,
-              address: dealershipData.address,
-              city: dealershipData.city,
-              state: dealershipData.state,
-              zip_code: dealershipData.zipCode
-            })
-            .select('id')
-            .single();
-
-          if (dealershipError) throw dealershipError;
-          dealershipId = newDealership.id;
-        }
-
-        // Update user with dealership data
-        const { error } = await supabase
-          .from('buybidhq_users')
-          .update({
-            email: userData.email,
-            full_name: userData.fullName,
-            role: userData.role,
-            mobile_number: userData.mobileNumber || null,
-            address: userData.address || null,
-            city: userData.city || null,
-            state: userData.state || null,
-            zip_code: userData.zipCode || null,
-            dealership_id: dealershipId,
-            is_active: userData.isActive
-          })
-          .eq('id', userId);
-
-        if (error) throw error;
+        if (dealershipError) throw dealershipError;
       }
+
+      // Update user
+      const { data: user, error: userError } = await supabase
+        .from('buybidhq_users')
+        .update(transformFormUser(userData))
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (userError) throw userError;
+      return user;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -149,30 +92,38 @@ export const useUsersMutations = () => {
     },
     onError: (error: Error) => {
       toast.error(`Failed to update user: ${error.message}`);
-    },
+    }
   });
 
   const deleteUser = useMutation({
-    mutationFn: async ({ userId, reason }: { userId: string; reason?: string }) => {
-      if (!userId?.trim()) {
-        throw new Error('User ID is required for deletion');
-      }
+    mutationFn: async ({ userId, reason }: DeleteUserParams) => {
+      // First get the user data
+      const { data: user, error: fetchError } = await supabase
+        .from('buybidhq_users')
+        .select('*')
+        .eq('id', user_id)
+        .single();
 
-      const { data: currentUser, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
+      if (fetchError) throw fetchError;
 
-      if (!currentUser.user?.id) {
-        throw new Error('Current user not found');
-      }
-
-      const { error } = await supabase
-        .rpc('handle_user_deletion', { 
-          user_id: userId, 
-          deleted_by_id: currentUser.user.id,
-          deletion_reason: reason || null 
+      // Move user to deleted_users table
+      const { error: deleteError } = await supabase
+        .from('deleted_users')
+        .insert({
+          ...user,
+          deletion_reason: reason,
+          deleted_by: (await supabase.auth.getSession()).data.session?.user?.id
         });
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
+
+      // Delete user from buybidhq_users
+      const { error: userError } = await supabase
+        .from('buybidhq_users')
+        .delete()
+        .eq('id', userId);
+
+      if (userError) throw userError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -180,12 +131,12 @@ export const useUsersMutations = () => {
     },
     onError: (error: Error) => {
       toast.error(`Failed to delete user: ${error.message}`);
-    },
+    }
   });
 
   return {
     createUser,
     updateUser,
-    deleteUser,
+    deleteUser
   };
 };
