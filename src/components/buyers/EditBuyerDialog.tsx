@@ -13,7 +13,7 @@ interface EditBuyerDialogProps {
   buyer: Buyer | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (buyerId: string, buyerData: BuyerFormData) => void;
+  onUpdate: (variables: { buyerId: string, buyerData: BuyerFormData }) => void;
 }
 
 const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDialogProps) => {
@@ -51,7 +51,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (buyer) {
-      onUpdate(buyer.id, formData);
+      onUpdate({ buyerId: buyer.id, buyerData: formData });
       onOpenChange(false);
     }
   };
