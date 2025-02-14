@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, Menu, X, LogOut } from "lucide-react";
@@ -18,7 +19,7 @@ const DashboardNavigation = () => {
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
-    ...(hasRequiredRole(currentUser?.role) ? [{ name: "Users", href: "/users" }] : []),
+    ...((!isLoading && currentUser?.role === 'dealer') ? [{ name: "Users", href: "/users" }] : []),
     { name: "Marketplace", href: "#" },
   ];
 
@@ -60,7 +61,7 @@ const DashboardNavigation = () => {
               />
             </Link>
             <div className="hidden md:flex items-center space-x-8 ml-8">
-              {!isLoading && navItems.map((item) => (
+              {navItems.map((item) => (
                 <div key={item.name}>
                   <Link 
                     to={item.href} 
@@ -117,7 +118,7 @@ const DashboardNavigation = () => {
       {isOpen && (
         <div className="md:hidden bg-white border-b">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {!isLoading && navItems.map((item) => (
+            {navItems.map((item) => (
               <div key={item.name}>
                 <Link
                   to={item.href}
