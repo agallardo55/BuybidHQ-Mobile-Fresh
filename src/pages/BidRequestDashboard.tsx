@@ -6,15 +6,63 @@ import SearchHeader from "@/components/bid-request/SearchHeader";
 import BidRequestTable from "@/components/bid-request/BidRequestTable";
 import TableFooter from "@/components/bid-request/TableFooter";
 import { useBidRequests } from "@/hooks/useBidRequests";
+import { BidRequest } from "@/components/bid-request/types";
+
+type SortConfig = {
+  field: keyof BidRequest | null;
+  direction: 'asc' | 'desc' | null;
+};
 
 const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'createdAt', direction: 'desc' });
   const { bidRequests, isLoading, updateBidRequest } = useBidRequests();
 
   const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
     updateBidRequest({ id, status: newStatus });
+  };
+
+  const handleSort = (field: keyof BidRequest) => {
+    setSortConfig((currentConfig) => {
+      if (currentConfig.field === field) {
+        if (currentConfig.direction === 'asc') {
+          return { field, direction: 'desc' };
+        } else if (currentConfig.direction === 'desc') {
+          return { field: null, direction: null };
+        }
+      }
+      return { field, direction: 'asc' };
+    });
+  };
+
+  const sortRequests = (requests: BidRequest[]) => {
+    if (!sortConfig.field || !sortConfig.direction) {
+      return requests;
+    }
+
+    return [...requests].sort((a, b) => {
+      const aValue = a[sortConfig.field!];
+      const bValue = b[sortConfig.field!];
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+
+      if (aValue instanceof Date && bValue instanceof Date) {
+        return sortConfig.direction === 'asc' 
+          ? aValue.getTime() - bValue.getTime() 
+          : bValue.getTime() - aValue.getTime();
+      }
+
+      const stringA = String(aValue).toLowerCase();
+      const stringB = String(bValue).toLowerCase();
+      
+      return sortConfig.direction === 'asc'
+        ? stringA.localeCompare(stringB)
+        : stringB.localeCompare(stringA);
+    });
   };
 
   const filteredRequests = bidRequests.filter((request) => {
@@ -29,7 +77,8 @@ const BidRequestDashboard = () => {
     );
   });
 
-  const totalPages = Math.ceil(filteredRequests.length / pageSize);
+  const sortedRequests = sortRequests(filteredRequests);
+  const totalPages = Math.ceil(sortedRequests.length / pageSize);
 
   const getPageNumbers = () => {
     const delta = 2;
@@ -45,7 +94,7 @@ const BidRequestDashboard = () => {
   };
 
   const startIndex = (currentPage - 1) * pageSize;
-  const paginatedRequests = filteredRequests.slice(
+  const paginatedRequests = sortedRequests.slice(
     startIndex,
     startIndex + pageSize
   );
@@ -74,13 +123,15 @@ const BidRequestDashboard = () => {
                 <BidRequestTable 
                   requests={paginatedRequests}
                   onStatusUpdate={updateStatus}
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
                 />
 
                 <TableFooter
                   currentPage={currentPage}
                   totalPages={totalPages}
                   pageSize={pageSize}
-                  totalItems={filteredRequests.length}
+                  totalItems={sortedRequests.length}
                   onPageChange={setCurrentPage}
                   onPageSizeChange={handlePageSizeChange}
                   getPageNumbers={getPageNumbers}

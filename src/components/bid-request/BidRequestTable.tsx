@@ -3,13 +3,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
 import { BidRequest } from "./types";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BidRequestTableProps {
   requests: BidRequest[];
   onStatusUpdate: (id: string, status: "Pending" | "Approved" | "Declined") => void;
+  sortConfig: {
+    field: keyof BidRequest | null;
+    direction: 'asc' | 'desc' | null;
+  };
+  onSort: (field: keyof BidRequest) => void;
 }
 
-const BidRequestTable = ({ requests, onStatusUpdate }: BidRequestTableProps) => {
+const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRequestTableProps) => {
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), 'MM/dd/yyyy');
@@ -19,23 +26,49 @@ const BidRequestTable = ({ requests, onStatusUpdate }: BidRequestTableProps) => 
     }
   };
 
+  const SortIcon = ({ field }: { field: keyof BidRequest }) => {
+    if (sortConfig.field !== field) {
+      return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="h-4 w-4 ml-1" />
+    ) : (
+      <ArrowDown className="h-4 w-4 ml-1" />
+    );
+  };
+
+  const SortableHeader = ({ field, children }: { field: keyof BidRequest; children: React.ReactNode }) => (
+    <TableHead 
+      className={cn(
+        "whitespace-nowrap text-xs cursor-pointer select-none",
+        sortConfig.field === field && "text-primary"
+      )}
+      onClick={() => onSort(field)}
+    >
+      <div className="flex items-center">
+        {children}
+        <SortIcon field={field} />
+      </div>
+    </TableHead>
+  );
+
   return (
     <div className="overflow-x-auto -mx-4 sm:-mx-6 scrollbar-thin scrollbar-thumb-gray-300">
       <div className="inline-block min-w-full align-middle px-4 sm:px-6">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="whitespace-nowrap text-xs">Date</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Year</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Make</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Model</TableHead>
+              <SortableHeader field="createdAt">Date</SortableHeader>
+              <SortableHeader field="year">Year</SortableHeader>
+              <SortableHeader field="make">Make</SortableHeader>
+              <SortableHeader field="model">Model</SortableHeader>
               <TableHead className="whitespace-nowrap text-xs">Trim</TableHead>
               <TableHead className="whitespace-nowrap text-xs">VIN</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Mileage</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Buyer</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Dealership</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Highest Offer</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Status</TableHead>
+              <SortableHeader field="mileage">Mileage</SortableHeader>
+              <SortableHeader field="buyer">Buyer</SortableHeader>
+              <SortableHeader field="dealership">Dealership</SortableHeader>
+              <SortableHeader field="highestOffer">Highest Offer</SortableHeader>
+              <SortableHeader field="status">Status</SortableHeader>
             </TableRow>
           </TableHeader>
           <TableBody>
