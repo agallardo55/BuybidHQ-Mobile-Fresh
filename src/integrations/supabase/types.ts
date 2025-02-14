@@ -121,7 +121,7 @@ export type Database = {
             foreignKeyName: "bid_responses_buyer_id_fkey"
             columns: ["buyer_id"]
             isOneToOne: false
-            referencedRelation: "buybidhq_users"
+            referencedRelation: "buyers"
             referencedColumns: ["id"]
           },
         ]
