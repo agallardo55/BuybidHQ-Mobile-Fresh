@@ -47,12 +47,15 @@ export const useBidRequests = () => {
         const { data: userData, error: userError } = await supabase.auth.getUser();
         if (userError) throw userError;
 
+        console.log("Current user role:", currentUser?.role);
+        console.log("User data:", userData);
+
         const query = supabase
           .from('bid_requests')
           .select(`
             id,
             status,
-            vehicle:vehicles!vehicle_id (
+            vehicle:vehicles (
               year,
               make,
               model,
@@ -60,7 +63,7 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyer:buybidhq_users!user_id (
+            buyer:buybidhq_users (
               full_name,
               dealership:dealerships (
                 dealer_name
@@ -78,16 +81,19 @@ export const useBidRequests = () => {
 
         const { data, error } = await query;
 
+        console.log("Query response:", { data, error });
+
         if (error) {
           console.error("Bid request fetch error:", error);
           throw error;
         }
 
         if (!data) {
+          console.log("No data returned from query");
           return [];
         }
 
-        return (data as BidRequestResponse[]).map(request => ({
+        const mappedRequests = data.map(request => ({
           id: request.id,
           year: request.vehicle?.year ? parseInt(request.vehicle.year) : 0,
           make: request.vehicle?.make || '',
@@ -100,6 +106,10 @@ export const useBidRequests = () => {
           highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
           status: request.status
         }));
+
+        console.log("Mapped requests:", mappedRequests);
+
+        return mappedRequests;
       } catch (error) {
         console.error("Error in bid requests query:", error);
         toast.error("Failed to fetch bid requests. Please try again.");
