@@ -14,9 +14,15 @@ export const useBuyers = () => {
     queryFn: async () => {
       try {
         const { data: userData, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
+        if (userError) {
+          console.error("Auth error:", userError);
+          throw userError;
+        }
 
-        const query = supabase
+        console.log("Current user role:", currentUser?.role);
+        console.log("User data:", userData);
+
+        let query = supabase
           .from('buyers')
           .select(`
             *,
@@ -28,7 +34,7 @@ export const useBuyers = () => {
         
         // Apply filter based on role
         if (currentUser?.role !== 'dealer') {
-          query.eq('user_id', userData.user.id);
+          query = query.eq('user_id', userData.user.id);
         }
 
         const { data, error } = await query;
@@ -39,15 +45,18 @@ export const useBuyers = () => {
         }
 
         if (!data) {
+          console.log("No data returned from query");
           return [];
         }
 
-        return data.map(buyer => ({
+        console.log("Raw buyers data:", data);
+
+        const mappedBuyers = data.map(buyer => ({
           id: buyer.id,
           name: buyer.buyer_name,
           email: buyer.email,
           dealership: buyer.dealer_name,
-          phone: buyer.buyer_mobile, // Changed from buyer_phone to buyer_mobile
+          phone: buyer.buyer_mobile,
           location: `${buyer.city || ''}, ${buyer.state || ''}`.replace(/, $/, ''),
           acceptedBids: buyer.accepted_bids || 0,
           pendingBids: buyer.pending_bids || 0,
@@ -55,6 +64,9 @@ export const useBuyers = () => {
           ownerName: buyer.buybidhq_users?.full_name || 'N/A',
           ownerEmail: buyer.buybidhq_users?.email || 'N/A'
         }));
+
+        console.log("Mapped buyers:", mappedBuyers);
+        return mappedBuyers;
       } catch (error) {
         console.error("Error in buyers query:", error);
         toast.error("Failed to fetch buyers. Please try again.");
@@ -68,6 +80,11 @@ export const useBuyers = () => {
     mutationFn: async (buyerData: BuyerFormData) => {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
+
+      console.log("Creating buyer with data:", {
+        user_id: userData.user.id,
+        ...buyerData
+      });
 
       const { data, error } = await supabase
         .from('buyers')
@@ -92,7 +109,10 @@ export const useBuyers = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Create buyer error:", error);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
@@ -107,6 +127,8 @@ export const useBuyers = () => {
 
   const updateBuyerMutation = useMutation({
     mutationFn: async ({ buyerId, buyerData }: { buyerId: string; buyerData: BuyerFormData }) => {
+      console.log("Updating buyer:", buyerId, "with data:", buyerData);
+
       const { error } = await supabase
         .from('buyers')
         .update({
@@ -137,6 +159,8 @@ export const useBuyers = () => {
 
   const deleteBuyerMutation = useMutation({
     mutationFn: async (buyerId: string) => {
+      console.log("Deleting buyer:", buyerId);
+
       const { error } = await supabase
         .from('buyers')
         .delete()
