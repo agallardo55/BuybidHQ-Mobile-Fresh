@@ -84,6 +84,35 @@ export const useBuyers = () => {
     },
   });
 
+  const updateBuyerMutation = useMutation({
+    mutationFn: async ({ buyerId, buyerData }: { buyerId: string; buyerData: BuyerFormData }) => {
+      const { error } = await supabase
+        .from('buyers')
+        .update({
+          buyer_name: buyerData.fullName,
+          email: buyerData.email,
+          buyer_mobile: buyerData.mobileNumber,
+          buyer_phone: buyerData.businessNumber,
+          dealer_name: buyerData.dealershipName,
+          dealer_number: buyerData.licenseNumber,
+          address: buyerData.dealershipAddress,
+          city: buyerData.city,
+          state: buyerData.state,
+          zip_code: buyerData.zipCode,
+        })
+        .eq('id', buyerId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buyers'] });
+      toast.success("Buyer updated successfully!");
+    },
+    onError: (error) => {
+      toast.error("Failed to update buyer: " + error.message);
+    },
+  });
+
   const deleteBuyerMutation = useMutation({
     mutationFn: async (buyerId: string) => {
       const { error } = await supabase
@@ -106,6 +135,7 @@ export const useBuyers = () => {
     buyers,
     isLoading,
     createBuyer: createBuyerMutation.mutate,
+    updateBuyer: updateBuyerMutation.mutate,
     deleteBuyer: deleteBuyerMutation.mutate,
   };
 };

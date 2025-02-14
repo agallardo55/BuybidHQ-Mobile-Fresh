@@ -8,6 +8,7 @@ import BuyersHeader from "@/components/buyers/BuyersHeader";
 import BuyersList from "@/components/buyers/BuyersList";
 import ViewBuyerDialog from "@/components/buyers/ViewBuyerDialog";
 import DeleteBuyerDialog from "@/components/buyers/DeleteBuyerDialog";
+import EditBuyerDialog from "@/components/buyers/EditBuyerDialog";
 
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,10 +17,11 @@ const Buyers = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
   const [buyerToDelete, setBuyerToDelete] = useState<string | null>(null);
 
-  const { buyers, isLoading, createBuyer, deleteBuyer } = useBuyers();
+  const { buyers, isLoading, createBuyer, deleteBuyer, updateBuyer } = useBuyers();
 
   const [formData, setFormData] = useState<BuyerFormData>({
     fullName: "",
@@ -70,6 +72,11 @@ const Buyers = () => {
   const handleView = (buyer: Buyer) => {
     setSelectedBuyer(buyer);
     setIsViewDialogOpen(true);
+  };
+
+  const handleEdit = (buyer: Buyer) => {
+    setSelectedBuyer(buyer);
+    setIsEditDialogOpen(true);
   };
 
   const handleDelete = (buyerId: string) => {
@@ -141,6 +148,7 @@ const Buyers = () => {
               totalItems={filteredBuyers.length}
               onView={handleView}
               onDelete={handleDelete}
+              onEdit={handleEdit}
             />
           </div>
         </div>
@@ -150,6 +158,13 @@ const Buyers = () => {
         buyer={selectedBuyer}
         isOpen={isViewDialogOpen}
         onOpenChange={setIsViewDialogOpen}
+      />
+
+      <EditBuyerDialog
+        buyer={selectedBuyer}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onUpdate={updateBuyer}
       />
 
       <DeleteBuyerDialog

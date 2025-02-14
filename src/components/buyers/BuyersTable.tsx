@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Trash } from "lucide-react";
+import { Eye, Trash, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Buyer } from "@/types/buyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -16,9 +16,10 @@ interface BuyersTableProps {
   buyers: Buyer[];
   onDelete: (buyerId: string) => void;
   onView: (buyer: Buyer) => void;
+  onEdit: (buyer: Buyer) => void;
 }
 
-const BuyersTable = ({ buyers, onDelete, onView }: BuyersTableProps) => {
+const BuyersTable = ({ buyers, onDelete, onView, onEdit }: BuyersTableProps) => {
   const { currentUser } = useCurrentUser();
 
   const canManageBuyer = () => {
@@ -62,14 +63,24 @@ const BuyersTable = ({ buyers, onDelete, onView }: BuyersTableProps) => {
                   <Eye className="h-4 w-4" />
                 </Button>
                 {canManageBuyer() && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(buyer.id)}
-                    className="h-7 w-7 text-destructive hover:text-destructive"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(buyer)}
+                      className="h-7 w-7"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDelete(buyer.id)}
+                      className="h-7 w-7 text-destructive hover:text-destructive"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </>
                 )}
               </div>
             </TableCell>

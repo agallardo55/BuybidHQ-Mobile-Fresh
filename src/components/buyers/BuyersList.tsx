@@ -13,6 +13,7 @@ interface BuyersListProps {
   totalItems: number;
   onView: (buyer: Buyer) => void;
   onDelete: (buyerId: string) => void;
+  onEdit: (buyer: Buyer) => void;
 }
 
 const BuyersList = ({ 
@@ -24,7 +25,8 @@ const BuyersList = ({
   onPageSizeChange,
   totalItems,
   onView,
-  onDelete
+  onDelete,
+  onEdit
 }: BuyersListProps) => {
   const getPageNumbers = () => {
     const delta = 2;
@@ -45,6 +47,7 @@ const BuyersList = ({
         buyers={buyers} 
         onView={onView}
         onDelete={onDelete}
+        onEdit={onEdit}
       />
       <TableFooter
         currentPage={currentPage}
