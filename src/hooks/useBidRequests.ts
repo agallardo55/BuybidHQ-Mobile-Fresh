@@ -51,13 +51,13 @@ export const useBidRequests = () => {
         console.log("Current user role:", currentUser?.role);
         console.log("User data:", userData);
 
-        const query = supabase
+        let query = supabase
           .from('bid_requests')
           .select(`
             id,
             created_at,
             status,
-            vehicles (
+            vehicle:vehicle_id (
               year,
               make,
               model,
@@ -65,9 +65,9 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buybidhq_users (
+            user:user_id (
               full_name,
-              dealerships (
+              dealership:dealership_id (
                 dealer_name
               )
             ),
@@ -78,7 +78,7 @@ export const useBidRequests = () => {
 
         // Apply filter based on role
         if (currentUser?.role !== 'admin') {
-          query.eq('user_id', userData.user.id);
+          query = query.eq('user_id', userData.user.id);
         }
 
         const { data, error } = await query;
@@ -98,14 +98,14 @@ export const useBidRequests = () => {
         const mappedRequests = data.map(request => ({
           id: request.id,
           createdAt: request.created_at,
-          year: request.vehicles?.year ? parseInt(request.vehicles.year) : 0,
-          make: request.vehicles?.make || '',
-          model: request.vehicles?.model || '',
-          trim: request.vehicles?.trim || '',
-          vin: request.vehicles?.vin || '',
-          mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
-          buyer: request.buybidhq_users?.full_name || '',
-          dealership: request.buybidhq_users?.dealerships?.dealer_name || '',
+          year: request.vehicle?.year ? parseInt(request.vehicle.year) : 0,
+          make: request.vehicle?.make || '',
+          model: request.vehicle?.model || '',
+          trim: request.vehicle?.trim || '',
+          vin: request.vehicle?.vin || '',
+          mileage: request.vehicle?.mileage ? parseInt(request.vehicle.mileage) : 0,
+          buyer: request.user?.full_name || '',
+          dealership: request.user?.dealership?.dealer_name || '',
           highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
           status: request.status
         }));
