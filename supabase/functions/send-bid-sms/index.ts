@@ -7,6 +7,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+type NotificationType = 'bid_request' | 'bid_response';
+
+interface SMSPayload {
+  type: NotificationType;
+  phoneNumber: string;
+  vehicleDetails?: {
+    year: string;
+    make: string;
+    model: string;
+  };
+  // For bid requests
+  bidRequestUrl?: string;
+  // For bid responses
+  offerAmount?: string;
+  buyerName?: string;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -14,11 +31,11 @@ serve(async (req) => {
   }
 
   try {
-    const { phoneNumber, bidRequestUrl } = await req.json()
+    const payload: SMSPayload = await req.json()
 
     // Validate input
-    if (!phoneNumber || !bidRequestUrl) {
-      throw new Error('Phone number and bid request URL are required')
+    if (!payload.phoneNumber || !payload.type) {
+      throw new Error('Phone number and notification type are required')
     }
 
     // Initialize Twilio client
@@ -27,11 +44,26 @@ serve(async (req) => {
       Deno.env.get('TWILIO_AUTH_TOKEN')
     )
 
+    let messageBody: string;
+
+    // Construct message based on notification type
+    if (payload.type === 'bid_request') {
+      if (!payload.bidRequestUrl || !payload.vehicleDetails) {
+        throw new Error('Bid request URL and vehicle details are required for bid request notifications')
+      }
+      messageBody = `You have a new bid request to review for a ${payload.vehicleDetails.year} ${payload.vehicleDetails.make} ${payload.vehicleDetails.model}. Submit your offer here: ${payload.bidRequestUrl}`;
+    } else {
+      if (!payload.offerAmount || !payload.buyerName || !payload.vehicleDetails) {
+        throw new Error('Offer amount, buyer name, and vehicle details are required for bid response notifications')
+      }
+      messageBody = `New offer received for your ${payload.vehicleDetails.year} ${payload.vehicleDetails.make} ${payload.vehicleDetails.model}. Amount: $${payload.offerAmount} from ${payload.buyerName}`;
+    }
+
     // Send SMS
     const message = await client.messages.create({
-      body: `You have a new bid request to review: ${bidRequestUrl}`,
+      body: messageBody,
       from: Deno.env.get('TWILIO_PHONE_NUMBER'),
-      to: phoneNumber
+      to: payload.phoneNumber
     })
 
     console.log('SMS sent successfully:', message.sid)
