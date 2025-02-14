@@ -1,6 +1,7 @@
 
 export interface BidRequest {
   id: string;
+  createdAt: string;
   year: number;
   make: string;
   model: string;

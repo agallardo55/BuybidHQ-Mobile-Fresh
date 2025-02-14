@@ -1,6 +1,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { format } from "date-fns";
 import { BidRequest } from "./types";
 
 interface BidRequestTableProps {
@@ -15,6 +16,7 @@ const BidRequestTable = ({ requests, onStatusUpdate }: BidRequestTableProps) => 
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="whitespace-nowrap">Date</TableHead>
               <TableHead className="whitespace-nowrap">Year</TableHead>
               <TableHead className="whitespace-nowrap">Make</TableHead>
               <TableHead className="whitespace-nowrap">Model</TableHead>
@@ -30,6 +32,9 @@ const BidRequestTable = ({ requests, onStatusUpdate }: BidRequestTableProps) => 
           <TableBody>
             {requests.map((request) => (
               <TableRow key={request.id}>
+                <TableCell className="py-2 px-4">
+                  {format(new Date(request.createdAt), 'MM/dd/yyyy')}
+                </TableCell>
                 <TableCell className="py-2 px-4">{request.year}</TableCell>
                 <TableCell className="py-2 px-4">{request.make}</TableCell>
                 <TableCell className="py-2 px-4">{request.model}</TableCell>
