@@ -13,6 +13,7 @@ export interface User {
   zipCode: string | null;
   dealershipId: string | null;
   dealershipName?: string | null;
+  dealerId?: string | null;
   isActive: boolean;
 }
 
@@ -21,21 +22,14 @@ export interface UserFormData {
   email: string;
   role: "admin" | "dealer" | "basic" | "individual";
   mobileNumber: string;
-  businessNumber?: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
   dealershipId: string;
+  dealerId?: string;
   isActive: boolean;
 }
 
 export interface DealershipFormData {
   dealerName: string;
+  dealerId: string;
   businessPhone: string;
   businessEmail: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
 }
