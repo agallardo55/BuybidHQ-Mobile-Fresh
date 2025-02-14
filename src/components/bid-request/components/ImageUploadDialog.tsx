@@ -2,6 +2,19 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ImagePlus, Upload } from "lucide-react";
+import { toast } from "sonner";
+
+// Maximum file size in bytes (50MB)
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+// Helper function to format file size
+const formatFileSize = (bytes: number) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
 
 interface ImageUploadDialogProps {
   isOpen: boolean;
@@ -20,6 +33,21 @@ const ImageUploadDialog = ({
   onFileChange,
   onUpload
 }: ImageUploadDialogProps) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const oversizedFiles = Array.from(files).filter(file => file.size > MAX_FILE_SIZE);
+      
+      if (oversizedFiles.length > 0) {
+        const fileNames = oversizedFiles.map(file => file.name).join(', ');
+        toast.error(`File(s) too large: ${fileNames}. Maximum size is ${formatFileSize(MAX_FILE_SIZE)}`);
+        return;
+      }
+      
+      onFileChange(event);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -35,7 +63,7 @@ const ImageUploadDialog = ({
                   Click to select photos or drag and drop
                 </span>
                 <span className="text-xs text-gray-400">
-                  Support for multiple photos
+                  Maximum file size: {formatFileSize(MAX_FILE_SIZE)}
                 </span>
               </div>
               <input 
@@ -44,7 +72,7 @@ const ImageUploadDialog = ({
                 multiple 
                 accept="image/*" 
                 className="hidden" 
-                onChange={onFileChange}
+                onChange={handleFileSelect}
               />
             </label>
             
@@ -53,9 +81,12 @@ const ImageUploadDialog = ({
                 <p className="text-sm font-medium mb-2">Selected files:</p>
                 <div className="max-h-32 overflow-y-auto space-y-1">
                   {selectedFiles.map((file, index) => (
-                    <div key={index} className="text-sm text-gray-600 flex items-center gap-2">
-                      <ImagePlus className="h-4 w-4" />
-                      {file.name}
+                    <div key={index} className="text-sm text-gray-600 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ImagePlus className="h-4 w-4" />
+                        {file.name}
+                      </div>
+                      <span className="text-xs text-gray-400">{formatFileSize(file.size)}</span>
                     </div>
                   ))}
                 </div>

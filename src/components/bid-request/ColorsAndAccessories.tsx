@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import imageCompression from "browser-image-compression";
 import ColorPicker from "./components/ColorPicker";
 import ImageUploadDialog from "./components/ImageUploadDialog";
 import ImagePreviewDialog from "./components/ImagePreviewDialog";
@@ -22,6 +23,13 @@ interface ColorsAndAccessoriesProps {
 
 const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
 const interiorColors = ["Black", "Tan", "Grey", "Red", "White", "Brown"];
+
+const compressionOptions = {
+  maxSizeMB: 1,
+  maxWidthOrHeight: 1920,
+  useWebWorker: true,
+  initialQuality: 0.8,
+};
 
 const ColorsAndAccessories = ({
   formData,
@@ -47,6 +55,18 @@ const ColorsAndAccessories = ({
     }
   };
 
+  const compressImage = async (file: File): Promise<File> => {
+    try {
+      console.log(`Compressing file: ${file.name} (${file.size} bytes)`);
+      const compressedFile = await imageCompression(file, compressionOptions);
+      console.log(`Compression complete: ${compressedFile.size} bytes`);
+      return compressedFile;
+    } catch (error) {
+      console.error('Compression error:', error);
+      throw new Error(`Failed to compress ${file.name}`);
+    }
+  };
+
   const handleUpload = async () => {
     if (selectedFiles.length === 0) return;
     setIsUploading(true);
@@ -56,7 +76,10 @@ const ColorsAndAccessories = ({
       console.log('Starting file upload process...');
       
       for (const file of selectedFiles) {
-        console.log(`Uploading file: ${file.name}`);
+        console.log(`Processing file: ${file.name}`);
+        
+        // Compress the image before upload
+        const compressedFile = await compressImage(file);
         
         const fileExt = file.name.split('.').pop();
         const filePath = `${crypto.randomUUID()}.${fileExt}`;
@@ -66,7 +89,7 @@ const ColorsAndAccessories = ({
         const {
           data: uploadData,
           error: uploadError,
-        } = await supabase.storage.from('vehicle_images').upload(filePath, file);
+        } = await supabase.storage.from('vehicle_images').upload(filePath, compressedFile);
         
         if (uploadError) {
           console.error('Upload error:', uploadError);
@@ -183,4 +206,3 @@ const ColorsAndAccessories = ({
 };
 
 export default ColorsAndAccessories;
-
