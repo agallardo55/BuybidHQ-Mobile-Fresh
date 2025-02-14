@@ -79,6 +79,26 @@ const UserInformationSection = ({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <Select
+              value={formData.role}
+              onValueChange={(value: "admin" | "dealer" | "basic" | "individual") => 
+                onFormDataChange({ role: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                {['admin', 'dealer', 'basic', 'individual'].map(role => (
+                  <SelectItem key={role} value={role} className="capitalize">
+                    {role}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="mobileNumber">Mobile Number</Label>
             <Input
               id="mobileNumber"
@@ -90,7 +110,7 @@ const UserInformationSection = ({
             />
           </div>
 
-          <div className="flex items-center space-x-2 self-end">
+          <div className="flex items-center space-x-2">
             <Switch
               id="isActive"
               checked={formData.isActive}

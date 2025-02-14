@@ -20,7 +20,6 @@ interface DealershipInformationSectionProps {
 const DealershipInformationSection = ({
   formData,
   dealershipData,
-  onFormDataChange,
   setDealershipData,
 }: DealershipInformationSectionProps) => {
   const states = [
@@ -55,28 +54,7 @@ const DealershipInformationSection = ({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Dealership Information</h3>
-        <div className="space-y-2">
-          <Select
-            value={formData.role}
-            onValueChange={(value: "admin" | "dealer" | "basic" | "individual") => 
-              onFormDataChange({ role: value })}
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select role" />
-            </SelectTrigger>
-            <SelectContent>
-              {['admin', 'dealer', 'basic', 'individual'].map(role => (
-                <SelectItem key={role} value={role} className="capitalize">
-                  {role}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
+      <h3 className="text-lg font-semibold mb-4">Dealership Information</h3>
       {formData.role === 'dealer' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
