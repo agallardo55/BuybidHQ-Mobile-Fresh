@@ -14,13 +14,13 @@ interface DealershipInformationSectionProps {
   formData: UserFormData;
   dealershipData: DealershipFormData;
   onFormDataChange: (data: Partial<UserFormData>) => void;
-  setDealershipData: (data: DealershipFormData) => void;
+  onDealershipDataChange: (data: Partial<DealershipFormData>) => void;
 }
 
 const DealershipInformationSection = ({
   formData,
   dealershipData,
-  setDealershipData,
+  onDealershipDataChange,
 }: DealershipInformationSectionProps) => {
   const states = [
     "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
@@ -49,7 +49,7 @@ const DealershipInformationSection = ({
 
   const handleBusinessPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedNumber = formatPhoneNumber(e.target.value);
-    setDealershipData({ ...dealershipData, businessPhone: formattedNumber });
+    onDealershipDataChange({ businessPhone: formattedNumber });
   };
 
   return (
@@ -64,7 +64,7 @@ const DealershipInformationSection = ({
                 id="dealershipName"
                 placeholder="Enter dealership name"
                 value={dealershipData.dealerName}
-                onChange={(e) => setDealershipData({ ...dealershipData, dealerName: e.target.value })}
+                onChange={(e) => onDealershipDataChange({ dealerName: e.target.value })}
                 required
               />
             </div>
@@ -75,7 +75,7 @@ const DealershipInformationSection = ({
                 id="dealerId"
                 placeholder="Enter dealer ID"
                 value={dealershipData.dealerId}
-                onChange={(e) => setDealershipData({ ...dealershipData, dealerId: e.target.value })}
+                onChange={(e) => onDealershipDataChange({ dealerId: e.target.value })}
                 required
               />
             </div>
@@ -99,7 +99,7 @@ const DealershipInformationSection = ({
                 type="email"
                 placeholder="Enter business email"
                 value={dealershipData.businessEmail}
-                onChange={(e) => setDealershipData({ ...dealershipData, businessEmail: e.target.value })}
+                onChange={(e) => onDealershipDataChange({ businessEmail: e.target.value })}
                 required
               />
             </div>
@@ -114,7 +114,7 @@ const DealershipInformationSection = ({
                   id="address"
                   placeholder="Enter street address"
                   value={dealershipData.address || ''}
-                  onChange={(e) => setDealershipData({ ...dealershipData, address: e.target.value })}
+                  onChange={(e) => onDealershipDataChange({ address: e.target.value })}
                 />
               </div>
 
@@ -124,7 +124,7 @@ const DealershipInformationSection = ({
                   id="city"
                   placeholder="Enter city"
                   value={dealershipData.city || ''}
-                  onChange={(e) => setDealershipData({ ...dealershipData, city: e.target.value })}
+                  onChange={(e) => onDealershipDataChange({ city: e.target.value })}
                 />
               </div>
 
@@ -132,7 +132,7 @@ const DealershipInformationSection = ({
                 <Label htmlFor="state">State</Label>
                 <Select
                   value={dealershipData.state || ''}
-                  onValueChange={(value) => setDealershipData({ ...dealershipData, state: value })}
+                  onValueChange={(value) => onDealershipDataChange({ state: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select state" />
@@ -153,7 +153,7 @@ const DealershipInformationSection = ({
                   id="zipCode"
                   placeholder="Enter ZIP code"
                   value={dealershipData.zipCode || ''}
-                  onChange={(e) => setDealershipData({ ...dealershipData, zipCode: e.target.value })}
+                  onChange={(e) => onDealershipDataChange({ zipCode: e.target.value })}
                 />
               </div>
             </div>
