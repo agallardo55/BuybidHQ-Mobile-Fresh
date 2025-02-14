@@ -38,7 +38,11 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
       if (functionError) throw functionError;
 
       if (data.error) {
-        toast.error(data.error);
+        if (data.error === 'VIN not found') {
+          toast.info(data.message || "VIN not found. Please enter vehicle details manually.");
+        } else {
+          toast.error(data.error);
+        }
         return;
       }
 
@@ -57,7 +61,10 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
       toast.success("Vehicle information retrieved successfully");
     } catch (error) {
       console.error('Error decoding VIN:', error);
-      toast.error("Failed to decode VIN. Please try again.");
+      const errorMessage = error.message?.includes('404') 
+        ? "VIN not found. Please enter vehicle details manually."
+        : "Failed to decode VIN. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

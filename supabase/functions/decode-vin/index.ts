@@ -53,14 +53,6 @@ serve(async (req) => {
     try {
       // Try to parse the response as JSON
       data = JSON.parse(responseText)
-      console.log('CarAPI parsed data:', {
-        year: data.year,
-        make: data.make,
-        model: data.model,
-        engine: data.engine,
-        transmission: data.transmission,
-        drivetrain: data.drivetrain
-      })
     } catch (parseError) {
       console.error('Failed to parse CarAPI response as JSON:', parseError)
       return new Response(
@@ -69,6 +61,17 @@ serve(async (req) => {
           details: responseText.substring(0, 500)
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 502 }
+      )
+    }
+
+    // Handle 404 VIN not found case specifically
+    if (response.status === 404) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'VIN not found',
+          message: 'The provided VIN could not be found in our database. Please verify the VIN or enter the vehicle details manually.'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
       )
     }
 
