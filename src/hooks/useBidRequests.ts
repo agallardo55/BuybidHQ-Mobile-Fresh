@@ -57,7 +57,7 @@ export const useBidRequests = () => {
             id,
             created_at,
             status,
-            vehicles!inner (
+            vehicles (
               year,
               make,
               model,
@@ -65,7 +65,7 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buybidhq_users!inner (
+            buybidhq_users (
               full_name,
               dealerships (
                 dealer_name
