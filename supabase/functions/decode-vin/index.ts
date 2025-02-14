@@ -52,7 +52,27 @@ serve(async (req) => {
     let data
     try {
       data = JSON.parse(responseText)
-      console.log('Parsed CarAPI response:', JSON.stringify(data, null, 2))
+      // Log the exact structure of the top-level fields we're using
+      console.log('API Response Fields:', {
+        year: data.year,
+        make: data.make,
+        model: data.model,
+        trim: data.trim,
+        engine: {
+          configuration: data.engine?.configuration,
+          cylinders: data.engine?.cylinders,
+          fullObject: data.engine
+        },
+        transmission: {
+          type: data.transmission?.type,
+          name: data.transmission?.name,
+          fullObject: data.transmission
+        },
+        drivetrainInfo: {
+          drive_type: data.drive_type,
+          drivetrain: data.drivetrain,
+        }
+      })
     } catch (parseError) {
       console.error('Failed to parse CarAPI response:', parseError)
       return new Response(
@@ -90,26 +110,31 @@ serve(async (req) => {
       )
     }
 
-    // Log raw engine, transmission, and drivetrain data
-    console.log('Raw engine data:', data.engine)
-    console.log('Raw transmission data:', data.transmission)
-    console.log('Raw drive type data:', {
-      drive_type: data.drive_type,
-      drivetrain: data.drivetrain
-    })
-
     // Transform the response to match our expected structure
     const transformedData = {
       year: data.year?.toString() || "",
       make: data.make || "",
       model: data.model || "",
       trim: data.trim || "",
-      engineCylinders: data.engine?.configuration || data.engine?.cylinders?.toString() || "",
-      transmission: data.transmission?.type || data.transmission?.name || "",
+      engineCylinders: data.engine?.displacement || data.engine?.configuration || data.engine?.cylinders?.toString() || "",
+      transmission: data.transmission?.name || data.transmission?.type || "",
       drivetrain: data.drive_type || data.drivetrain || "",
     }
 
-    console.log('Transformed response data:', transformedData)
+    console.log('Final transformed data:', transformedData)
+    console.log('Fields comparison:', {
+      working: {
+        year: transformedData.year,
+        make: transformedData.make,
+        model: transformedData.model,
+        trim: transformedData.trim
+      },
+      notWorking: {
+        engineCylinders: transformedData.engineCylinders,
+        transmission: transformedData.transmission,
+        drivetrain: transformedData.drivetrain
+      }
+    })
 
     return new Response(
       JSON.stringify(transformedData),
