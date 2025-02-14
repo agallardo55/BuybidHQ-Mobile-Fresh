@@ -119,6 +119,10 @@ export const useCurrentUser = () => {
               dealerships: null,
             };
           }
+          // If role checks are not enforced and no profile exists, redirect to signin
+          toast.error("User profile not found. Please contact support.");
+          navigate('/signin');
+          return null;
         }
 
         console.log('Successfully fetched user profile:', userData);
