@@ -693,6 +693,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_user_role_no_rls: {
+        Args: {
+          user_id: string
+          required_role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: boolean
+      }
       create_complete_bid_request: {
         Args: {
           vehicle_data: Json

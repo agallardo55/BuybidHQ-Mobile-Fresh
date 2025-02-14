@@ -82,11 +82,10 @@ export const useCurrentUser = () => {
       };
     },
     meta: {
-      onSuccess: (data: UserData) => {
-        if (shouldEnforceRoleChecks() && data.role !== 'dealer' && data.role !== 'associate') {
-          toast.error("You don't have permission to access this page");
-          navigate('/dashboard');
-        }
+      onError: (error: Error) => {
+        console.error('Error fetching user data:', error);
+        toast.error("Error loading user data. Please try signing in again.");
+        navigate('/signin');
       }
     }
   });
