@@ -53,24 +53,38 @@ const ColorsAndAccessories = ({
     const uploadedUrls: string[] = [];
 
     try {
+      console.log('Starting file upload process...');
+      
       for (const file of selectedFiles) {
+        console.log(`Uploading file: ${file.name}`);
+        
         const fileExt = file.name.split('.').pop();
         const filePath = `${crypto.randomUUID()}.${fileExt}`;
         
+        console.log(`Generated file path: ${filePath}`);
+        
         const {
+          data: uploadData,
           error: uploadError,
         } = await supabase.storage.from('vehicle_images').upload(filePath, file);
         
         if (uploadError) {
+          console.error('Upload error:', uploadError);
           throw uploadError;
         }
+        
+        console.log('File uploaded successfully:', uploadData);
         
         const {
           data: { publicUrl }
         } = supabase.storage.from('vehicle_images').getPublicUrl(filePath);
         
+        console.log('Generated public URL:', publicUrl);
+        
         uploadedUrls.push(publicUrl);
       }
+
+      console.log('All files uploaded successfully:', uploadedUrls);
 
       // Update uploaded images state and call the callback
       const newUploadedImages = [...uploadedImages, ...uploadedUrls];
@@ -169,3 +183,4 @@ const ColorsAndAccessories = ({
 };
 
 export default ColorsAndAccessories;
+
