@@ -4,10 +4,11 @@ import Footer from "@/components/Footer";
 import MultiStepForm from "@/components/bid-request/MultiStepForm";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
-import { mockBuyers } from "@/components/bid-request/mockData";
+import { useBuyers } from "@/hooks/useBuyers";
 
 const CreateBidRequest = () => {
   const { currentUser } = useCurrentUser();
+  const { buyers } = useBuyers();
   const {
     formData,
     errors,
@@ -22,10 +23,10 @@ const CreateBidRequest = () => {
     handleSubmit,
   } = useCreateBidRequest();
 
-  const filteredBuyers = mockBuyers.filter(buyer => 
+  const filteredBuyers = buyers?.filter(buyer => 
     buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    buyer.dealership.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    buyer.dealership?.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
   const onSubmit = () => {
     if (!currentUser?.id) {

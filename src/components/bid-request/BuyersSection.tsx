@@ -63,31 +63,27 @@ const BuyersSection = ({
             {buyers.map((buyer) => (
               <div
                 key={buyer.id}
-                className="flex items-start space-x-2 p-1.5 rounded hover:bg-gray-50"
+                className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-50"
               >
                 <Checkbox
                   id={`buyer-${buyer.id}`}
                   checked={selectedBuyers.includes(buyer.id)}
                   onCheckedChange={() => toggleBuyer(buyer.id)}
-                  className="h-4 w-4 mt-0.5"
+                  className="h-4 w-4"
                 />
-                <div className="flex-1">
-                  <label
-                    htmlFor={`buyer-${buyer.id}`}
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <UserRound className="h-4 w-4 text-gray-500" />
-                        <span>{buyer.name}</span>
-                      </div>
-                      <div className="text-gray-500">
-                        <span className="text-sm">M: {buyer.mobile}</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-500">{buyer.dealership}</p>
-                  </label>
-                </div>
+                <label
+                  htmlFor={`buyer-${buyer.id}`}
+                  className="flex-1 flex items-center justify-between text-sm cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <UserRound className="h-4 w-4 text-gray-500" />
+                    <span>{buyer.name}</span>
+                    <span className="text-gray-500">-</span>
+                    <span className="text-gray-500">{buyer.dealership}</span>
+                    <span className="text-gray-500">-</span>
+                    <span className="text-gray-500">M: {buyer.mobile}</span>
+                  </div>
+                </label>
               </div>
             ))}
           </div>
