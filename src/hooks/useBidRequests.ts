@@ -54,19 +54,25 @@ export const useBidRequests = () => {
           return [];
         }
 
-        return data.map(request => ({
-          id: request.id,
-          year: parseInt(request.vehicle.year),
-          make: request.vehicle.make,
-          model: request.vehicle.model,
-          trim: request.vehicle.trim,
-          vin: request.vehicle.vin,
-          mileage: parseInt(request.vehicle.mileage),
-          buyer: request.buyer.buyer_name,
-          dealership: request.buyer.dealer_name,
-          highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
-          status: request.status as "Pending" | "Approved" | "Declined"
-        }));
+        return data.map(request => {
+          const vehicle = request.vehicle;
+          const buyer = request.buyer;
+          const offers = request.bid_responses || [];
+
+          return {
+            id: request.id,
+            year: vehicle ? parseInt(vehicle.year) : 0,
+            make: vehicle?.make || '',
+            model: vehicle?.model || '',
+            trim: vehicle?.trim || '',
+            vin: vehicle?.vin || '',
+            mileage: vehicle ? parseInt(vehicle.mileage) : 0,
+            buyer: buyer?.buyer_name || '',
+            dealership: buyer?.dealer_name || '',
+            highestOffer: Math.max(...(offers.map(r => Number(r.offer_amount)) || [0])),
+            status: request.status as "Pending" | "Approved" | "Declined"
+          };
+        });
       } catch (error) {
         console.error("Error in bid requests query:", error);
         toast.error("Failed to fetch bid requests. Please try again.");
