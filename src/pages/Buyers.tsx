@@ -14,6 +14,19 @@ type SortConfig = {
   direction: 'asc' | 'desc' | null;
 };
 
+const defaultFormData: BuyerFormData = {
+  fullName: "",
+  email: "",
+  mobileNumber: "",
+  businessNumber: "",
+  dealershipName: "",
+  licenseNumber: "",
+  dealershipAddress: "",
+  city: "",
+  state: "",
+  zipCode: "",
+};
+
 const Buyers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,6 +38,7 @@ const Buyers = () => {
   const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
   const [buyerToDelete, setBuyerToDelete] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'name', direction: 'asc' });
+  const [formData, setFormData] = useState<BuyerFormData>(defaultFormData);
 
   const { buyers, isLoading, createBuyer, deleteBuyer, updateBuyer } = useBuyers();
 
@@ -39,6 +53,13 @@ const Buyers = () => {
       }
       return { field, direction: 'asc' };
     });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await createBuyer(formData);
+    setFormData(defaultFormData);
+    setIsDialogOpen(false);
   };
 
   const sortBuyers = (buyers: Buyer[]) => {

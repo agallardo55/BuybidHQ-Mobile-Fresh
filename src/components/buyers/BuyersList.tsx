@@ -14,6 +14,11 @@ interface BuyersListProps {
   onView: (buyer: Buyer) => void;
   onDelete: (buyerId: string) => void;
   onEdit: (buyer: Buyer) => void;
+  sortConfig: {
+    field: keyof Buyer | null;
+    direction: 'asc' | 'desc' | null;
+  };
+  onSort: (field: keyof Buyer) => void;
 }
 
 const BuyersList = ({ 
@@ -26,7 +31,9 @@ const BuyersList = ({
   totalItems,
   onView,
   onDelete,
-  onEdit
+  onEdit,
+  sortConfig,
+  onSort
 }: BuyersListProps) => {
   const getPageNumbers = () => {
     const delta = 2;
@@ -48,6 +55,8 @@ const BuyersList = ({
         onView={onView}
         onDelete={onDelete}
         onEdit={onEdit}
+        sortConfig={sortConfig}
+        onSort={onSort}
       />
       <TableFooter
         currentPage={currentPage}

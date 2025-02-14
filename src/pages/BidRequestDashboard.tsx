@@ -46,16 +46,19 @@ const BidRequestDashboard = () => {
       const aValue = a[sortConfig.field!];
       const bValue = b[sortConfig.field!];
 
+      // Handle date comparison
+      if (sortConfig.field === 'createdAt') {
+        const dateA = new Date(aValue as string).getTime();
+        const dateB = new Date(bValue as string).getTime();
+        return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+
+      // Handle number comparison
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
       }
 
-      if (aValue instanceof Date && bValue instanceof Date) {
-        return sortConfig.direction === 'asc' 
-          ? aValue.getTime() - bValue.getTime() 
-          : bValue.getTime() - aValue.getTime();
-      }
-
+      // Handle string comparison
       const stringA = String(aValue).toLowerCase();
       const stringB = String(bValue).toLowerCase();
       
