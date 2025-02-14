@@ -154,7 +154,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           value={formData.reconDetails}
           onChange={onChange}
           placeholder="Enter reconditioning details..."
-          className="min-h-[100px]"
+          className="min-h-[100px] focus-visible:ring-custom-blue"
         />
       </div>
     </div>
