@@ -61,16 +61,25 @@ serve(async (req) => {
         engine: {
           configuration: data.engine?.configuration,
           cylinders: data.engine?.cylinders,
+          displacement: data.engine?.displacement,
+          size: data.engine?.size,
           fullObject: data.engine
         },
         transmission: {
           type: data.transmission?.type,
           name: data.transmission?.name,
+          speeds: data.transmission?.speeds,
           fullObject: data.transmission
         },
         drivetrainInfo: {
           drive_type: data.drive_type,
           drivetrain: data.drivetrain,
+          drive_line: data.drive_line,
+          fullObject: {
+            drive_type: data.drive_type,
+            drivetrain: data.drivetrain,
+            drive_line: data.drive_line
+          }
         }
       })
     } catch (parseError) {
@@ -110,15 +119,41 @@ serve(async (req) => {
       )
     }
 
+    // Get engine info
+    const engineInfo = (() => {
+      if (data.engine?.size) return `${data.engine.size}L`;
+      if (data.engine?.displacement) return `${data.engine.displacement}L`;
+      if (data.engine?.configuration && data.engine?.cylinders) {
+        return `${data.engine.configuration}${data.engine.cylinders}`;
+      }
+      if (data.engine?.configuration) return data.engine.configuration;
+      if (data.engine?.cylinders) return `${data.engine.cylinders} cylinder`;
+      return "";
+    })();
+
+    // Get transmission info
+    const transmissionInfo = (() => {
+      const parts = [];
+      if (data.transmission?.speeds) parts.push(`${data.transmission.speeds}-speed`);
+      if (data.transmission?.name) parts.push(data.transmission.name);
+      else if (data.transmission?.type) parts.push(data.transmission.type);
+      return parts.join(" ") || "";
+    })();
+
+    // Get drivetrain info
+    const drivetrainInfo = (() => {
+      return data.drive_line || data.drive_type || data.drivetrain || "";
+    })();
+
     // Transform the response to match our expected structure
     const transformedData = {
       year: data.year?.toString() || "",
       make: data.make || "",
       model: data.model || "",
       trim: data.trim || "",
-      engineCylinders: data.engine?.displacement || data.engine?.configuration || data.engine?.cylinders?.toString() || "",
-      transmission: data.transmission?.name || data.transmission?.type || "",
-      drivetrain: data.drive_type || data.drivetrain || "",
+      engineCylinders: engineInfo,
+      transmission: transmissionInfo,
+      drivetrain: drivetrainInfo,
     }
 
     console.log('Final transformed data:', transformedData)
