@@ -69,7 +69,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               onChange={onChange}
               required
               placeholder="2024"
-              className={errors.year ? "border-red-500" : ""}
+              className={`${errors.year ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             />
             {errors.year && (
               <p className="text-red-500 text-sm mt-1">{errors.year}</p>
@@ -87,7 +87,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               onChange={onChange}
               required
               placeholder="Toyota"
-              className={errors.make ? "border-red-500" : ""}
+              className={`${errors.make ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             />
             {errors.make && (
               <p className="text-red-500 text-sm mt-1">{errors.make}</p>
@@ -105,7 +105,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               onChange={onChange}
               required
               placeholder="Camry"
-              className={errors.model ? "border-red-500" : ""}
+              className={`${errors.model ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             />
             {errors.model && (
               <p className="text-red-500 text-sm mt-1">{errors.model}</p>
@@ -122,6 +122,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               value={formData.trim}
               onChange={onChange}
               placeholder="SE"
+              className="focus:ring-1 focus:ring-offset-0"
             />
           </div>
         </div>
@@ -141,7 +142,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               required
               placeholder="35000"
               min="0"
-              className={errors.mileage ? "border-red-500" : ""}
+              className={`${errors.mileage ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             />
             {errors.mileage && (
               <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
@@ -158,6 +159,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               value={formData.engineCylinders}
               onChange={onChange}
               placeholder="V6"
+              className="focus:ring-1 focus:ring-offset-0"
             />
           </div>
           <div>
@@ -171,6 +173,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               value={formData.transmission}
               onChange={onChange}
               placeholder="Automatic"
+              className="focus:ring-1 focus:ring-offset-0"
             />
           </div>
           <div>
@@ -184,6 +187,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange }: BasicVehicleInfoProps)
               value={formData.drivetrain}
               onChange={onChange}
               placeholder="AWD"
+              className="focus:ring-1 focus:ring-offset-0"
             />
           </div>
         </div>
