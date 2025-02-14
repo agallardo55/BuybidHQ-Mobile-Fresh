@@ -50,21 +50,10 @@ export const useCurrentUser = () => {
         if (userError) throw userError;
         if (!user) return null;
 
+        // First fetch the user data
         const { data: userData, error: profileError } = await supabase
           .from('buybidhq_users')
-          .select(`
-            *,
-            dealership:dealerships(
-              id,
-              dealer_name,
-              business_phone,
-              business_email,
-              address,
-              city,
-              state,
-              zip_code
-            )
-          `)
+          .select('*')
           .eq('id', user.id)
           .single();
 
@@ -90,26 +79,33 @@ export const useCurrentUser = () => {
           const { data: newProfile, error: insertError } = await supabase
             .from('buybidhq_users')
             .insert([basicProfile])
-            .select(`
-              *,
-              dealership:dealerships(
-                id,
-                dealer_name,
-                business_phone,
-                business_email,
-                address,
-                city,
-                state,
-                zip_code
-              )
-            `)
+            .select()
             .single();
 
           if (insertError) throw insertError;
-          return newProfile as UserData;
+          return { ...newProfile, dealership: null } as UserData;
         }
 
-        return userData as UserData;
+        // If user has a dealership_id, fetch the dealership data separately
+        let dealershipData = null;
+        if (userData.dealership_id) {
+          const { data: dealership, error: dealershipError } = await supabase
+            .from('dealerships')
+            .select('*')
+            .eq('id', userData.dealership_id)
+            .single();
+
+          if (dealershipError) {
+            console.error('Error fetching dealership:', dealershipError);
+          } else {
+            dealershipData = dealership;
+          }
+        }
+
+        return {
+          ...userData,
+          dealership: dealershipData
+        } as UserData;
       } catch (error) {
         console.error('Error in useCurrentUser:', error);
         toast.error("Error loading user data. Please try signing in again.");
