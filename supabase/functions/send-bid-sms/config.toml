@@ -1,2 +1,7 @@
 
 project_id = "fdcfdbjputcitgxosnyk"
+import_map = {
+  "imports": {
+    "twilio": "npm:twilio@4.19.0"
+  }
+}
