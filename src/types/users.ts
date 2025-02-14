@@ -6,6 +6,7 @@ export interface User {
   role: "admin" | "dealer" | "basic" | "individual";
   status: string;
   mobileNumber: string | null;
+  businessNumber: string | null;
   address: string | null;
   city: string | null;
   state: string | null;
@@ -20,6 +21,7 @@ export interface UserFormData {
   email: string;
   role: "admin" | "dealer" | "basic" | "individual";
   mobileNumber: string;
+  businessNumber?: string;
   address: string;
   city: string;
   state: string;

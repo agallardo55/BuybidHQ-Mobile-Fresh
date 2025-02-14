@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +48,28 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
   const availableRoles = currentUser?.role === 'admin' 
     ? ['admin', 'dealer', 'basic', 'individual']
     : ['basic', 'individual'];
+
+  const formatPhoneNumber = (value: string) => {
+    const phoneNumber = value.replace(/\D/g, '');
+    if (phoneNumber.length >= 10) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+    }
+    if (phoneNumber.length > 6) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+    }
+    if (phoneNumber.length > 3) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+    }
+    if (phoneNumber.length > 0) {
+      return `(${phoneNumber}`;
+    }
+    return phoneNumber;
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'mobileNumber' | 'businessNumber') => {
+    const formattedNumber = formatPhoneNumber(e.target.value);
+    onFormDataChange({ [field]: formattedNumber });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,9 +140,10 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
             <Label htmlFor="mobileNumber">Mobile Number</Label>
             <Input
               id="mobileNumber"
-              placeholder="Enter mobile number"
+              placeholder="(123) 456-7890"
               value={formData.mobileNumber}
-              onChange={(e) => onFormDataChange({ mobileNumber: e.target.value })}
+              onChange={(e) => handlePhoneNumberChange(e, 'mobileNumber')}
+              maxLength={14}
               required
             />
           </div>
@@ -134,6 +156,17 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
       <div>
         <h3 className="text-lg font-semibold mb-4">Contact Address</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="businessNumber">Business Number</Label>
+            <Input
+              id="businessNumber"
+              placeholder="(123) 456-7890"
+              value={formData.businessNumber || ''}
+              onChange={(e) => handlePhoneNumberChange(e, 'businessNumber')}
+              maxLength={14}
+            />
+          </div>
+
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="address">Address</Label>
             <Input
