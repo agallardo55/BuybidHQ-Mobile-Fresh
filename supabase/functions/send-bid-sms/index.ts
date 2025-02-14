@@ -58,8 +58,10 @@ serve(async (req) => {
       fromNumber
     })
 
-    // Initialize Twilio client with full configuration
-    const client = twilio(accountSid, authToken)
+    // Initialize Twilio client correctly for API key authentication
+    const client = twilio(authToken, accountSid, {
+      accountSid: accountSid
+    })
 
     let messageBody: string;
 
@@ -79,12 +81,11 @@ serve(async (req) => {
     console.log('Sending SMS with message:', messageBody);
     console.log('To phone number:', payload.phoneNumber);
 
-    // Send SMS with explicit accountSid
+    // Send SMS
     const message = await client.messages.create({
       body: messageBody,
       from: fromNumber,
-      to: payload.phoneNumber,
-      accountSid: accountSid  // Explicitly specify the accountSid
+      to: payload.phoneNumber
     })
 
     console.log('SMS sent successfully:', message.sid)
