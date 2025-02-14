@@ -62,13 +62,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bid_requests_offers_fkey"
-            columns: ["offers"]
-            isOneToOne: false
-            referencedRelation: "offers"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "bid_requests_recon_fkey"
             columns: ["recon"]
             isOneToOne: false
@@ -544,38 +537,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "images_bid_request_id_fkey"
-            columns: ["bid_request_id"]
-            isOneToOne: false
-            referencedRelation: "bid_requests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      offers: {
-        Row: {
-          bid_request_id: string | null
-          created_at: string
-          id: string
-          offer_amount: string | null
-          status: string | null
-        }
-        Insert: {
-          bid_request_id?: string | null
-          created_at?: string
-          id?: string
-          offer_amount?: string | null
-          status?: string | null
-        }
-        Update: {
-          bid_request_id?: string | null
-          created_at?: string
-          id?: string
-          offer_amount?: string | null
-          status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_offers_bid_request"
             columns: ["bid_request_id"]
             isOneToOne: false
             referencedRelation: "bid_requests"
