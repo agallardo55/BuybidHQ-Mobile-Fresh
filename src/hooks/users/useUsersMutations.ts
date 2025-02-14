@@ -33,11 +33,13 @@ export const useUsersMutations = () => {
       }
 
       // Create user with dealership reference if applicable
+      const transformedUser = transformFormUser(userData);
       const { data: user, error: userError } = await supabase
         .from('buybidhq_users')
         .insert({
-          ...transformFormUser(userData),
-          dealership_id: dealershipId
+          ...transformedUser,
+          dealership_id: dealershipId,
+          email: userData.email // Ensure email is explicitly set as it's required
         })
         .select()
         .single();
@@ -76,9 +78,13 @@ export const useUsersMutations = () => {
       }
 
       // Update user
+      const transformedUser = transformFormUser(userData);
       const { data: user, error: userError } = await supabase
         .from('buybidhq_users')
-        .update(transformFormUser(userData))
+        .update({
+          ...transformedUser,
+          email: userData.email // Ensure email is explicitly set as it's required
+        })
         .eq('id', userId)
         .select()
         .single();
@@ -101,7 +107,7 @@ export const useUsersMutations = () => {
       const { data: user, error: fetchError } = await supabase
         .from('buybidhq_users')
         .select('*')
-        .eq('id', user_id)
+        .eq('id', userId) // Fixed: user_id -> userId
         .single();
 
       if (fetchError) throw fetchError;

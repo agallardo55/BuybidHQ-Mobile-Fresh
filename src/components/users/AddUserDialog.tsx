@@ -37,7 +37,10 @@ const AddUserDialog = () => {
   const handleSubmit = async (e: React.FormEvent, dealershipData?: DealershipFormData) => {
     e.preventDefault();
     try {
-      await mutations.createUser.mutateAsync(formData);
+      await mutations.createUser.mutateAsync({
+        userData: formData,
+        dealershipData
+      });
       setIsOpen(false);
       setFormData({
         fullName: "",
