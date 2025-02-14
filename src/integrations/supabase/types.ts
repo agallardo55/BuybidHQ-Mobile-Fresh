@@ -789,7 +789,7 @@ export type Database = {
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
-      user_role: "basic" | "individual" | "dealer" | "associate" | "admin"
+      user_role: "basic" | "individual" | "dealer" | "associate"
       user_role_old: "admin" | "dealer" | "associate"
     }
     CompositeTypes: {
