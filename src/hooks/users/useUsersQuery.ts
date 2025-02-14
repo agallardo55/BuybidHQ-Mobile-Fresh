@@ -40,7 +40,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
         // Fetch users with pagination
         const { data, error, count } = await query
           .range(from, to)
-          .is('deleted_at', null) // Only show non-deleted users
+          .is('deleted_at', null)
           .order('created_at', { ascending: false });
 
         if (error) {

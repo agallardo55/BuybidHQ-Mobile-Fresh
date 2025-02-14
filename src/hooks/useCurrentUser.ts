@@ -25,14 +25,12 @@ export const useCurrentUser = () => {
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
-        // First check session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError || !session?.user?.id) {
           console.log('No active session');
           return null;
         }
 
-        // Get user data with dealership information
         const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
           .select(`
@@ -49,18 +47,13 @@ export const useCurrentUser = () => {
             )
           `)
           .eq('id', session.user.id)
-          .maybeSingle();
+          .single();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
           toast.error("Error loading user data. Please try signing in again.");
           navigate('/signin');
           throw userError;
-        }
-
-        if (!userData) {
-          console.error('No user data found');
-          return null;
         }
 
         return userData;
