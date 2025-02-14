@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import AddUserForm from "./AddUserForm";
 import { UserFormData } from "@/types/users";
-import { useUsers } from "@/hooks/useUsers";
+import { useUsers } from "@/hooks/users";
 import { useState } from "react";
 
 const AddUserDialog = () => {

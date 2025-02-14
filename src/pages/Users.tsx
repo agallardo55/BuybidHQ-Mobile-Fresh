@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import AdminFooter from "@/components/footer/AdminFooter";
@@ -6,7 +7,7 @@ import AddUserDialog from "@/components/users/AddUserDialog";
 import DeleteUserDialog from "@/components/users/DeleteUserDialog";
 import ViewUserDialog from "@/components/users/ViewUserDialog";
 import EditUserDialog from "@/components/users/EditUserDialog";
-import { useUsers } from "@/hooks/useUsers";
+import { useUsers } from "@/hooks/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import UsersSearch from "@/components/users/UsersSearch";
 import UsersTableWrapper from "@/components/users/UsersTableWrapper";
