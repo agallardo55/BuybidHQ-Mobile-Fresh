@@ -834,6 +834,12 @@ export type Database = {
         }
         Returns: undefined
       }
+      is_superadmin: {
+        Args: {
+          user_email: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
