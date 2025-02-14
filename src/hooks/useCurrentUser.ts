@@ -40,64 +40,56 @@ export const useCurrentUser = () => {
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
+        // Get session first
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
         if (!session) return null;
 
+        // Simple query to get user data
         const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
-          .select('*')
+          .select(`
+            *,
+            dealership:dealerships(*)
+          `)
           .eq('id', session.user.id)
           .single();
 
-        if (userError) throw userError;
-
-        if (!userData) {
-          const basicProfile: Omit<UserData, 'dealership'> = {
-            id: session.user.id,
-            role: 'basic',
-            status: 'active',
-            full_name: '',
-            email: session.user.email || '',
-            mobile_number: '',
-            address: '',
-            city: '',
-            state: '',
-            zip_code: '',
-            company: '',
-            dealership_id: null,
-          };
-
-          const { data: newProfile, error: insertError } = await supabase
-            .from('buybidhq_users')
-            .insert([basicProfile])
-            .select()
-            .single();
-
-          if (insertError) throw insertError;
-          return { ...newProfile, dealership: null };
-        }
-
-        // If user has a dealership_id, fetch the dealership data in a separate query
-        if (userData.dealership_id) {
-          const { data: dealership, error: dealershipError } = await supabase
-            .from('dealerships')
-            .select('*')
-            .eq('id', userData.dealership_id)
-            .single();
-
-          if (!dealershipError && dealership) {
-            return {
-              ...userData,
-              dealership
+        if (userError) {
+          console.error('Error fetching user data:', userError);
+          if (userError.code === 'PGRST116') {
+            // If user doesn't exist, create basic profile
+            const basicProfile: Omit<UserData, 'dealership'> = {
+              id: session.user.id,
+              role: 'basic',
+              status: 'active',
+              full_name: '',
+              email: session.user.email || '',
+              mobile_number: '',
+              address: '',
+              city: '',
+              state: '',
+              zip_code: '',
+              company: '',
+              dealership_id: null,
             };
+
+            const { data: newProfile, error: insertError } = await supabase
+              .from('buybidhq_users')
+              .insert([basicProfile])
+              .select(`
+                *,
+                dealership:dealerships(*)
+              `)
+              .single();
+
+            if (insertError) throw insertError;
+            return newProfile;
           }
+          throw userError;
         }
 
-        return {
-          ...userData,
-          dealership: null
-        };
+        return userData;
       } catch (error: any) {
         console.error('Error in useCurrentUser:', error);
         toast.error("Error loading user data. Please try signing in again.");
