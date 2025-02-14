@@ -19,7 +19,7 @@ const DashboardNavigation = () => {
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
     ...(hasRequiredRole(currentUser?.role) ? [{ name: "Users", href: "/users" }] : []),
-    { name: "Marketplace", href: "#", comingSoon: true },
+    { name: "Marketplace", href: "#" },
   ];
 
   const handleNotificationsToggle = () => {
@@ -61,18 +61,13 @@ const DashboardNavigation = () => {
             </Link>
             <div className="hidden md:flex items-center space-x-8 ml-8">
               {!isLoading && navItems.map((item) => (
-                <div key={item.name} className="relative">
+                <div key={item.name}>
                   <Link 
                     to={item.href} 
                     className="text-gray-700 hover:text-accent transition-colors"
                   >
                     {item.name}
                   </Link>
-                  {item.comingSoon && (
-                    <div className="absolute top-0.5 right-0.5 -translate-y-1/2 translate-x-1/2">
-                      <ComingSoonBadge />
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -123,7 +118,7 @@ const DashboardNavigation = () => {
         <div className="md:hidden bg-white border-b">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {!isLoading && navItems.map((item) => (
-              <div key={item.name} className="relative">
+              <div key={item.name}>
                 <Link
                   to={item.href}
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
@@ -131,11 +126,6 @@ const DashboardNavigation = () => {
                 >
                   {item.name}
                 </Link>
-                {item.comingSoon && (
-                  <div className="absolute top-0.5 right-2 -translate-y-1/2 translate-x-1/2">
-                    <ComingSoonBadge />
-                  </div>
-                )}
               </div>
             ))}
             <div className="flex items-center space-x-4 px-3 py-2">

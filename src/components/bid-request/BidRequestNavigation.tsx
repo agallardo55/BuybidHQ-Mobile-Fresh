@@ -4,7 +4,6 @@ import { UserRound, Bell, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { hasRequiredRole } from "@/config/features";
 import { supabase } from "@/integrations/supabase/client";
-import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 
 const BidRequestNavigation = () => {
   const navigate = useNavigate();
@@ -47,16 +46,11 @@ const BidRequestNavigation = () => {
                 Users
               </Link>
             )}
-            <div className="relative">
-              <button 
-                className="text-gray-700 hover:text-accent transition-colors"
-              >
-                Marketplace
-              </button>
-              <div className="absolute top-0.5 right-0.5 -translate-y-1/2 translate-x-1/2">
-                <ComingSoonBadge />
-              </div>
-            </div>
+            <button 
+              className="text-gray-700 hover:text-accent transition-colors"
+            >
+              Marketplace
+            </button>
           </div>
           
           <div className="flex items-center space-x-6">
