@@ -11,13 +11,15 @@ interface AddUserFormProps {
   formData: UserFormData;
   onFormDataChange: (data: Partial<UserFormData>) => void;
   readOnlyDealership?: string;
+  submitButtonText?: string;
 }
 
 const AddUserForm = ({ 
   onSubmit, 
   formData, 
   onFormDataChange, 
-  readOnlyDealership 
+  readOnlyDealership,
+  submitButtonText = 'Add User' // Default value if not provided
 }: AddUserFormProps) => {
   const [dealershipData, setDealershipData] = useState<DealershipFormData>({
     dealerName: '',
@@ -52,7 +54,7 @@ const AddUserForm = ({
       />
 
       <Button type="submit" className="w-full mt-6 bg-custom-blue hover:bg-custom-blue/90">
-        {readOnlyDealership ? 'Update User' : 'Add User'}
+        {submitButtonText}
       </Button>
     </form>
   );
