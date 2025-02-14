@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, UserFormData, DealershipFormData } from "@/types/users";
+import { User, UserFormData, DealershipFormData, transformDatabaseUser } from "@/types/users";
 import { useState, useEffect } from "react";
 import AddUserForm from "./AddUserForm";
 
@@ -38,29 +38,18 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
 
   useEffect(() => {
     if (user) {
-      setFormData({
-        fullName: user.fullName || "",
-        email: user.email,
-        role: user.role,
-        mobileNumber: user.mobileNumber || "",
-        address: user.address || "",
-        city: user.city || "",
-        state: user.state || "",
-        zipCode: user.zipCode || "",
-        dealershipId: user.dealershipId || "",
-        isActive: user.isActive,
-      });
+      setFormData(transformDatabaseUser(user));
 
-      if (user.dealershipInfo) {
+      if (user.dealership) {
         setDealershipData({
-          dealerName: user.dealershipInfo.dealerName,
-          dealerId: user.dealershipInfo.dealerId,
-          businessPhone: user.dealershipInfo.businessPhone,
-          businessEmail: user.dealershipInfo.businessEmail,
-          address: user.dealershipInfo.address || "",
-          city: user.dealershipInfo.city || "",
-          state: user.dealershipInfo.state || "",
-          zipCode: user.dealershipInfo.zipCode || ""
+          dealerName: user.dealership.dealer_name,
+          dealerId: user.dealership.dealer_id || '',
+          businessPhone: user.dealership.business_phone,
+          businessEmail: user.dealership.business_email,
+          address: user.dealership.address || "",
+          city: user.dealership.city || "",
+          state: user.dealership.state || "",
+          zipCode: user.dealership.zip_code || ""
         });
       }
     }

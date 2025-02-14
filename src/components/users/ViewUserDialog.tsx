@@ -32,33 +32,33 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
         </DialogHeader>
         <div className="mt-4">
           <h3 className="text-sm font-medium text-gray-900 mb-3">Personal Information</h3>
-          <InfoRow label="Full Name" value={user.fullName} />
+          <InfoRow label="Full Name" value={user.full_name} />
           <InfoRow label="Email" value={user.email} />
           <InfoRow label="Role" value={user.role} />
           <InfoRow label="Status" value={user.status} />
-          <InfoRow label="Mobile Number" value={user.mobileNumber} />
+          <InfoRow label="Mobile Number" value={user.mobile_number} />
           
-          {user.dealershipInfo && (
+          {user.dealership && (
             <>
               <h3 className="text-sm font-medium text-gray-900 mt-6 mb-3">Dealership Information</h3>
-              <InfoRow label="Dealership Name" value={user.dealershipInfo.dealerName} />
-              <InfoRow label="Dealer ID" value={user.dealershipInfo.dealerId} />
-              <InfoRow label="Business Phone" value={user.dealershipInfo.businessPhone} />
-              <InfoRow label="Business Email" value={user.dealershipInfo.businessEmail} />
-              <InfoRow label="Address" value={user.dealershipInfo.address} />
-              <InfoRow label="City" value={user.dealershipInfo.city} />
-              <InfoRow label="State" value={user.dealershipInfo.state} />
-              <InfoRow label="ZIP Code" value={user.dealershipInfo.zipCode} />
+              <InfoRow label="Dealership Name" value={user.dealership.dealer_name} />
+              <InfoRow label="Dealer ID" value={user.dealership.dealer_id} />
+              <InfoRow label="Business Phone" value={user.dealership.business_phone} />
+              <InfoRow label="Business Email" value={user.dealership.business_email} />
+              <InfoRow label="Address" value={user.dealership.address} />
+              <InfoRow label="City" value={user.dealership.city} />
+              <InfoRow label="State" value={user.dealership.state} />
+              <InfoRow label="ZIP Code" value={user.dealership.zip_code} />
             </>
           )}
 
           <div className={cn(
             "mt-4 px-2 py-1 text-xs font-medium rounded-full w-fit",
-            user.isActive
+            user.is_active
               ? "bg-green-100 text-green-700"
               : "bg-red-100 text-red-700"
           )}>
-            {user.isActive ? "Active" : "Inactive"}
+            {user.is_active ? "Active" : "Inactive"}
           </div>
         </div>
       </DialogContent>

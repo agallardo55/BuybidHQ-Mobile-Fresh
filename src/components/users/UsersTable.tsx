@@ -31,7 +31,7 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
   const canManageUser = (user: User) => {
     if (currentUser?.role === 'dealer') {
       return (
-        user.dealershipId === currentUser.dealership_id &&
+        user.dealership_id === currentUser.dealership_id &&
         user.role === 'associate'
       );
     }
@@ -68,22 +68,22 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
     <Table>
       <TableHeader>
         <TableRow>
-          <SortableHeader field="fullName">Name</SortableHeader>
+          <SortableHeader field="full_name">Name</SortableHeader>
           <SortableHeader field="email">Email</SortableHeader>
           <SortableHeader field="role">Role</SortableHeader>
           <SortableHeader field="status">Status</SortableHeader>
-          <SortableHeader field="dealershipName">Dealership</SortableHeader>
+          <SortableHeader field="dealership_id">Dealership</SortableHeader>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id}>
-            <TableCell className="py-2 px-4 min-h-[44px]">{user.fullName || 'N/A'}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px]">{user.full_name || 'N/A'}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px]">{user.email}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] capitalize">{user.role}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] capitalize">{user.status}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{user.dealershipName || 'N/A'}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px]">{user.dealership?.dealer_name || 'N/A'}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px]">
               <div className="flex items-center gap-2">
                 <Button
