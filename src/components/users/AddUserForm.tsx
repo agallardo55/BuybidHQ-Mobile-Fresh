@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/switch";
 import { UserFormData, DealershipFormData } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // US States list with abbreviations
 const US_STATES = [
@@ -42,6 +44,7 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
     state: '',
     zipCode: '',
   });
+  const [usePersonalAddress, setUsePersonalAddress] = useState(false);
   
   const availableRoles = currentUser?.role === 'admin' 
     ? ['admin', 'dealer', 'basic', 'individual']
@@ -50,17 +53,25 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.role === 'dealer') {
-      onSubmit(e, dealershipData);
+      const finalDealershipData = usePersonalAddress ? {
+        ...dealershipData,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+      } : dealershipData;
+      onSubmit(e, finalDealershipData);
     } else {
       onSubmit(e);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Left Column */}
-        <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Personal Information Section */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
             <Input
@@ -114,47 +125,16 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
               required
             />
           </div>
-
-          {formData.role === 'dealer' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="dealerName">Dealership Name</Label>
-                <Input
-                  id="dealerName"
-                  placeholder="Enter dealership name"
-                  value={dealershipData.dealerName}
-                  onChange={(e) => setDealershipData(prev => ({ ...prev, dealerName: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="businessPhone">Business Phone</Label>
-                <Input
-                  id="businessPhone"
-                  placeholder="Enter business phone"
-                  value={dealershipData.businessPhone}
-                  onChange={(e) => setDealershipData(prev => ({ ...prev, businessPhone: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="businessEmail">Business Email</Label>
-                <Input
-                  id="businessEmail"
-                  type="email"
-                  placeholder="Enter business email"
-                  value={dealershipData.businessEmail}
-                  onChange={(e) => setDealershipData(prev => ({ ...prev, businessEmail: e.target.value }))}
-                  required
-                />
-              </div>
-            </>
-          )}
         </div>
+      </div>
 
-        {/* Right Column */}
-        <div className="space-y-4">
-          <div className="space-y-2">
+      <Separator className="my-6" />
+
+      {/* Personal Address Section */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Contact Address</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2 md:col-span-2">
             <Label htmlFor="address">Address</Label>
             <Input
               id="address"
@@ -212,61 +192,120 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
             />
             <Label htmlFor="isActive">Active User</Label>
           </div>
-
-          {formData.role === 'dealer' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="dealershipAddress">Dealership Address</Label>
-                <Input
-                  id="dealershipAddress"
-                  placeholder="Enter dealership address"
-                  value={dealershipData.address}
-                  onChange={(e) => setDealershipData(prev => ({ ...prev, address: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="dealershipCity">Dealership City</Label>
-                <Input
-                  id="dealershipCity"
-                  placeholder="Enter dealership city"
-                  value={dealershipData.city}
-                  onChange={(e) => setDealershipData(prev => ({ ...prev, city: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="dealershipState">Dealership State</Label>
-                <Select
-                  value={dealershipData.state}
-                  onValueChange={(value: string) => setDealershipData(prev => ({ ...prev, state: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select state" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {US_STATES.map(state => (
-                      <SelectItem key={state} value={state}>
-                        {state}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="dealershipZipCode">Dealership ZIP Code</Label>
-                <Input
-                  id="dealershipZipCode"
-                  placeholder="Enter dealership ZIP code"
-                  value={dealershipData.zipCode}
-                  onChange={(e) => setDealershipData(prev => ({ ...prev, zipCode: e.target.value }))}
-                  required
-                />
-              </div>
-            </>
-          )}
         </div>
       </div>
+
+      {/* Dealership Information Section */}
+      {formData.role === 'dealer' && (
+        <>
+          <Separator className="my-6" />
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Dealership Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="dealerName">Dealership Name</Label>
+                <Input
+                  id="dealerName"
+                  placeholder="Enter dealership name"
+                  value={dealershipData.dealerName}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, dealerName: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="businessPhone">Business Phone</Label>
+                <Input
+                  id="businessPhone"
+                  placeholder="Enter business phone"
+                  value={dealershipData.businessPhone}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, businessPhone: e.target.value }))}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="businessEmail">Business Email</Label>
+                <Input
+                  id="businessEmail"
+                  type="email"
+                  placeholder="Enter business email"
+                  value={dealershipData.businessEmail}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, businessEmail: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div className="md:col-span-2 flex items-center space-x-2 my-2">
+                <Checkbox
+                  id="usePersonalAddress"
+                  checked={usePersonalAddress}
+                  onCheckedChange={(checked: boolean) => setUsePersonalAddress(checked)}
+                />
+                <Label htmlFor="usePersonalAddress">
+                  Use personal address as dealership address
+                </Label>
+              </div>
+
+              {!usePersonalAddress && (
+                <>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="dealershipAddress">Dealership Address</Label>
+                    <Input
+                      id="dealershipAddress"
+                      placeholder="Enter dealership address"
+                      value={dealershipData.address}
+                      onChange={(e) => setDealershipData(prev => ({ ...prev, address: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="dealershipCity">Dealership City</Label>
+                    <Input
+                      id="dealershipCity"
+                      placeholder="Enter dealership city"
+                      value={dealershipData.city}
+                      onChange={(e) => setDealershipData(prev => ({ ...prev, city: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="dealershipState">Dealership State</Label>
+                    <Select
+                      value={dealershipData.state}
+                      onValueChange={(value: string) => setDealershipData(prev => ({ ...prev, state: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {US_STATES.map(state => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="dealershipZipCode">Dealership ZIP Code</Label>
+                    <Input
+                      id="dealershipZipCode"
+                      placeholder="Enter dealership ZIP code"
+                      value={dealershipData.zipCode}
+                      onChange={(e) => setDealershipData(prev => ({ ...prev, zipCode: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       <Button type="submit" className="w-full mt-6 bg-custom-blue hover:bg-custom-blue/90">
         {readOnlyDealership ? 'Update User' : 'Add User'}
