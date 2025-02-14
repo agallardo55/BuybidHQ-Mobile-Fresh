@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { Twilio } from 'npm:twilio'
+import twilio from 'npm:twilio'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,7 +39,7 @@ serve(async (req) => {
     }
 
     // Initialize Twilio client
-    const client = new Twilio(
+    const client = twilio(
       Deno.env.get('TWILIO_ACCOUNT_SID'),
       Deno.env.get('TWILIO_AUTH_TOKEN')
     )
@@ -58,6 +58,9 @@ serve(async (req) => {
       }
       messageBody = `New offer received for your ${payload.vehicleDetails.year} ${payload.vehicleDetails.make} ${payload.vehicleDetails.model}. Amount: $${payload.offerAmount} from ${payload.buyerName}`;
     }
+
+    console.log('Sending SMS with message:', messageBody);
+    console.log('To phone number:', payload.phoneNumber);
 
     // Send SMS
     const message = await client.messages.create({
