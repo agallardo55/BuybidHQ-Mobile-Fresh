@@ -398,36 +398,36 @@ export type Database = {
       dealerships: {
         Row: {
           address: string | null
-          business_email: string | null
-          business_phone: string | null
+          business_email: string
+          business_phone: string
           city: string | null
           created_at: string
           dealer_id: string | null
-          dealer_name: string | null
+          dealer_name: string
           id: string
           state: string | null
           zip_code: string | null
         }
         Insert: {
           address?: string | null
-          business_email?: string | null
-          business_phone?: string | null
+          business_email: string
+          business_phone: string
           city?: string | null
           created_at?: string
           dealer_id?: string | null
-          dealer_name?: string | null
+          dealer_name: string
           id?: string
           state?: string | null
           zip_code?: string | null
         }
         Update: {
           address?: string | null
-          business_email?: string | null
-          business_phone?: string | null
+          business_email?: string
+          business_phone?: string
           city?: string | null
           created_at?: string
           dealer_id?: string | null
-          dealer_name?: string | null
+          dealer_name?: string
           id?: string
           state?: string | null
           zip_code?: string | null

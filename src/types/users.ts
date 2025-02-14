@@ -27,3 +27,13 @@ export interface UserFormData {
   dealershipId: string;
   isActive: boolean;
 }
+
+export interface DealershipFormData {
+  dealerName: string;
+  businessPhone: string;
+  businessEmail: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}

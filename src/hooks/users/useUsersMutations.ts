@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { UserFormData } from "@/types/users";
+import { UserFormData, DealershipFormData } from "@/types/users";
 import { toast } from "sonner";
 import { useCurrentUser } from "../useCurrentUser";
 
@@ -10,28 +10,50 @@ export const useUsersMutations = () => {
   const { currentUser } = useCurrentUser();
 
   const createUserMutation = useMutation({
-    mutationFn: async (userData: UserFormData) => {
+    mutationFn: async (params: { userData: UserFormData; dealershipData?: DealershipFormData }) => {
+      const { userData, dealershipData } = params;
+      
       if (currentUser?.role === 'dealer' && !['basic', 'individual'].includes(userData.role)) {
         throw new Error("Dealers can only create basic or individual users");
       }
 
-      const insertData = {
-        full_name: userData.fullName,
-        email: userData.email,
-        role: userData.role,
-        mobile_number: userData.mobileNumber,
-        address: userData.address,
-        city: userData.city,
-        state: userData.state,
-        zip_code: userData.zipCode,
-        dealership_id: currentUser?.role === 'dealer' ? currentUser.dealership_id : userData.dealershipId,
-        is_active: userData.isActive,
-        status: 'active'
-      };
+      let dealershipId = currentUser?.role === 'dealer' ? currentUser.dealership_id : userData.dealershipId;
+
+      // If this is a dealer user and we have dealership data, create the dealership first
+      if (userData.role === 'dealer' && dealershipData) {
+        const { data: newDealership, error: dealershipError } = await supabase
+          .from('dealerships')
+          .insert({
+            dealer_name: dealershipData.dealerName,
+            business_phone: dealershipData.businessPhone,
+            business_email: dealershipData.businessEmail,
+            address: dealershipData.address,
+            city: dealershipData.city,
+            state: dealershipData.state,
+            zip_code: dealershipData.zipCode
+          })
+          .select()
+          .single();
+
+        if (dealershipError) throw dealershipError;
+        dealershipId = newDealership.id;
+      }
 
       const { data, error } = await supabase
         .from('buybidhq_users')
-        .insert(insertData)
+        .insert({
+          full_name: userData.fullName,
+          email: userData.email,
+          role: userData.role,
+          mobile_number: userData.mobileNumber,
+          address: userData.address,
+          city: userData.city,
+          state: userData.state,
+          zip_code: userData.zipCode,
+          dealership_id: dealershipId,
+          is_active: userData.isActive,
+          status: 'active'
+        })
         .select()
         .single();
 
@@ -114,7 +136,8 @@ export const useUsersMutations = () => {
   });
 
   return {
-    createUser: createUserMutation.mutate,
+    createUser: (userData: UserFormData, dealershipData?: DealershipFormData) => 
+      createUserMutation.mutate({ userData, dealershipData }),
     updateUser: updateUserMutation.mutate,
     deleteUser: deleteUserMutation.mutate,
   };

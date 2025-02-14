@@ -13,7 +13,7 @@ import {
 import { 
   Switch
 } from "@/components/ui/switch";
-import { UserFormData } from "@/types/users";
+import { UserFormData, DealershipFormData } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 // US States list with abbreviations
@@ -25,21 +25,39 @@ const US_STATES = [
 ];
 
 interface AddUserFormProps {
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent, dealershipData?: DealershipFormData) => void;
   formData: UserFormData;
   onFormDataChange: (data: Partial<UserFormData>) => void;
-  readOnlyDealership?: string; // Add this prop for edit mode
+  readOnlyDealership?: string;
 }
 
 const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership }: AddUserFormProps) => {
   const { currentUser } = useCurrentUser();
+  const [dealershipData, setDealershipData] = useState<DealershipFormData>({
+    dealerName: '',
+    businessPhone: '',
+    businessEmail: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+  });
   
   const availableRoles = currentUser?.role === 'admin' 
     ? ['admin', 'dealer', 'basic', 'individual']
     : ['basic', 'individual'];
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.role === 'dealer') {
+      onSubmit(e, dealershipData);
+    } else {
+      onSubmit(e);
+    }
+  };
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Left Column */}
         <div className="space-y-4">
@@ -97,18 +115,40 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
             />
           </div>
 
-          {currentUser?.role === 'admin' && (
-            <div className="space-y-2">
-              <Label htmlFor="dealershipId">Dealership</Label>
-              <Input
-                id="dealershipId"
-                placeholder="Enter dealership name"
-                value={readOnlyDealership || formData.dealershipId}
-                onChange={(e) => onFormDataChange({ dealershipId: e.target.value })}
-                readOnly={!!readOnlyDealership}
-                className={readOnlyDealership ? "bg-gray-100" : ""}
-              />
-            </div>
+          {formData.role === 'dealer' && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="dealerName">Dealership Name</Label>
+                <Input
+                  id="dealerName"
+                  placeholder="Enter dealership name"
+                  value={dealershipData.dealerName}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, dealerName: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="businessPhone">Business Phone</Label>
+                <Input
+                  id="businessPhone"
+                  placeholder="Enter business phone"
+                  value={dealershipData.businessPhone}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, businessPhone: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="businessEmail">Business Email</Label>
+                <Input
+                  id="businessEmail"
+                  type="email"
+                  placeholder="Enter business email"
+                  value={dealershipData.businessEmail}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, businessEmail: e.target.value }))}
+                  required
+                />
+              </div>
+            </>
           )}
         </div>
 
@@ -172,6 +212,59 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
             />
             <Label htmlFor="isActive">Active User</Label>
           </div>
+
+          {formData.role === 'dealer' && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="dealershipAddress">Dealership Address</Label>
+                <Input
+                  id="dealershipAddress"
+                  placeholder="Enter dealership address"
+                  value={dealershipData.address}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, address: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dealershipCity">Dealership City</Label>
+                <Input
+                  id="dealershipCity"
+                  placeholder="Enter dealership city"
+                  value={dealershipData.city}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, city: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dealershipState">Dealership State</Label>
+                <Select
+                  value={dealershipData.state}
+                  onValueChange={(value: string) => setDealershipData(prev => ({ ...prev, state: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {US_STATES.map(state => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dealershipZipCode">Dealership ZIP Code</Label>
+                <Input
+                  id="dealershipZipCode"
+                  placeholder="Enter dealership ZIP code"
+                  value={dealershipData.zipCode}
+                  onChange={(e) => setDealershipData(prev => ({ ...prev, zipCode: e.target.value }))}
+                  required
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
 

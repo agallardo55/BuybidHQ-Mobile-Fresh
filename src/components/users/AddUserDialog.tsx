@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import AddUserForm from "./AddUserForm";
-import { UserFormData } from "@/types/users";
+import { UserFormData, DealershipFormData } from "@/types/users";
 import { useUsers } from "@/hooks/users";
 import { useState } from "react";
 
@@ -39,10 +39,10 @@ const AddUserDialog = () => {
     setFormData((prev) => ({ ...prev, ...data }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, dealershipData?: DealershipFormData) => {
     e.preventDefault();
     try {
-      await createUser(formData);
+      await createUser(formData, dealershipData);
       setIsOpen(false);
       setFormData({
         fullName: "",
