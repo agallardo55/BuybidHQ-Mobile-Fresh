@@ -5,6 +5,38 @@ import { BidRequest } from "@/components/bid-request/types";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
 
+// Define types for the database response
+type Vehicle = {
+  year: string | null;
+  make: string | null;
+  model: string | null;
+  trim: string | null;
+  vin: string | null;
+  mileage: string | null;
+};
+
+type Dealership = {
+  dealer_name: string | null;
+};
+
+type Buyer = {
+  full_name: string | null;
+  dealership: Dealership | null;
+};
+
+type BidResponse = {
+  offer_amount: number;
+};
+
+type BidRequestResponse = {
+  id: string;
+  created_at: string;
+  status: "Pending" | "Approved" | "Declined";
+  vehicles: Vehicle | null;
+  buyer: Buyer | null;
+  bid_responses: BidResponse[] | null;
+};
+
 export const useBidRequests = () => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
@@ -25,7 +57,7 @@ export const useBidRequests = () => {
             id,
             created_at,
             status,
-            vehicles:vehicle_id (
+            vehicles!fk_bid_requests_vehicle (
               year,
               make,
               model,
