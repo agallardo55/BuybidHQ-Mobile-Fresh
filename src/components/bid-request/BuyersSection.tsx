@@ -81,7 +81,7 @@ const BuyersSection = ({
                     <span className="text-gray-500">-</span>
                     <span className="text-gray-500">{buyer.dealership}</span>
                     <span className="text-gray-500">-</span>
-                    <span className="text-gray-500">M: {buyer.mobile}</span>
+                    <span className="text-gray-500">Mobile: {buyer.mobile}</span>
                   </div>
                 </label>
               </div>

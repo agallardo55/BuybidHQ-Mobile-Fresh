@@ -47,7 +47,7 @@ export const useBuyers = () => {
           name: buyer.buyer_name,
           email: buyer.email,
           dealership: buyer.dealer_name,
-          phone: buyer.buyer_phone,
+          phone: buyer.buyer_mobile, // Changed from buyer_phone to buyer_mobile
           location: `${buyer.city || ''}, ${buyer.state || ''}`.replace(/, $/, ''),
           acceptedBids: buyer.accepted_bids || 0,
           pendingBids: buyer.pending_bids || 0,
