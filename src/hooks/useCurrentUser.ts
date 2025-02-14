@@ -36,7 +36,7 @@ interface UserData {
 export const useCurrentUser = () => {
   const navigate = useNavigate();
 
-  const { data: currentUser, isLoading } = useQuery({
+  const { data: currentUser, isLoading } = useQuery<UserData | null>({
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
@@ -50,12 +50,11 @@ export const useCurrentUser = () => {
         if (userError) throw userError;
         if (!user) return null;
 
-        // Fetch user data with dealership join
         const { data: userData, error: profileError } = await supabase
           .from('buybidhq_users')
           .select(`
             *,
-            dealership:dealerships!dealership_id (
+            dealership:dealerships(
               id,
               dealer_name,
               business_phone,
@@ -67,14 +66,14 @@ export const useCurrentUser = () => {
             )
           `)
           .eq('id', user.id)
-          .maybeSingle();
+          .single();
 
         if (profileError) throw profileError;
 
         if (!userData) {
-          const basicProfile = {
+          const basicProfile: UserData = {
             id: user.id,
-            role: 'basic' as UserRole,
+            role: 'basic',
             status: 'active',
             full_name: '',
             email: user.email || '',
@@ -91,14 +90,26 @@ export const useCurrentUser = () => {
           const { data: newProfile, error: insertError } = await supabase
             .from('buybidhq_users')
             .insert([basicProfile])
-            .select()
+            .select(`
+              *,
+              dealership:dealerships(
+                id,
+                dealer_name,
+                business_phone,
+                business_email,
+                address,
+                city,
+                state,
+                zip_code
+              )
+            `)
             .single();
 
           if (insertError) throw insertError;
-          return newProfile;
+          return newProfile as UserData;
         }
 
-        return userData;
+        return userData as UserData;
       } catch (error) {
         console.error('Error in useCurrentUser:', error);
         toast.error("Error loading user data. Please try signing in again.");
