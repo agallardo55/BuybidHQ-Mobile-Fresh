@@ -61,6 +61,7 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
           formData={formData}
           onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
           readOnlyDealership={user?.dealershipName || ""}
+          submitButtonText="Update"
         />
       </DialogContent>
     </Dialog>
