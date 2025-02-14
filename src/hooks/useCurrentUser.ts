@@ -69,33 +69,36 @@ export const useCurrentUser = () => {
             )
           `)
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
-          // Only show error toast for actual errors (not just no data found)
-          if (userError.code !== 'PGRST116') {
-            toast.error("Error loading user data");
-          }
+          // Show a more detailed error message
+          toast.error(`Error loading user data: ${userError.message}`);
           return null;
         }
 
         if (!userData) {
           console.log('No user data found for ID:', session.user.id);
+          // If we have a session but no user data, there might be a sync issue
+          toast.error("User profile not found. Please try signing out and back in.");
           return null;
         }
 
-        console.log('Successfully fetched user data');
+        console.log('Successfully fetched user data:', userData);
         return userData;
       } catch (error: any) {
         console.error('Error in useCurrentUser:', error);
+        toast.error("An unexpected error occurred. Please try again.");
         return null;
       }
     },
-    retry: 1,
-    retryDelay: 1000,
+    retry: 2, // Increase retry attempts
+    retryDelay: 2000, // Increase delay between retries
     // Don't refetch on window focus for authentication queries
     refetchOnWindowFocus: false,
+    // Add stale time to prevent too frequent refetches
+    staleTime: 30000, // 30 seconds
   });
 
   return { currentUser, isLoading };
