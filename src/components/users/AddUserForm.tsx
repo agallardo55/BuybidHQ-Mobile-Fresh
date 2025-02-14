@@ -28,12 +28,12 @@ interface AddUserFormProps {
   onSubmit: (e: React.FormEvent) => void;
   formData: UserFormData;
   onFormDataChange: (data: Partial<UserFormData>) => void;
+  readOnlyDealership?: string; // Add this prop for edit mode
 }
 
-const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps) => {
+const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership }: AddUserFormProps) => {
   const { currentUser } = useCurrentUser();
   
-  // Determine available roles based on current user's role
   const availableRoles = currentUser?.role === 'admin' 
     ? ['admin', 'dealer', 'basic', 'individual']
     : ['basic', 'individual'];
@@ -103,8 +103,10 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
               <Input
                 id="dealershipId"
                 placeholder="Enter dealership name"
-                value={formData.dealershipId}
+                value={readOnlyDealership || formData.dealershipId}
                 onChange={(e) => onFormDataChange({ dealershipId: e.target.value })}
+                readOnly={!!readOnlyDealership}
+                className={readOnlyDealership ? "bg-gray-100" : ""}
               />
             </div>
           )}
@@ -174,7 +176,7 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange }: AddUserFormProps)
       </div>
 
       <Button type="submit" className="w-full mt-6 bg-custom-blue hover:bg-custom-blue/90">
-        Add User
+        {readOnlyDealership ? 'Update User' : 'Add User'}
       </Button>
     </form>
   );
