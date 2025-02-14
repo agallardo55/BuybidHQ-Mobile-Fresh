@@ -236,14 +236,27 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
             <h3 className="text-lg font-semibold mb-4">Dealership Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="dealerName">Dealership Name</Label>
+                <Label htmlFor="dealershipName">Dealership Name</Label>
                 <Input
-                  id="dealerName"
+                  id="dealershipName"
                   placeholder="Enter dealership name"
                   value={dealershipData.dealerName}
                   onChange={(e) => setDealershipData(prev => ({ ...prev, dealerName: e.target.value }))}
                   required
                 />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="dealerName">Dealer Name</Label>
+                <Input
+                  id="dealerName"
+                  placeholder="Enter dealer name"
+                  value={formData.fullName}
+                  onChange={(e) => onFormDataChange({ fullName: e.target.value })}
+                  required
+                  disabled
+                />
+                <p className="text-sm text-muted-foreground">Auto-filled from personal information</p>
               </div>
               
               <div className="space-y-2">
@@ -256,7 +269,7 @@ const AddUserForm = ({ onSubmit, formData, onFormDataChange, readOnlyDealership 
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="businessEmail">Business Email</Label>
                 <Input
