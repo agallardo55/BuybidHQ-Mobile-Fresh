@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { shouldEnforceRoleChecks } from "@/config/features";
 
 export type UserRole = 'basic' | 'individual' | 'dealer' | 'associate';
 
@@ -64,7 +63,7 @@ export const useCurrentUser = () => {
         }
         console.log('Auth user found:', user.id);
 
-        console.log('Fetching user profile data for ID:', user.id);
+        // Try to fetch the user profile
         const { data: userData, error: profileError } = await supabase
           .from('buybidhq_users')
           .select(`
@@ -100,8 +99,7 @@ export const useCurrentUser = () => {
         }
 
         if (!userData) {
-          console.log('No user profile found in buybidhq_users table');
-          // Always create a basic profile if none exists
+          console.log('No user profile found, creating basic profile...');
           const basicProfile = {
             id: user.id,
             role: 'basic' as UserRole,
@@ -118,36 +116,32 @@ export const useCurrentUser = () => {
             dealerships: null,
           };
 
-          // Attempt to create the profile in the database
-          const { error: insertError } = await supabase
+          const { data: newProfile, error: insertError } = await supabase
             .from('buybidhq_users')
-            .insert([basicProfile]);
+            .insert([basicProfile])
+            .select()
+            .single();
 
           if (insertError) {
             console.error('Error creating basic profile:', insertError);
             throw insertError;
           }
 
-          console.log('Created basic profile for user');
-          return basicProfile;
+          console.log('Successfully created basic profile:', newProfile);
+          return newProfile;
         }
 
         console.log('Successfully fetched user profile:', userData);
         return userData;
       } catch (error) {
         console.error('Error in useCurrentUser:', error);
+        toast.error("Error loading user data. Please try signing in again.");
+        navigate('/signin');
         throw error;
       }
     },
     retry: 1,
     retryDelay: 1000,
-    meta: {
-      onError: (error: Error) => {
-        console.error('Query error in useCurrentUser:', error);
-        toast.error("Error loading user data. Please try signing in again.");
-        navigate('/signin');
-      }
-    }
   });
 
   return { currentUser, isLoading };
