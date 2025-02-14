@@ -140,7 +140,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           value={formData.reconEstimate ? formatDollarAmount(formData.reconEstimate) : ''}
           onChange={handleReconEstimateChange}
           placeholder="$0"
-          className="font-mono"
+          className="font-mono focus:ring-1 focus:ring-offset-0"
         />
       </div>
 
