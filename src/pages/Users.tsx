@@ -29,7 +29,7 @@ const Users = () => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'fullName', direction: 'asc' });
 
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
-  const { users, total, isLoading, deleteUser, updateUser } = useUsers({
+  const { users, total, isLoading, mutations } = useUsers({
     pageSize,
     currentPage,
     searchTerm,
@@ -70,6 +70,7 @@ const Users = () => {
   };
 
   const handleDelete = (userId: string) => {
+    if (!userId) return;
     setUserToDelete(userId);
     setIsDeleteDialogOpen(true);
   };
@@ -85,11 +86,13 @@ const Users = () => {
   };
 
   const confirmDelete = (reason?: string) => {
-    if (userToDelete) {
-      deleteUser({ userId: userToDelete, reason });
-      setIsDeleteDialogOpen(false);
-      setUserToDelete(null);
-    }
+    if (!userToDelete) return;
+    mutations.deleteUser.mutate({ 
+      userId: userToDelete, 
+      reason 
+    });
+    setIsDeleteDialogOpen(false);
+    setUserToDelete(null);
   };
 
   const handleSearchChange = (value: string) => {
@@ -103,7 +106,6 @@ const Users = () => {
   };
 
   const totalPages = Math.ceil(total / pageSize);
-
   const sortedUsers = sortUsers(users);
 
   if (isLoading) {
@@ -174,7 +176,10 @@ const Users = () => {
         user={selectedUser}
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
-        onUpdate={(userId, userData) => updateUser({ userId, userData })}
+        onUpdate={(userId, userData) => {
+          if (!userId) return;
+          mutations.updateUser.mutate({ userId, userData });
+        }}
       />
 
       <AdminFooter />

@@ -37,7 +37,7 @@ export const useUsersMutations = () => {
 
   const updateUser = useMutation({
     mutationFn: async ({ userId, userData }: { userId: string; userData: UserFormData }) => {
-      if (!userId) {
+      if (!userId?.trim()) {
         throw new Error('User ID is required for update');
       }
 
@@ -70,14 +70,15 @@ export const useUsersMutations = () => {
 
   const deleteUser = useMutation({
     mutationFn: async ({ userId, reason }: { userId: string; reason?: string }) => {
-      if (!userId) {
+      if (!userId?.trim()) {
         throw new Error('User ID is required for deletion');
       }
 
+      const currentUser = await supabase.auth.getUser();
       const { error } = await supabase
         .rpc('handle_user_deletion', { 
           user_id: userId, 
-          deleted_by_id: (await supabase.auth.getUser()).data.user?.id,
+          deleted_by_id: currentUser.data.user?.id,
           deletion_reason: reason || null 
         });
 
