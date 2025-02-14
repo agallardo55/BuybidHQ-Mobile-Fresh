@@ -56,17 +56,23 @@ export const useUsersMutations = () => {
         }
       }
 
-      // First create the auth user
-      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+      // Generate a random password for the new user
+      const tempPassword = Math.random().toString(36).slice(-8);
+
+      // Create the auth user using signUp
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
-        email_confirm: true,
-        user_metadata: {
-          full_name: userData.fullName,
-          role: userData.role
+        password: tempPassword,
+        options: {
+          data: {
+            full_name: userData.fullName,
+            role: userData.role
+          }
         }
       });
 
       if (authError) throw authError;
+      if (!authData.user) throw new Error("Failed to create user");
 
       // Wait a moment for the trigger to create the user record
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -86,11 +92,13 @@ export const useUsersMutations = () => {
           is_active: userData.isActive,
           status: 'active'
         })
-        .eq('id', authUser.user.id)
+        .eq('id', authData.user.id)
         .select()
         .single();
 
       if (error) throw error;
+      
+      toast.info(`Temporary password for ${userData.email}: ${tempPassword}`);
       return data;
     },
     onSuccess: () => {
