@@ -30,28 +30,28 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit }: BuyersTableProps) => 
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Dealership</TableHead>
-          <TableHead>Phone</TableHead>
-          <TableHead>Location</TableHead>
-          <TableHead>Accepted</TableHead>
-          <TableHead>Pending</TableHead>
-          <TableHead>Declined</TableHead>
-          <TableHead>Actions</TableHead>
+          <TableHead className="text-sm">Name</TableHead>
+          <TableHead className="text-sm">Email</TableHead>
+          <TableHead className="text-sm">Dealership</TableHead>
+          <TableHead className="text-sm">Phone</TableHead>
+          <TableHead className="text-sm">Location</TableHead>
+          <TableHead className="text-sm">Accepted</TableHead>
+          <TableHead className="text-sm">Pending</TableHead>
+          <TableHead className="text-sm">Declined</TableHead>
+          <TableHead className="text-sm">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {buyers.map((buyer) => (
           <TableRow key={buyer.id}>
-            <TableCell className="py-2 px-4 min-h-[44px]">{buyer.name}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{buyer.email}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{buyer.dealership}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{buyer.phone}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{buyer.location}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{buyer.acceptedBids}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{buyer.pendingBids}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{buyer.declinedBids}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.name}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.email}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.dealership}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.phone}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.location}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.acceptedBids}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.pendingBids}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.declinedBids}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px]">
               <div className="flex items-center gap-2">
                 <Button
