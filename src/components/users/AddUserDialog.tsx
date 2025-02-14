@@ -16,7 +16,7 @@ import { useState } from "react";
 
 const AddUserDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { createUser } = useUsers({
+  const { mutations } = useUsers({
     pageSize: 20,
     currentPage: 1,
     searchTerm: ""
@@ -37,7 +37,7 @@ const AddUserDialog = () => {
   const handleSubmit = async (e: React.FormEvent, dealershipData?: DealershipFormData) => {
     e.preventDefault();
     try {
-      await createUser(formData, dealershipData);
+      await mutations.createUser.mutateAsync(formData);
       setIsOpen(false);
       setFormData({
         fullName: "",
