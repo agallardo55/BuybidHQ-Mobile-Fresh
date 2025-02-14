@@ -4,18 +4,32 @@ import { supabase } from "@/integrations/supabase/client";
 import { BuyerFormData } from "@/types/buyers";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
+import { useNavigate } from "react-router-dom";
 
 export const useBuyers = () => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
+  const navigate = useNavigate();
 
   const { data: buyers = [], isLoading } = useQuery({
     queryKey: ['buyers', currentUser?.role],
     queryFn: async () => {
       try {
+        // First check if we have a session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (!session || sessionError) {
+          console.error("No valid session:", sessionError);
+          navigate('/signin');
+          return [];
+        }
+
+        // Get current user data
         const { data: userData, error: userError } = await supabase.auth.getUser();
         if (userError) {
           console.error("Auth error:", userError);
+          if (userError.message.includes("Invalid refresh token")) {
+            navigate('/signin');
+          }
           throw userError;
         }
 
@@ -41,6 +55,10 @@ export const useBuyers = () => {
 
         if (error) {
           console.error("Buyer fetch error:", error);
+          if (error.code === 'PGRST116') {
+            navigate('/signin');
+            return [];
+          }
           throw error;
         }
 
@@ -67,17 +85,35 @@ export const useBuyers = () => {
 
         console.log("Mapped buyers:", mappedBuyers);
         return mappedBuyers;
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error in buyers query:", error);
+        if (error.message?.includes('JWT')) {
+          navigate('/signin');
+          return [];
+        }
         toast.error("Failed to fetch buyers. Please try again.");
         throw error;
       }
     },
     enabled: !!currentUser,
+    retry: (failureCount, error: any) => {
+      // Don't retry on authentication errors
+      if (error?.message?.includes('JWT') || 
+          error?.message?.includes('Invalid refresh token')) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 
   const createBuyerMutation = useMutation({
     mutationFn: async (buyerData: BuyerFormData) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/signin');
+        throw new Error('No valid session');
+      }
+
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
 
@@ -119,14 +155,24 @@ export const useBuyers = () => {
       queryClient.invalidateQueries({ queryKey: ['buyers'] });
       toast.success("Buyer added successfully!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Create buyer error:", error);
-      toast.error("Failed to add buyer. Please try again.");
+      if (error.message?.includes('JWT')) {
+        navigate('/signin');
+      } else {
+        toast.error("Failed to add buyer. Please try again.");
+      }
     },
   });
 
   const updateBuyerMutation = useMutation({
     mutationFn: async ({ buyerId, buyerData }: { buyerId: string; buyerData: BuyerFormData }) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/signin');
+        throw new Error('No valid session');
+      }
+
       console.log("Updating buyer:", buyerId, "with data:", buyerData);
 
       const { error } = await supabase
@@ -151,14 +197,24 @@ export const useBuyers = () => {
       queryClient.invalidateQueries({ queryKey: ['buyers'] });
       toast.success("Buyer updated successfully!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Update buyer error:", error);
-      toast.error("Failed to update buyer. Please try again.");
+      if (error.message?.includes('JWT')) {
+        navigate('/signin');
+      } else {
+        toast.error("Failed to update buyer. Please try again.");
+      }
     },
   });
 
   const deleteBuyerMutation = useMutation({
     mutationFn: async (buyerId: string) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/signin');
+        throw new Error('No valid session');
+      }
+
       console.log("Deleting buyer:", buyerId);
 
       const { error } = await supabase
@@ -172,9 +228,13 @@ export const useBuyers = () => {
       queryClient.invalidateQueries({ queryKey: ['buyers'] });
       toast.success("Buyer deleted successfully!");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Delete buyer error:", error);
-      toast.error("Failed to delete buyer. Please try again.");
+      if (error.message?.includes('JWT')) {
+        navigate('/signin');
+      } else {
+        toast.error("Failed to delete buyer. Please try again.");
+      }
     },
   });
 
