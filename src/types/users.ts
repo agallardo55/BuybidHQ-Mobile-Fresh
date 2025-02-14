@@ -3,7 +3,7 @@ export interface User {
   id: string;
   email: string;
   fullName: string | null;
-  role: "admin" | "dealer" | "basic" | "individual";
+  role: "admin" | "dealer" | "associate";
   status: string;
   mobileNumber: string | null;
   businessNumber: string | null;
@@ -21,7 +21,7 @@ export interface User {
 export interface UserFormData {
   fullName: string;
   email: string;
-  role: "admin" | "dealer" | "basic" | "individual";
+  role: "admin" | "dealer" | "associate";
   mobileNumber: string;
   address?: string;
   city?: string;

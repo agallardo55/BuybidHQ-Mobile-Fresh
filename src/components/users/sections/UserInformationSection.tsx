@@ -74,14 +74,14 @@ const UserInformationSection = ({
             <Label htmlFor="role">Role</Label>
             <Select
               value={formData.role}
-              onValueChange={(value: "admin" | "dealer" | "basic" | "individual") => 
+              onValueChange={(value: "admin" | "dealer" | "associate") => 
                 onFormDataChange({ role: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                {['admin', 'dealer', 'basic', 'individual'].map(role => (
+                {['admin', 'dealer', 'associate'].map(role => (
                   <SelectItem key={role} value={role} className="capitalize">
                     {role}
                   </SelectItem>
@@ -118,4 +118,3 @@ const UserInformationSection = ({
 };
 
 export default UserInformationSection;
-

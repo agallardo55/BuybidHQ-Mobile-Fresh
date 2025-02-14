@@ -38,7 +38,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
           <InfoRow label="Status" value={user.status} />
           <InfoRow label="Mobile Number" value={user.mobileNumber} />
           
-          {(user.role === 'basic' || user.role === 'individual' || user.role === 'dealer') && user.dealershipInfo && (
+          {user.dealershipInfo && (
             <>
               <h3 className="text-sm font-medium text-gray-900 mt-6 mb-3">Dealership Information</h3>
               <InfoRow label="Dealership Name" value={user.dealershipInfo.dealerName} />
@@ -67,4 +67,3 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
 };
 
 export default ViewUserDialog;
-
