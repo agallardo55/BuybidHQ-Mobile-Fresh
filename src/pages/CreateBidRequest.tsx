@@ -23,10 +23,17 @@ const CreateBidRequest = () => {
     handleSubmit,
   } = useCreateBidRequest();
 
-  const filteredBuyers = buyers?.filter(buyer => 
+  const mappedBuyers = buyers?.map(buyer => ({
+    id: buyer.id,
+    name: buyer.name,
+    dealership: buyer.dealership,
+    mobile: buyer.phone // Map 'phone' to 'mobile'
+  })) || [];
+
+  const filteredBuyers = mappedBuyers.filter(buyer => 
     buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     buyer.dealership?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  );
 
   const onSubmit = () => {
     if (!currentUser?.id) {
