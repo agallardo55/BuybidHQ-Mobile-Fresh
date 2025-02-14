@@ -91,8 +91,8 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsePaginate
           city: user.city,
           state: user.state,
           zipCode: user.zip_code,
-          dealershipId: user.dealership_id,
-          dealershipName: user.dealerships?.dealer_name,
+          dealershipId: user.dealership_id || undefined,
+          dealershipName: user.dealerships?.dealer_name || undefined,
           isActive: user.is_active
         })),
         total: count || 0
