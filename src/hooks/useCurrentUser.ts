@@ -25,7 +25,6 @@ export const useCurrentUser = () => {
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
-        // Get session first
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) {
           console.error('Session error:', sessionError);
@@ -37,57 +36,24 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // First try to get existing user data
+        // Use the get_user_profile function
         const { data: userData, error: userError } = await supabase
-          .from('buybidhq_users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+          .rpc('get_user_profile', {
+            user_id: session.user.id
+          });
 
         if (userError) {
           console.error('Error fetching user data:', userError);
-          
-          // Only create new profile if the error is that the record doesn't exist
-          if (userError.code === 'PGRST116') {
-            console.log('Creating new user profile');
-            const basicProfile = {
-              id: session.user.id,
-              role: 'basic' as UserRole,
-              status: 'active',
-              full_name: '',
-              email: session.user.email || '',
-              mobile_number: '',
-              address: '',
-              city: '',
-              state: '',
-              zip_code: '',
-              company: '',
-              dealership_id: null,
-              is_active: true
-            };
-
-            const { data: newProfile, error: insertError } = await supabase
-              .from('buybidhq_users')
-              .insert(basicProfile)
-              .select()
-              .single();
-
-            if (insertError) {
-              console.error('Error creating user profile:', insertError);
-              throw insertError;
-            }
-
-            return {
-              ...newProfile,
-              dealership: null
-            };
-          }
-          
           throw userError;
         }
 
+        if (!userData) {
+          console.log('No user profile found');
+          return null;
+        }
+
         // If user has a dealership_id, fetch the dealership data
-        if (userData?.dealership_id) {
+        if (userData.dealership_id) {
           const { data: dealership, error: dealershipError } = await supabase
             .from('dealerships')
             .select('*')
