@@ -669,141 +669,196 @@ const decodePorscheVin = (vin: string): { model: string; variant?: string } => {
   return modelMap[modelCode] || { model: 'unknown' };
 };
 
+// Helper function to decode VIN with NHTSA
+async function decodeVinWithNHTSA(vin: string) {
+  try {
+    const response = await fetch(
+      `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`
+    );
+    
+    if (!response.ok) {
+      console.error('NHTSA API error:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    console.log('NHTSA API Response:', JSON.stringify(data, null, 2));
+
+    if (!data.Results || data.Results.length === 0) {
+      return null;
+    }
+
+    const results = data.Results.reduce((acc: { [key: string]: string }, item: any) => {
+      if (item.Value && item.Value !== "Not Applicable") {
+        acc[item.Variable] = item.Value;
+      }
+      return acc;
+    }, {});
+
+    console.log('Processed NHTSA Results:', results);
+
+    return {
+      year: results.ModelYear || "",
+      make: results.Make || "",
+      model: results.Model || "",
+      trim: results.Trim || "",
+      engineCylinders: formatEngineInfo(results),
+      transmission: formatTransmission(results),
+      drivetrain: formatDrivetrain(results),
+      isExotic: isExoticVehicle(results.Make, results.Model)
+    };
+  } catch (error) {
+    console.error('Error fetching from NHTSA:', error);
+    return null;
+  }
+}
+
+function formatEngineInfo(results: any): string {
+  const displacement = results.DisplacementL ? `${results.DisplacementL}L` : '';
+  const cylinders = results.EngineCylinders ? `${results.EngineCylinders}` : '';
+  const configuration = results.EngineConfiguration || '';
+  const turbo = results.Turbo === 'Yes' ? 'Turbo' : '';
+  
+  const parts = [displacement, configuration, cylinders].filter(Boolean);
+  const base = parts.join(' ').trim();
+  
+  return base ? (turbo ? `${base} ${turbo}` : base) : '';
+}
+
+function formatTransmission(results: any): string {
+  const speed = results.TransmissionSpeeds || '';
+  const type = results.TransmissionStyle || '';
+  return `${speed} ${type}`.trim();
+}
+
+function formatDrivetrain(results: any): string {
+  const driveType = results.DriveType;
+  if (!driveType) return '';
+  
+  const driveTypeMap: { [key: string]: string } = {
+    'Front-Wheel Drive': 'FWD',
+    'Rear-Wheel Drive': 'RWD',
+    'All-Wheel Drive': 'AWD',
+    '4-Wheel Drive': '4WD'
+  };
+
+  return driveTypeMap[driveType] || driveType;
+}
+
+function isExoticVehicle(make: string, model: string): boolean {
+  const exoticMakes = ['Porsche', 'Ferrari', 'Lamborghini', 'McLaren', 'Aston Martin'];
+  return exoticMakes.includes(make);
+}
+
+// Enhanced vehicle data by combining NHTSA and exotic car data
+function enhanceVehicleData(nhtsaData: any, vin: string) {
+  if (!nhtsaData) return null;
+
+  // For exotic vehicles, enhance with our detailed configurations
+  if (nhtsaData.isExotic) {
+    const exoticConfig = getExoticCarConfig(vin, nhtsaData.make, nhtsaData.model);
+    if (exoticConfig) {
+      return {
+        ...nhtsaData,
+        engineCylinders: exoticConfig.engineDescription || nhtsaData.engineCylinders,
+        transmission: exoticConfig.transmission || nhtsaData.transmission,
+        drivetrain: exoticConfig.drivetrain || nhtsaData.drivetrain
+      };
+    }
+  }
+
+  // Check for electric vehicles
+  const evConfig = getElectricVehicleConfig(vin, nhtsaData.make, nhtsaData.model);
+  if (evConfig) {
+    return {
+      ...nhtsaData,
+      engineCylinders: evConfig.engineDescription,
+      transmission: evConfig.transmission,
+      drivetrain: evConfig.drivetrain
+    };
+  }
+
+  return nhtsaData;
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { vin } = await req.json()
-    console.log('Received VIN request:', vin)
+    const { vin } = await req.json();
+    console.log('Processing VIN:', vin);
 
     if (!vin || typeof vin !== 'string' || vin.length !== 17) {
-      console.error('Invalid VIN format:', vin)
+      console.error('Invalid VIN format:', vin);
       return new Response(
         JSON.stringify({ error: 'Invalid VIN provided' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
+      );
     }
 
-    const apiKey = Deno.env.get('CARAPI_KEY')
-    if (!apiKey) {
-      console.error('CARAPI_KEY not found in environment variables')
-      return new Response(
-        JSON.stringify({ error: 'API configuration error' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
-    }
+    // First, try NHTSA decoder
+    let vehicleData = await decodeVinWithNHTSA(vin);
+    console.log('Initial NHTSA decode result:', vehicleData);
 
-    const apiUrl = `https://carapi.app/api/vin/${vin}?api_token=${apiKey}`
-    console.log('Making request to CarAPI for VIN:', vin)
-
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
+    if (!vehicleData) {
+      console.log('NHTSA decode failed, falling back to CarAPI');
+      // Fallback to existing CarAPI implementation
+      const apiKey = Deno.env.get('CARAPI_KEY');
+      if (!apiKey) {
+        return new Response(
+          JSON.stringify({ error: 'API configuration error' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        );
       }
-    })
 
-    console.log('CarAPI response status:', response.status)
-    
-    // Get the raw response text
-    const responseText = await response.text()
-    console.log('CarAPI raw response:', responseText)
+      const apiUrl = `https://carapi.app/api/vin/${vin}?api_token=${apiKey}`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
 
-    let data
-    try {
-      data = JSON.parse(responseText)
-      console.log('API Response Fields:', {
-        year: data.year,
-        make: data.make,
-        model: data.model,
-        trims: data.trims,
-        specs: data.specs
-      })
-    } catch (parseError) {
-      console.error('Failed to parse CarAPI response:', parseError)
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid API response format',
-          details: responseText.substring(0, 500)
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 502 }
-      )
+      if (response.status === 404) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'VIN not found',
+            message: 'Vehicle information not found in any database. Please enter details manually.'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(`CarAPI error: ${response.status}`);
+      }
+
+      // Format CarAPI data using existing logic
+      vehicleData = {
+        year: data.year?.toString() || "",
+        make: data.make || "",
+        model: data.model || "",
+        trim: data.trims?.[0]?.name || "",
+        engineCylinders: formatEngineDescription(data),
+        transmission: cleanTransmission(data.specs?.transmission_style),
+        drivetrain: cleanDrivetrain(data.specs?.drive_type)
+      };
     }
 
-    if (response.status === 404) {
-      console.log('VIN not found in CarAPI database')
-      return new Response(
-        JSON.stringify({ 
-          error: 'VIN not found',
-          message: 'The provided VIN could not be found in our database. Please verify the VIN or enter the vehicle details manually.'
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
-      )
-    }
-
-    if (!response.ok) {
-      console.error('CarAPI error:', {
-        status: response.status,
-        statusText: response.statusText,
-        data: data
-      })
-      return new Response(
-        JSON.stringify({ 
-          error: 'Failed to decode VIN',
-          details: data
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
-      )
-    }
-
-    const engineDescription = formatEngineDescription({
-      ...data,
-      vin: vin
-    });
-    console.log('Formatted engine description:', engineDescription);
-
-    const transmissionStyle = cleanTransmission(
-      data.specs?.transmission_style,
-      data.make,
-      data.model,
-      vin
-    );
-    const driveType = cleanDrivetrain(
-      data.specs?.drive_type,
-      data.make,
-      data.model,
-      vin
-    );
-    
-    const trimName = data.trims && data.trims.length > 0 ? data.trims[0].name : "";
-
-    const transformedData = {
-      year: data.year?.toString() || "",
-      make: data.make || "",
-      model: data.model || "",
-      trim: trimName,
-      engineCylinders: engineDescription,
-      transmission: transmissionStyle,
-      drivetrain: driveType,
-    }
-
-    console.log('Final transformed data:', transformedData)
+    // Enhance the data with exotic/special vehicle information
+    const enhancedData = enhanceVehicleData(vehicleData, vin);
+    console.log('Final enhanced vehicle data:', enhancedData);
 
     return new Response(
-      JSON.stringify(transformedData),
+      JSON.stringify(enhancedData),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    );
   } catch (error) {
-    console.error('Error processing request:', error)
+    console.error('Error processing request:', error);
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',
         details: error.message
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-    )
+    );
   }
-})
+});
