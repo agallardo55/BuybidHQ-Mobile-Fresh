@@ -38,11 +38,11 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
 
         // Add search filter if searchTerm is provided
         if (searchTerm) {
-          query = query.or(`
-            full_name.ilike.%${searchTerm}%,
-            email.ilike.%${searchTerm}%,
-            role.ilike.%${searchTerm}%
-          `);
+          query = query.or([
+            `full_name.ilike.%${searchTerm}%`,
+            `email.ilike.%${searchTerm}%`,
+            `role.ilike.%${searchTerm}%`
+          ].join(','));
         }
 
         // Add pagination
