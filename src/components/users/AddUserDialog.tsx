@@ -45,9 +45,10 @@ const AddUserDialog = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Modified to include dealershipData for all roles if provided
       await mutations.createUser.mutateAsync({
         userData: formData,
-        dealershipData: formData.role === 'dealer' ? dealershipData : undefined
+        dealershipData: dealershipData.dealerName ? dealershipData : undefined
       });
       setIsOpen(false);
       setFormData({
@@ -56,6 +57,16 @@ const AddUserDialog = () => {
         role: "associate",
         mobileNumber: "",
         isActive: true,
+      });
+      setDealershipData({
+        dealerName: "",
+        dealerId: "",
+        businessPhone: "",
+        businessEmail: "",
+        address: "",
+        city: "",
+        state: "",
+        zipCode: ""
       });
     } catch (error) {
       console.error("Error creating user:", error);
@@ -109,4 +120,3 @@ const AddUserDialog = () => {
 };
 
 export default AddUserDialog;
-
