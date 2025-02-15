@@ -6,6 +6,44 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Helper function to determine engine configuration
+const determineEngineConfiguration = (
+  configuration: string | null, 
+  cylinders: number | null
+): string => {
+  if (configuration) {
+    return configuration.toLowerCase() === 'inline' ? 'I' : 'V';
+  }
+  // Infer configuration based on number of cylinders
+  if (cylinders) {
+    return cylinders <= 4 ? 'I' : 'V';
+  }
+  return '';
+}
+
+// Helper function to format engine description
+const formatEngineDescription = (specs: any): string => {
+  if (!specs) return "Engine information not available";
+
+  const cylinders = specs.engine_number_of_cylinders ? 
+    parseInt(specs.engine_number_of_cylinders) : null;
+  
+  if (!cylinders) return "Engine information not available";
+
+  const configuration = determineEngineConfiguration(
+    specs.engine_configuration,
+    cylinders
+  );
+
+  // Check if engine is turbocharged
+  const isTurbo = specs.turbo || 
+    (specs.description?.toLowerCase().includes('turbo'));
+
+  // Build the engine description
+  const baseDescription = `${configuration}-${cylinders} cyl`;
+  return isTurbo ? `${baseDescription} Turbo` : baseDescription;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -61,7 +99,10 @@ serve(async (req) => {
         specs: {
           engine_number_of_: data.specs?.engine_number_of_,
           transmission_style: data.specs?.transmission_style,
-          drive_type: data.specs?.drive_type
+          drive_type: data.specs?.drive_type,
+          engine_configuration: data.specs?.engine_configuration,
+          turbo: data.specs?.turbo,
+          description: data.specs?.description
         }
       })
     } catch (parseError) {
@@ -101,13 +142,11 @@ serve(async (req) => {
       )
     }
 
-    // Access the specs directly using the correct JSON paths
-    const engineCylinders = data.specs?.engine_number_of_ 
-      ? `${data.specs.engine_number_of_} cylinder`
-      : "";
+    // Format engine description
+    const engineDescription = formatEngineDescription(data.specs);
+    console.log('Formatted engine description:', engineDescription);
 
     const transmissionStyle = data.specs?.transmission_style || "";
-
     const driveType = data.specs?.drive_type || "";
 
     // Transform the response to match our expected structure
@@ -116,7 +155,7 @@ serve(async (req) => {
       make: data.make || "",
       model: data.model || "",
       trim: data.trim || "",
-      engineCylinders,
+      engineCylinders: engineDescription,
       transmission: transmissionStyle,
       drivetrain: driveType,
     }
