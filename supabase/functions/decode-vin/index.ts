@@ -6,24 +6,64 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Helper function to format displacement
+const formatDisplacement = (displacement: string | null): string => {
+  if (!displacement) return '';
+  // Try to parse the displacement as a number
+  const value = parseFloat(displacement);
+  if (isNaN(value)) return '';
+  // Format with one decimal place if it's not a whole number
+  return value % 1 === 0 ? `${value}.0L ` : `${value}L `;
+}
+
 // Helper function to determine engine configuration
 const determineEngineConfiguration = (
   configuration: string | null, 
-  cylinders: number | null
+  cylinders: number | null,
+  description: string | null
 ): string => {
+  // First check explicit configuration
   if (configuration) {
     return configuration.toLowerCase() === 'inline' ? 'I' : 'V';
   }
-  // Infer configuration based on number of cylinders
+  
+  // Check description for hints
+  if (description) {
+    const lowerDesc = description.toLowerCase();
+    if (lowerDesc.includes('inline')) return 'I';
+    if (lowerDesc.includes('v-')) return 'V';
+  }
+  
+  // Infer based on cylinders as last resort
   if (cylinders) {
     return cylinders <= 4 ? 'I' : 'V';
   }
+  
   return '';
+}
+
+// Helper function to detect turbo
+const isTurboEngine = (specs: any): boolean => {
+  if (!specs) return false;
+  
+  // Check explicit turbo flag
+  if (specs.turbo) return true;
+  
+  // Check various description fields
+  const description = [
+    specs.description,
+    specs.engine_description,
+    specs.trim_description
+  ].filter(Boolean).join(' ').toLowerCase();
+  
+  return description.includes('turbo') || 
+         description.includes('turbocharged');
 }
 
 // Helper function to format engine description
 const formatEngineDescription = (specs: any): string => {
   if (!specs) return "Engine information not available";
+  console.log('Processing engine specs:', JSON.stringify(specs, null, 2));
 
   const cylinders = specs.engine_number_of_cylinders ? 
     parseInt(specs.engine_number_of_cylinders) : null;
@@ -32,16 +72,15 @@ const formatEngineDescription = (specs: any): string => {
 
   const configuration = determineEngineConfiguration(
     specs.engine_configuration,
-    cylinders
+    cylinders,
+    specs.description
   );
 
-  // Get displacement value
-  const displacement = specs.displacement_l || '';
-  const displacementStr = displacement ? `${displacement}L ` : '';
+  // Format displacement
+  const displacementStr = formatDisplacement(specs.displacement_l);
 
   // Check if engine is turbocharged
-  const isTurbo = specs.turbo || 
-    (specs.description?.toLowerCase().includes('turbo'));
+  const isTurbo = isTurboEngine(specs);
 
   // Build the engine description with displacement
   const baseDescription = `${displacementStr}${configuration}-${cylinders}`;
@@ -101,13 +140,15 @@ serve(async (req) => {
         model: data.model,
         trim: data.trim,
         specs: {
-          engine_number_of_: data.specs?.engine_number_of_,
+          engine_number_of_cylinders: data.specs?.engine_number_of_cylinders,
           transmission_style: data.specs?.transmission_style,
           drive_type: data.specs?.drive_type,
           engine_configuration: data.specs?.engine_configuration,
           turbo: data.specs?.turbo,
           description: data.specs?.description,
-          displacement_l: data.specs?.displacement_l
+          displacement_l: data.specs?.displacement_l,
+          engine_description: data.specs?.engine_description,
+          trim_description: data.specs?.trim_description
         }
       })
     } catch (parseError) {
