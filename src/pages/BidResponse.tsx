@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BidResponseFormData } from "@/components/bid-response/types";
 import VehicleDetailsSection from "@/components/bid-response/VehicleDetailsSection";
@@ -50,7 +50,7 @@ const BidResponse = () => {
   };
 
   // Check for existing bid when component mounts
-  useState(() => {
+  useEffect(() => {
     const checkExistingBid = async () => {
       if (!token) return;
 
@@ -60,9 +60,11 @@ const BidResponse = () => {
         });
 
         if (error) throw error;
-
-        if (data && data.has_existing_bid) {
-          setExistingBidAmount(data.existing_bid_amount.toString());
+        
+        // Get the first result from the array
+        const tokenInfo = data?.[0];
+        if (tokenInfo?.has_existing_bid) {
+          setExistingBidAmount(tokenInfo.existing_bid_amount.toString());
           setSubmitted(true);
         }
       } catch (error) {
