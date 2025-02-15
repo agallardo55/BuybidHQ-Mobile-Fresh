@@ -20,6 +20,9 @@ interface BasicVehicleInfoProps {
     model?: string;
     mileage?: string;
     vin?: string;
+    engineCylinders?: string;
+    transmission?: string;
+    drivetrain?: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
@@ -36,14 +39,12 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVe
     drivetrain: string;
   }) => {
     if (onBatchChange) {
-      // Use batch update if available
       const changes = Object.entries(data).map(([name, value]) => ({
         name,
-        value: value || "", // Ensure empty string for null/undefined values
+        value: value || "",
       }));
       onBatchChange(changes);
     } else {
-      // Fallback to individual updates
       Object.entries(data).forEach(([key, value]) => {
         const syntheticEvent = {
           target: {
@@ -123,7 +124,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVe
           </div>
           <div>
             <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">
-              Trim
+              Trim <span className="text-red-500">*</span>
             </label>
             <Input
               id="trim"
@@ -131,9 +132,13 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVe
               type="text"
               value={formData.trim}
               onChange={onChange}
+              required
               placeholder="SE"
-              className="focus:ring-1 focus:ring-offset-0"
+              className={`${errors.trim ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             />
+            {errors.trim && (
+              <p className="text-red-500 text-sm mt-1">{errors.trim}</p>
+            )}
           </div>
         </div>
 
@@ -160,7 +165,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVe
           </div>
           <div>
             <label htmlFor="engineCylinders" className="block text-sm font-medium text-gray-700 mb-1">
-              Engine
+              Engine <span className="text-red-500">*</span>
             </label>
             <Input
               id="engineCylinders"
@@ -168,13 +173,17 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVe
               type="text"
               value={formData.engineCylinders}
               onChange={onChange}
-              placeholder="V6"
-              className="focus:ring-1 focus:ring-offset-0"
+              required
+              placeholder="2.5L 4-Cylinder"
+              className={`${errors.engineCylinders ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             />
+            {errors.engineCylinders && (
+              <p className="text-red-500 text-sm mt-1">{errors.engineCylinders}</p>
+            )}
           </div>
           <div>
             <label htmlFor="transmission" className="block text-sm font-medium text-gray-700 mb-1">
-              Transmission
+              Transmission <span className="text-red-500">*</span>
             </label>
             <Input
               id="transmission"
@@ -182,13 +191,17 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVe
               type="text"
               value={formData.transmission}
               onChange={onChange}
-              placeholder="Automatic"
-              className="focus:ring-1 focus:ring-offset-0"
+              required
+              placeholder="8-Speed Automatic"
+              className={`${errors.transmission ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             />
+            {errors.transmission && (
+              <p className="text-red-500 text-sm mt-1">{errors.transmission}</p>
+            )}
           </div>
           <div>
             <label htmlFor="drivetrain" className="block text-sm font-medium text-gray-700 mb-1">
-              Drivetrain
+              Drivetrain <span className="text-red-500">*</span>
             </label>
             <Input
               id="drivetrain"
@@ -196,9 +209,13 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVe
               type="text"
               value={formData.drivetrain}
               onChange={onChange}
+              required
               placeholder="AWD"
-              className="focus:ring-1 focus:ring-offset-0"
+              className={`${errors.drivetrain ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             />
+            {errors.drivetrain && (
+              <p className="text-red-500 text-sm mt-1">{errors.drivetrain}</p>
+            )}
           </div>
         </div>
       </div>
