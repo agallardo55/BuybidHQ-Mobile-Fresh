@@ -16,9 +16,16 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
         codeReader.current = new BrowserMultiFormatReader();
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
+      const constraints = {
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          aspectRatio: { ideal: 16/9 }
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
