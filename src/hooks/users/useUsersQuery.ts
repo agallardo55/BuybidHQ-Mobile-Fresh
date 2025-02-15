@@ -4,8 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { UsersQueryParams } from "./types";
 import { User } from "@/types/users";
 import { toast } from "sonner";
+import { useCurrentUser } from "../useCurrentUser";
+import { useNavigate } from "react-router-dom";
 
 export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryParams) => {
+  const { currentUser } = useCurrentUser();
+  const navigate = useNavigate();
+
   return useQuery<{ users: User[]; total: number }>({
     queryKey: ['users', pageSize, currentPage, searchTerm],
     queryFn: async () => {
@@ -16,40 +21,13 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
 
         // Get current user's session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          throw new Error('Authentication error');
+        if (!session || sessionError) {
+          console.error("No valid session:", sessionError);
+          navigate('/signin');
+          return { users: [], total: 0 };
         }
 
-        if (!session?.user?.id) {
-          console.error('No active session');
-          throw new Error('No active session');
-        }
-
-        // Check if user is a superadmin
-        const { data: isSuperAdmin, error: superAdminError } = await supabase
-          .rpc('is_superadmin', { user_email: session.user.email });
-
-        if (superAdminError) {
-          console.error('Error checking superadmin status:', superAdminError);
-          throw superAdminError;
-        }
-
-        // Get current user's role and dealership from cache if not superadmin
-        let userCache;
-        if (!isSuperAdmin) {
-          const { data: cache, error: cacheError } = await supabase
-            .from('user_access_cache')
-            .select('role, dealership_id')
-            .eq('user_id', session.user.id)
-            .single();
-
-          if (cacheError) {
-            console.error('Error fetching user role:', cacheError);
-            throw cacheError;
-          }
-          userCache = cache;
-        }
+        console.log("Current user role:", currentUser?.role);
 
         let query = supabase
           .from('buybidhq_users')
@@ -57,19 +35,6 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
             *,
             dealership:dealerships (*)
           `, { count: 'exact' });
-
-        // Add role-based filters
-        if (!isSuperAdmin) {
-          if (userCache?.role === 'dealer' && userCache?.dealership_id) {
-            // Dealers can only see their associates
-            query = query
-              .eq('dealership_id', userCache.dealership_id)
-              .eq('role', 'associate');
-          } else {
-            // Non-admin/dealer users can't see any users
-            query = query.eq('id', session.user.id);
-          }
-        }
 
         // Add search filter if searchTerm is provided
         if (searchTerm) {
@@ -80,7 +45,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           `);
         }
 
-        // Fetch users with pagination
+        // Add pagination
         const { data, error, count } = await query
           .range(from, to)
           .is('deleted_at', null)
@@ -97,11 +62,21 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
         };
       } catch (error: any) {
         console.error('Error in useUsersQuery:', error);
+        if (error.message?.includes('JWT')) {
+          navigate('/signin');
+          return { users: [], total: 0 };
+        }
         toast.error('Failed to load users. Please try again.');
         throw error;
       }
     },
-    retry: 1,
-    retryDelay: 1000,
+    enabled: !!currentUser,
+    retry: (failureCount, error: any) => {
+      if (error?.message?.includes('JWT') || 
+          error?.message?.includes('Invalid refresh token')) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 };
