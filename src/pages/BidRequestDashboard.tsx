@@ -68,7 +68,22 @@ const BidRequestDashboard = () => {
     });
   };
 
-  const filteredRequests = bidRequests.filter((request) => {
+  const filteredRequests = bidRequests.map(request => ({
+    ...request,
+    engineCylinders: request.engineCylinders || '',
+    transmission: request.transmission || '',
+    drivetrain: request.drivetrain || '',
+    exteriorColor: request.exteriorColor || '',
+    interiorColor: request.interiorColor || '',
+    accessories: request.accessories || '',
+    windshield: request.windshield || '',
+    engineLights: request.engineLights || '',
+    brakes: request.brakes || '',
+    tire: request.tire || '',
+    maintenance: request.maintenance || '',
+    reconEstimate: request.reconEstimate || '',
+    reconDetails: request.reconDetails || ''
+  })).filter((request) => {
     const searchString = searchTerm.toLowerCase();
     return (
       request.year.toString().includes(searchString) ||
