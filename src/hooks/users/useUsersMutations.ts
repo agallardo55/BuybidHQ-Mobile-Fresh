@@ -10,28 +10,6 @@ export const useUsersMutations = () => {
 
   const createUser = useMutation({
     mutationFn: async ({ userData, dealershipData }: CreateUserParams) => {
-      // If it's a dealer, create dealership first
-      let dealershipId = null;
-      if (dealershipData) {
-        const { data: dealership, error: dealershipError } = await supabase
-          .from('dealerships')
-          .insert({
-            dealer_name: dealershipData.dealerName,
-            dealer_id: dealershipData.dealerId,
-            business_phone: dealershipData.businessPhone,
-            business_email: dealershipData.businessEmail,
-            address: dealershipData.address,
-            city: dealershipData.city,
-            state: dealershipData.state,
-            zip_code: dealershipData.zipCode
-          })
-          .select()
-          .single();
-
-        if (dealershipError) throw dealershipError;
-        dealershipId = dealership.id;
-      }
-
       // First check if user with this email already exists
       const normalizedEmail = userData.email.toLowerCase().trim();
       const { data: existingUser, error: fetchError } = await supabase
@@ -41,6 +19,60 @@ export const useUsersMutations = () => {
         .maybeSingle();
 
       if (fetchError) throw fetchError;
+
+      // If dealership data is provided, create or update the dealership
+      let dealershipId = null;
+      if (dealershipData && dealershipData.dealerName) {
+        // Check if dealership already exists
+        const { data: existingDealership, error: dealershipFetchError } = await supabase
+          .from('dealerships')
+          .select('id')
+          .eq('business_email', dealershipData.businessEmail)
+          .maybeSingle();
+
+        if (dealershipFetchError) throw dealershipFetchError;
+
+        if (existingDealership) {
+          // Update existing dealership
+          const { data: updatedDealership, error: updateError } = await supabase
+            .from('dealerships')
+            .update({
+              dealer_name: dealershipData.dealerName,
+              dealer_id: dealershipData.dealerId,
+              business_phone: dealershipData.businessPhone,
+              business_email: dealershipData.businessEmail,
+              address: dealershipData.address,
+              city: dealershipData.city,
+              state: dealershipData.state,
+              zip_code: dealershipData.zipCode
+            })
+            .eq('id', existingDealership.id)
+            .select()
+            .single();
+
+          if (updateError) throw updateError;
+          dealershipId = updatedDealership.id;
+        } else {
+          // Create new dealership
+          const { data: newDealership, error: createError } = await supabase
+            .from('dealerships')
+            .insert({
+              dealer_name: dealershipData.dealerName,
+              dealer_id: dealershipData.dealerId,
+              business_phone: dealershipData.businessPhone,
+              business_email: dealershipData.businessEmail,
+              address: dealershipData.address,
+              city: dealershipData.city,
+              state: dealershipData.state,
+              zip_code: dealershipData.zipCode
+            })
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          dealershipId = newDealership.id;
+        }
+      }
 
       // If user doesn't exist, create them in Auth first
       if (!existingUser) {
