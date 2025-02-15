@@ -32,19 +32,48 @@ export const useUsersMutations = () => {
         dealershipId = dealership.id;
       }
 
-      // Create user with dealership reference if applicable
-      const transformedUser = transformFormUser(userData);
-      const { data: user, error: userError } = await supabase
+      // First check if user with this email already exists
+      const normalizedEmail = userData.email.toLowerCase().trim();
+      const { data: existingUser } = await supabase
         .from('buybidhq_users')
-        .insert({
-          ...transformedUser,
-          dealership_id: dealershipId,
-          email: userData.email.toLowerCase().trim() // Ensure email is explicitly set and normalized
-        })
-        .select()
-        .single();
+        .select('id')
+        .eq('email', normalizedEmail)
+        .maybeSingle();
 
-      if (userError) throw userError;
+      let user;
+      if (existingUser) {
+        // Update existing user
+        const transformedUser = transformFormUser(userData);
+        const { data: updatedUser, error: updateError } = await supabase
+          .from('buybidhq_users')
+          .update({
+            ...transformedUser,
+            dealership_id: dealershipId,
+            email: normalizedEmail
+          })
+          .eq('id', existingUser.id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+        user = updatedUser;
+      } else {
+        // Create new user
+        const transformedUser = transformFormUser(userData);
+        const { data: newUser, error: createError } = await supabase
+          .from('buybidhq_users')
+          .insert({
+            ...transformedUser,
+            dealership_id: dealershipId,
+            email: normalizedEmail
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        user = newUser;
+      }
+
       return user;
     },
     onSuccess: () => {
