@@ -24,7 +24,7 @@ const DashboardNavigation = () => {
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
-    ...((!isLoading && currentUser?.role === 'dealer') ? [{ name: "Users", href: "/users" }] : []),
+    ...((!isLoading && (currentUser?.role === 'admin' || currentUser?.role === 'dealer')) ? [{ name: "Users", href: "/users" }] : []),
     { name: "Marketplace", href: "#" },
   ];
 
