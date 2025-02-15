@@ -14,6 +14,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserInformationSection from "./sections/UserInformationSection";
 import DealershipInformationSection from "./sections/DealershipInformationSection";
+import { toast } from "sonner";
 
 const AddUserDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,13 +45,25 @@ const AddUserDialog = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.email) {
+      toast.error("Email is required");
+      return;
+    }
+
     try {
-      // Modified to include dealershipData for all roles if provided
       await mutations.createUser.mutateAsync({
-        userData: formData,
+        userData: {
+          ...formData,
+          // Don't include an ID - let the database generate it
+          email: formData.email.toLowerCase().trim() // Normalize email
+        },
         dealershipData: dealershipData.dealerName ? dealershipData : undefined
       });
+
+      toast.success("User created successfully");
       setIsOpen(false);
+      // Reset form data
       setFormData({
         fullName: "",
         email: "",
@@ -70,6 +83,7 @@ const AddUserDialog = () => {
       });
     } catch (error) {
       console.error("Error creating user:", error);
+      toast.error("Failed to create user. Please try again.");
     }
   };
 
