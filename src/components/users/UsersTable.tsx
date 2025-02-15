@@ -29,12 +29,34 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
   const { currentUser } = useCurrentUser();
 
   const canManageUser = (user: User) => {
-    if (currentUser?.role === 'dealer') {
-      return (
-        user.dealership_id === currentUser.dealership_id &&
-        user.role === 'associate'
-      );
+    if (!currentUser) return false;
+
+    // Admin can manage all users
+    if (currentUser.role === 'admin') {
+      return true;
     }
+
+    // Dealer can only manage users in their dealership
+    if (currentUser.role === 'dealer') {
+      return user.dealership_id === currentUser.dealership_id;
+    }
+
+    return false;
+  };
+
+  const canViewUser = (user: User) => {
+    if (!currentUser) return false;
+
+    // Admin can view all users
+    if (currentUser.role === 'admin') {
+      return true;
+    }
+
+    // Dealer can only view users in their dealership
+    if (currentUser.role === 'dealer') {
+      return user.dealership_id === currentUser.dealership_id;
+    }
+
     return false;
   };
 
@@ -86,14 +108,16 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
             <TableCell className="py-2 px-4 min-h-[44px]">{user.dealership?.dealer_name || 'N/A'}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px]">
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onView(user)}
-                  className="h-7 w-7"
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
+                {canViewUser(user) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onView(user)}
+                    className="h-7 w-7"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                )}
                 {canManageUser(user) && (
                   <>
                     <Button

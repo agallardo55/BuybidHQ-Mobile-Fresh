@@ -1,13 +1,10 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, Menu, X, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useToast } from "@/hooks/use-toast";
-import { hasRequiredRole } from "@/config/features";
 import { supabase } from "@/integrations/supabase/client";
-import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 
 const DashboardNavigation = () => {
   const navigate = useNavigate();
@@ -16,20 +13,14 @@ const DashboardNavigation = () => {
   const { toast } = useToast();
   const { currentUser, isLoading } = useCurrentUser();
 
-  // Add debug logs
-  console.log('Current user:', currentUser);
-  console.log('Current user role:', currentUser?.role);
-  console.log('Is loading:', isLoading);
+  const canAccessUsers = currentUser?.role === 'admin' || currentUser?.role === 'dealer';
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
-    ...((!isLoading && (currentUser?.role === 'admin' || currentUser?.role === 'dealer')) ? [{ name: "Users", href: "/users" }] : []),
+    ...(canAccessUsers ? [{ name: "Users", href: "/users" }] : []),
     { name: "Marketplace", href: "#" },
   ];
-
-  // Add debug log for nav items
-  console.log('Nav items:', navItems);
 
   const handleNotificationsToggle = () => {
     toast({
