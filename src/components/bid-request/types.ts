@@ -1,3 +1,4 @@
+
 export interface BidRequest {
   id: string;
   createdAt: string;
@@ -8,7 +9,7 @@ export interface BidRequest {
   vin: string;
   mileage: number;
   buyer: string;
-  highestOffer: number;
+  highestOffer: number | null;
   status: "Pending" | "Approved" | "Declined";
   engineCylinders: string;
   transmission: string;

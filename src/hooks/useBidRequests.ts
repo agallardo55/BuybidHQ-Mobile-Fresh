@@ -87,7 +87,8 @@ export const useBidRequests = () => {
         }
 
         const mappedRequests = data.map(request => {
-          // Find the bid response with the highest offer amount
+          const offerAmounts = request.bid_responses?.map(r => Number(r.offer_amount)) || [];
+          const hasOffers = offerAmounts.length > 0;
           const highestBid = request.bid_responses?.reduce((highest, current) => {
             if (!highest || current.offer_amount > highest.offer_amount) {
               return current;
@@ -105,7 +106,7 @@ export const useBidRequests = () => {
             vin: request.vehicles?.vin || '',
             mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
             buyer: highestBid?.buyers?.buyer_name || '',
-            highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
+            highestOffer: hasOffers ? Math.max(...offerAmounts) : null,
             status: request.status,
             engineCylinders: request.vehicles?.engine || '',
             transmission: request.vehicles?.transmission || '',

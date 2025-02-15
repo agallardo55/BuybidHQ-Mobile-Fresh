@@ -36,6 +36,13 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
     setIsDialogOpen(true);
   };
 
+  const renderHighestOffer = (request: BidRequest) => {
+    if (request.highestOffer === null) {
+      return <span className="text-gray-500">No offers yet</span>;
+    }
+    return `$${request.highestOffer.toLocaleString()}`;
+  };
+
   const SortIcon = ({ field }: { field: keyof BidRequest }) => {
     if (sortConfig.field !== field) {
       return <ArrowUpDown className="h-4 w-4 ml-1" />;
@@ -109,7 +116,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                     {request.buyer}
                   </TableCell>
                   <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    ${request.highestOffer.toLocaleString()}
+                    {renderHighestOffer(request)}
                   </TableCell>
                   <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                     <Select
