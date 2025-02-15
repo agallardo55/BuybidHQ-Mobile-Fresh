@@ -43,7 +43,7 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
         <Button 
           type="button"
           onClick={startScan}
-          className="w-full bg-custom-blue hover:bg-custom-blue/90"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
           disabled={isScanning || isLoading}
         >
           <Barcode className="h-4 w-4 mr-2" />
