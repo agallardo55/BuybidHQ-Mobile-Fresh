@@ -9,11 +9,10 @@ const corsHeaders = {
 // Helper function to format displacement
 const formatDisplacement = (displacement: string | null): string => {
   if (!displacement) return '';
-  // Try to parse the displacement as a number
   const value = parseFloat(displacement);
   if (isNaN(value)) return '';
-  // Format with one decimal place if it's not a whole number
-  return value % 1 === 0 ? `${value}.0L ` : `${value}L `;
+  // Always format with one decimal place
+  return `${value.toFixed(1)}L`;
 }
 
 // Helper function to determine engine configuration
@@ -46,18 +45,23 @@ const determineEngineConfiguration = (
 const isTurboEngine = (specs: any): boolean => {
   if (!specs) return false;
   
-  // Check explicit turbo flag
-  if (specs.turbo) return true;
+  // Check in order of precedence
+  if (specs.turbo === true) return true;
   
-  // Check various description fields
-  const description = [
-    specs.description,
+  const descriptions = [
     specs.engine_description,
+    specs.description,
     specs.trim_description
-  ].filter(Boolean).join(' ').toLowerCase();
+  ].filter(Boolean);
   
-  return description.includes('turbo') || 
-         description.includes('turbocharged');
+  for (const desc of descriptions) {
+    if (desc.toLowerCase().includes('turbo') || 
+        desc.toLowerCase().includes('turbocharged')) {
+      return true;
+    }
+  }
+  
+  return false;
 }
 
 // Helper function to format engine description
@@ -76,14 +80,24 @@ const formatEngineDescription = (specs: any): string => {
     specs.description
   );
 
-  // Format displacement
+  // Format displacement with improved formatting
   const displacementStr = formatDisplacement(specs.displacement_l);
+  console.log('Formatted displacement:', displacementStr);
 
-  // Check if engine is turbocharged
+  // Check if engine is turbocharged with improved detection
   const isTurbo = isTurboEngine(specs);
+  console.log('Is turbo engine:', isTurbo);
 
-  // Build the engine description with displacement
-  const baseDescription = `${displacementStr}${configuration}-${cylinders}`;
+  // Build the engine description with proper spacing
+  let baseDescription = '';
+  if (displacementStr) {
+    baseDescription = `${displacementStr} ${configuration}${cylinders}`;
+  } else {
+    baseDescription = `${configuration}${cylinders}`;
+  }
+  
+  console.log('Base engine description:', baseDescription);
+  
   return isTurbo ? `${baseDescription} Turbo` : baseDescription;
 }
 
