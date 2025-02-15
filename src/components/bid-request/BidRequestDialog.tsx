@@ -53,7 +53,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:w-[90vw] md:w-[85vw] lg:w-[80vw] xl:w-[75vw] max-w-[1400px] p-6">
           <DialogHeader className="border-b pb-4">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-2xl">Vehicle Details</DialogTitle>
@@ -65,7 +65,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
                 {request.status}
               </span>
             </div>
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div>
                 <span className="text-gray-500">Date:</span>
                 <p className="font-medium">{formatDate(request.createdAt)}</p>
@@ -93,9 +93,9 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mt-6">
             {/* Core Vehicle Information */}
-            <div className="space-y-6 lg:col-span-1">
+            <div className="space-y-6">
               <div className="bg-white p-6 rounded-lg border">
                 <h3 className="font-semibold text-lg mb-4">Core Details</h3>
                 <div className="space-y-3">
@@ -132,7 +132,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
             </div>
 
             {/* Vehicle Condition & Colors */}
-            <div className="space-y-6 lg:col-span-1">
+            <div className="space-y-6">
               <div className="bg-white p-6 rounded-lg border">
                 <h3 className="font-semibold text-lg mb-4">Appearance</h3>
                 <div className="space-y-3">
@@ -167,7 +167,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
             </div>
 
             {/* Reconditioning Information */}
-            <div className="space-y-6 lg:col-span-1">
+            <div className="space-y-6">
               <div className="bg-white p-6 rounded-lg border">
                 <h3 className="font-semibold text-lg mb-4">Reconditioning</h3>
                 <div className="space-y-4">
