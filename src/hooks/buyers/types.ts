@@ -3,6 +3,7 @@ import { BuyerFormData } from "@/types/buyers";
 
 export interface BuyerResponse {
   id: string;
+  user_id: string | null;
   buyer_name: string | null;
   email: string | null;
   dealer_name: string | null;
@@ -14,7 +15,6 @@ export interface BuyerResponse {
   accepted_bids: number;
   pending_bids: number;
   declined_bids: number;
-  user_id: string;
   user: {
     full_name: string | null;
     email: string | null;
@@ -23,6 +23,7 @@ export interface BuyerResponse {
 
 export interface MappedBuyer {
   id: string;
+  user_id: string;
   name: string;
   email: string;
   dealership: string;
@@ -49,3 +50,4 @@ export interface UserPermission {
   permission: string;
   created_at: string | null;
 }
+

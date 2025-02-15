@@ -1,6 +1,7 @@
 
 export interface Buyer {
   id: string;
+  user_id: string;
   name: string;
   email: string;
   dealership: string;
@@ -31,3 +32,4 @@ export interface BuyerWithBids extends Buyer {
   pendingBids: number;
   declinedBids: number;
 }
+

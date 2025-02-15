@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Trash, Edit, Check, AlertCircle, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Eye, Trash, Pencil, Check, AlertCircle, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Buyer } from "@/types/buyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -28,8 +28,9 @@ interface BuyersTableProps {
 const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: BuyersTableProps) => {
   const { currentUser } = useCurrentUser();
 
-  const canManageBuyer = () => {
-    return currentUser?.role === 'dealer';
+  const canManageBuyer = (buyer: Buyer) => {
+    return currentUser?.role === 'admin' || // Admin can manage all buyers
+           currentUser?.id === buyer.user_id; // Users can only manage their own buyers
   };
 
   const SortIcon = ({ field }: { field: keyof Buyer }) => {
@@ -106,7 +107,7 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
-                {canManageBuyer() && (
+                {canManageBuyer(buyer) && (
                   <>
                     <Button
                       variant="ghost"
@@ -114,7 +115,7 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
                       onClick={() => onEdit(buyer)}
                       className="h-7 w-7"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -136,3 +137,4 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
 };
 
 export default BuyersTable;
+

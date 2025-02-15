@@ -23,11 +23,11 @@ export const useBuyersQuery = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Using explicit relationship reference to avoid ambiguity
         const { data, error } = await supabase
           .from('buyers')
           .select(`
             id,
+            user_id,
             buyer_name,
             email,
             dealer_name,
@@ -39,7 +39,6 @@ export const useBuyersQuery = () => {
             accepted_bids,
             pending_bids,
             declined_bids,
-            user_id,
             user:buybidhq_users!buyers_user_id_fkey(
               full_name,
               email
@@ -65,6 +64,7 @@ export const useBuyersQuery = () => {
         const typedData = data as unknown as BuyerResponse[];
         const mappedBuyers: MappedBuyer[] = typedData.map(buyer => ({
           id: buyer.id,
+          user_id: buyer.user_id || '',
           name: buyer.buyer_name || '',
           email: buyer.email || '',
           dealership: buyer.dealer_name || '',
@@ -99,3 +99,4 @@ export const useBuyersQuery = () => {
     },
   });
 };
+
