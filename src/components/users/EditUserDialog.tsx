@@ -69,18 +69,20 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="w-[95vw] sm:w-[85vw] md:w-full max-w-[90vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto">
+        <DialogHeader className="p-3 sm:p-4 md:p-6">
           <DialogTitle>Edit User</DialogTitle>
         </DialogHeader>
-        <AddUserForm
-          onSubmit={handleSubmit}
-          formData={formData}
-          onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-          initialDealershipData={dealershipData}
-          onDealershipDataChange={setDealershipData}
-          submitButtonText="Update"
-        />
+        <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
+          <AddUserForm
+            onSubmit={handleSubmit}
+            formData={formData}
+            onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+            initialDealershipData={dealershipData}
+            onDealershipDataChange={setDealershipData}
+            submitButtonText="Update"
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );
