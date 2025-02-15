@@ -5,6 +5,8 @@ import { format, parseISO } from "date-fns";
 import { BidRequest } from "./types";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import BidRequestDialog from "./BidRequestDialog";
 
 interface BidRequestTableProps {
   requests: BidRequest[];
@@ -17,6 +19,9 @@ interface BidRequestTableProps {
 }
 
 const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRequestTableProps) => {
+  const [selectedRequest, setSelectedRequest] = useState<BidRequest | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), 'MM/dd/yyyy');
@@ -24,6 +29,11 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
       console.error('Error formatting date:', error);
       return 'Invalid Date';
     }
+  };
+
+  const handleRowClick = (request: BidRequest) => {
+    setSelectedRequest(request);
+    setIsDialogOpen(true);
   };
 
   const SortIcon = ({ field }: { field: keyof BidRequest }) => {
@@ -53,84 +63,96 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
   );
 
   return (
-    <div className="overflow-x-auto -mx-4 sm:-mx-6 scrollbar-thin scrollbar-thumb-gray-300">
-      <div className="inline-block min-w-full align-middle px-4 sm:px-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <SortableHeader field="createdAt">Date</SortableHeader>
-              <SortableHeader field="year">Year</SortableHeader>
-              <SortableHeader field="make">Make</SortableHeader>
-              <SortableHeader field="model">Model</SortableHeader>
-              <TableHead className="whitespace-nowrap text-xs">Trim</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">VIN</TableHead>
-              <SortableHeader field="mileage">Mileage</SortableHeader>
-              <SortableHeader field="buyer">Buyer</SortableHeader>
-              <SortableHeader field="dealership">Dealership</SortableHeader>
-              <SortableHeader field="highestOffer">Highest Offer</SortableHeader>
-              <SortableHeader field="status">Status</SortableHeader>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {requests.map((request) => (
-              <TableRow key={request.id} className="text-xs">
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {formatDate(request.createdAt)}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {request.year}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {request.make}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {request.model}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {request.trim}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {request.vin}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {request.mileage.toLocaleString()}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {request.buyer}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  {request.dealership}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  ${request.highestOffer.toLocaleString()}
-                </TableCell>
-                <TableCell className="py-1 px-2 whitespace-nowrap">
-                  <Select
-                    value={request.status}
-                    onValueChange={(value: "Pending" | "Approved" | "Declined") => 
-                      onStatusUpdate(request.id, value)
-                    }
-                  >
-                    <SelectTrigger className={`w-[90px] h-6 text-xs font-medium
-                      ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                      ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                      ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
-                    `}>
-                      <SelectValue>{request.status}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Approved">Approved</SelectItem>
-                      <SelectItem value="Declined">Declined</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
+    <>
+      <div className="overflow-x-auto -mx-4 sm:-mx-6 scrollbar-thin scrollbar-thumb-gray-300">
+        <div className="inline-block min-w-full align-middle px-4 sm:px-6">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <SortableHeader field="createdAt">Date</SortableHeader>
+                <SortableHeader field="year">Year</SortableHeader>
+                <SortableHeader field="make">Make</SortableHeader>
+                <SortableHeader field="model">Model</SortableHeader>
+                <TableHead className="whitespace-nowrap text-xs">Trim</TableHead>
+                <TableHead className="whitespace-nowrap text-xs">VIN</TableHead>
+                <SortableHeader field="mileage">Mileage</SortableHeader>
+                <SortableHeader field="buyer">Buyer</SortableHeader>
+                <SortableHeader field="dealership">Dealership</SortableHeader>
+                <SortableHeader field="highestOffer">Highest Offer</SortableHeader>
+                <SortableHeader field="status">Status</SortableHeader>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {requests.map((request) => (
+                <TableRow 
+                  key={request.id} 
+                  className="text-xs cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleRowClick(request)}
+                >
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {formatDate(request.createdAt)}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {request.year}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {request.make}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {request.model}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {request.trim}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {request.vin}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {request.mileage.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {request.buyer}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    {request.dealership}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                    ${request.highestOffer.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="py-1 px-2 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                    <Select
+                      value={request.status}
+                      onValueChange={(value: "Pending" | "Approved" | "Declined") => 
+                        onStatusUpdate(request.id, value)
+                      }
+                    >
+                      <SelectTrigger className={`w-[90px] h-6 text-xs font-medium
+                        ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                        ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                        ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+                      `}>
+                        <SelectValue>{request.status}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Approved">Approved</SelectItem>
+                        <SelectItem value="Declined">Declined</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
+
+      <BidRequestDialog
+        request={selectedRequest}
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
+    </>
   );
 };
 
