@@ -113,9 +113,8 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
       </Dialog>
 
       <ImagePreviewDialog
-        isOpen={!!selectedImage}
+        previewImage={selectedImage}
         onOpenChange={() => setSelectedImage(null)}
-        imageUrl={selectedImage || ''}
       />
     </>
   );
