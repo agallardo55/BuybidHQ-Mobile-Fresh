@@ -1,10 +1,9 @@
-<lov-code>
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 // Configuration for Porsche 911 models
 const porsche911Config = {
@@ -692,7 +691,6 @@ async function decodeVinWithNHTSA(vin: string) {
     }
 
     const data = await response.json();
-    console.log('NHTSA API Response:', JSON.stringify(data, null, 2));
 
     if (!data.Results || data.Results.length === 0) {
       return null;
@@ -705,17 +703,14 @@ async function decodeVinWithNHTSA(vin: string) {
       return acc;
     }, {});
 
-    console.log('Processed NHTSA Results:', results);
-
     return {
       year: results.ModelYear || "",
       make: results.Make || "",
       model: results.Model || "",
       trim: results.Trim || "",
-      engineCylinders: formatEngineInfo(results),
-      transmission: formatTransmission(results),
-      drivetrain: formatDrivetrain(results),
-      isExotic: isExoticVehicle(results.Make, results.Model)
+      engineCylinders: `${results.DisplacementL ? `${results.DisplacementL}L ` : ''}${results.EngineConfiguration || ''} ${results.EngineCylinders || ''}`,
+      transmission: `${results.TransmissionSpeeds || ''} ${results.TransmissionStyle || ''}`.trim(),
+      drivetrain: results.DriveType || ""
     };
   } catch (error) {
     console.error('Error fetching from NHTSA:', error);
@@ -723,86 +718,34 @@ async function decodeVinWithNHTSA(vin: string) {
   }
 }
 
-function formatEngineInfo(results: any): string {
-  const displacement = results.DisplacementL ? `${results.DisplacementL}L` : '';
-  const cylinders = results.EngineCylinders ? `${results.EngineCylinders}` : '';
-  const configuration = results.EngineConfiguration || '';
-  const turbo = results.Turbo === 'Yes' ? 'Turbo' : '';
-  
-  const parts = [displacement, configuration, cylinders].filter(Boolean);
-  const base = parts.join(' ').trim();
-  
-  return base ? (turbo ? `${base} ${turbo}` : base) : '';
-}
-
-function formatTransmission(results: any): string {
-  const speed = results.TransmissionSpeeds || '';
-  const type = results.TransmissionStyle || '';
-  return `${speed} ${type}`.trim();
-}
-
-function formatDrivetrain(results: any): string {
-  const driveType = results.DriveType;
-  if (!driveType) return '';
-  
-  const driveTypeMap: { [key: string]: string } = {
-    'Front-Wheel Drive': 'FWD',
-    'Rear-Wheel Drive': 'RWD',
-    'All-Wheel Drive': 'AWD',
-    '4-Wheel Drive': '4WD'
-  };
-
-  return driveTypeMap[driveType] || driveType;
-}
-
-function isExoticVehicle(make: string, model: string): boolean {
-  const exoticMakes = ['Porsche', 'Ferrari', 'Lamborghini', 'McLaren', 'Aston Martin'];
-  return exoticMakes.includes(make);
-}
-
-// Enhanced vehicle data by combining NHTSA and exotic car data
-function enhanceVehicleData(nhtsaData: any, vin: string) {
-  console.log('Enhancing vehicle data:', { nhtsaData, vin });
-
-  if (!nhtsaData && !vin) {
-    console.error('No data available for enhancement');
-    return null;
-  }
-
-  const baseData = nhtsaData || {
-    year: "",
-    make: "",
-    model: "",
-    trim: "",
-  };
-
-  // For Porsche vehicles, prioritize our exotic car configurations
+// Helper function to get exotic car configuration
+function getExoticCarConfig(vin: string, make: string, model: string) {
   if (vin.startsWith('WP0')) {
-    const exoticConfig = getExoticCarConfig(vin, 'porsche', baseData.model);
-    console.log('Found exotic configuration:', exoticConfig);
-
-    if (exoticConfig) {
+    make = 'porsche';
+    const modelCode = vin.substring(3, 6);
+    
+    if (modelCode === 'AD2') {
       return {
-        ...baseData,
-        engineCylinders: exoticConfig.engineDescription,
-        transmission: exoticConfig.transmission,
-        drivetrain: exoticConfig.drivetrain
+        model: '911',
+        variant: 'turbo',
+        engineDescription: '3.8L H6 Twin-Turbo',
+        transmission: '8-speed PDK',
+        drivetrain: 'AWD',
+      };
+    }
+    
+    if (modelCode === 'AD1') {
+      return {
+        model: '911',
+        variant: 'carrera',
+        engineDescription: '3.0L H6 Twin-Turbo',
+        transmission: '8-speed PDK',
+        drivetrain: 'RWD',
       };
     }
   }
-
-  // Check for electric vehicles
-  const evConfig = getElectricVehicleConfig(vin, baseData.make, baseData.model);
-  if (evConfig) {
-    return {
-      ...baseData,
-      engineCylinders: evConfig.engineDescription,
-      transmission: evConfig.transmission,
-      drivetrain: evConfig.drivetrain
-    };
-  }
-
-  return nhtsaData;
+  
+  return null;
 }
 
 serve(async (req) => {
@@ -887,7 +830,26 @@ serve(async (req) => {
         year: data.year?.toString() || "",
         make: data.make || "",
         model: data.model || "",
-        trim: data.trims?.[0]?.name || "",
+        trim: data.trim || "",
         engineCylinders: formatEngineDescription(data),
         transmission: cleanTransmission(data.specs?.transmission_style),
-        drivetrain: cleanDrivetrain(data.specs?.drive_
+        drivetrain: cleanDrivetrain(data.specs?.drive_type)
+      };
+    }
+
+    return new Response(
+      JSON.stringify(vehicleData),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Error processing request:', error);
+    return new Response(
+      JSON.stringify({ 
+        error: 'Internal server error',
+        details: error.message
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    );
+  }
+});
