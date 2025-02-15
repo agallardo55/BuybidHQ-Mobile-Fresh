@@ -15,7 +15,7 @@ export interface BuyerResponse {
   pending_bids: number;
   declined_bids: number;
   user_id: string;
-  user: {  // Changed from buybidhq_users to match our query alias
+  user: {
     full_name: string | null;
     email: string | null;
   } | null;
@@ -38,4 +38,14 @@ export interface MappedBuyer {
 export interface UpdateBuyerParams {
   buyerId: string;
   buyerData: BuyerFormData;
+}
+
+// Add new interface for user permissions
+export interface UserPermission {
+  id: string;
+  user_id: string | null;
+  resource_type: string;
+  resource_id: string;
+  permission: string;
+  created_at: string | null;
 }

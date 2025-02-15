@@ -23,7 +23,7 @@ export const useBuyersQuery = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Simplified query with specific column selection and minimal relation depth
+        // The query will now be filtered by RLS policies automatically
         const { data, error } = await supabase
           .from('buyers')
           .select(`
@@ -62,7 +62,6 @@ export const useBuyersQuery = () => {
 
         console.log("Raw buyers data:", data);
 
-        // Cast and map the data
         const typedData = data as unknown as BuyerResponse[];
         const mappedBuyers: MappedBuyer[] = typedData.map(buyer => ({
           id: buyer.id,
