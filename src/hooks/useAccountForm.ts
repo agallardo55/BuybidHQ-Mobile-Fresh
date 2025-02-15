@@ -24,21 +24,17 @@ export const useAccountForm = () => {
 
   useEffect(() => {
     if (currentUser) {
-      const dealershipData = Array.isArray(currentUser.dealership) 
-        ? currentUser.dealership[0] 
-        : currentUser.dealership;
-
       setFormData(prev => ({
         ...prev,
         fullName: currentUser.full_name || "",
         email: currentUser.email || "",
         mobileNumber: currentUser.mobile_number || "",
-        businessNumber: dealershipData?.business_phone || "",
-        dealershipName: dealershipData?.dealer_name || "",
-        dealershipAddress: dealershipData?.address || currentUser.address || "",
-        city: dealershipData?.city || currentUser.city || "",
-        state: dealershipData?.state || currentUser.state || "",
-        zipCode: dealershipData?.zip_code || currentUser.zip_code || "",
+        businessNumber: currentUser.dealership?.business_phone || "",
+        dealershipName: currentUser.dealership?.dealer_name || "",
+        dealershipAddress: currentUser.address || "",
+        city: currentUser.city || "",
+        state: currentUser.state || "",
+        zipCode: currentUser.zip_code || "",
       }));
     }
   }, [currentUser]);

@@ -14,44 +14,29 @@ export const PersonalInfoTab = () => {
     e.preventDefault();
 
     try {
-      const user = (await supabase.auth.getUser()).data.user;
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      // First update user data
       const { error: userError } = await supabase
         .from('buybidhq_users')
         .update({
           full_name: formData.fullName,
           email: formData.email,
           mobile_number: formData.mobileNumber,
+          address: formData.dealershipAddress,
+          city: formData.city,
+          state: formData.state,
+          zip_code: formData.zipCode
         })
         .eq('id', user.id);
 
       if (userError) throw userError;
 
-      // Then update dealership data if user has a dealership
-      const { data: userData } = await supabase
-        .from('buybidhq_users')
-        .select('dealership_id')
-        .eq('id', user.id)
-        .single();
-
-      if (userData?.dealership_id) {
-        const { error: dealershipError } = await supabase
-          .from('dealerships')
-          .update({
-            business_phone: formData.businessNumber,
-          })
-          .eq('id', userData.dealership_id);
-
-        if (dealershipError) throw dealershipError;
-      }
-
       toast({
-        title: "Account updated",
-        description: "Your account details have been successfully updated.",
+        title: "Success",
+        description: "Your personal information has been updated.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating account:', error);
       toast({
         title: "Error",
@@ -115,18 +100,52 @@ export const PersonalInfoTab = () => {
             />
           </div>
           <div>
-            <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700 mb-1">
-              Business Number
+            <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">
+              Address
             </label>
             <Input
-              id="businessNumber"
-              name="businessNumber"
-              type="tel"
-              required
-              value={formData.businessNumber}
+              id="dealershipAddress"
+              name="dealershipAddress"
+              type="text"
+              value={formData.dealershipAddress}
               onChange={handleChange}
-              placeholder="(123) 456-7890"
-              maxLength={14}
+            />
+          </div>
+          <div>
+            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+              City
+            </label>
+            <Input
+              id="city"
+              name="city"
+              type="text"
+              value={formData.city}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+              State
+            </label>
+            <Input
+              id="state"
+              name="state"
+              type="text"
+              value={formData.state}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+              ZIP Code
+            </label>
+            <Input
+              id="zipCode"
+              name="zipCode"
+              type="text"
+              value={formData.zipCode}
+              onChange={handleChange}
+              maxLength={5}
             />
           </div>
         </div>
