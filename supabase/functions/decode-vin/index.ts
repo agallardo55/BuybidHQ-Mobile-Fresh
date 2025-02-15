@@ -7,6 +7,61 @@ const corsHeaders = {
 
 // Configuration for exotic cars
 const exoticCarConfigs = {
+  'porsche': {
+    '911': {
+      'turbo': {
+        engineDescription: '3.7L H6 Twin-Turbo',
+        transmission: '8-speed PDK',
+        drivetrain: 'AWD',
+      },
+      'carrera': {
+        engineDescription: '3.0L H6 Twin-Turbo',
+        transmission: '8-speed PDK',
+        drivetrain: 'RWD',
+      },
+      'carrera_4': {
+        engineDescription: '3.0L H6 Twin-Turbo',
+        transmission: '8-speed PDK',
+        drivetrain: 'AWD',
+      },
+      'gt3': {
+        engineDescription: '4.0L H6',
+        transmission: '7-speed PDK',
+        drivetrain: 'RWD',
+      }
+    },
+    'taycan': {
+      engineDescription: 'All-Electric',
+      type: 'BEV',
+      transmission: '2-speed automatic',
+      drivetrain: 'AWD',
+    },
+    'cayman': {
+      engineDescription: '2.0L H4 Turbo',
+      transmission: '7-speed PDK',
+      drivetrain: 'RWD',
+    },
+    'boxster': {
+      engineDescription: '2.0L H4 Turbo',
+      transmission: '7-speed PDK',
+      drivetrain: 'RWD',
+    },
+    'macan': {
+      engineDescription: '2.0L I4 Turbo',
+      transmission: '7-speed PDK',
+      drivetrain: 'AWD',
+    },
+    'cayenne': {
+      engineDescription: '3.0L V6 Turbo',
+      transmission: '8-speed Tiptronic S',
+      drivetrain: 'AWD',
+    },
+    'panamera': {
+      engineDescription: '2.9L V6 Twin-Turbo',
+      transmission: '8-speed PDK',
+      drivetrain: 'RWD',
+    }
+  },
   'lamborghini': {
     'huracan': {
       engineDescription: '5.2L V10',
@@ -270,6 +325,26 @@ const getElectricVehicleConfig = (vin: string, make: string, model: string) => {
 
 // Helper function to identify exotic cars by VIN
 const getExoticCarConfig = (vin: string, make: string, model: string) => {
+  // Porsche VIN patterns
+  if (vin.startsWith('WP0')) {
+    make = 'porsche';
+    const porscheInfo = decodePorscheVin(vin);
+    model = porscheInfo.model;
+    
+    if (model === 'unknown') {
+      return null;
+    }
+
+    const baseConfig = exoticCarConfigs[make.toLowerCase()]?.[model.toLowerCase()];
+    
+    // If it's a 911, check for specific variant
+    if (model === '911' && porscheInfo.variant) {
+      return exoticCarConfigs[make.toLowerCase()][model.toLowerCase()][porscheInfo.variant];
+    }
+    
+    return baseConfig;
+  }
+
   // Lamborghini VIN patterns
   if (vin.startsWith('ZHW')) {
     make = 'lamborghini';
@@ -571,6 +646,27 @@ const cleanTransmission = (transmission: string | null, make?: string, model?: s
 
   if (!transmission) return "";
   return transmission;
+};
+
+// Helper function to decode Porsche VIN
+const decodePorscheVin = (vin: string): { model: string; variant?: string } => {
+  // Position 4-6 contains model series information
+  const modelCode = vin.substring(3, 6);
+  
+  // Common Porsche model codes
+  const modelMap: { [key: string]: { model: string; variant?: string } } = {
+    'AD2': { model: '911', variant: 'turbo' },  // 911 Turbo
+    'AD1': { model: '911', variant: 'carrera' }, // 911 Carrera
+    'AD3': { model: '911', variant: 'gt3' },    // 911 GT3
+    'AX1': { model: 'taycan' },
+    'AC2': { model: 'cayman' },
+    'AC1': { model: 'boxster' },
+    'AY1': { model: 'cayenne' },
+    'AA1': { model: 'panamera' },
+    'AX2': { model: 'macan' }
+  };
+
+  return modelMap[modelCode] || { model: 'unknown' };
 };
 
 serve(async (req) => {
