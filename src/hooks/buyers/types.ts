@@ -15,7 +15,7 @@ export interface BuyerResponse {
   pending_bids: number;
   declined_bids: number;
   user_id: string;
-  buybidhq_users: {
+  user: {  // Changed from buybidhq_users to match our query alias
     full_name: string | null;
     email: string | null;
   } | null;
