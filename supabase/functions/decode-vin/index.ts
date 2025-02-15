@@ -35,12 +35,16 @@ const formatEngineDescription = (specs: any): string => {
     cylinders
   );
 
+  // Get displacement value
+  const displacement = specs.displacement_l || '';
+  const displacementStr = displacement ? `${displacement}L ` : '';
+
   // Check if engine is turbocharged
   const isTurbo = specs.turbo || 
     (specs.description?.toLowerCase().includes('turbo'));
 
-  // Build the engine description
-  const baseDescription = `${configuration}-${cylinders} cyl`;
+  // Build the engine description with displacement
+  const baseDescription = `${displacementStr}${configuration}-${cylinders}`;
   return isTurbo ? `${baseDescription} Turbo` : baseDescription;
 }
 
@@ -102,7 +106,8 @@ serve(async (req) => {
           drive_type: data.specs?.drive_type,
           engine_configuration: data.specs?.engine_configuration,
           turbo: data.specs?.turbo,
-          description: data.specs?.description
+          description: data.specs?.description,
+          displacement_l: data.specs?.displacement_l
         }
       })
     } catch (parseError) {
