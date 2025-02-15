@@ -14,7 +14,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
         const from = (currentPage - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        // Get current user's session and role
+        // Get current user's session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) {
           console.error('Session error:', sessionError);
@@ -26,16 +26,29 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           throw new Error('No active session');
         }
 
-        // Get current user's role and dealership from cache
-        const { data: userCache, error: cacheError } = await supabase
-          .from('user_access_cache')
-          .select('role, dealership_id')
-          .eq('user_id', session.user.id)
-          .single();
+        // Check if user is a superadmin
+        const { data: isSuperAdmin, error: superAdminError } = await supabase
+          .rpc('is_superadmin', { user_email: session.user.email });
 
-        if (cacheError) {
-          console.error('Error fetching user role:', cacheError);
-          throw cacheError;
+        if (superAdminError) {
+          console.error('Error checking superadmin status:', superAdminError);
+          throw superAdminError;
+        }
+
+        // Get current user's role and dealership from cache if not superadmin
+        let userCache;
+        if (!isSuperAdmin) {
+          const { data: cache, error: cacheError } = await supabase
+            .from('user_access_cache')
+            .select('role, dealership_id')
+            .eq('user_id', session.user.id)
+            .single();
+
+          if (cacheError) {
+            console.error('Error fetching user role:', cacheError);
+            throw cacheError;
+          }
+          userCache = cache;
         }
 
         let query = supabase
@@ -46,14 +59,16 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           `, { count: 'exact' });
 
         // Add role-based filters
-        if (userCache.role === 'dealer' && userCache.dealership_id) {
-          // Dealers can only see their associates
-          query = query
-            .eq('dealership_id', userCache.dealership_id)
-            .eq('role', 'associate');
-        } else if (userCache.role !== 'admin') {
-          // Non-admin/dealer users can't see any users
-          query = query.eq('id', session.user.id);
+        if (!isSuperAdmin) {
+          if (userCache?.role === 'dealer' && userCache?.dealership_id) {
+            // Dealers can only see their associates
+            query = query
+              .eq('dealership_id', userCache.dealership_id)
+              .eq('role', 'associate');
+          } else {
+            // Non-admin/dealer users can't see any users
+            query = query.eq('id', session.user.id);
+          }
         }
 
         // Add search filter if searchTerm is provided

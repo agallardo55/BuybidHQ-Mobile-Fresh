@@ -707,13 +707,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      can_access_user: {
-        Args: {
-          viewer_id: string
-          target_id: string
-        }
-        Returns: boolean
-      }
       can_manage_user: {
         Args: {
           manager_id: string

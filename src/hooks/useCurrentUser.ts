@@ -38,6 +38,16 @@ export const useCurrentUser = () => {
           return null;
         }
 
+        // Check if user is a superadmin first
+        const { data: isSuperAdmin, error: superAdminError } = await supabase
+          .rpc('is_superadmin', { user_email: session.user.email });
+
+        if (superAdminError) {
+          console.error('Error checking superadmin status:', superAdminError);
+        }
+
+        console.log('Is superadmin:', isSuperAdmin);
+
         console.log('Fetching user data for ID:', session.user.id);
         const { data: userData, error: userError } = await supabase
           .from('buybidhq_users')
@@ -73,16 +83,19 @@ export const useCurrentUser = () => {
 
         if (userError) {
           console.error('Error fetching user data:', userError);
-          // Show a more detailed error message
           toast.error(`Error loading user data: ${userError.message}`);
           return null;
         }
 
         if (!userData) {
           console.log('No user data found for ID:', session.user.id);
-          // If we have a session but no user data, there might be a sync issue
           toast.error("User profile not found. Please try signing out and back in.");
           return null;
+        }
+
+        // If user is a superadmin, ensure they have admin role
+        if (isSuperAdmin) {
+          userData.role = 'admin' as UserRole;
         }
 
         console.log('Successfully fetched user data:', userData);
@@ -93,12 +106,10 @@ export const useCurrentUser = () => {
         return null;
       }
     },
-    retry: 2, // Increase retry attempts
-    retryDelay: 2000, // Increase delay between retries
-    // Don't refetch on window focus for authentication queries
+    retry: 2,
+    retryDelay: 2000,
     refetchOnWindowFocus: false,
-    // Add stale time to prevent too frequent refetches
-    staleTime: 30000, // 30 seconds
+    staleTime: 30000,
   });
 
   return { currentUser, isLoading };
