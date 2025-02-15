@@ -11,34 +11,71 @@ const formatDisplacement = (displacement: string | null): string => {
   if (!displacement) return '';
   const value = parseFloat(displacement);
   if (isNaN(value)) return '';
-  // Always format with one decimal place
   return `${value.toFixed(1)}L`;
 }
 
 // Helper function to determine engine configuration
-const determineEngineConfiguration = (
-  configuration: string | null, 
-  cylinders: number | null,
-  description: string | null
-): string => {
-  // First check explicit configuration
-  if (configuration) {
-    return configuration.toLowerCase() === 'inline' ? 'I' : 'V';
+const determineEngineConfiguration = (specs: any): string => {
+  console.log('Determining engine configuration from specs:', {
+    configuration: specs.engine_configuration,
+    cylinders: specs.engine_number_of_cylinders,
+    displacement: specs.displacement_l,
+    description: specs.description,
+    engineDescription: specs.engine_description,
+    trimDescription: specs.trim_description
+  });
+
+  // Direct configuration check
+  if (specs.engine_configuration) {
+    const config = specs.engine_configuration.toLowerCase();
+    console.log('Found explicit engine configuration:', config);
+    if (config.includes('inline')) return 'I';
+    if (config.includes('v')) return 'V';
+  }
+
+  // Check descriptions for configuration hints
+  const descriptions = [
+    specs.engine_description,
+    specs.description,
+    specs.trim_description
+  ].filter(Boolean);
+
+  for (const desc of descriptions) {
+    const lowerDesc = desc.toLowerCase();
+    if (lowerDesc.includes('inline') || lowerDesc.includes('i-')) {
+      console.log('Found inline configuration in description:', desc);
+      return 'I';
+    }
+    if (lowerDesc.includes('v-') || lowerDesc.includes(' v6') || lowerDesc.includes(' v8')) {
+      console.log('Found V configuration in description:', desc);
+      return 'V';
+    }
+  }
+
+  // Infer from displacement and cylinders
+  const displacement = parseFloat(specs.displacement_l || '0');
+  const cylinders = parseInt(specs.engine_number_of_cylinders || '0');
+
+  console.log('Inferring from displacement and cylinders:', { displacement, cylinders });
+
+  // Common engine configurations
+  if (cylinders === 4) {
+    console.log('4-cylinder engine, likely inline configuration');
+    return 'I';
   }
   
-  // Check description for hints
-  if (description) {
-    const lowerDesc = description.toLowerCase();
-    if (lowerDesc.includes('inline')) return 'I';
-    if (lowerDesc.includes('v-')) return 'V';
+  if (displacement <= 2.5 && cylinders === 4) {
+    console.log('Small displacement 4-cylinder, assuming inline configuration');
+    return 'I';
   }
-  
-  // Infer based on cylinders as last resort
-  if (cylinders) {
-    return cylinders <= 4 ? 'I' : 'V';
+
+  if (cylinders >= 6) {
+    console.log('6+ cylinders, likely V configuration');
+    return 'V';
   }
-  
-  return '';
+
+  console.log('Unable to determine configuration, defaulting to Inline for 4 or fewer cylinders');
+  return cylinders <= 4 ? 'I' : 'V';
 }
 
 // Helper function to detect turbo
@@ -74,21 +111,15 @@ const formatEngineDescription = (specs: any): string => {
   
   if (!cylinders) return "Engine information not available";
 
-  const configuration = determineEngineConfiguration(
-    specs.engine_configuration,
-    cylinders,
-    specs.description
-  );
+  const configuration = determineEngineConfiguration(specs);
+  console.log('Determined engine configuration:', configuration);
 
-  // Format displacement with improved formatting
   const displacementStr = formatDisplacement(specs.displacement_l);
   console.log('Formatted displacement:', displacementStr);
 
-  // Check if engine is turbocharged with improved detection
   const isTurbo = isTurboEngine(specs);
   console.log('Is turbo engine:', isTurbo);
 
-  // Build the engine description with proper spacing
   let baseDescription = '';
   if (displacementStr) {
     baseDescription = `${displacementStr} ${configuration}${cylinders}`;
@@ -96,8 +127,7 @@ const formatEngineDescription = (specs: any): string => {
     baseDescription = `${configuration}${cylinders}`;
   }
   
-  console.log('Base engine description:', baseDescription);
-  
+  console.log('Final engine description:', isTurbo ? `${baseDescription} Turbo` : baseDescription);
   return isTurbo ? `${baseDescription} Turbo` : baseDescription;
 }
 
