@@ -50,6 +50,13 @@ const electricVehicleConfigs = {
       drivetrain: 'AWD',
     }
   },
+  'porsche': {
+    'taycan': {
+      engineDescription: 'All-Electric',
+      transmission: '2-speed automatic',
+      drivetrain: 'AWD',
+    }
+  },
   'rivian': {
     'r1t': {
       engineDescription: 'Quad-Motor Electric',
@@ -79,11 +86,28 @@ const getElectricVehicleConfig = (vin: string, make: string, model: string) => {
     // Extract model code from VIN position 4
     const modelCode = vin.charAt(3);
     model = modelMap[modelCode] || model.toLowerCase().replace(' ', '_');
+  } else if (vin.startsWith('WP0')) { // Porsche
+    make = 'porsche';
+    if (model.toLowerCase().includes('taycan')) {
+      model = 'taycan';
+    }
   }
 
   if (electricVehicleConfigs[make.toLowerCase()]?.[model.toLowerCase()]) {
     return electricVehicleConfigs[make.toLowerCase()][model.toLowerCase()];
   }
+
+  // Check if it's an EV by description even if not in our configs
+  if (model.toLowerCase().includes('electric') || 
+      make.toLowerCase() === 'tesla' || 
+      model.toLowerCase().includes('ev')) {
+    return {
+      engineDescription: 'All-Electric',
+      transmission: 'Single-speed automatic',
+      drivetrain: 'AWD'
+    };
+  }
+
   return null;
 };
 
@@ -110,7 +134,14 @@ const getExoticCarConfig = (vin: string, make: string, model: string) => {
 
 // Helper function to detect hybrid vehicles
 const isHybridVehicle = (specs: any): boolean => {
-  const hybridKeywords = ['hybrid', 'phev', 'plug-in', 'electric'];
+  // First check if it's a pure EV
+  if (specs?.model?.toLowerCase().includes('taycan') ||
+      specs?.make?.toLowerCase() === 'tesla' ||
+      specs?.model?.toLowerCase().includes('ev')) {
+    return false;
+  }
+  
+  const hybridKeywords = ['hybrid', 'phev', 'plug-in'];
   
   // Check various fields for hybrid indicators
   const descriptions = [
