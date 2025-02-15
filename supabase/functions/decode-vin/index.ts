@@ -30,22 +30,26 @@ const exoticCarConfigs = {
 const electricVehicleConfigs = {
   'tesla': {
     'model_3': {
-      engineDescription: 'Electric',
+      engineDescription: 'All-Electric',
+      type: 'BEV',
       transmission: 'Single-speed automatic',
       drivetrain: 'RWD/AWD',
     },
     'model_s': {
-      engineDescription: 'Electric',
+      engineDescription: 'All-Electric',
+      type: 'BEV',
       transmission: 'Single-speed automatic',
       drivetrain: 'AWD',
     },
     'model_x': {
-      engineDescription: 'Electric',
+      engineDescription: 'All-Electric',
+      type: 'BEV',
       transmission: 'Single-speed automatic',
       drivetrain: 'AWD',
     },
     'model_y': {
-      engineDescription: 'Electric',
+      engineDescription: 'All-Electric',
+      type: 'BEV',
       transmission: 'Single-speed automatic',
       drivetrain: 'AWD',
     }
@@ -53,6 +57,7 @@ const electricVehicleConfigs = {
   'porsche': {
     'taycan': {
       engineDescription: 'All-Electric',
+      type: 'BEV',
       transmission: '2-speed automatic',
       drivetrain: 'AWD',
     }
@@ -60,14 +65,35 @@ const electricVehicleConfigs = {
   'rivian': {
     'r1t': {
       engineDescription: 'Quad-Motor Electric',
+      type: 'BEV',
       transmission: 'Single-speed automatic',
       drivetrain: 'AWD',
     },
     'r1s': {
       engineDescription: 'Quad-Motor Electric',
+      type: 'BEV',
       transmission: 'Single-speed automatic',
       drivetrain: 'AWD',
     }
+  }
+};
+
+// Configuration for hybrid vehicles
+const hybridConfigs = {
+  'phev': {
+    engineSuffix: 'Plug-in Hybrid',
+    type: 'PHEV',
+    transmissionDefault: 'CVT'
+  },
+  'hev': {
+    engineSuffix: 'Hybrid',
+    type: 'HEV',
+    transmissionDefault: 'CVT'
+  },
+  'mhev': {
+    engineSuffix: 'Mild Hybrid',
+    type: 'MHEV',
+    transmissionDefault: 'Automatic'
   }
 };
 
@@ -103,12 +129,53 @@ const getElectricVehicleConfig = (vin: string, make: string, model: string) => {
       model.toLowerCase().includes('ev')) {
     return {
       engineDescription: 'All-Electric',
+      type: 'BEV',
       transmission: 'Single-speed automatic',
       drivetrain: 'AWD'
     };
   }
 
   return null;
+};
+
+// Helper function to detect and classify hybrid type
+const detectHybridType = (specs: any): { type: 'PHEV' | 'HEV' | 'MHEV' | null, config: typeof hybridConfigs[keyof typeof hybridConfigs] | null } => {
+  if (!specs) return { type: null, config: null };
+
+  // First check if it's a pure EV
+  if (specs?.model?.toLowerCase().includes('taycan') ||
+      specs?.make?.toLowerCase() === 'tesla' ||
+      specs?.model?.toLowerCase().includes('ev')) {
+    return { type: null, config: null };
+  }
+
+  const descriptions = [
+    specs?.description,
+    specs?.engine_description,
+    ...((specs?.trims || []).map(trim => trim.description))
+  ].filter(Boolean).map(desc => desc.toLowerCase());
+
+  // Check for PHEV first (most specific)
+  if (descriptions.some(desc => 
+    desc.includes('plug-in hybrid') || 
+    desc.includes('phev'))) {
+    return { type: 'PHEV', config: hybridConfigs.phev };
+  }
+
+  // Check for mild hybrid
+  if (descriptions.some(desc => 
+    desc.includes('mild hybrid') || 
+    desc.includes('mhev'))) {
+    return { type: 'MHEV', config: hybridConfigs.mhev };
+  }
+
+  // Check for regular hybrid
+  if (descriptions.some(desc => 
+    desc.includes('hybrid'))) {
+    return { type: 'HEV', config: hybridConfigs.hev };
+  }
+
+  return { type: null, config: null };
 };
 
 // Helper function to identify exotic cars by VIN
@@ -306,11 +373,12 @@ const formatEngineDescription = (specs: any): string => {
     return exoticConfig.engineDescription;
   }
 
-  // Check if it's a hybrid
-  if (isHybridVehicle(specs)) {
-    console.log('Detected hybrid vehicle');
+  // Check for hybrid
+  const { type, config } = detectHybridType(specs);
+  if (type && config) {
+    console.log(`Detected ${type} vehicle`);
     const baseEngine = formatBaseEngineDescription(specs);
-    return baseEngine ? `${baseEngine} Hybrid` : 'Hybrid';
+    return baseEngine ? `${baseEngine} ${config.engineSuffix}` : config.engineSuffix;
   }
 
   return formatBaseEngineDescription(specs);
