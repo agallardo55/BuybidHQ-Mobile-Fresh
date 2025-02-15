@@ -39,17 +39,17 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
     } catch (error) {
       console.error('Scanning error:', error);
       toast.error("Failed to start scanner. Please check camera permissions.");
-      stopScan();
+      stopScan(false);
     }
   };
 
   const handleScannedResult = (result: Result) => {
     const scannedVin = result.getText();
     onVinScanned(scannedVin);
-    stopScan();
+    stopScan(false);
   };
 
-  const stopScan = () => {
+  const stopScan = (isUserCancelled: boolean = true) => {
     setIsScanning(false);
     
     if (codeReader.current) {
@@ -60,6 +60,10 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
       tracks.forEach(track => track.stop());
       videoRef.current.srcObject = null;
+    }
+
+    if (isUserCancelled) {
+      toast.info("VIN scan cancelled");
     }
   };
 
