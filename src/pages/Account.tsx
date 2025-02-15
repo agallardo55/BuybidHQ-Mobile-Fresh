@@ -29,7 +29,7 @@ const Account = () => {
               <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
               <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>
               <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
-              {!isDealer && (
+              {isDealer ? null : (
                 <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>
               )}
             </TabsList>
