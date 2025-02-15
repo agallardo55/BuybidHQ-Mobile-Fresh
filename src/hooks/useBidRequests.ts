@@ -27,6 +27,7 @@ type Buyer = {
 
 type BidResponse = {
   offer_amount: number;
+  buyer: Buyer | null;
 };
 
 type BidRequestResponse = {
@@ -74,12 +75,12 @@ export const useBidRequests = () => {
               interior,
               options
             ),
-            buyers (
-              buyer_name,
-              dealer_name
-            ),
             bid_responses (
-              offer_amount
+              offer_amount,
+              buyers (
+                buyer_name,
+                dealer_name
+              )
             )
           `)
           .order('created_at', { ascending: false });
@@ -96,33 +97,42 @@ export const useBidRequests = () => {
           return [];
         }
 
-        const mappedRequests = data.map(request => ({
-          id: request.id,
-          createdAt: request.created_at,
-          year: request.vehicles?.year ? parseInt(request.vehicles.year) : 0,
-          make: request.vehicles?.make || '',
-          model: request.vehicles?.model || '',
-          trim: request.vehicles?.trim || '',
-          vin: request.vehicles?.vin || '',
-          mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
-          buyer: request.buyers?.buyer_name || '',
-          dealership: request.buyers?.dealer_name || '',
-          highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
-          status: request.status,
-          engineCylinders: request.vehicles?.engine || '',
-          transmission: request.vehicles?.transmission || '',
-          drivetrain: request.vehicles?.drivetrain || '',
-          exteriorColor: request.vehicles?.exterior || '',
-          interiorColor: request.vehicles?.interior || '',
-          accessories: request.vehicles?.options || '',
-          windshield: '',
-          engineLights: '',
-          brakes: '',
-          tire: '',
-          maintenance: '',
-          reconEstimate: '',
-          reconDetails: ''
-        }));
+        const mappedRequests = data.map(request => {
+          // Find the bid response with the highest offer amount
+          const highestBid = request.bid_responses?.reduce((highest, current) => {
+            if (!highest || current.offer_amount > highest.offer_amount) {
+              return current;
+            }
+            return highest;
+          }, null as BidResponse | null);
+
+          return {
+            id: request.id,
+            createdAt: request.created_at,
+            year: request.vehicles?.year ? parseInt(request.vehicles.year) : 0,
+            make: request.vehicles?.make || '',
+            model: request.vehicles?.model || '',
+            trim: request.vehicles?.trim || '',
+            vin: request.vehicles?.vin || '',
+            mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
+            buyer: highestBid?.buyer?.buyer_name || '',
+            highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
+            status: request.status,
+            engineCylinders: request.vehicles?.engine || '',
+            transmission: request.vehicles?.transmission || '',
+            drivetrain: request.vehicles?.drivetrain || '',
+            exteriorColor: request.vehicles?.exterior || '',
+            interiorColor: request.vehicles?.interior || '',
+            accessories: request.vehicles?.options || '',
+            windshield: '',
+            engineLights: '',
+            brakes: '',
+            tire: '',
+            maintenance: '',
+            reconEstimate: '',
+            reconDetails: ''
+          };
+        });
 
         console.log("Mapped requests:", mappedRequests);
         return mappedRequests;
