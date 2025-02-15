@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bid_request_access_cache: {
+        Row: {
+          bid_request_id: string | null
+          can_update: boolean | null
+          can_view: boolean | null
+          id: string
+          last_updated: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bid_request_id?: string | null
+          can_update?: boolean | null
+          can_view?: boolean | null
+          id?: string
+          last_updated?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bid_request_id?: string | null
+          can_update?: boolean | null
+          can_view?: boolean | null
+          id?: string
+          last_updated?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_request_access_cache_bid_request_id_fkey"
+            columns: ["bid_request_id"]
+            isOneToOne: false
+            referencedRelation: "bid_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bid_requests: {
         Row: {
           contacts: string | null
@@ -794,6 +829,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_bid_request: {
+        Args: {
+          checking_user_id: string
+          request_id: string
+        }
+        Returns: boolean
+      }
       can_access_buyer: {
         Args: {
           buyer_id: string

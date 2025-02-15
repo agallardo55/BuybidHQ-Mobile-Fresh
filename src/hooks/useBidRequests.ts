@@ -48,14 +48,14 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Optimized query structure to prevent recursion
+        // Query using the new access cache table
         const { data, error } = await supabase
           .from('bid_requests')
           .select(`
             id,
             created_at,
             status,
-            vehicles!inner (
+            vehicles (
               year,
               make,
               model,
@@ -63,14 +63,15 @@ export const useBidRequests = () => {
               vin,
               mileage
             ),
-            buyers!inner (
+            buyers (
               buyer_name,
               dealer_name
             ),
             bid_responses (
               offer_amount
             )
-          `);
+          `)
+          .order('created_at', { ascending: false });
 
         console.log("Query response:", { data, error });
 
