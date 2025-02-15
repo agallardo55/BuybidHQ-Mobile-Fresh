@@ -73,7 +73,6 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 <SortableHeader field="year">Year</SortableHeader>
                 <SortableHeader field="make">Make</SortableHeader>
                 <SortableHeader field="model">Model</SortableHeader>
-                <TableHead className="whitespace-nowrap text-xs">Trim</TableHead>
                 <TableHead className="whitespace-nowrap text-xs">VIN</TableHead>
                 <SortableHeader field="mileage">Mileage</SortableHeader>
                 <SortableHeader field="buyer">Buyer</SortableHeader>
@@ -100,9 +99,6 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                   </TableCell>
                   <TableCell className="py-1 px-2 whitespace-nowrap">
                     {request.model}
-                  </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
-                    {request.trim}
                   </TableCell>
                   <TableCell className="py-1 px-2 whitespace-nowrap">
                     {request.vin}
