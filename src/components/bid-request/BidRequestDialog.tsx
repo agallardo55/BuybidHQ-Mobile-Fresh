@@ -76,7 +76,13 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
               </div>
               <div>
                 <span className="text-gray-500">Highest Offer:</span>
-                <p className="font-medium">${request.highestOffer.toLocaleString()}</p>
+                <p className="font-medium">
+                  {request.highestOffer === null ? (
+                    <span className="text-gray-500">No offers yet</span>
+                  ) : (
+                    `$${request.highestOffer.toLocaleString()}`
+                  )}
+                </p>
               </div>
             </div>
           </DialogHeader>
