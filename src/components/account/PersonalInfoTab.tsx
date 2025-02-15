@@ -123,30 +123,32 @@ export const PersonalInfoTab = () => {
               onChange={handleChange}
             />
           </div>
-          <div>
-            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-              State
-            </label>
-            <Input
-              id="state"
-              name="state"
-              type="text"
-              value={formData.state}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-              ZIP Code
-            </label>
-            <Input
-              id="zipCode"
-              name="zipCode"
-              type="text"
-              value={formData.zipCode}
-              onChange={handleChange}
-              maxLength={5}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                State
+              </label>
+              <Input
+                id="state"
+                name="state"
+                type="text"
+                value={formData.state}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                ZIP Code
+              </label>
+              <Input
+                id="zipCode"
+                name="zipCode"
+                type="text"
+                value={formData.zipCode}
+                onChange={handleChange}
+                maxLength={5}
+              />
+            </div>
           </div>
         </div>
       </div>
