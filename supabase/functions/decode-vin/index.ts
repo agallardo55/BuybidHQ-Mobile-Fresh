@@ -1,684 +1,13 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Content-Type': 'application/json'
 };
 
-// Configuration for Porsche 911 models
-const porsche911Config = {
-  'AD2': {
-    model: '911',
-    variant: 'turbo',
-    engineDescription: '3.8L H6 Twin-Turbo',
-    transmission: '8-speed PDK',
-    drivetrain: 'AWD',
-  },
-  'AD1': {
-    model: '911',
-    variant: 'carrera',
-    engineDescription: '3.0L H6 Twin-Turbo',
-    transmission: '8-speed PDK',
-    drivetrain: 'RWD',
-  },
-  'AD3': {
-    model: '911',
-    variant: 'gt3',
-    engineDescription: '4.0L H6',
-    transmission: '7-speed PDK',
-    drivetrain: 'RWD',
-  }
-};
-
-// Configuration for exotic cars
-const exoticCarConfigs = {
-  'porsche': {
-    '911': porsche911Config,
-    'taycan': {
-      engineDescription: 'All-Electric',
-      type: 'BEV',
-      transmission: '2-speed automatic',
-      drivetrain: 'AWD',
-    },
-    'cayman': {
-      engineDescription: '2.0L H4 Turbo',
-      transmission: '7-speed PDK',
-      drivetrain: 'RWD',
-    },
-    'boxster': {
-      engineDescription: '2.0L H4 Turbo',
-      transmission: '7-speed PDK',
-      drivetrain: 'RWD',
-    },
-    'macan': {
-      engineDescription: '2.0L I4 Turbo',
-      transmission: '7-speed PDK',
-      drivetrain: 'AWD',
-    },
-    'cayenne': {
-      engineDescription: '3.0L V6 Turbo',
-      transmission: '8-speed Tiptronic S',
-      drivetrain: 'AWD',
-    },
-    'panamera': {
-      engineDescription: '2.9L V6 Twin-Turbo',
-      transmission: '8-speed PDK',
-      drivetrain: 'RWD',
-    }
-  },
-  'lamborghini': {
-    'huracan': {
-      engineDescription: '5.2L V10',
-      transmission: '7-speed LDF dual-clutch',
-      drivetrain: 'AWD',
-    },
-    'urus': {
-      engineDescription: '4.0L V8 Twin-Turbo',
-      transmission: '8-speed automatic',
-      drivetrain: 'AWD',
-    },
-    'aventador': {
-      engineDescription: '6.5L V12',
-      transmission: '7-speed ISR',
-      drivetrain: 'AWD',
-    }
-  }
-};
-
-// Configuration for electric vehicles
-const electricVehicleConfigs = {
-  'tesla': {
-    'model_3': {
-      engineDescription: 'All-Electric',
-      type: 'BEV',
-      transmission: 'Single-speed automatic',
-      drivetrain: 'RWD/AWD',
-    },
-    'model_s': {
-      engineDescription: 'All-Electric',
-      type: 'BEV',
-      transmission: 'Single-speed automatic',
-      drivetrain: 'AWD',
-    },
-    'model_x': {
-      engineDescription: 'All-Electric',
-      type: 'BEV',
-      transmission: 'Single-speed automatic',
-      drivetrain: 'AWD',
-    },
-    'model_y': {
-      engineDescription: 'All-Electric',
-      type: 'BEV',
-      transmission: 'Single-speed automatic',
-      drivetrain: 'AWD',
-    }
-  },
-  'porsche': {
-    'taycan': {
-      engineDescription: 'All-Electric',
-      type: 'BEV',
-      transmission: '2-speed automatic',
-      drivetrain: 'AWD',
-    }
-  },
-  'rivian': {
-    'r1t': {
-      engineDescription: 'Quad-Motor Electric',
-      type: 'BEV',
-      transmission: 'Single-speed automatic',
-      drivetrain: 'AWD',
-    },
-    'r1s': {
-      engineDescription: 'Quad-Motor Electric',
-      type: 'BEV',
-      transmission: 'Single-speed automatic',
-      drivetrain: 'AWD',
-    }
-  }
-};
-
-// Configuration for hybrid vehicles with manufacturer-specific patterns
-const hybridConfigs = {
-  'phev': {
-    engineSuffix: 'Plug-in Hybrid',
-    type: 'PHEV',
-    transmissionDefault: 'CVT',
-    patterns: {
-      model: ['30e', '45e', 'te', 'e-hybrid', 'phev'],
-      description: ['plug-in hybrid', 'plug in hybrid', 'plugin hybrid', 'phev', 'e-drive', 'edrive']
-    }
-  },
-  'hev': {
-    engineSuffix: 'Hybrid',
-    type: 'HEV',
-    transmissionDefault: 'CVT',
-    patterns: {
-      model: ['hybrid', 'h'],
-      description: ['hybrid', 'hev']
-    }
-  },
-  'mhev': {
-    engineSuffix: 'Mild Hybrid',
-    type: 'MHEV',
-    transmissionDefault: 'Automatic',
-    patterns: {
-      model: ['mhev'],
-      description: ['mild hybrid', 'mhev', 'mild-hybrid']
-    }
-  }
-};
-
-// Helper function to check if a string matches any pattern from an array
-const matchesAnyPattern = (text: string, patterns: string[]): boolean => {
-  if (!text) return false;
-  const normalizedText = text.toLowerCase();
-  return patterns.some(pattern => normalizedText.includes(pattern.toLowerCase()));
-};
-
-// Helper function to detect hybrid type from model name
-const detectHybridFromModel = (model: string): { type: 'PHEV' | 'HEV' | 'MHEV' | null, config: typeof hybridConfigs[keyof typeof hybridConfigs] | null } => {
-  if (!model) return { type: null, config: null };
-  
-  const modelLower = model.toLowerCase();
-  
-  // Check for PHEV first (most specific)
-  if (hybridConfigs.phev.patterns.model.some(pattern => modelLower.includes(pattern))) {
-    return { type: 'PHEV', config: hybridConfigs.phev };
-  }
-
-  // Check for MHEV
-  if (hybridConfigs.mhev.patterns.model.some(pattern => modelLower.includes(pattern))) {
-    return { type: 'MHEV', config: hybridConfigs.mhev };
-  }
-
-  // Check for regular HEV
-  if (hybridConfigs.hev.patterns.model.some(pattern => modelLower.includes(pattern))) {
-    return { type: 'HEV', config: hybridConfigs.hev };
-  }
-
-  return { type: null, config: null };
-};
-
-// Helper function to detect hybrid type
-const detectHybridType = (specs: any): { type: 'PHEV' | 'HEV' | 'MHEV' | null, config: typeof hybridConfigs[keyof typeof hybridConfigs] | null } => {
-  if (!specs) return { type: null, config: null };
-
-  console.log('Analyzing specs for hybrid detection:', {
-    make: specs.make,
-    model: specs.model,
-    trim: specs.trim,
-    specs: specs.specs
-  });
-
-  // First check if it's a pure EV
-  if (specs?.model?.toLowerCase().includes('taycan') ||
-      specs?.make?.toLowerCase() === 'tesla' ||
-      specs?.model?.toLowerCase().includes(' ev ')) {
-    console.log('Pure EV detected, skipping hybrid classification');
-    return { type: null, config: null };
-  }
-
-  // Check model name first for hybrid indicators
-  const modelResult = detectHybridFromModel(specs.model);
-  if (modelResult.type) {
-    console.log('Hybrid detected from model name:', modelResult.type);
-    return modelResult;
-  }
-
-  // Collect all relevant descriptions
-  const descriptions = [
-    specs?.description,
-    specs?.specs?.engine_description,
-    specs?.specs?.electrification_level,
-    specs?.specs?.other_engine_info,
-    ...((specs?.trims || []).map(trim => trim.description))
-  ].filter(Boolean).map(desc => desc.toLowerCase());
-
-  console.log('Analyzing descriptions for hybrid indicators:', descriptions);
-
-  // Check for BMW specific patterns
-  if (specs.make?.toLowerCase() === 'bmw' && 
-      (specs.model?.toLowerCase().includes('e') || 
-       descriptions.some(desc => desc.includes('edrive')))) {
-    console.log('BMW PHEV detected via model suffix or eDrive');
-    return { type: 'PHEV', config: hybridConfigs.phev };
-  }
-
-  // Check specifications for electrification level
-  if (specs.specs?.electrification_level) {
-    const electrification = specs.specs.electrification_level.toLowerCase();
-    if (electrification.includes('phev') || electrification.includes('plug-in')) {
-      console.log('PHEV detected via electrification level');
-      return { type: 'PHEV', config: hybridConfigs.phev };
-    }
-    if (electrification.includes('mhev') || electrification.includes('mild')) {
-      console.log('MHEV detected via electrification level');
-      return { type: 'MHEV', config: hybridConfigs.mhev };
-    }
-    if (electrification.includes('hev') || electrification.includes('hybrid')) {
-      console.log('HEV detected via electrification level');
-      return { type: 'HEV', config: hybridConfigs.hev };
-    }
-  }
-
-  // Check descriptions against patterns
-  for (const desc of descriptions) {
-    // Check PHEV first (most specific)
-    if (matchesAnyPattern(desc, hybridConfigs.phev.patterns.description)) {
-      console.log('PHEV detected via description patterns');
-      return { type: 'PHEV', config: hybridConfigs.phev };
-    }
-    
-    // Check MHEV
-    if (matchesAnyPattern(desc, hybridConfigs.mhev.patterns.description)) {
-      console.log('MHEV detected via description patterns');
-      return { type: 'MHEV', config: hybridConfigs.mhev };
-    }
-    
-    // Check regular HEV
-    if (matchesAnyPattern(desc, hybridConfigs.hev.patterns.description)) {
-      console.log('HEV detected via description patterns');
-      return { type: 'HEV', config: hybridConfigs.hev };
-    }
-  }
-
-  console.log('No hybrid type detected');
-  return { type: null, config: null };
-};
-
-// Helper function to identify electric vehicles by VIN
-const getElectricVehicleConfig = (vin: string, make: string, model: string) => {
-  // Common EV VIN patterns
-  if (vin.startsWith('5YJ')) { // Tesla
-    make = 'tesla';
-    // Map Tesla model codes to names
-    const modelMap: { [key: string]: string } = {
-      'S': 'model_s',
-      'X': 'model_x',
-      '3': 'model_3',
-      'Y': 'model_y'
-    };
-    // Extract model code from VIN position 4
-    const modelCode = vin.charAt(3);
-    model = modelMap[modelCode] || model.toLowerCase().replace(' ', '_');
-  } else if (vin.startsWith('WP0')) { // Porsche
-    make = 'porsche';
-    if (model.toLowerCase().includes('taycan')) {
-      model = 'taycan';
-    }
-  }
-
-  if (electricVehicleConfigs[make.toLowerCase()]?.[model.toLowerCase()]) {
-    return electricVehicleConfigs[make.toLowerCase()][model.toLowerCase()];
-  }
-
-  // Check if it's an EV by description even if not in our configs
-  if (model.toLowerCase().includes('electric') || 
-      make.toLowerCase() === 'tesla' || 
-      model.toLowerCase().includes('ev')) {
-    return {
-      engineDescription: 'All-Electric',
-      type: 'BEV',
-      transmission: 'Single-speed automatic',
-      drivetrain: 'AWD'
-    };
-  }
-
-  return null;
-};
-
-// Helper function to identify exotic cars by VIN
-const getExoticCarConfig = (vin: string, make: string, model: string) => {
-  console.log('Checking exotic car configuration for:', { vin, make, model });
-
-  // Porsche VIN patterns
-  if (vin.startsWith('WP0')) {
-    make = 'porsche';
-    const porscheInfo = decodePorscheVin(vin);
-    console.log('Porsche VIN decoded:', porscheInfo);
-
-    if (porscheInfo.model === 'unknown') {
-      console.log('Unknown Porsche model');
-      return null;
-    }
-
-    return porscheInfo.config;
-  }
-
-  // Lamborghini VIN patterns
-  if (vin.startsWith('ZHW')) {
-    make = 'lamborghini';
-    // Specific Lamborghini model identification
-    if (vin.includes('UF5')) { // Huracán pattern
-      model = 'huracan';
-    } else if (vin.includes('UF1')) { // Aventador pattern
-      model = 'aventador';
-    } else if (vin.includes('UR2')) { // Urus pattern
-      model = 'urus';
-    }
-  }
-
-  if (exoticCarConfigs[make.toLowerCase()]?.[model.toLowerCase()]) {
-    return exoticCarConfigs[make.toLowerCase()][model.toLowerCase()];
-  }
-  return null;
-};
-
-// Helper function to detect hybrid vehicles
-const isHybridVehicle = (specs: any): boolean => {
-  // First check if it's a pure EV
-  if (specs?.model?.toLowerCase().includes('taycan') ||
-      specs?.make?.toLowerCase() === 'tesla' ||
-      specs?.model?.toLowerCase().includes('ev')) {
-    return false;
-  }
-  
-  const hybridKeywords = ['hybrid', 'phev', 'plug-in'];
-  
-  // Check various fields for hybrid indicators
-  const descriptions = [
-    specs?.description,
-    specs?.specs?.engine_description,
-    ...((specs?.trims || []).map(trim => trim.description))
-  ].filter(Boolean).map(desc => desc.toLowerCase());
-
-  return descriptions.some(desc => 
-    hybridKeywords.some(keyword => desc.includes(keyword))
-  );
-};
-
-// Helper function to format displacement
-const formatDisplacement = (displacement: string | null): string => {
-  if (!displacement) return '';
-  const value = parseFloat(displacement);
-  if (isNaN(value)) return '';
-  return `${value.toFixed(1)}L`;
-}
-
-// Helper function to determine engine configuration
-const determineEngineConfiguration = (specs: any): string => {
-  console.log('Raw engine specs:', JSON.stringify(specs, null, 2));
-  
-  // First try to get engine info from trim descriptions
-  if (specs.trims && specs.trims.length > 0) {
-    console.log('Checking trim descriptions for engine info');
-    
-    // Sort trims by name to prioritize "Base" trim first as it's typically most accurate
-    const sortedTrims = [...specs.trims].sort((a, b) => {
-      if (a.name === "Base") return -1;
-      if (b.name === "Base") return 1;
-      return 0;
-    });
-
-    for (const trim of sortedTrims) {
-      if (trim.description) {
-        console.log('Analyzing trim description:', trim.description);
-        const desc = trim.description.toLowerCase();
-        
-        // Look for specific engine configurations in trim description
-        if (desc.includes('2.0l 4cyl') || desc.includes('2.0l i4') || desc.includes('2.0 i4')) {
-          console.log('Found 2.0L 4-cylinder configuration in trim');
-          return 'I';
-        }
-        
-        if (desc.includes('inline') || desc.includes(' i4') || desc.includes('i-4')) {
-          console.log('Found inline-4 indicator in trim');
-          return 'I';
-        }
-        
-        if (desc.includes(' v6') || desc.includes('v-6')) {
-          console.log('Found V6 indicator in trim');
-          return 'V';
-        }
-        
-        if (desc.includes(' v8') || desc.includes('v-8')) {
-          console.log('Found V8 indicator in trim');
-          return 'V';
-        }
-      }
-    }
-  }
-
-  // If we couldn't determine from trims, check engine specs
-  console.log('Checking engine specifications');
-  
-  const engineData = {
-    configuration: specs.specs?.engine_configuration,
-    cylinders: specs.specs?.engine_number_of_cylinders,
-    displacement: specs.specs?.displacement_l,
-    description: specs.specs?.description,
-    engineDescription: specs.specs?.engine_description,
-  };
-  
-  console.log('Engine data:', engineData);
-
-  // Check explicit configuration first
-  if (engineData.configuration) {
-    const config = engineData.configuration.toLowerCase();
-    if (config.includes('inline')) return 'I';
-    if (config.includes('v')) return 'V';
-  }
-
-  // Common engine configurations based on displacement and cylinders
-  const displacement = parseFloat(engineData.displacement || '0');
-  const cylinders = parseInt(engineData.cylinders || '0');
-
-  console.log('Analyzing displacement and cylinders:', { displacement, cylinders });
-
-  // 2.0L engines are typically inline-4
-  if (displacement === 2.0 || (displacement > 1.9 && displacement < 2.1)) {
-    console.log('2.0L engine detected, likely inline-4');
-    return 'I';
-  }
-
-  // Most 4-cylinder engines are inline
-  if (cylinders === 4) {
-    console.log('4-cylinder engine, using inline configuration');
-    return 'I';
-  }
-
-  // Most 6+ cylinder engines are V configuration
-  if (cylinders >= 6) {
-    console.log('6+ cylinder engine, using V configuration');
-    return 'V';
-  }
-
-  // Default to inline for 4 or fewer cylinders, V for more
-  console.log('Using fallback configuration logic');
-  return cylinders <= 4 ? 'I' : 'V';
-}
-
-// Helper function to detect turbo
-const isTurboEngine = (specs: any): boolean => {
-  if (!specs) return false;
-  
-  // Check trims first for turbo information
-  if (specs.trims && specs.trims.length > 0) {
-    for (const trim of specs.trims) {
-      if (trim.description && 
-          trim.description.toLowerCase().includes('turbo')) {
-        return true;
-      }
-    }
-  }
-  
-  if (specs.specs?.turbo === true) return true;
-  
-  const descriptions = [
-    specs.specs?.engine_description,
-    specs.specs?.description,
-    specs.specs?.trim_description
-  ].filter(Boolean);
-  
-  for (const desc of descriptions) {
-    if (desc.toLowerCase().includes('turbo') || 
-        desc.toLowerCase().includes('turbocharged')) {
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-// Helper function to format engine description
-const formatEngineDescription = (specs: any): string => {
-  console.log('Starting engine description formatting for:', specs?.make, specs?.model);
-
-  // Check for electric vehicle configuration
-  const evConfig = getElectricVehicleConfig(specs.vin, specs.make, specs.model);
-  if (evConfig) {
-    console.log('Found electric vehicle configuration:', evConfig);
-    return evConfig.engineDescription;
-  }
-
-  // Check for exotic car configuration
-  const exoticConfig = getExoticCarConfig(specs.vin, specs.make, specs.model);
-  if (exoticConfig) {
-    console.log('Found exotic car configuration:', exoticConfig);
-    return exoticConfig.engineDescription;
-  }
-
-  // Check for hybrid
-  const { type, config } = detectHybridType(specs);
-  if (type && config) {
-    console.log(`Detected ${type} vehicle`);
-    const baseEngine = formatBaseEngineDescription(specs);
-    return baseEngine ? `${baseEngine} ${config.engineSuffix}` : config.engineSuffix;
-  }
-
-  return formatBaseEngineDescription(specs);
-};
-
-// Helper function to format base engine description
-const formatBaseEngineDescription = (specs: any): string => {
-  if (!specs) {
-    console.log('No specs provided to formatBaseEngineDescription');
-    return "Engine information not available";
-  }
-
-  // Try to get cylinder count from trim description first
-  let cylinders = null;
-  if (specs.trims && specs.trims.length > 0) {
-    const baseTrims = specs.trims.filter(trim => 
-      trim.description && trim.description.toLowerCase().includes('2.0l 4cyl'));
-    if (baseTrims.length > 0) {
-      cylinders = 4;
-    }
-  }
-
-  // Fallback to specs data if needed
-  if (!cylinders && specs.specs?.engine_number_of_cylinders) {
-    cylinders = parseInt(specs.specs.engine_number_of_cylinders);
-  }
-
-  if (!cylinders) {
-    console.log('No valid cylinder count found');
-    return "Engine information not available";
-  }
-
-  const configuration = determineEngineConfiguration(specs);
-  const displacementStr = formatDisplacement(specs.specs?.displacement_l);
-  const isTurbo = isTurboEngine(specs);
-
-  let baseDescription = '';
-  if (displacementStr) {
-    baseDescription = `${displacementStr} ${configuration}${cylinders}`;
-  } else {
-    baseDescription = `${configuration}${cylinders}`;
-  }
-
-  return isTurbo ? `${baseDescription} Turbo` : baseDescription;
-};
-
-// Helper function to clean up drivetrain value
-const cleanDrivetrain = (driveType: string | null, make?: string, model?: string, vin?: string): string => {
-  // Check for electric or exotic vehicle configurations first
-  const evConfig = vin && make && model ? getElectricVehicleConfig(vin, make, model) : null;
-  if (evConfig) {
-    return evConfig.drivetrain;
-  }
-
-  const exoticConfig = vin && make && model ? getExoticCarConfig(vin, make, model) : null;
-  if (exoticConfig) {
-    return exoticConfig.drivetrain;
-  }
-
-  if (!driveType) return "";
-  
-  // Common mappings for drive types
-  const driveTypeMap: { [key: string]: string } = {
-    'AWD/All-Wheel Drive': 'AWD',
-    'FWD/Front-Wheel Drive': 'FWD',
-    'RWD/Rear-Wheel Drive': 'RWD',
-    '4WD/Four-Wheel Drive': '4WD'
-  };
-
-  // Check if we have a direct mapping
-  for (const [key, value] of Object.entries(driveTypeMap)) {
-    if (driveType.includes(key)) {
-      return value;
-    }
-  }
-
-  // If no direct mapping, try to extract common abbreviations
-  const driveTypeLC = driveType.toUpperCase();
-  if (driveTypeLC.includes('AWD')) return 'AWD';
-  if (driveTypeLC.includes('FWD')) return 'FWD';
-  if (driveTypeLC.includes('RWD')) return 'RWD';
-  if (driveTypeLC.includes('4WD')) return '4WD';
-
-  // Return the original value if no matches found
-  return driveType;
-};
-
-// Helper function to clean up transmission value
-const cleanTransmission = (transmission: string | null, make?: string, model?: string, vin?: string): string => {
-  // Check for electric or exotic vehicle configurations first
-  const evConfig = vin && make && model ? getElectricVehicleConfig(vin, make, model) : null;
-  if (evConfig) {
-    return evConfig.transmission;
-  }
-
-  const exoticConfig = vin && make && model ? getExoticCarConfig(vin, make, model) : null;
-  if (exoticConfig) {
-    return exoticConfig.transmission;
-  }
-
-  if (!transmission) return "";
-  return transmission;
-};
-
-// Helper function to decode Porsche VIN
-const decodePorscheVin = (vin: string): { model: string; config: any } => {
-  console.log('Decoding Porsche VIN:', vin);
-  
-  // Position 4-6 contains model series information for most Porsche models
-  const modelCode = vin.substring(3, 6);
-  console.log('Model code:', modelCode);
-
-  // Check 911-specific configurations first
-  if (porsche911Config[modelCode]) {
-    console.log('Found 911 configuration:', porsche911Config[modelCode]);
-    return {
-      model: '911',
-      config: porsche911Config[modelCode]
-    };
-  }
-
-  // Common Porsche model codes
-  const modelMap: { [key: string]: { model: string; config: any } } = {
-    'AX1': { model: 'taycan', config: exoticCarConfigs.porsche.taycan },
-    'AC2': { model: 'cayman', config: exoticCarConfigs.porsche.cayman },
-    'AC1': { model: 'boxster', config: exoticCarConfigs.porsche.boxster },
-    'AY1': { model: 'cayenne', config: exoticCarConfigs.porsche.cayenne },
-    'AA1': { model: 'panamera', config: exoticCarConfigs.porsche.panamera },
-    'AX2': { model: 'macan', config: exoticCarConfigs.porsche.macan }
-  };
-
-  return modelMap[modelCode] || { model: 'unknown', config: null };
-};
-
-// Helper function to decode VIN with NHTSA
 async function decodeVinWithNHTSA(vin: string) {
   try {
     const response = await fetch(
@@ -691,6 +20,7 @@ async function decodeVinWithNHTSA(vin: string) {
     }
 
     const data = await response.json();
+    console.log('NHTSA response:', data);
 
     if (!data.Results || data.Results.length === 0) {
       return null;
@@ -708,7 +38,7 @@ async function decodeVinWithNHTSA(vin: string) {
       make: results.Make || "",
       model: results.Model || "",
       trim: results.Trim || "",
-      engineCylinders: `${results.DisplacementL ? `${results.DisplacementL}L ` : ''}${results.EngineConfiguration || ''} ${results.EngineCylinders || ''}`,
+      engineCylinders: results.EngineCylinders ? `${results.DisplacementL || ''}L ${results.EngineCylinders}` : "",
       transmission: `${results.TransmissionSpeeds || ''} ${results.TransmissionStyle || ''}`.trim(),
       drivetrain: results.DriveType || ""
     };
@@ -718,106 +48,60 @@ async function decodeVinWithNHTSA(vin: string) {
   }
 }
 
-// Helper function to get exotic car configuration
-function getExoticCarConfig(vin: string, make: string, model: string) {
-  if (vin.startsWith('WP0')) {
-    make = 'porsche';
-    const modelCode = vin.substring(3, 6);
-    
-    if (modelCode === 'AD2') {
-      return {
-        model: '911',
-        variant: 'turbo',
-        engineDescription: '3.8L H6 Twin-Turbo',
-        transmission: '8-speed PDK',
-        drivetrain: 'AWD',
-      };
-    }
-    
-    if (modelCode === 'AD1') {
-      return {
-        model: '911',
-        variant: 'carrera',
-        engineDescription: '3.0L H6 Twin-Turbo',
-        transmission: '8-speed PDK',
-        drivetrain: 'RWD',
-      };
-    }
-  }
-  
-  return null;
-}
-
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
   }
 
   try {
+    if (req.method !== 'POST') {
+      throw new Error('Method not allowed');
+    }
+
     const { vin } = await req.json();
     console.log('Processing VIN:', vin);
 
     if (!vin || typeof vin !== 'string' || vin.length !== 17) {
-      console.error('Invalid VIN format:', vin);
       return new Response(
-        JSON.stringify({ error: 'Invalid VIN provided' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        JSON.stringify({ 
+          error: 'Invalid VIN format',
+          message: 'Please provide a valid 17-character VIN'
+        }),
+        { 
+          status: 400,
+          headers: corsHeaders
+        }
       );
     }
 
-    // For Porsche VINs, skip NHTSA and use our decoder directly
-    if (vin.startsWith('WP0')) {
-      console.log('Detected Porsche VIN, using custom decoder');
-      const exoticConfig = getExoticCarConfig(vin, 'porsche', '');
-      
-      if (exoticConfig) {
-        const yearChar = vin.charAt(9);
-        const year = 2018; // Hardcoded for JS VIN - would need proper year mapping for production
-        
-        const vehicleData = {
-          year: year.toString(),
-          make: 'Porsche',
-          model: exoticConfig.model || '911',
-          trim: exoticConfig.variant || 'Turbo',
-          engineCylinders: exoticConfig.engineDescription,
-          transmission: exoticConfig.transmission,
-          drivetrain: exoticConfig.drivetrain
-        };
-
-        console.log('Returning exotic car data:', vehicleData);
-        return new Response(
-          JSON.stringify(vehicleData),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    // Fallback to NHTSA for non-Porsche vehicles
     let vehicleData = await decodeVinWithNHTSA(vin);
     console.log('NHTSA decode result:', vehicleData);
 
     if (!vehicleData) {
-      console.log('NHTSA decode failed, falling back to CarAPI');
-      // Fallback to existing CarAPI implementation
+      // Fallback to CarAPI
       const apiKey = Deno.env.get('CARAPI_KEY');
       if (!apiKey) {
-        return new Response(
-          JSON.stringify({ error: 'API configuration error' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-        );
+        throw new Error('CarAPI key not configured');
       }
 
-      const apiUrl = `https://carapi.app/api/vin/${vin}?api_token=${apiKey}`;
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-
+      const response = await fetch(
+        `https://carapi.app/api/vin/${vin}?api_token=${apiKey}`
+      );
+      
       if (response.status === 404) {
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'VIN not found',
-            message: 'Vehicle information not found in any database. Please enter details manually.'
+            message: 'Vehicle information not found. Please enter details manually.'
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+          { 
+            status: 404,
+            headers: corsHeaders
+          }
         );
       }
 
@@ -825,31 +109,35 @@ serve(async (req) => {
         throw new Error(`CarAPI error: ${response.status}`);
       }
 
-      // Format CarAPI data using existing logic
+      const data = await response.json();
       vehicleData = {
         year: data.year?.toString() || "",
         make: data.make || "",
         model: data.model || "",
         trim: data.trim || "",
-        engineCylinders: formatEngineDescription(data),
-        transmission: cleanTransmission(data.specs?.transmission_style),
-        drivetrain: cleanDrivetrain(data.specs?.drive_type)
+        engineCylinders: data.specs?.engine_cylinders || "",
+        transmission: data.specs?.transmission || "",
+        drivetrain: data.specs?.drive_type || ""
       };
     }
 
     return new Response(
       JSON.stringify(vehicleData),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: corsHeaders }
     );
 
   } catch (error) {
     console.error('Error processing request:', error);
+    
     return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error',
-        details: error.message
+      JSON.stringify({
+        error: 'Failed to decode VIN',
+        message: error.message
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      { 
+        status: 500,
+        headers: corsHeaders
+      }
     );
   }
 });

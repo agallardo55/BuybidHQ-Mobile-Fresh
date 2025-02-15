@@ -24,18 +24,23 @@ export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void
 
     setIsLoading(true);
     try {
-      const { data, error: functionError } = await supabase.functions.invoke('decode-vin', {
+      const { data, error } = await supabase.functions.invoke('decode-vin', {
         body: { vin }
       });
 
-      if (functionError) throw functionError;
+      if (error) {
+        console.error('Supabase function error:', error);
+        toast.error(error.message || "Failed to decode VIN. Please try again.");
+        return;
+      }
+
+      if (!data) {
+        toast.error("No data received from VIN decoder");
+        return;
+      }
 
       if (data.error) {
-        if (data.error === 'VIN not found') {
-          toast.info(data.message || "VIN not found. Please enter vehicle details manually.");
-        } else {
-          toast.error(data.error);
-        }
+        toast.error(data.message || "Failed to decode VIN");
         return;
       }
 
@@ -51,12 +56,9 @@ export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void
 
       onVehicleDataFetched?.(vehicleData);
       toast.success("Vehicle information retrieved successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error decoding VIN:', error);
-      const errorMessage = error.message?.includes('404') 
-        ? "VIN not found. Please enter vehicle details manually."
-        : "Failed to decode VIN. Please try again.";
-      toast.error(errorMessage);
+      toast.error(error.message || "Failed to decode VIN. Please try again.");
     } finally {
       setIsLoading(false);
     }
