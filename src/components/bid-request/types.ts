@@ -12,6 +12,19 @@ export interface BidRequest {
   dealership: string;
   highestOffer: number;
   status: "Pending" | "Approved" | "Declined";
+  engineCylinders: string;
+  transmission: string;
+  drivetrain: string;
+  exteriorColor: string;
+  interiorColor: string;
+  accessories: string;
+  windshield: string;
+  engineLights: string;
+  brakes: string;
+  tire: string;
+  maintenance: string;
+  reconEstimate: string;
+  reconDetails: string;
 }
 
 export interface BidRequestFormData {
