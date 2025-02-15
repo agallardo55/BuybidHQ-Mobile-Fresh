@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BidRequest } from "./types";
 import { format, parseISO } from "date-fns";
@@ -87,7 +86,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
             </div>
           </DialogHeader>
           
-          <div className="mt-6 bg-gray-50 rounded-lg p-4">
+          <div className="mt-4 bg-gray-50 rounded-lg p-4">
             <ImageCarousel 
               uploadedImages={images} 
               selectedFileUrls={[]} 
@@ -95,13 +94,12 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mt-6">
-            {/* Left Column - Vehicle Details */}
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg border min-h-[320px]">
-                <h3 className="font-semibold text-lg mb-4">Details</h3>
-                <div className="space-y-2">
-                  <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-lg border">
+                <h3 className="font-semibold text-lg mb-2">Details</h3>
+                <div className="space-y-1">
+                  <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
                     <div className="text-gray-500">Year:</div>
                     <div className="font-medium">{request.year}</div>
                     <div className="text-gray-500">Make:</div>
@@ -118,27 +116,10 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg border min-h-[240px]">
-                <h3 className="font-semibold text-lg mb-4">Appearance</h3>
-                <div className="space-y-2">
-                  <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
-                    <div className="text-gray-500">Exterior Color:</div>
-                    <div className="font-medium">{request.exteriorColor}</div>
-                    <div className="text-gray-500">Interior Color:</div>
-                    <div className="font-medium">{request.interiorColor}</div>
-                    <div className="text-gray-500">Accessories:</div>
-                    <div className="font-medium">{request.accessories}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Middle Column - Technical & Condition */}
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg border min-h-[240px]">
-                <h3 className="font-semibold text-lg mb-4">Technical Specs</h3>
-                <div className="space-y-2">
-                  <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
+              <div className="bg-white p-4 rounded-lg border">
+                <h3 className="font-semibold text-lg mb-2">Technical Specs</h3>
+                <div className="space-y-1">
+                  <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
                     <div className="text-gray-500">Engine:</div>
                     <div className="font-medium">{request.engineCylinders}</div>
                     <div className="text-gray-500">Transmission:</div>
@@ -148,38 +129,53 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="bg-white p-6 rounded-lg border min-h-[320px]">
-                <h3 className="font-semibold text-lg mb-4">Condition</h3>
-                <div className="space-y-2">
-                  <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-lg border">
+                <h3 className="font-semibold text-lg mb-2">Appearance</h3>
+                <div className="space-y-1">
+                  <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
+                    <div className="text-gray-500">Exterior Color:</div>
+                    <div className="font-medium">{request.exteriorColor}</div>
+                    <div className="text-gray-500">Interior Color:</div>
+                    <div className="font-medium">{request.interiorColor}</div>
+                    <div className="text-gray-500">Accessories:</div>
+                    <div className="font-medium">{request.accessories}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-lg border">
+                <h3 className="font-semibold text-lg mb-2">Condition</h3>
+                <div className="space-y-1">
+                  <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
                     <div className="text-gray-500">Windshield:</div>
-                    <div className="font-medium">{request.windshield}</div>
+                    <div className="font-medium">Clear</div>
                     <div className="text-gray-500">Engine Lights:</div>
-                    <div className="font-medium">{request.engineLights}</div>
+                    <div className="font-medium">None</div>
                     <div className="text-gray-500">Brakes:</div>
-                    <div className="font-medium">{request.brakes}</div>
+                    <div className="font-medium">Acceptable</div>
                     <div className="text-gray-500">Tires:</div>
-                    <div className="font-medium">{request.tire}</div>
+                    <div className="font-medium">Acceptable</div>
                     <div className="text-gray-500">Maintenance:</div>
-                    <div className="font-medium">{request.maintenance}</div>
+                    <div className="font-medium">Up to date</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Column - Reconditioning */}
             <div>
-              <div className="bg-white p-6 rounded-lg border min-h-[580px]">
-                <h3 className="font-semibold text-lg mb-4">Reconditioning</h3>
-                <div className="space-y-6">
+              <div className="bg-white p-4 rounded-lg border">
+                <h3 className="font-semibold text-lg mb-2">Reconditioning</h3>
+                <div className="space-y-3">
                   <div className="text-sm">
                     <div className="text-gray-500 mb-1">Estimate:</div>
                     <div className="font-medium text-lg">${request.reconEstimate}</div>
                   </div>
                   <div className="text-sm">
                     <div className="text-gray-500 mb-1">Details:</div>
-                    <div className="font-medium whitespace-pre-wrap bg-gray-50 p-3 rounded-md h-[450px] overflow-y-auto">
+                    <div className="font-medium whitespace-pre-wrap bg-gray-50 p-3 rounded-md max-h-[300px] overflow-y-auto">
                       {request.reconDetails}
                     </div>
                   </div>
