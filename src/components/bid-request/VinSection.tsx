@@ -1,12 +1,11 @@
 
-import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { Barcode } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { BrowserMultiFormatReader, Result } from '@zxing/library';
+import ScannerModal from "./vin-scanner/ScannerModal";
+import { useVinScanner } from "./vin-scanner/useVinScanner";
+import { useVinDecoder } from "./vin-scanner/useVinDecoder";
 
 interface VinSectionProps {
   vin: string;
@@ -24,93 +23,9 @@ interface VinSectionProps {
 }
 
 const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionProps) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const codeReader = useRef<BrowserMultiFormatReader>();
   const isMobile = useIsMobile();
-
-  const handleDecodeVin = async () => {
-    if (vin.length !== 17) {
-      toast.error("Please enter a valid 17-character VIN");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const { data, error: functionError } = await supabase.functions.invoke('decode-vin', {
-        body: { vin }
-      });
-
-      if (functionError) throw functionError;
-
-      if (data.error) {
-        if (data.error === 'VIN not found') {
-          toast.info(data.message || "VIN not found. Please enter vehicle details manually.");
-        } else {
-          toast.error(data.error);
-        }
-        return;
-      }
-
-      const vehicleData = {
-        year: data.year || "",
-        make: data.make || "",
-        model: data.model || "",
-        trim: data.trim || "",
-        engineCylinders: data.engineCylinders || "",
-        transmission: data.transmission || "",
-        drivetrain: data.drivetrain || "",
-      };
-
-      onVehicleDataFetched?.(vehicleData);
-      toast.success("Vehicle information retrieved successfully");
-    } catch (error) {
-      console.error('Error decoding VIN:', error);
-      const errorMessage = error.message?.includes('404') 
-        ? "VIN not found. Please enter vehicle details manually."
-        : "Failed to decode VIN. Please try again.";
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const startScan = async () => {
-    try {
-      setIsScanning(true);
-      
-      // Initialize the code reader if not already done
-      if (!codeReader.current) {
-        codeReader.current = new BrowserMultiFormatReader();
-      }
-
-      // Request camera permissions
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-
-      // Start continuous scanning
-      const result = await codeReader.current.decodeFromVideoElement(videoRef.current!);
-      
-      if (result) {
-        handleScannedResult(result);
-      }
-    } catch (error) {
-      console.error('Scanning error:', error);
-      toast.error("Failed to start scanner. Please check camera permissions.");
-      stopScan();
-    }
-  };
-
-  const handleScannedResult = (result: Result) => {
-    const scannedVin = result.getText();
-    
-    // Create a synthetic event to update the input
+  const { isLoading, decodeVin } = useVinDecoder(onVehicleDataFetched);
+  const { isScanning, videoRef, startScan, stopScan } = useVinScanner((scannedVin) => {
     const syntheticEvent = {
       target: {
         name: 'vin',
@@ -119,28 +34,8 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
     } as React.ChangeEvent<HTMLInputElement>;
     
     onChange(syntheticEvent);
-    stopScan();
-    
-    // Automatically trigger VIN decode after successful scan
-    setTimeout(() => {
-      handleDecodeVin();
-    }, 100);
-  };
-
-  const stopScan = async () => {
-    setIsScanning(false);
-    
-    if (codeReader.current) {
-      codeReader.current.reset();
-    }
-
-    // Stop all video streams
-    if (videoRef.current?.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-  };
+    setTimeout(() => decodeVin(scannedVin), 100);
+  });
 
   return (
     <div className="space-y-2">
@@ -174,7 +69,7 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
           <Button 
             type="button"
             className="bg-custom-blue hover:bg-custom-blue/90 px-6"
-            onClick={handleDecodeVin}
+            onClick={() => decodeVin(vin)}
             disabled={isLoading || isScanning}
           >
             {isLoading ? "Loading..." : "Go"}
@@ -185,26 +80,10 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
         )}
       </div>
       {isScanning && (
-        <div className="fixed inset-0 bg-black/80 z-50">
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <video 
-              ref={videoRef}
-              className="max-w-full max-h-[70vh] mb-4"
-              autoPlay
-              playsInline
-            />
-            <div className="text-white text-center">
-              <p className="mb-4">Position the barcode in the center of the screen</p>
-              <Button 
-                onClick={stopScan}
-                variant="outline"
-                className="bg-white text-black hover:bg-gray-100"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
+        <ScannerModal
+          videoRef={videoRef}
+          onCancel={stopScan}
+        />
       )}
     </div>
   );
