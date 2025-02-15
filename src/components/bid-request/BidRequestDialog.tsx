@@ -96,8 +96,9 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mt-6">
+            {/* Left Column - Vehicle Details */}
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg border">
+              <div className="bg-white p-6 rounded-lg border min-h-[320px]">
                 <h3 className="font-semibold text-lg mb-4">Details</h3>
                 <div className="space-y-2">
                   <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
@@ -117,23 +118,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold text-lg mb-4">Technical Specs</h3>
-                <div className="space-y-2">
-                  <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
-                    <div className="text-gray-500">Engine:</div>
-                    <div className="font-medium">{request.engineCylinders}</div>
-                    <div className="text-gray-500">Transmission:</div>
-                    <div className="font-medium">{request.transmission}</div>
-                    <div className="text-gray-500">Drivetrain:</div>
-                    <div className="font-medium">{request.drivetrain}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg border">
+              <div className="bg-white p-6 rounded-lg border min-h-[240px]">
                 <h3 className="font-semibold text-lg mb-4">Appearance</h3>
                 <div className="space-y-2">
                   <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
@@ -146,8 +131,25 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="bg-white p-6 rounded-lg border">
+            {/* Middle Column - Technical & Condition */}
+            <div className="space-y-6">
+              <div className="bg-white p-6 rounded-lg border min-h-[240px]">
+                <h3 className="font-semibold text-lg mb-4">Technical Specs</h3>
+                <div className="space-y-2">
+                  <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
+                    <div className="text-gray-500">Engine:</div>
+                    <div className="font-medium">{request.engineCylinders}</div>
+                    <div className="text-gray-500">Transmission:</div>
+                    <div className="font-medium">{request.transmission}</div>
+                    <div className="text-gray-500">Drivetrain:</div>
+                    <div className="font-medium">{request.drivetrain}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg border min-h-[320px]">
                 <h3 className="font-semibold text-lg mb-4">Condition</h3>
                 <div className="space-y-2">
                   <div className="grid grid-cols-[120px_1fr] gap-1 text-sm">
@@ -166,17 +168,18 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg border">
+            {/* Right Column - Reconditioning */}
+            <div>
+              <div className="bg-white p-6 rounded-lg border min-h-[580px]">
                 <h3 className="font-semibold text-lg mb-4">Reconditioning</h3>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="text-sm">
                     <div className="text-gray-500 mb-1">Estimate:</div>
                     <div className="font-medium text-lg">${request.reconEstimate}</div>
                   </div>
                   <div className="text-sm">
                     <div className="text-gray-500 mb-1">Details:</div>
-                    <div className="font-medium whitespace-pre-wrap bg-gray-50 p-3 rounded-md">
+                    <div className="font-medium whitespace-pre-wrap bg-gray-50 p-3 rounded-md h-[450px] overflow-y-auto">
                       {request.reconDetails}
                     </div>
                   </div>
