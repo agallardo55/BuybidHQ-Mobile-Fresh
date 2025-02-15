@@ -132,23 +132,47 @@ export const useUsersMutations = () => {
 
   const updateUser = useMutation({
     mutationFn: async ({ userId, userData, dealershipData }: UpdateUserParams) => {
-      // If it's a dealer, update/create dealership
-      if (userData.role === 'dealer' && dealershipData) {
-        const { error: dealershipError } = await supabase
-          .from('dealerships')
-          .upsert({
-            id: userData.dealershipId,
-            dealer_name: dealershipData.dealerName,
-            dealer_id: dealershipData.dealerId,
-            business_phone: dealershipData.businessPhone,
-            business_email: dealershipData.businessEmail,
-            address: dealershipData.address,
-            city: dealershipData.city,
-            state: dealershipData.state,
-            zip_code: dealershipData.zipCode
-          });
+      let dealershipId = userData.dealershipId;
 
-        if (dealershipError) throw dealershipError;
+      // Handle dealership data if provided
+      if (dealershipData) {
+        if (dealershipId) {
+          // Update existing dealership
+          const { error: updateError } = await supabase
+            .from('dealerships')
+            .update({
+              dealer_name: dealershipData.dealerName,
+              dealer_id: dealershipData.dealerId,
+              business_phone: dealershipData.businessPhone,
+              business_email: dealershipData.businessEmail,
+              address: dealershipData.address,
+              city: dealershipData.city,
+              state: dealershipData.state,
+              zip_code: dealershipData.zipCode
+            })
+            .eq('id', dealershipId);
+
+          if (updateError) throw updateError;
+        } else {
+          // Create new dealership
+          const { data: newDealership, error: createError } = await supabase
+            .from('dealerships')
+            .insert({
+              dealer_name: dealershipData.dealerName,
+              dealer_id: dealershipData.dealerId,
+              business_phone: dealershipData.businessPhone,
+              business_email: dealershipData.businessEmail,
+              address: dealershipData.address,
+              city: dealershipData.city,
+              state: dealershipData.state,
+              zip_code: dealershipData.zipCode
+            })
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          dealershipId = newDealership.id;
+        }
       }
 
       // Update user
@@ -157,7 +181,7 @@ export const useUsersMutations = () => {
         .from('buybidhq_users')
         .update({
           ...transformedUser,
-          email: userData.email // Ensure email is explicitly set as it's required
+          dealership_id: dealershipId,
         })
         .eq('id', userId)
         .select()
