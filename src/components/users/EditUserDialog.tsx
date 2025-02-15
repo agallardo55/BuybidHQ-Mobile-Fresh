@@ -26,6 +26,7 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
     role: "associate",
     mobileNumber: "",
     isActive: true,
+    dealershipId: undefined
   });
 
   const [dealershipData, setDealershipData] = useState<DealershipFormData>({
@@ -41,8 +42,14 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
 
   useEffect(() => {
     if (user) {
-      setFormData(transformDatabaseUser(user));
+      // Set user form data
+      const transformedData = transformDatabaseUser(user);
+      setFormData({
+        ...transformedData,
+        dealershipId: user.dealership?.id
+      });
 
+      // Set dealership data if it exists
       if (user.dealership) {
         setDealershipData({
           dealerName: user.dealership.dealer_name,
@@ -61,10 +68,11 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
+      // Always send dealership data if it exists, regardless of role
       onUpdate(
         user.id, 
-        formData, 
-        formData.role === 'dealer' ? dealershipData : undefined
+        formData,
+        dealershipData
       );
       onOpenChange(false);
     }

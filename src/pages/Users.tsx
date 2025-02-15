@@ -176,9 +176,9 @@ const Users = () => {
         user={selectedUser}
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
-        onUpdate={(userId, userData) => {
+        onUpdate={(userId, userData, dealershipData) => {
           if (!userId) return;
-          mutations.updateUser.mutate({ userId, userData });
+          mutations.updateUser.mutate({ userId, userData, dealershipData });
         }}
       />
 
