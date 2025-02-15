@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -191,6 +190,36 @@ const formatEngineDescription = (specs: any): string => {
   return finalDescription;
 }
 
+// Helper function to clean up drivetrain value
+const cleanDrivetrain = (driveType: string | null): string => {
+  if (!driveType) return "";
+  
+  // Common mappings for drive types
+  const driveTypeMap: { [key: string]: string } = {
+    'AWD/All-Wheel Drive': 'AWD',
+    'FWD/Front-Wheel Drive': 'FWD',
+    'RWD/Rear-Wheel Drive': 'RWD',
+    '4WD/Four-Wheel Drive': '4WD'
+  };
+
+  // Check if we have a direct mapping
+  for (const [key, value] of Object.entries(driveTypeMap)) {
+    if (driveType.includes(key)) {
+      return value;
+    }
+  }
+
+  // If no direct mapping, try to extract common abbreviations
+  const driveTypeLC = driveType.toUpperCase();
+  if (driveTypeLC.includes('AWD')) return 'AWD';
+  if (driveTypeLC.includes('FWD')) return 'FWD';
+  if (driveTypeLC.includes('RWD')) return 'RWD';
+  if (driveTypeLC.includes('4WD')) return '4WD';
+
+  // Return the original value if no matches found
+  return driveType;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -285,7 +314,7 @@ serve(async (req) => {
     console.log('Formatted engine description:', engineDescription);
 
     const transmissionStyle = data.specs?.transmission_style || "";
-    const driveType = data.specs?.drive_type || "";
+    const driveType = cleanDrivetrain(data.specs?.drive_type);
     
     const trimName = data.trims && data.trims.length > 0 ? data.trims[0].name : "";
 
