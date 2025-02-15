@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Camera } from "lucide-react";
+import { Barcode } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BrowserMultiFormatReader, Result } from '@zxing/library';
 
@@ -143,45 +143,47 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
   };
 
   return (
-    <div>
-      <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
-        VIN <span className="text-red-500">*</span>
-      </label>
-      <div className="flex gap-2">
-        <Input
-          id="vin"
-          name="vin"
-          type="text"
-          value={vin}
-          onChange={onChange}
-          required
-          placeholder="1HGCM82633A123456"
-          className={`${error ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
-          maxLength={17}
-        />
-        {isMobile && (
-          <Button 
-            type="button"
-            onClick={startScan}
-            className="bg-custom-blue hover:bg-custom-blue/90"
-            disabled={isScanning || isLoading}
-          >
-            <Camera className="h-4 w-4 mr-2" />
-            Scan
-          </Button>
-        )}
+    <div className="space-y-2">
+      {isMobile && (
         <Button 
           type="button"
-          className="bg-custom-blue hover:bg-custom-blue/90 px-6"
-          onClick={handleDecodeVin}
-          disabled={isLoading || isScanning}
+          onClick={startScan}
+          className="w-full bg-custom-blue hover:bg-custom-blue/90"
+          disabled={isScanning || isLoading}
         >
-          {isLoading ? "Loading..." : "Go"}
+          <Barcode className="h-4 w-4 mr-2" />
+          Scan VIN
         </Button>
-      </div>
-      {error && (
-        <p className="text-red-500 text-sm mt-1">{error}</p>
       )}
+      <div>
+        <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
+          VIN <span className="text-red-500">*</span>
+        </label>
+        <div className="flex gap-2">
+          <Input
+            id="vin"
+            name="vin"
+            type="text"
+            value={vin}
+            onChange={onChange}
+            required
+            placeholder="1HGCM82633A123456"
+            className={`${error ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
+            maxLength={17}
+          />
+          <Button 
+            type="button"
+            className="bg-custom-blue hover:bg-custom-blue/90 px-6"
+            onClick={handleDecodeVin}
+            disabled={isLoading || isScanning}
+          >
+            {isLoading ? "Loading..." : "Go"}
+          </Button>
+        </div>
+        {error && (
+          <p className="text-red-500 text-sm mt-1">{error}</p>
+        )}
+      </div>
       {isScanning && (
         <div className="fixed inset-0 bg-black/80 z-50">
           <div className="absolute inset-0 flex flex-col items-center justify-center">
