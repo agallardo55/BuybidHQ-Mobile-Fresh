@@ -48,14 +48,14 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Optimized query with specific column selection
+        // Optimized query that works with our RLS policies
         const { data, error } = await supabase
           .from('bid_requests')
           .select(`
             id,
             created_at,
             status,
-            vehicle:vehicles!inner (
+            vehicle:vehicles (
               year,
               make,
               model,
