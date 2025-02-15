@@ -101,7 +101,7 @@ serve(async (req) => {
     console.log('Sending email with subject:', subject)
 
     const emailResponse = await resend.emails.send({
-      from: 'BuyBid HQ <notifications@buybidhq.com>',
+      from: 'onboarding@resend.dev',
       to: [email],
       subject: subject,
       html: htmlContent,
@@ -138,3 +138,4 @@ serve(async (req) => {
     )
   }
 })
+
