@@ -16,61 +16,46 @@ const BidResponse = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  const token = searchParams.get('token');
   const requestId = searchParams.get('request');
-  const buyerId = searchParams.get('buyer');
   
-  const { isLoading, error, vehicleDetails, creatorInfo } = useBidResponseDetails(requestId);
+  const { isLoading, error, vehicleDetails } = useBidResponseDetails(requestId);
 
   const handleSubmit = async (formData: BidResponseFormData) => {
-    if (!requestId || !buyerId) {
-      toast.error("Invalid request or buyer ID");
+    if (!token) {
+      toast.error("Invalid submission token");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Insert bid response
-      const { error: insertError } = await supabase
-        .from('bid_responses')
-        .insert({
-          bid_request_id: requestId,
-          buyer_id: buyerId,
-          offer_amount: parseFloat(formData.offerAmount),
-          status: 'pending'
-        });
-
-      if (insertError) throw insertError;
-
-      // Send SMS notification to creator if we have their contact info
-      if (creatorInfo?.phoneNumber && vehicleDetails) {
-        const { error: smsError } = await supabase.functions.invoke('send-bid-sms', {
-          body: {
-            type: 'bid_response',
-            phoneNumber: creatorInfo.phoneNumber,
-            vehicleDetails: {
-              year: vehicleDetails.year,
-              make: vehicleDetails.make,
-              model: vehicleDetails.model
-            },
-            offerAmount: formData.offerAmount,
-            buyerName: vehicleDetails.dealership || 'Unknown Buyer'
-          }
-        });
-
-        if (smsError) {
-          console.error('Error sending SMS notification:', smsError);
+      const { error: submitError } = await supabase.functions.invoke('submit-public-bid', {
+        body: {
+          token,
+          offerAmount: parseFloat(formData.offerAmount)
         }
-      }
+      });
+
+      if (submitError) throw submitError;
 
       toast.success("Your bid has been submitted successfully!");
       setSubmitted(true);
     } catch (error) {
       console.error('Error submitting bid:', error);
-      toast.error("Failed to submit bid. Please try again.");
+      toast.error("Failed to submit bid. Please try again or contact support if the issue persists.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Show error if no token is provided
+  if (!token) {
+    return (
+      <BidResponseLayout>
+        <ErrorState message="Invalid bid submission link. Please check your email and try again." />
+      </BidResponseLayout>
+    );
+  }
 
   return (
     <BidResponseLayout>
@@ -79,7 +64,7 @@ const BidResponse = () => {
       ) : isLoading ? (
         <LoadingState />
       ) : submitted ? (
-        <SubmittedState message="The offer for this bid request has been submitted" />
+        <SubmittedState message="Thank you! Your offer has been submitted successfully." />
       ) : vehicleDetails ? (
         <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
           <VehicleDetailsSection vehicle={vehicleDetails} />
@@ -92,4 +77,3 @@ const BidResponse = () => {
 };
 
 export default BidResponse;
-

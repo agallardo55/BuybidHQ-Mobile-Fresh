@@ -161,6 +161,54 @@ export type Database = {
           },
         ]
       }
+      bid_submission_tokens: {
+        Row: {
+          bid_request_id: string
+          buyer_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          is_used: boolean | null
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          bid_request_id: string
+          buyer_id: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          is_used?: boolean | null
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          bid_request_id?: string
+          buyer_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          is_used?: boolean | null
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_submission_tokens_bid_request_id_fkey"
+            columns: ["bid_request_id"]
+            isOneToOne: false
+            referencedRelation: "bid_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_submission_tokens_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buyers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookValues: {
         Row: {
           blackbook: string | null
@@ -874,6 +922,13 @@ export type Database = {
         }
         Returns: string
       }
+      generate_bid_submission_token: {
+        Args: {
+          p_bid_request_id: string
+          p_buyer_id: string
+        }
+        Returns: string
+      }
       get_bid_request_details: {
         Args: {
           p_request_id: string
@@ -1015,6 +1070,16 @@ export type Database = {
           user_email: string
         }
         Returns: boolean
+      }
+      validate_bid_submission_token: {
+        Args: {
+          p_token: string
+        }
+        Returns: {
+          is_valid: boolean
+          bid_request_id: string
+          buyer_id: string
+        }[]
       }
     }
     Enums: {

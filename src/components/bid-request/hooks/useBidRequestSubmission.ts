@@ -61,9 +61,21 @@ export const useBidRequestSubmission = () => {
         throw buyersError;
       }
 
-      // Send notifications to each buyer
+      // Generate submission tokens and send notifications to each buyer
       for (const buyer of buyers) {
-        const bidResponseUrl = `${window.location.origin}/bid-response?request=${requestId}&buyer=${buyer.id}`;
+        // Generate a submission token for this buyer
+        const { data: token, error: tokenError } = await supabase
+          .rpc('generate_bid_submission_token', {
+            p_bid_request_id: requestId,
+            p_buyer_id: buyer.id
+          });
+
+        if (tokenError) {
+          console.error(`Error generating token for buyer ${buyer.id}:`, tokenError);
+          continue;
+        }
+
+        const bidResponseUrl = `${window.location.origin}/bid-response?request=${requestId}&token=${token}`;
         
         // Send SMS notification if mobile number is available
         if (buyer.buyer_mobile) {
