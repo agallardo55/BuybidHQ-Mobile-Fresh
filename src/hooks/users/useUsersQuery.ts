@@ -40,8 +40,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
         if (searchTerm) {
           query = query.or([
             `full_name.ilike.%${searchTerm}%`,
-            `email.ilike.%${searchTerm}%`,
-            `role.ilike.%${searchTerm}%`
+            `email.ilike.%${searchTerm}%`
           ].join(','));
         }
 
