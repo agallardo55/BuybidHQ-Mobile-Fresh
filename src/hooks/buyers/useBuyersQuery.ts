@@ -23,7 +23,8 @@ export const useBuyersQuery = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        let query = supabase
+        // Simplified query with specific column selection and minimal relation depth
+        const { data, error } = await supabase
           .from('buyers')
           .select(`
             id,
@@ -39,13 +40,11 @@ export const useBuyersQuery = () => {
             pending_bids,
             declined_bids,
             user_id,
-            buybidhq_users!buyers_user_id_fkey (
+            user:buybidhq_users!buyers_user_id_fkey (
               full_name,
               email
             )
           `);
-
-        const { data, error } = await query;
 
         if (error) {
           console.error("Buyer fetch error:", error);
@@ -63,7 +62,7 @@ export const useBuyersQuery = () => {
 
         console.log("Raw buyers data:", data);
 
-        // Cast the response to an array of BuyerResponse type
+        // Cast and map the data
         const typedData = data as unknown as BuyerResponse[];
         const mappedBuyers: MappedBuyer[] = typedData.map(buyer => ({
           id: buyer.id,
@@ -75,8 +74,8 @@ export const useBuyersQuery = () => {
           acceptedBids: buyer.accepted_bids || 0,
           pendingBids: buyer.pending_bids || 0,
           declinedBids: buyer.declined_bids || 0,
-          ownerName: buyer.buybidhq_users?.full_name || 'N/A',
-          ownerEmail: buyer.buybidhq_users?.email || 'N/A'
+          ownerName: buyer.user?.full_name || 'N/A',
+          ownerEmail: buyer.user?.email || 'N/A'
         }));
 
         console.log("Mapped buyers:", mappedBuyers);
