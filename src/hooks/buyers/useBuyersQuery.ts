@@ -23,7 +23,7 @@ export const useBuyersQuery = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Using a simpler query structure to avoid recursion
+        // Using explicit relationship reference to avoid ambiguity
         const { data, error } = await supabase
           .from('buyers')
           .select(`
@@ -40,7 +40,7 @@ export const useBuyersQuery = () => {
             pending_bids,
             declined_bids,
             user_id,
-            user:buybidhq_users(
+            user:buybidhq_users!buyers_user_id_fkey(
               full_name,
               email
             )
