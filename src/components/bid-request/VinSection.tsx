@@ -1,9 +1,12 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Camera } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { BrowserMultiFormatReader, Result } from '@zxing/library';
 
 interface VinSectionProps {
   vin: string;
@@ -22,6 +25,10 @@ interface VinSectionProps {
 
 const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const codeReader = useRef<BrowserMultiFormatReader>();
+  const isMobile = useIsMobile();
 
   const handleDecodeVin = async () => {
     if (vin.length !== 17) {
@@ -46,7 +53,6 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
         return;
       }
 
-      // The data structure is now directly what we expect from the edge function
       const vehicleData = {
         year: data.year || "",
         make: data.make || "",
@@ -70,6 +76,72 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
     }
   };
 
+  const startScan = async () => {
+    try {
+      setIsScanning(true);
+      
+      // Initialize the code reader if not already done
+      if (!codeReader.current) {
+        codeReader.current = new BrowserMultiFormatReader();
+      }
+
+      // Request camera permissions
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+
+      // Start continuous scanning
+      const result = await codeReader.current.decodeFromVideoElement(videoRef.current!);
+      
+      if (result) {
+        handleScannedResult(result);
+      }
+    } catch (error) {
+      console.error('Scanning error:', error);
+      toast.error("Failed to start scanner. Please check camera permissions.");
+      stopScan();
+    }
+  };
+
+  const handleScannedResult = (result: Result) => {
+    const scannedVin = result.getText();
+    
+    // Create a synthetic event to update the input
+    const syntheticEvent = {
+      target: {
+        name: 'vin',
+        value: scannedVin
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    onChange(syntheticEvent);
+    stopScan();
+    
+    // Automatically trigger VIN decode after successful scan
+    setTimeout(() => {
+      handleDecodeVin();
+    }, 100);
+  };
+
+  const stopScan = async () => {
+    setIsScanning(false);
+    
+    if (codeReader.current) {
+      codeReader.current.reset();
+    }
+
+    // Stop all video streams
+    if (videoRef.current?.srcObject) {
+      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
+
   return (
     <div>
       <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
@@ -87,17 +159,50 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
           className={`${error ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
           maxLength={17}
         />
+        {isMobile && (
+          <Button 
+            type="button"
+            onClick={startScan}
+            className="bg-custom-blue hover:bg-custom-blue/90"
+            disabled={isScanning || isLoading}
+          >
+            <Camera className="h-4 w-4 mr-2" />
+            Scan
+          </Button>
+        )}
         <Button 
           type="button"
           className="bg-custom-blue hover:bg-custom-blue/90 px-6"
           onClick={handleDecodeVin}
-          disabled={isLoading}
+          disabled={isLoading || isScanning}
         >
           {isLoading ? "Loading..." : "Go"}
         </Button>
       </div>
       {error && (
         <p className="text-red-500 text-sm mt-1">{error}</p>
+      )}
+      {isScanning && (
+        <div className="fixed inset-0 bg-black/80 z-50">
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <video 
+              ref={videoRef}
+              className="max-w-full max-h-[70vh] mb-4"
+              autoPlay
+              playsInline
+            />
+            <div className="text-white text-center">
+              <p className="mb-4">Position the barcode in the center of the screen</p>
+              <Button 
+                onClick={stopScan}
+                variant="outline"
+                className="bg-white text-black hover:bg-gray-100"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
