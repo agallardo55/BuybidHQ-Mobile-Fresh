@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -17,97 +18,115 @@ const formatDisplacement = (displacement: string | null): string => {
 const determineEngineConfiguration = (specs: any): string => {
   console.log('Raw engine specs:', JSON.stringify(specs, null, 2));
   
+  // First try to get engine info from trim descriptions
+  if (specs.trims && specs.trims.length > 0) {
+    console.log('Checking trim descriptions for engine info');
+    
+    // Sort trims by name to prioritize "Base" trim first as it's typically most accurate
+    const sortedTrims = [...specs.trims].sort((a, b) => {
+      if (a.name === "Base") return -1;
+      if (b.name === "Base") return 1;
+      return 0;
+    });
+
+    for (const trim of sortedTrims) {
+      if (trim.description) {
+        console.log('Analyzing trim description:', trim.description);
+        const desc = trim.description.toLowerCase();
+        
+        // Look for specific engine configurations in trim description
+        if (desc.includes('2.0l 4cyl') || desc.includes('2.0l i4') || desc.includes('2.0 i4')) {
+          console.log('Found 2.0L 4-cylinder configuration in trim');
+          return 'I';
+        }
+        
+        if (desc.includes('inline') || desc.includes(' i4') || desc.includes('i-4')) {
+          console.log('Found inline-4 indicator in trim');
+          return 'I';
+        }
+        
+        if (desc.includes(' v6') || desc.includes('v-6')) {
+          console.log('Found V6 indicator in trim');
+          return 'V';
+        }
+        
+        if (desc.includes(' v8') || desc.includes('v-8')) {
+          console.log('Found V8 indicator in trim');
+          return 'V';
+        }
+      }
+    }
+  }
+
+  // If we couldn't determine from trims, check engine specs
+  console.log('Checking engine specifications');
+  
   const engineData = {
-    configuration: specs.engine_configuration,
-    cylinders: specs.engine_number_of_cylinders,
-    displacement: specs.displacement_l,
-    description: specs.description,
-    engineDescription: specs.engine_description,
-    trimDescription: specs.trim_description
+    configuration: specs.specs?.engine_configuration,
+    cylinders: specs.specs?.engine_number_of_cylinders,
+    displacement: specs.specs?.displacement_l,
+    description: specs.specs?.description,
+    engineDescription: specs.specs?.engine_description,
   };
   
-  console.log('Extracted engine data:', engineData);
+  console.log('Engine data:', engineData);
 
-  if (specs.engine_configuration) {
-    const config = specs.engine_configuration.toLowerCase();
-    console.log('Step 1: Checking explicit engine configuration:', config);
-    if (config.includes('inline')) {
-      console.log('Found explicit inline configuration');
-      return 'I';
-    }
-    if (config.includes('v')) {
-      console.log('Found explicit V configuration');
-      return 'V';
-    }
-  } else {
-    console.log('Step 1: No explicit engine configuration found');
+  // Check explicit configuration first
+  if (engineData.configuration) {
+    const config = engineData.configuration.toLowerCase();
+    if (config.includes('inline')) return 'I';
+    if (config.includes('v')) return 'V';
   }
 
-  const descriptions = [
-    specs.engine_description,
-    specs.description,
-    specs.trim_description
-  ].filter(Boolean);
+  // Common engine configurations based on displacement and cylinders
+  const displacement = parseFloat(engineData.displacement || '0');
+  const cylinders = parseInt(engineData.cylinders || '0');
 
-  console.log('Step 2: Checking descriptions:', descriptions);
+  console.log('Analyzing displacement and cylinders:', { displacement, cylinders });
 
-  for (const desc of descriptions) {
-    const lowerDesc = desc.toLowerCase();
-    console.log('Analyzing description:', desc);
-    
-    if (lowerDesc.includes('inline') || lowerDesc.includes('i-') || lowerDesc.includes('i4')) {
-      console.log('Found inline indicator in description');
-      return 'I';
-    }
-    if (lowerDesc.includes('v-') || lowerDesc.includes(' v6') || lowerDesc.includes(' v8')) {
-      console.log('Found V configuration indicator in description');
-      return 'V';
-    }
+  // 2.0L engines are typically inline-4
+  if (displacement === 2.0 || (displacement > 1.9 && displacement < 2.1)) {
+    console.log('2.0L engine detected, likely inline-4');
+    return 'I';
   }
 
-  console.log('Step 2: No configuration found in descriptions');
-
-  const displacement = parseFloat(specs.displacement_l || '0');
-  const cylinders = parseInt(specs.engine_number_of_cylinders || '0');
-
-  console.log('Step 3: Inferring from specs:', {
-    displacement,
-    cylinders,
-    isValidDisplacement: !isNaN(displacement),
-    isValidCylinders: !isNaN(cylinders)
-  });
-
+  // Most 4-cylinder engines are inline
   if (cylinders === 4) {
-    console.log('Found 4-cylinder engine, defaulting to inline configuration');
+    console.log('4-cylinder engine, using inline configuration');
     return 'I';
   }
 
-  if (displacement > 0 && displacement <= 2.5 && cylinders === 4) {
-    console.log('Small displacement (<=2.5L) 4-cylinder engine, using inline configuration');
-    return 'I';
-  }
-
+  // Most 6+ cylinder engines are V configuration
   if (cylinders >= 6) {
     console.log('6+ cylinder engine, using V configuration');
     return 'V';
   }
 
-  console.log('Step 3: Using fallback logic');
-  const fallbackConfig = cylinders <= 4 ? 'I' : 'V';
-  console.log(`Fallback configuration determined: ${fallbackConfig}`);
-  return fallbackConfig;
+  // Default to inline for 4 or fewer cylinders, V for more
+  console.log('Using fallback configuration logic');
+  return cylinders <= 4 ? 'I' : 'V';
 }
 
 // Helper function to detect turbo
 const isTurboEngine = (specs: any): boolean => {
   if (!specs) return false;
   
-  if (specs.turbo === true) return true;
+  // Check trims first for turbo information
+  if (specs.trims && specs.trims.length > 0) {
+    for (const trim of specs.trims) {
+      if (trim.description && 
+          trim.description.toLowerCase().includes('turbo')) {
+        return true;
+      }
+    }
+  }
+  
+  if (specs.specs?.turbo === true) return true;
   
   const descriptions = [
-    specs.engine_description,
-    specs.description,
-    specs.trim_description
+    specs.specs?.engine_description,
+    specs.specs?.description,
+    specs.specs?.trim_description
   ].filter(Boolean);
   
   for (const desc of descriptions) {
@@ -129,10 +148,22 @@ const formatEngineDescription = (specs: any): string => {
   
   console.log('Starting engine description formatting with specs:', JSON.stringify(specs, null, 2));
 
-  const cylinders = specs.engine_number_of_cylinders ? 
-    parseInt(specs.engine_number_of_cylinders) : null;
+  // Try to get cylinder count from trim description first
+  let cylinders = null;
+  if (specs.trims && specs.trims.length > 0) {
+    const baseTrims = specs.trims.filter(trim => 
+      trim.description && trim.description.toLowerCase().includes('2.0l 4cyl'));
+    if (baseTrims.length > 0) {
+      cylinders = 4;
+    }
+  }
+
+  // Fallback to specs data if needed
+  if (!cylinders && specs.specs?.engine_number_of_cylinders) {
+    cylinders = parseInt(specs.specs.engine_number_of_cylinders);
+  }
   
-  console.log('Parsed cylinders:', cylinders);
+  console.log('Determined cylinder count:', cylinders);
   
   if (!cylinders) {
     console.log('No valid cylinder count found');
@@ -142,7 +173,7 @@ const formatEngineDescription = (specs: any): string => {
   const configuration = determineEngineConfiguration(specs);
   console.log('Final engine configuration:', configuration);
 
-  const displacementStr = formatDisplacement(specs.displacement_l);
+  const displacementStr = formatDisplacement(specs.specs?.displacement_l);
   console.log('Formatted displacement:', displacementStr);
 
   const isTurbo = isTurboEngine(specs);
@@ -211,17 +242,7 @@ serve(async (req) => {
         make: data.make,
         model: data.model,
         trims: data.trims,
-        specs: {
-          engine_number_of_cylinders: data.specs?.engine_number_of_cylinders,
-          transmission_style: data.specs?.transmission_style,
-          drive_type: data.specs?.drive_type,
-          engine_configuration: data.specs?.engine_configuration,
-          turbo: data.specs?.turbo,
-          description: data.specs?.description,
-          displacement_l: data.specs?.displacement_l,
-          engine_description: data.specs?.engine_description,
-          trim_description: data.specs?.trim_description
-        }
+        specs: data.specs
       })
     } catch (parseError) {
       console.error('Failed to parse CarAPI response:', parseError)
@@ -260,7 +281,7 @@ serve(async (req) => {
       )
     }
 
-    const engineDescription = formatEngineDescription(data.specs);
+    const engineDescription = formatEngineDescription(data);
     console.log('Formatted engine description:', engineDescription);
 
     const transmissionStyle = data.specs?.transmission_style || "";
@@ -279,7 +300,6 @@ serve(async (req) => {
     }
 
     console.log('Final transformed data:', transformedData)
-    console.log('Raw specs data for debugging:', data.specs)
 
     return new Response(
       JSON.stringify(transformedData),
