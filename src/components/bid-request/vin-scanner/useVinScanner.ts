@@ -19,9 +19,9 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
       const constraints = {
         video: { 
           facingMode: 'environment',
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          aspectRatio: { ideal: 16/9 }
+          width: { ideal: 1080 },
+          height: { ideal: 1920 },
+          aspectRatio: { ideal: 9/16 }
         }
       };
 
