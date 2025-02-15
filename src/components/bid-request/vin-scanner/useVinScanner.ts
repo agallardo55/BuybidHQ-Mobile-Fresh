@@ -8,6 +8,22 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReader = useRef<BrowserMultiFormatReader>();
 
+  const cleanupScanner = () => {
+    try {
+      if (codeReader.current) {
+        codeReader.current.reset();
+      }
+
+      if (videoRef.current?.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+    } catch (error) {
+      console.error('Error cleaning up scanner:', error);
+    }
+  };
+
   const startScan = async () => {
     try {
       setIsScanning(true);
@@ -37,34 +53,28 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
         handleScannedResult(result);
       }
     } catch (error) {
-      console.error('Scanning error:', error);
-      toast.error("Failed to start scanner. Please check camera permissions.");
-      stopScan(false);
+      if (isScanning) { // Only show error if we haven't cancelled
+        console.error('Scanning error:', error);
+        toast.error("Failed to start scanner. Please check camera permissions.");
+      }
+      cleanupScanner();
+      setIsScanning(false);
     }
   };
 
   const handleScannedResult = (result: Result) => {
     const scannedVin = result.getText();
     onVinScanned(scannedVin);
-    stopScan(false);
+    cleanupScanner();
+    setIsScanning(false);
   };
 
   const stopScan = (isUserCancelled: boolean = true) => {
-    setIsScanning(false);
-    
-    if (codeReader.current) {
-      codeReader.current.reset();
-    }
-
-    if (videoRef.current?.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-
-    if (isUserCancelled) {
+    if (isUserCancelled && isScanning) {
       toast.info("VIN scan cancelled");
     }
+    cleanupScanner();
+    setIsScanning(false);
   };
 
   return {
