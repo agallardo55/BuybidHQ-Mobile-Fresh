@@ -7,11 +7,12 @@ import { BidResponseFormData } from "./types";
 interface BidFormProps {
   onSubmit: (data: BidResponseFormData) => void;
   isSubmitting: boolean;
+  existingBidAmount?: string | null;
 }
 
-const BidForm = ({ onSubmit, isSubmitting }: BidFormProps) => {
+const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) => {
   const [formData, setFormData] = useState<BidResponseFormData>({
-    offerAmount: "",
+    offerAmount: existingBidAmount || "",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof BidResponseFormData, string>>>({});
@@ -27,12 +28,17 @@ const BidForm = ({ onSubmit, isSubmitting }: BidFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (existingBidAmount) {
+      return; // Prevent submission if there's an existing bid
+    }
     if (validateForm()) {
       onSubmit(formData);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (existingBidAmount) return; // Prevent changes if there's an existing bid
+
     const { name, value } = e.target;
     // Remove any non-numeric characters except decimal point
     const numericValue = value.replace(/[^0-9.]/g, '');
@@ -56,11 +62,6 @@ const BidForm = ({ onSubmit, isSubmitting }: BidFormProps) => {
     }
   };
 
-  const formatAsCurrency = (value: string) => {
-    if (!value) return '';
-    return `$${value}`;
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm p-4 animate-fade-in">
       <h2 className="text-xl font-semibold text-gray-900">Submit Your Bid</h2>
@@ -79,19 +80,26 @@ const BidForm = ({ onSubmit, isSubmitting }: BidFormProps) => {
             value={formData.offerAmount}
             onChange={handleChange}
             className={`pl-7 ${errors.offerAmount ? "border-red-500" : ""}`}
+            disabled={!!existingBidAmount}
+            readOnly={!!existingBidAmount}
           />
         </div>
         {errors.offerAmount && (
           <p className="text-red-500 text-sm mt-1">{errors.offerAmount}</p>
+        )}
+        {existingBidAmount && (
+          <p className="text-amber-600 text-sm mt-1">
+            You have already submitted an offer for this vehicle.
+          </p>
         )}
       </div>
 
       <Button
         type="submit"
         className="w-full bg-custom-blue hover:bg-custom-blue/90"
-        disabled={isSubmitting}
+        disabled={isSubmitting || !!existingBidAmount}
       >
-        {isSubmitting ? "Submitting..." : "Submit Bid"}
+        {existingBidAmount ? "Offer Already Submitted" : isSubmitting ? "Submitting..." : "Submit Bid"}
       </Button>
     </form>
   );

@@ -1079,6 +1079,8 @@ export type Database = {
           is_valid: boolean
           bid_request_id: string
           buyer_id: string
+          existing_bid_amount: number
+          has_existing_bid: boolean
         }[]
       }
     }

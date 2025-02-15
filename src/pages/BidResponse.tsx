@@ -15,6 +15,7 @@ const BidResponse = () => {
   const [searchParams] = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [existingBidAmount, setExistingBidAmount] = useState<string | null>(null);
 
   const token = searchParams.get('token');
   const requestId = searchParams.get('request');
@@ -48,6 +49,30 @@ const BidResponse = () => {
     }
   };
 
+  // Check for existing bid when component mounts
+  useState(() => {
+    const checkExistingBid = async () => {
+      if (!token) return;
+
+      try {
+        const { data, error } = await supabase.rpc('validate_bid_submission_token', {
+          p_token: token
+        });
+
+        if (error) throw error;
+
+        if (data && data.has_existing_bid) {
+          setExistingBidAmount(data.existing_bid_amount.toString());
+          setSubmitted(true);
+        }
+      } catch (error) {
+        console.error('Error checking existing bid:', error);
+      }
+    };
+
+    checkExistingBid();
+  }, [token]);
+
   // Show error if no token is provided
   if (!token) {
     return (
@@ -64,11 +89,20 @@ const BidResponse = () => {
       ) : isLoading ? (
         <LoadingState />
       ) : submitted ? (
-        <SubmittedState message="Thank you! Your offer has been submitted successfully." />
+        <SubmittedState 
+          message={existingBidAmount 
+            ? `You have already submitted an offer of $${existingBidAmount}` 
+            : "Thank you! Your offer has been submitted successfully."
+          } 
+        />
       ) : vehicleDetails ? (
         <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
           <VehicleDetailsSection vehicle={vehicleDetails} />
-          <BidForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+          <BidForm 
+            onSubmit={handleSubmit} 
+            isSubmitting={isSubmitting}
+            existingBidAmount={existingBidAmount}
+          />
           <BidResponseMarketing />
         </div>
       ) : null}
