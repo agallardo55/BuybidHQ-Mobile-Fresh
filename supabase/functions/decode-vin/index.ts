@@ -78,23 +78,153 @@ const electricVehicleConfigs = {
   }
 };
 
-// Configuration for hybrid vehicles
+// Configuration for hybrid vehicles with manufacturer-specific patterns
 const hybridConfigs = {
   'phev': {
     engineSuffix: 'Plug-in Hybrid',
     type: 'PHEV',
-    transmissionDefault: 'CVT'
+    transmissionDefault: 'CVT',
+    patterns: {
+      model: ['30e', '45e', 'te', 'e-hybrid', 'phev'],
+      description: ['plug-in hybrid', 'plug in hybrid', 'plugin hybrid', 'phev', 'e-drive', 'edrive']
+    }
   },
   'hev': {
     engineSuffix: 'Hybrid',
     type: 'HEV',
-    transmissionDefault: 'CVT'
+    transmissionDefault: 'CVT',
+    patterns: {
+      model: ['hybrid', 'h'],
+      description: ['hybrid', 'hev']
+    }
   },
   'mhev': {
     engineSuffix: 'Mild Hybrid',
     type: 'MHEV',
-    transmissionDefault: 'Automatic'
+    transmissionDefault: 'Automatic',
+    patterns: {
+      model: ['mhev'],
+      description: ['mild hybrid', 'mhev', 'mild-hybrid']
+    }
   }
+};
+
+// Helper function to check if a string matches any pattern from an array
+const matchesAnyPattern = (text: string, patterns: string[]): boolean => {
+  if (!text) return false;
+  const normalizedText = text.toLowerCase();
+  return patterns.some(pattern => normalizedText.includes(pattern.toLowerCase()));
+};
+
+// Helper function to detect hybrid type from model name
+const detectHybridFromModel = (model: string): { type: 'PHEV' | 'HEV' | 'MHEV' | null, config: typeof hybridConfigs[keyof typeof hybridConfigs] | null } => {
+  if (!model) return { type: null, config: null };
+  
+  const modelLower = model.toLowerCase();
+  
+  // Check for PHEV first (most specific)
+  if (hybridConfigs.phev.patterns.model.some(pattern => modelLower.includes(pattern))) {
+    return { type: 'PHEV', config: hybridConfigs.phev };
+  }
+
+  // Check for MHEV
+  if (hybridConfigs.mhev.patterns.model.some(pattern => modelLower.includes(pattern))) {
+    return { type: 'MHEV', config: hybridConfigs.mhev };
+  }
+
+  // Check for regular HEV
+  if (hybridConfigs.hev.patterns.model.some(pattern => modelLower.includes(pattern))) {
+    return { type: 'HEV', config: hybridConfigs.hev };
+  }
+
+  return { type: null, config: null };
+};
+
+// Helper function to detect hybrid type
+const detectHybridType = (specs: any): { type: 'PHEV' | 'HEV' | 'MHEV' | null, config: typeof hybridConfigs[keyof typeof hybridConfigs] | null } => {
+  if (!specs) return { type: null, config: null };
+
+  console.log('Analyzing specs for hybrid detection:', {
+    make: specs.make,
+    model: specs.model,
+    trim: specs.trim,
+    specs: specs.specs
+  });
+
+  // First check if it's a pure EV
+  if (specs?.model?.toLowerCase().includes('taycan') ||
+      specs?.make?.toLowerCase() === 'tesla' ||
+      specs?.model?.toLowerCase().includes(' ev ')) {
+    console.log('Pure EV detected, skipping hybrid classification');
+    return { type: null, config: null };
+  }
+
+  // Check model name first for hybrid indicators
+  const modelResult = detectHybridFromModel(specs.model);
+  if (modelResult.type) {
+    console.log('Hybrid detected from model name:', modelResult.type);
+    return modelResult;
+  }
+
+  // Collect all relevant descriptions
+  const descriptions = [
+    specs?.description,
+    specs?.specs?.engine_description,
+    specs?.specs?.electrification_level,
+    specs?.specs?.other_engine_info,
+    ...((specs?.trims || []).map(trim => trim.description))
+  ].filter(Boolean).map(desc => desc.toLowerCase());
+
+  console.log('Analyzing descriptions for hybrid indicators:', descriptions);
+
+  // Check for BMW specific patterns
+  if (specs.make?.toLowerCase() === 'bmw' && 
+      (specs.model?.toLowerCase().includes('e') || 
+       descriptions.some(desc => desc.includes('edrive')))) {
+    console.log('BMW PHEV detected via model suffix or eDrive');
+    return { type: 'PHEV', config: hybridConfigs.phev };
+  }
+
+  // Check specifications for electrification level
+  if (specs.specs?.electrification_level) {
+    const electrification = specs.specs.electrification_level.toLowerCase();
+    if (electrification.includes('phev') || electrification.includes('plug-in')) {
+      console.log('PHEV detected via electrification level');
+      return { type: 'PHEV', config: hybridConfigs.phev };
+    }
+    if (electrification.includes('mhev') || electrification.includes('mild')) {
+      console.log('MHEV detected via electrification level');
+      return { type: 'MHEV', config: hybridConfigs.mhev };
+    }
+    if (electrification.includes('hev') || electrification.includes('hybrid')) {
+      console.log('HEV detected via electrification level');
+      return { type: 'HEV', config: hybridConfigs.hev };
+    }
+  }
+
+  // Check descriptions against patterns
+  for (const desc of descriptions) {
+    // Check PHEV first (most specific)
+    if (matchesAnyPattern(desc, hybridConfigs.phev.patterns.description)) {
+      console.log('PHEV detected via description patterns');
+      return { type: 'PHEV', config: hybridConfigs.phev };
+    }
+    
+    // Check MHEV
+    if (matchesAnyPattern(desc, hybridConfigs.mhev.patterns.description)) {
+      console.log('MHEV detected via description patterns');
+      return { type: 'MHEV', config: hybridConfigs.mhev };
+    }
+    
+    // Check regular HEV
+    if (matchesAnyPattern(desc, hybridConfigs.hev.patterns.description)) {
+      console.log('HEV detected via description patterns');
+      return { type: 'HEV', config: hybridConfigs.hev };
+    }
+  }
+
+  console.log('No hybrid type detected');
+  return { type: null, config: null };
 };
 
 // Helper function to identify electric vehicles by VIN
@@ -138,46 +268,6 @@ const getElectricVehicleConfig = (vin: string, make: string, model: string) => {
   return null;
 };
 
-// Helper function to detect and classify hybrid type
-const detectHybridType = (specs: any): { type: 'PHEV' | 'HEV' | 'MHEV' | null, config: typeof hybridConfigs[keyof typeof hybridConfigs] | null } => {
-  if (!specs) return { type: null, config: null };
-
-  // First check if it's a pure EV
-  if (specs?.model?.toLowerCase().includes('taycan') ||
-      specs?.make?.toLowerCase() === 'tesla' ||
-      specs?.model?.toLowerCase().includes('ev')) {
-    return { type: null, config: null };
-  }
-
-  const descriptions = [
-    specs?.description,
-    specs?.engine_description,
-    ...((specs?.trims || []).map(trim => trim.description))
-  ].filter(Boolean).map(desc => desc.toLowerCase());
-
-  // Check for PHEV first (most specific)
-  if (descriptions.some(desc => 
-    desc.includes('plug-in hybrid') || 
-    desc.includes('phev'))) {
-    return { type: 'PHEV', config: hybridConfigs.phev };
-  }
-
-  // Check for mild hybrid
-  if (descriptions.some(desc => 
-    desc.includes('mild hybrid') || 
-    desc.includes('mhev'))) {
-    return { type: 'MHEV', config: hybridConfigs.mhev };
-  }
-
-  // Check for regular hybrid
-  if (descriptions.some(desc => 
-    desc.includes('hybrid'))) {
-    return { type: 'HEV', config: hybridConfigs.hev };
-  }
-
-  return { type: null, config: null };
-};
-
 // Helper function to identify exotic cars by VIN
 const getExoticCarConfig = (vin: string, make: string, model: string) => {
   // Lamborghini VIN patterns
@@ -213,7 +303,7 @@ const isHybridVehicle = (specs: any): boolean => {
   // Check various fields for hybrid indicators
   const descriptions = [
     specs?.description,
-    specs?.engine_description,
+    specs?.specs?.engine_description,
     ...((specs?.trims || []).map(trim => trim.description))
   ].filter(Boolean).map(desc => desc.toLowerCase());
 
