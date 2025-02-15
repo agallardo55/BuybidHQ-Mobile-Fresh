@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BidRequest } from "./types";
 import { format, parseISO } from "date-fns";
@@ -64,7 +65,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
                 {request.status}
               </span>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
               <div>
                 <span className="text-gray-500">Date:</span>
                 <p className="font-medium">{formatDate(request.createdAt)}</p>
@@ -72,10 +73,6 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
               <div>
                 <span className="text-gray-500">Buyer:</span>
                 <p className="font-medium">{request.buyer}</p>
-              </div>
-              <div>
-                <span className="text-gray-500">Dealership:</span>
-                <p className="font-medium">{request.dealership}</p>
               </div>
               <div>
                 <span className="text-gray-500">Highest Offer:</span>

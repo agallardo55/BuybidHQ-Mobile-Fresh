@@ -72,7 +72,6 @@ const BidRequestDashboard = () => {
       request.make.toLowerCase().includes(searchString) ||
       request.model.toLowerCase().includes(searchString) ||
       request.buyer.toLowerCase().includes(searchString) ||
-      request.dealership.toLowerCase().includes(searchString) ||
       request.status.toLowerCase().includes(searchString)
     );
   });
