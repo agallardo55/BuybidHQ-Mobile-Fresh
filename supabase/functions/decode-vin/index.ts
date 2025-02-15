@@ -138,7 +138,7 @@ serve(async (req) => {
         year: data.year,
         make: data.make,
         model: data.model,
-        trim: data.trim,
+        trims: data.trims,
         specs: {
           engine_number_of_cylinders: data.specs?.engine_number_of_cylinders,
           transmission_style: data.specs?.transmission_style,
@@ -194,13 +194,16 @@ serve(async (req) => {
 
     const transmissionStyle = data.specs?.transmission_style || "";
     const driveType = data.specs?.drive_type || "";
+    
+    // Get trim from trims array if available
+    const trimName = data.trims && data.trims.length > 0 ? data.trims[0].name : "";
 
     // Transform the response to match our expected structure
     const transformedData = {
       year: data.year?.toString() || "",
       make: data.make || "",
       model: data.model || "",
-      trim: data.trim || "",
+      trim: trimName,
       engineCylinders: engineDescription,
       transmission: transmissionStyle,
       drivetrain: driveType,
