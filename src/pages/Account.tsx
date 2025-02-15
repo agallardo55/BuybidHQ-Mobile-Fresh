@@ -15,7 +15,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const Account = () => {
   const { currentUser, isLoading } = useCurrentUser();
-  const isDealer = currentUser?.role === 'dealer';
+  const isAdmin = currentUser?.role === 'admin';
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -27,26 +27,26 @@ const Account = () => {
           <Tabs defaultValue="personal" className="w-full">
             <TabsList className="mb-4 w-full flex flex-wrap gap-2">
               <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
-              <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>
+              {!isAdmin && <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>}
               <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
-              {isDealer ? null : (
-                <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>
-              )}
+              {!isAdmin && <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="personal">
               <PersonalInfoTab />
             </TabsContent>
 
-            <TabsContent value="dealership">
-              <DealershipTab />
-            </TabsContent>
+            {!isAdmin && (
+              <TabsContent value="dealership">
+                <DealershipTab />
+              </TabsContent>
+            )}
 
             <TabsContent value="security">
               <SecurityTab />
             </TabsContent>
 
-            {!isDealer && (
+            {!isAdmin && (
               <TabsContent value="subscription">
                 <SubscriptionTab />
               </TabsContent>
