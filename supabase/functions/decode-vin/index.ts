@@ -52,18 +52,16 @@ serve(async (req) => {
     let data
     try {
       data = JSON.parse(responseText)
-      // Log the exact structure of the top-level fields we're using
+      // Log the exact structure we're trying to access
       console.log('API Response Fields:', {
         year: data.year,
         make: data.make,
         model: data.model,
         trim: data.trim,
-        engine: data.engine,
-        transmission: data.transmission,
-        drivetrainInfo: {
-          drive_type: data.drive_type,
-          drivetrain: data.drivetrain,
-          drive_line: data.drive_line,
+        specs: {
+          engine_number_of_: data.specs?.engine_number_of_,
+          transmission_style: data.specs?.transmission_style,
+          drive_type: data.specs?.drive_type
         }
       })
     } catch (parseError) {
@@ -103,49 +101,14 @@ serve(async (req) => {
       )
     }
 
-    // Get engine info
-    const engineInfo = (() => {
-      console.log('Processing engine data:', data.engine);
-      if (typeof data.engine === 'string') return data.engine;
-      if (data.engine?.size) return `${data.engine.size}L`;
-      if (data.engine?.displacement) return `${data.engine.displacement}L`;
-      if (data.engine?.configuration && data.engine?.cylinders) {
-        return `${data.engine.configuration}${data.engine.cylinders}`;
-      }
-      if (data.engine?.configuration) return data.engine.configuration;
-      if (data.engine?.cylinders) return `${data.engine.cylinders} cylinder`;
-      return "";
-    })();
+    // Access the specs directly using the correct JSON paths
+    const engineCylinders = data.specs?.engine_number_of_ 
+      ? `${data.specs.engine_number_of_} cylinder`
+      : "";
 
-    // Get transmission info
-    const transmissionInfo = (() => {
-      console.log('Processing transmission data:', data.transmission);
-      if (typeof data.transmission === 'string') return data.transmission;
-      const parts = [];
-      if (data.transmission?.speeds) parts.push(`${data.transmission.speeds}-speed`);
-      if (data.transmission?.name) parts.push(data.transmission.name);
-      else if (data.transmission?.type) parts.push(data.transmission.type);
-      return parts.join(" ") || "";
-    })();
+    const transmissionStyle = data.specs?.transmission_style || "";
 
-    // Get drivetrain info
-    const drivetrainInfo = (() => {
-      console.log('Processing drivetrain data:', {
-        drive_line: data.drive_line,
-        drive_type: data.drive_type,
-        drivetrain: data.drivetrain
-      });
-      if (typeof data.drive_line === 'string') return data.drive_line;
-      if (typeof data.drive_type === 'string') return data.drive_type;
-      if (typeof data.drivetrain === 'string') return data.drivetrain;
-      return "";
-    })();
-
-    console.log('Processed technical specs:', {
-      engine: engineInfo,
-      transmission: transmissionInfo,
-      drivetrain: drivetrainInfo
-    });
+    const driveType = data.specs?.drive_type || "";
 
     // Transform the response to match our expected structure
     const transformedData = {
@@ -153,19 +116,13 @@ serve(async (req) => {
       make: data.make || "",
       model: data.model || "",
       trim: data.trim || "",
-      engineCylinders: engineInfo,
-      transmission: transmissionInfo,
-      drivetrain: drivetrainInfo,
+      engineCylinders,
+      transmission: transmissionStyle,
+      drivetrain: driveType,
     }
 
     console.log('Final transformed data:', transformedData)
-    console.log('Raw data for debugging:', {
-      engine: data.engine,
-      transmission: data.transmission,
-      drive_type: data.drive_type,
-      drivetrain: data.drivetrain,
-      drive_line: data.drive_line
-    })
+    console.log('Raw specs data for debugging:', data.specs)
 
     return new Response(
       JSON.stringify(transformedData),
