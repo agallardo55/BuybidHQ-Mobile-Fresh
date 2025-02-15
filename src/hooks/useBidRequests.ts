@@ -20,23 +20,12 @@ type Vehicle = {
   options: string | null;
 };
 
-type Buyer = {
-  buyer_name: string | null;
-  dealer_name: string | null;
-};
-
 type BidResponse = {
   offer_amount: number;
-  buyer: Buyer | null;
-};
-
-type BidRequestResponse = {
-  id: string;
-  created_at: string;
-  status: "Pending" | "Approved" | "Declined";
-  vehicle: Vehicle | null;
-  buyer: Buyer | null;
-  bid_responses: BidResponse[] | null;
+  buyers: {
+    buyer_name: string | null;
+    dealer_name: string | null;
+  } | null;
 };
 
 export const useBidRequests = () => {
@@ -115,7 +104,7 @@ export const useBidRequests = () => {
             trim: request.vehicles?.trim || '',
             vin: request.vehicles?.vin || '',
             mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
-            buyer: highestBid?.buyer?.buyer_name || '',
+            buyer: highestBid?.buyers?.buyer_name || '',
             highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
             status: request.status,
             engineCylinders: request.vehicles?.engine || '',
