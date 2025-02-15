@@ -40,11 +40,13 @@ export const useBidRequests = () => {
     queryKey: ['bidRequests', currentUser?.role],
     queryFn: async () => {
       try {
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (!session || sessionError) {
+          console.error("No valid session:", sessionError);
+          return [];
+        }
 
         console.log("Current user role:", currentUser?.role);
-        console.log("User data:", userData);
 
         let query = supabase
           .from('bid_requests')
@@ -68,12 +70,6 @@ export const useBidRequests = () => {
               offer_amount
             )
           `);
-
-        // Note: We don't need to filter by user_id for admin users
-        // The RLS policies will handle the access control
-        if (currentUser?.role !== 'admin') {
-          query = query.eq('user_id', userData.user.id);
-        }
 
         const { data, error } = await query;
 

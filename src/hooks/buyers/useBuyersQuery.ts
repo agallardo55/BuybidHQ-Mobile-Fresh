@@ -21,17 +21,7 @@ export const useBuyersQuery = () => {
           return [];
         }
 
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        if (userError) {
-          console.error("Auth error:", userError);
-          if (userError.message.includes("Invalid refresh token")) {
-            navigate('/signin');
-          }
-          throw userError;
-        }
-
         console.log("Current user role:", currentUser?.role);
-        console.log("User data:", userData);
 
         let query = supabase
           .from('buyers')
@@ -54,10 +44,6 @@ export const useBuyersQuery = () => {
               email
             )
           `);
-        
-        if (currentUser?.role !== 'dealer') {
-          query = query.eq('user_id', userData.user.id);
-        }
 
         const { data, error } = await query;
 
