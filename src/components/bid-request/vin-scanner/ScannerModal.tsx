@@ -8,7 +8,7 @@ interface ScannerModalProps {
 
 const ScannerModal = ({ videoRef, onCancel }: ScannerModalProps) => {
   return (
-    <div className="fixed inset-0 bg-black/80 z-50">
+    <div className="fixed inset-0 bg-secondary z-50">
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <video 
           ref={videoRef}
@@ -16,7 +16,7 @@ const ScannerModal = ({ videoRef, onCancel }: ScannerModalProps) => {
           autoPlay
           playsInline
         />
-        <div className="text-white text-center">
+        <div className="text-primary text-center">
           <p className="mb-4">Position the barcode in the center of the screen</p>
           <Button 
             onClick={onCancel}
