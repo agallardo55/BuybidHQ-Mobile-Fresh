@@ -5,29 +5,6 @@ import { BidRequest } from "@/components/bid-request/types";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
 
-type Vehicle = {
-  year: string | null;
-  make: string | null;
-  model: string | null;
-  trim: string | null;
-  vin: string | null;
-  mileage: string | null;
-  engine: string | null;
-  transmission: string | null;
-  drivetrain: string | null;
-  exterior: string | null;
-  interior: string | null;
-  options: string | null;
-};
-
-type BidResponse = {
-  offer_amount: number;
-  buyers: {
-    buyer_name: string | null;
-    dealer_name: string | null;
-  } | null;
-};
-
 export const useBidRequests = () => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
@@ -64,6 +41,15 @@ export const useBidRequests = () => {
               interior,
               options
             ),
+            reconditioning (
+              windshield,
+              engine_light,
+              brakes,
+              tires,
+              maintenance,
+              recon_est,
+              recod_details
+            ),
             bid_responses (
               offer_amount,
               buyers (
@@ -94,7 +80,7 @@ export const useBidRequests = () => {
               return current;
             }
             return highest;
-          }, null as BidResponse | null);
+          }, null as any);
 
           return {
             id: request.id,
@@ -114,13 +100,14 @@ export const useBidRequests = () => {
             exteriorColor: request.vehicles?.exterior || '',
             interiorColor: request.vehicles?.interior || '',
             accessories: request.vehicles?.options || '',
-            windshield: '',
-            engineLights: '',
-            brakes: '',
-            tire: '',
-            maintenance: '',
-            reconEstimate: '',
-            reconDetails: ''
+            // Map reconditioning information
+            windshield: request.reconditioning?.windshield || '',
+            engineLights: request.reconditioning?.engine_light || '',
+            brakes: request.reconditioning?.brakes || '',
+            tire: request.reconditioning?.tires || '',
+            maintenance: request.reconditioning?.maintenance || '',
+            reconEstimate: request.reconditioning?.recon_est || '',
+            reconDetails: request.reconditioning?.recod_details || ''
           };
         });
 
