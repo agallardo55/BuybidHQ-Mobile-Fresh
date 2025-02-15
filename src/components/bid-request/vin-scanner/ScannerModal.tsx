@@ -17,6 +17,10 @@ const ScannerModal = ({ videoRef, onCancel }: ScannerModalProps) => {
             autoPlay
             playsInline
           />
+          {/* Horizontal line */}
+          <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-red-500/70" />
+          {/* Vertical line */}
+          <div className="absolute top-0 bottom-0 left-1/2 w-[2px] bg-red-500/70" />
         </div>
         <div className="text-white text-center mt-4">
           <p className="mb-4">Position the barcode in the center of the screen</p>
