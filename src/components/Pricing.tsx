@@ -49,9 +49,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">
-                Get Started
-              </Button>
+              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">Beta Access</Button>
             </CardFooter>
           </Card>
 
