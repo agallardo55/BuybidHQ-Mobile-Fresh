@@ -76,7 +76,6 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 <TableHead className="text-sm">VIN</TableHead>
                 <SortableHeader field="mileage">Mileage</SortableHeader>
                 <SortableHeader field="buyer">Buyer</SortableHeader>
-                <SortableHeader field="dealership">Dealership</SortableHeader>
                 <SortableHeader field="highestOffer">Highest Offer</SortableHeader>
                 <SortableHeader field="status">Status</SortableHeader>
               </TableRow>
@@ -108,9 +107,6 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                   </TableCell>
                   <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {request.buyer}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {request.dealership}
                   </TableCell>
                   <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     ${request.highestOffer.toLocaleString()}
