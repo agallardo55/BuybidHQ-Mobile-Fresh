@@ -5,9 +5,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, UserFormData, DealershipFormData, transformDatabaseUser } from "@/types/users";
 import { useState, useEffect } from "react";
-import AddUserForm from "./AddUserForm";
+import UserInformationSection from "./sections/UserInformationSection";
+import DealershipInformationSection from "./sections/DealershipInformationSection";
+import { Button } from "@/components/ui/button";
 
 interface EditUserDialogProps {
   user: User | null;
@@ -73,16 +76,35 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
         <DialogHeader className="p-3 sm:p-4 md:p-6">
           <DialogTitle>Edit User</DialogTitle>
         </DialogHeader>
-        <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
-          <AddUserForm
-            onSubmit={handleSubmit}
-            formData={formData}
-            onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-            initialDealershipData={dealershipData}
-            onDealershipDataChange={setDealershipData}
-            submitButtonText="Update"
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
+            <Tabs defaultValue="user-info" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="user-info">User Information</TabsTrigger>
+                <TabsTrigger value="dealership-info">Dealership Information</TabsTrigger>
+              </TabsList>
+              <TabsContent value="user-info" className="mt-4">
+                <UserInformationSection
+                  formData={formData}
+                  onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+                />
+              </TabsContent>
+              <TabsContent value="dealership-info" className="mt-4">
+                <DealershipInformationSection
+                  formData={formData}
+                  dealershipData={dealershipData}
+                  onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+                  onDealershipDataChange={(data) => setDealershipData(prev => ({ ...prev, ...data }))}
+                />
+              </TabsContent>
+            </Tabs>
+            <div className="mt-6">
+              <Button type="submit" className="w-full bg-custom-blue hover:bg-custom-blue/90">
+                Update
+              </Button>
+            </div>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
