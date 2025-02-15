@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BidRequest } from "./types";
 import { format, parseISO } from "date-fns";
@@ -53,7 +52,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[95vw] sm:w-[90vw] md:w-[85vw] lg:w-[80vw] xl:w-[75vw] max-w-[1400px] p-6">
+        <DialogContent className="!w-[95vw] sm:!w-[90vw] md:!w-[85vw] lg:!w-[80vw] xl:!w-[75vw] !max-w-[1400px]">
           <DialogHeader className="border-b pb-4">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-2xl">Vehicle Details</DialogTitle>
@@ -94,7 +93,6 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mt-6">
-            {/* Core Vehicle Information */}
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-lg border">
                 <h3 className="font-semibold text-lg mb-4">Core Details</h3>
@@ -131,7 +129,6 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
               </div>
             </div>
 
-            {/* Vehicle Condition & Colors */}
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-lg border">
                 <h3 className="font-semibold text-lg mb-4">Appearance</h3>
@@ -166,7 +163,6 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
               </div>
             </div>
 
-            {/* Reconditioning Information */}
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-lg border">
                 <h3 className="font-semibold text-lg mb-4">Reconditioning</h3>
