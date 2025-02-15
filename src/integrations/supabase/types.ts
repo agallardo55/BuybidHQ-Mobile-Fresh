@@ -819,6 +819,26 @@ export type Database = {
         }
         Returns: string
       }
+      get_user_with_dealership: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          id: string
+          email: string
+          role: Database["public"]["Enums"]["user_role"]
+          full_name: string
+          mobile_number: string
+          address: string
+          city: string
+          state: string
+          zip_code: string
+          dealership_id: string
+          dealer_name: string
+          business_phone: string
+          business_email: string
+        }[]
+      }
       handle_user_deletion: {
         Args: {
           user_id: string
