@@ -685,6 +685,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_role_cache: {
+        Row: {
+          cached_at: string
+          is_admin: boolean
+          user_id: string
+        }
+        Insert: {
+          cached_at?: string
+          is_admin?: boolean
+          user_id: string
+        }
+        Update: {
+          cached_at?: string
+          is_admin?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       vehicle_history: {
         Row: {
           autocheck_report: string | null
@@ -946,7 +964,7 @@ export type Database = {
       }
       is_admin: {
         Args: {
-          user_id: string
+          checking_user_id: string
         }
         Returns: boolean
       }
