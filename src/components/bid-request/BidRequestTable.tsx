@@ -50,7 +50,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
   const SortableHeader = ({ field, children }: { field: keyof BidRequest; children: React.ReactNode }) => (
     <TableHead 
       className={cn(
-        "whitespace-nowrap text-xs cursor-pointer select-none",
+        "text-sm cursor-pointer select-none",
         sortConfig.field === field && "text-primary"
       )}
       onClick={() => onSort(field)}
@@ -73,7 +73,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 <SortableHeader field="year">Year</SortableHeader>
                 <SortableHeader field="make">Make</SortableHeader>
                 <SortableHeader field="model">Model</SortableHeader>
-                <TableHead className="whitespace-nowrap text-xs">VIN</TableHead>
+                <TableHead className="text-sm">VIN</TableHead>
                 <SortableHeader field="mileage">Mileage</SortableHeader>
                 <SortableHeader field="buyer">Buyer</SortableHeader>
                 <SortableHeader field="dealership">Dealership</SortableHeader>
@@ -85,44 +85,44 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
               {requests.map((request) => (
                 <TableRow 
                   key={request.id} 
-                  className="text-xs cursor-pointer hover:bg-gray-50"
+                  className="text-sm cursor-pointer hover:bg-gray-50"
                   onClick={() => handleRowClick(request)}
                 >
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {formatDate(request.createdAt)}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {request.year}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {request.make}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {request.model}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {request.vin}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {request.mileage.toLocaleString()}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {request.buyer}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     {request.dealership}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap">
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
                     ${request.highestOffer.toLocaleString()}
                   </TableCell>
-                  <TableCell className="py-1 px-2 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                     <Select
                       value={request.status}
                       onValueChange={(value: "Pending" | "Approved" | "Declined") => 
                         onStatusUpdate(request.id, value)
                       }
                     >
-                      <SelectTrigger className={`w-[90px] h-6 text-xs font-medium
+                      <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
                         ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
                         ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
                         ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
