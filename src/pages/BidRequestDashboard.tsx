@@ -46,19 +46,16 @@ const BidRequestDashboard = () => {
       const aValue = a[sortConfig.field!];
       const bValue = b[sortConfig.field!];
 
-      // Handle date comparison
       if (sortConfig.field === 'createdAt') {
         const dateA = new Date(aValue as string).getTime();
         const dateB = new Date(bValue as string).getTime();
         return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
       }
 
-      // Handle number comparison
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
       }
 
-      // Handle string comparison
       const stringA = String(aValue).toLowerCase();
       const stringB = String(bValue).toLowerCase();
       
@@ -68,22 +65,7 @@ const BidRequestDashboard = () => {
     });
   };
 
-  const filteredRequests = bidRequests.map(request => ({
-    ...request,
-    engineCylinders: request.engineCylinders || '',
-    transmission: request.transmission || '',
-    drivetrain: request.drivetrain || '',
-    exteriorColor: request.exteriorColor || '',
-    interiorColor: request.interiorColor || '',
-    accessories: request.accessories || '',
-    windshield: request.windshield || '',
-    engineLights: request.engineLights || '',
-    brakes: request.brakes || '',
-    tire: request.tire || '',
-    maintenance: request.maintenance || '',
-    reconEstimate: request.reconEstimate || '',
-    reconDetails: request.reconDetails || ''
-  })).filter((request) => {
+  const filteredRequests = bidRequests.filter((request) => {
     const searchString = searchTerm.toLowerCase();
     return (
       request.year.toString().includes(searchString) ||

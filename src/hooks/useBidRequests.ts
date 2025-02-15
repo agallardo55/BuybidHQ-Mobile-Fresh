@@ -12,6 +12,12 @@ type Vehicle = {
   trim: string | null;
   vin: string | null;
   mileage: string | null;
+  engine: string | null;
+  transmission: string | null;
+  drivetrain: string | null;
+  exterior: string | null;
+  interior: string | null;
+  options: string | null;
 };
 
 type Buyer = {
@@ -48,7 +54,6 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Query using the new access cache table
         const { data, error } = await supabase
           .from('bid_requests')
           .select(`
@@ -61,7 +66,13 @@ export const useBidRequests = () => {
               model,
               trim,
               vin,
-              mileage
+              mileage,
+              engine,
+              transmission,
+              drivetrain,
+              exterior,
+              interior,
+              options
             ),
             buyers (
               buyer_name,
@@ -97,7 +108,20 @@ export const useBidRequests = () => {
           buyer: request.buyers?.buyer_name || '',
           dealership: request.buyers?.dealer_name || '',
           highestOffer: Math.max(...(request.bid_responses?.map(r => Number(r.offer_amount)) || [0])),
-          status: request.status
+          status: request.status,
+          engineCylinders: request.vehicles?.engine || '',
+          transmission: request.vehicles?.transmission || '',
+          drivetrain: request.vehicles?.drivetrain || '',
+          exteriorColor: request.vehicles?.exterior || '',
+          interiorColor: request.vehicles?.interior || '',
+          accessories: request.vehicles?.options || '',
+          windshield: '',
+          engineLights: '',
+          brakes: '',
+          tire: '',
+          maintenance: '',
+          reconEstimate: '',
+          reconDetails: ''
         }));
 
         console.log("Mapped requests:", mappedRequests);
