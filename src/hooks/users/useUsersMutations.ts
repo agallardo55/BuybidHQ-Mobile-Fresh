@@ -12,7 +12,7 @@ export const useUsersMutations = () => {
     mutationFn: async ({ userData, dealershipData }: CreateUserParams) => {
       // If it's a dealer, create dealership first
       let dealershipId = null;
-      if (userData.role === 'dealer' && dealershipData) {
+      if (dealershipData) {
         const { data: dealership, error: dealershipError } = await supabase
           .from('dealerships')
           .insert({
@@ -39,7 +39,7 @@ export const useUsersMutations = () => {
         .insert({
           ...transformedUser,
           dealership_id: dealershipId,
-          email: userData.email // Ensure email is explicitly set as it's required
+          email: userData.email.toLowerCase().trim() // Ensure email is explicitly set and normalized
         })
         .select()
         .single();
@@ -107,7 +107,7 @@ export const useUsersMutations = () => {
       const { data: user, error: fetchError } = await supabase
         .from('buybidhq_users')
         .select('*')
-        .eq('id', userId) // Fixed: user_id -> userId
+        .eq('id', userId)
         .single();
 
       if (fetchError) throw fetchError;
