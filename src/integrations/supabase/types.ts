@@ -658,6 +658,33 @@ export type Database = {
           },
         ]
       }
+      user_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          permission: string
+          resource_id: string
+          resource_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permission: string
+          resource_id: string
+          resource_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permission?: string
+          resource_id?: string
+          resource_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       vehicle_history: {
         Row: {
           autocheck_report: string | null
@@ -899,6 +926,14 @@ export type Database = {
         Args: {
           user_id: string
           target_dealership_id: string
+        }
+        Returns: boolean
+      }
+      has_permission: {
+        Args: {
+          p_user_id: string
+          p_resource_type: string
+          p_resource_id: string
         }
         Returns: boolean
       }
