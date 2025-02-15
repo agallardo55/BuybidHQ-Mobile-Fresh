@@ -48,7 +48,7 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Optimized query that works with our RLS policies
+        // Query with left joins to respect RLS policies
         const { data, error } = await supabase
           .from('bid_requests')
           .select(`
@@ -121,6 +121,7 @@ export const useBidRequests = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bidRequests'] });
+      toast.success("Bid request status updated successfully");
     },
     onError: (error) => {
       console.error("Update bid request error:", error);
