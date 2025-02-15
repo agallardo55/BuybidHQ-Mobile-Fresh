@@ -5,6 +5,125 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Configuration for exotic cars
+const exoticCarConfigs = {
+  'lamborghini': {
+    'huracan': {
+      engineDescription: '5.2L V10',
+      transmission: '7-speed LDF dual-clutch',
+      drivetrain: 'AWD',
+    },
+    'urus': {
+      engineDescription: '4.0L V8 Twin-Turbo',
+      transmission: '8-speed automatic',
+      drivetrain: 'AWD',
+    },
+    'aventador': {
+      engineDescription: '6.5L V12',
+      transmission: '7-speed ISR',
+      drivetrain: 'AWD',
+    }
+  }
+};
+
+// Configuration for electric vehicles
+const electricVehicleConfigs = {
+  'tesla': {
+    'model_3': {
+      engineDescription: 'Electric',
+      transmission: 'Single-speed automatic',
+      drivetrain: 'RWD/AWD',
+    },
+    'model_s': {
+      engineDescription: 'Electric',
+      transmission: 'Single-speed automatic',
+      drivetrain: 'AWD',
+    },
+    'model_x': {
+      engineDescription: 'Electric',
+      transmission: 'Single-speed automatic',
+      drivetrain: 'AWD',
+    },
+    'model_y': {
+      engineDescription: 'Electric',
+      transmission: 'Single-speed automatic',
+      drivetrain: 'AWD',
+    }
+  },
+  'rivian': {
+    'r1t': {
+      engineDescription: 'Quad-Motor Electric',
+      transmission: 'Single-speed automatic',
+      drivetrain: 'AWD',
+    },
+    'r1s': {
+      engineDescription: 'Quad-Motor Electric',
+      transmission: 'Single-speed automatic',
+      drivetrain: 'AWD',
+    }
+  }
+};
+
+// Helper function to identify electric vehicles by VIN
+const getElectricVehicleConfig = (vin: string, make: string, model: string) => {
+  // Common EV VIN patterns
+  if (vin.startsWith('5YJ')) { // Tesla
+    make = 'tesla';
+    // Map Tesla model codes to names
+    const modelMap: { [key: string]: string } = {
+      'S': 'model_s',
+      'X': 'model_x',
+      '3': 'model_3',
+      'Y': 'model_y'
+    };
+    // Extract model code from VIN position 4
+    const modelCode = vin.charAt(3);
+    model = modelMap[modelCode] || model.toLowerCase().replace(' ', '_');
+  }
+
+  if (electricVehicleConfigs[make.toLowerCase()]?.[model.toLowerCase()]) {
+    return electricVehicleConfigs[make.toLowerCase()][model.toLowerCase()];
+  }
+  return null;
+};
+
+// Helper function to identify exotic cars by VIN
+const getExoticCarConfig = (vin: string, make: string, model: string) => {
+  // Lamborghini VIN patterns
+  if (vin.startsWith('ZHW')) {
+    make = 'lamborghini';
+    // Specific Lamborghini model identification
+    if (vin.includes('UF5')) { // Huracán pattern
+      model = 'huracan';
+    } else if (vin.includes('UF1')) { // Aventador pattern
+      model = 'aventador';
+    } else if (vin.includes('UR2')) { // Urus pattern
+      model = 'urus';
+    }
+  }
+
+  if (exoticCarConfigs[make.toLowerCase()]?.[model.toLowerCase()]) {
+    return exoticCarConfigs[make.toLowerCase()][model.toLowerCase()];
+  }
+  return null;
+};
+
+// Helper function to detect hybrid vehicles
+const isHybridVehicle = (specs: any): boolean => {
+  const hybridKeywords = ['hybrid', 'phev', 'plug-in', 'electric'];
+  
+  // Check various fields for hybrid indicators
+  const descriptions = [
+    specs?.description,
+    specs?.engine_description,
+    ...((specs?.trims || []).map(trim => trim.description))
+  ].filter(Boolean).map(desc => desc.toLowerCase());
+
+  return descriptions.some(desc => 
+    hybridKeywords.some(keyword => desc.includes(keyword))
+  );
+};
+
 // Helper function to format displacement
 const formatDisplacement = (displacement: string | null): string => {
   if (!displacement) return '';
@@ -140,12 +259,38 @@ const isTurboEngine = (specs: any): boolean => {
 
 // Helper function to format engine description
 const formatEngineDescription = (specs: any): string => {
+  console.log('Starting engine description formatting for:', specs?.make, specs?.model);
+
+  // Check for electric vehicle configuration
+  const evConfig = getElectricVehicleConfig(specs.vin, specs.make, specs.model);
+  if (evConfig) {
+    console.log('Found electric vehicle configuration:', evConfig);
+    return evConfig.engineDescription;
+  }
+
+  // Check for exotic car configuration
+  const exoticConfig = getExoticCarConfig(specs.vin, specs.make, specs.model);
+  if (exoticConfig) {
+    console.log('Found exotic car configuration:', exoticConfig);
+    return exoticConfig.engineDescription;
+  }
+
+  // Check if it's a hybrid
+  if (isHybridVehicle(specs)) {
+    console.log('Detected hybrid vehicle');
+    const baseEngine = formatBaseEngineDescription(specs);
+    return baseEngine ? `${baseEngine} Hybrid` : 'Hybrid';
+  }
+
+  return formatBaseEngineDescription(specs);
+};
+
+// Helper function to format base engine description
+const formatBaseEngineDescription = (specs: any): string => {
   if (!specs) {
-    console.log('No specs provided to formatEngineDescription');
+    console.log('No specs provided to formatBaseEngineDescription');
     return "Engine information not available";
   }
-  
-  console.log('Starting engine description formatting with specs:', JSON.stringify(specs, null, 2));
 
   // Try to get cylinder count from trim description first
   let cylinders = null;
@@ -161,22 +306,15 @@ const formatEngineDescription = (specs: any): string => {
   if (!cylinders && specs.specs?.engine_number_of_cylinders) {
     cylinders = parseInt(specs.specs.engine_number_of_cylinders);
   }
-  
-  console.log('Determined cylinder count:', cylinders);
-  
+
   if (!cylinders) {
     console.log('No valid cylinder count found');
     return "Engine information not available";
   }
 
   const configuration = determineEngineConfiguration(specs);
-  console.log('Final engine configuration:', configuration);
-
   const displacementStr = formatDisplacement(specs.specs?.displacement_l);
-  console.log('Formatted displacement:', displacementStr);
-
   const isTurbo = isTurboEngine(specs);
-  console.log('Turbo detection result:', isTurbo);
 
   let baseDescription = '';
   if (displacementStr) {
@@ -184,14 +322,23 @@ const formatEngineDescription = (specs: any): string => {
   } else {
     baseDescription = `${configuration}${cylinders}`;
   }
-  
-  const finalDescription = isTurbo ? `${baseDescription} Turbo` : baseDescription;
-  console.log('Final engine description:', finalDescription);
-  return finalDescription;
-}
+
+  return isTurbo ? `${baseDescription} Turbo` : baseDescription;
+};
 
 // Helper function to clean up drivetrain value
-const cleanDrivetrain = (driveType: string | null): string => {
+const cleanDrivetrain = (driveType: string | null, make?: string, model?: string, vin?: string): string => {
+  // Check for electric or exotic vehicle configurations first
+  const evConfig = vin && make && model ? getElectricVehicleConfig(vin, make, model) : null;
+  if (evConfig) {
+    return evConfig.drivetrain;
+  }
+
+  const exoticConfig = vin && make && model ? getExoticCarConfig(vin, make, model) : null;
+  if (exoticConfig) {
+    return exoticConfig.drivetrain;
+  }
+
   if (!driveType) return "";
   
   // Common mappings for drive types
@@ -218,7 +365,24 @@ const cleanDrivetrain = (driveType: string | null): string => {
 
   // Return the original value if no matches found
   return driveType;
-}
+};
+
+// Helper function to clean up transmission value
+const cleanTransmission = (transmission: string | null, make?: string, model?: string, vin?: string): string => {
+  // Check for electric or exotic vehicle configurations first
+  const evConfig = vin && make && model ? getElectricVehicleConfig(vin, make, model) : null;
+  if (evConfig) {
+    return evConfig.transmission;
+  }
+
+  const exoticConfig = vin && make && model ? getExoticCarConfig(vin, make, model) : null;
+  if (exoticConfig) {
+    return exoticConfig.transmission;
+  }
+
+  if (!transmission) return "";
+  return transmission;
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -310,11 +474,24 @@ serve(async (req) => {
       )
     }
 
-    const engineDescription = formatEngineDescription(data);
+    const engineDescription = formatEngineDescription({
+      ...data,
+      vin: vin
+    });
     console.log('Formatted engine description:', engineDescription);
 
-    const transmissionStyle = data.specs?.transmission_style || "";
-    const driveType = cleanDrivetrain(data.specs?.drive_type);
+    const transmissionStyle = cleanTransmission(
+      data.specs?.transmission_style,
+      data.make,
+      data.model,
+      vin
+    );
+    const driveType = cleanDrivetrain(
+      data.specs?.drive_type,
+      data.make,
+      data.model,
+      vin
+    );
     
     const trimName = data.trims && data.trims.length > 0 ? data.trims[0].name : "";
 
