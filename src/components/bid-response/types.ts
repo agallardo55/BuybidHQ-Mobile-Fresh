@@ -1,14 +1,10 @@
 
-export interface BidResponseFormData {
-  offerAmount: string;
-}
-
 export interface VehicleDetails {
   year: string;
   make: string;
   model: string;
   trim: string;
-  mileage: string;
+  mileage: number;
   exteriorColor: string;
   interiorColor: string;
   vin: string;
@@ -26,4 +22,9 @@ export interface VehicleDetails {
   userFullName: string;
   dealership: string;
   mobileNumber: string;
+  images?: string[];
+}
+
+export interface BidResponseFormData {
+  offerAmount: string;
 }

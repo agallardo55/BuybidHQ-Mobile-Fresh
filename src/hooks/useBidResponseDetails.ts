@@ -24,45 +24,60 @@ export const useBidResponseDetails = (requestId: string | null): BidResponseDeta
       }
 
       try {
-        const { data, error } = await supabase.rpc('get_bid_request_details', {
+        // Fetch bid request details
+        const { data: requestData, error: requestError } = await supabase.rpc('get_bid_request_details', {
           p_request_id: requestId
         });
 
-        if (error) throw error;
+        if (requestError) throw requestError;
 
-        if (data && data[0]) {
-          setVehicleDetails({
-            year: data[0].year,
-            make: data[0].make,
-            model: data[0].model,
-            trim: data[0].trim_level,
-            mileage: data[0].mileage,
-            exteriorColor: data[0].exterior_color,
-            interiorColor: data[0].interior_color,
-            vin: data[0].vin,
-            windshield: data[0].windshield,
-            engineLights: data[0].engine_lights,
-            brakes: data[0].brakes,
-            tire: data[0].tire,
-            maintenance: data[0].maintenance,
-            reconEstimate: data[0].recon_estimate,
-            reconDetails: data[0].recon_details,
-            accessories: data[0].accessories,
-            transmission: data[0].transmission,
-            engineCylinders: data[0].engine_cylinders,
-            drivetrain: data[0].drivetrain,
-            userFullName: data[0].user_full_name,
-            dealership: data[0].dealership,
-            mobileNumber: data[0].mobile_number
-          });
-
-          setCreatorInfo({
-            phoneNumber: data[0].mobile_number,
-            fullName: data[0].user_full_name
-          });
-        } else {
+        if (!requestData?.[0]) {
           setError('This bid request has expired.');
+          return;
         }
+
+        // Fetch images for the bid request
+        const { data: imageData, error: imageError } = await supabase
+          .from('images')
+          .select('image_url')
+          .eq('bid_request_id', requestId)
+          .order('created_at', { ascending: true });
+
+        if (imageError) {
+          console.error('Error fetching images:', imageError);
+        }
+
+        const detail = requestData[0];
+        setVehicleDetails({
+          year: detail.year,
+          make: detail.make,
+          model: detail.model,
+          trim: detail.trim_level,
+          mileage: parseFloat(detail.mileage) || 0,
+          exteriorColor: detail.exterior_color,
+          interiorColor: detail.interior_color,
+          vin: detail.vin,
+          windshield: detail.windshield,
+          engineLights: detail.engine_lights,
+          brakes: detail.brakes,
+          tire: detail.tire,
+          maintenance: detail.maintenance,
+          reconEstimate: detail.recon_estimate,
+          reconDetails: detail.recon_details,
+          accessories: detail.accessories,
+          transmission: detail.transmission,
+          engineCylinders: detail.engine_cylinders,
+          drivetrain: detail.drivetrain,
+          userFullName: detail.user_full_name,
+          dealership: detail.dealership,
+          mobileNumber: detail.mobile_number,
+          images: imageData?.map(img => img.image_url) || []
+        });
+
+        setCreatorInfo({
+          phoneNumber: detail.mobile_number,
+          fullName: detail.user_full_name
+        });
       } catch (err) {
         console.error('Error fetching bid request:', err);
         setError('Failed to load bid request details');

@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ImagePlus } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -13,8 +14,8 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   
-  // Mock images array - in a real app, these would come from your API
-  const images = [1, 2, 3]; // Placeholder for image URLs
+  const images = vehicle.images || [];
+  const hasImages = images.length > 0;
 
   const formatCurrency = (value: string) => {
     if (!value) return '-';
@@ -40,20 +41,33 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
 
       <ScrollArea className="h-64 whitespace-nowrap">
         <div className="flex">
-          {images.map((_, index) => (
-            <div
-              key={index}
-              className="w-full flex-none snap-center cursor-pointer"
-              onClick={() => {
-                setSelectedImageIndex(index);
-                setIsGalleryOpen(true);
-              }}
-            >
-              <div className="h-64 w-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors">
+          {hasImages ? (
+            images.map((url, index) => (
+              <div
+                key={index}
+                className="w-full flex-none snap-center cursor-pointer"
+                onClick={() => {
+                  setSelectedImageIndex(index);
+                  setIsGalleryOpen(true);
+                }}
+              >
+                <div className="h-64 w-full relative">
+                  <img 
+                    src={url} 
+                    alt={`Vehicle photo ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="w-full flex-none">
+              <div className="h-64 w-full flex items-center justify-center bg-gray-100">
                 <ImagePlus className="h-12 w-12 text-gray-400" />
+                <p className="text-sm text-gray-500 mt-2">No images available</p>
               </div>
             </div>
-          ))}
+          )}
         </div>
       </ScrollArea>
 
@@ -62,31 +76,36 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           <div className="relative">
             <ScrollArea className="h-[80vh] whitespace-nowrap">
               <div className="flex snap-x snap-mandatory">
-                {images.map((_, index) => (
+                {hasImages && images.map((url, index) => (
                   <div
                     key={index}
                     className="w-full flex-none snap-center"
                   >
                     <div className="h-[80vh] w-screen flex items-center justify-center">
-                      <div className="h-64 w-full flex items-center justify-center">
-                        <ImagePlus className="h-12 w-12 text-gray-400" />
-                      </div>
+                      <img
+                        src={url}
+                        alt={`Vehicle photo ${index + 1}`}
+                        className="max-h-full max-w-full object-contain"
+                      />
                     </div>
                   </div>
                 ))}
               </div>
             </ScrollArea>
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-              {images.map((_, index) => (
-                <button
-                  key={index}
-                  className={`w-2 h-2 rounded-full ${
-                    index === selectedImageIndex ? 'bg-white' : 'bg-white/50'
-                  }`}
-                  onClick={() => setSelectedImageIndex(index)}
-                />
-              ))}
-            </div>
+            {hasImages && (
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-colors",
+                      index === selectedImageIndex ? "bg-white" : "bg-white/50"
+                    )}
+                    onClick={() => setSelectedImageIndex(index)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -104,27 +123,27 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-gray-500">Mileage</p>
-            <p className="font-medium">{vehicle.mileage.toLocaleString()} miles</p>
+            <p className="font-medium">{vehicle.mileage ? vehicle.mileage.toLocaleString() : '-'} miles</p>
           </div>
           <div>
             <p className="text-gray-500">Exterior</p>
-            <p className="font-medium">{vehicle.exteriorColor}</p>
+            <p className="font-medium">{vehicle.exteriorColor || '-'}</p>
           </div>
           <div>
             <p className="text-gray-500">Interior</p>
-            <p className="font-medium">{vehicle.interiorColor}</p>
+            <p className="font-medium">{vehicle.interiorColor || '-'}</p>
           </div>
           <div>
             <p className="text-gray-500">Transmission</p>
-            <p className="font-medium">{vehicle.transmission}</p>
+            <p className="font-medium">{vehicle.transmission || '-'}</p>
           </div>
           <div>
             <p className="text-gray-500">Engine</p>
-            <p className="font-medium">{vehicle.engineCylinders}</p>
+            <p className="font-medium">{vehicle.engineCylinders || '-'}</p>
           </div>
           <div>
             <p className="text-gray-500">Drivetrain</p>
-            <p className="font-medium">{vehicle.drivetrain}</p>
+            <p className="font-medium">{vehicle.drivetrain || '-'}</p>
           </div>
           <div>
             <p className="text-gray-500">Windshield</p>
