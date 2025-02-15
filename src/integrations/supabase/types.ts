@@ -319,6 +319,48 @@ export type Database = {
           },
         ]
       }
+      dealership_access_cache: {
+        Row: {
+          access_level: string
+          dealership_id: string | null
+          id: string
+          last_updated: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          access_level: string
+          dealership_id?: string | null
+          id?: string
+          last_updated?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          access_level?: string
+          dealership_id?: string | null
+          id?: string
+          last_updated?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dealership_access_cache_dealership_id_fkey"
+            columns: ["dealership_id"]
+            isOneToOne: false
+            referencedRelation: "dealerships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dealership_access_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dealerships: {
         Row: {
           address: string | null
@@ -846,6 +888,19 @@ export type Database = {
           deletion_reason?: string
         }
         Returns: undefined
+      }
+      has_admin_access: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
+      has_dealership_access: {
+        Args: {
+          user_id: string
+          target_dealership_id: string
+        }
+        Returns: boolean
       }
       is_admin: {
         Args: {
