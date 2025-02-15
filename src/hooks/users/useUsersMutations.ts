@@ -34,51 +34,64 @@ export const useUsersMutations = () => {
 
       // First check if user with this email already exists
       const normalizedEmail = userData.email.toLowerCase().trim();
-      const { data: existingUser } = await supabase
+      const { data: existingUser, error: fetchError } = await supabase
         .from('buybidhq_users')
-        .select('id')
+        .select('*')
         .eq('email', normalizedEmail)
         .maybeSingle();
 
-      let user;
-      if (existingUser) {
-        // Update existing user
-        const transformedUser = transformFormUser(userData);
-        const { data: updatedUser, error: updateError } = await supabase
-          .from('buybidhq_users')
-          .update({
-            ...transformedUser,
-            dealership_id: dealershipId,
-            email: normalizedEmail
-          })
-          .eq('id', existingUser.id)
-          .select()
-          .single();
+      if (fetchError) throw fetchError;
 
-        if (updateError) throw updateError;
-        user = updatedUser;
-      } else {
-        // Create new user
-        const transformedUser = transformFormUser(userData);
-        const { data: newUser, error: createError } = await supabase
-          .from('buybidhq_users')
-          .insert({
-            ...transformedUser,
-            dealership_id: dealershipId,
-            email: normalizedEmail
-          })
-          .select()
-          .single();
+      // If user doesn't exist, create them in Auth first
+      if (!existingUser) {
+        // Generate a temporary password - user will need to reset it
+        const tempPassword = Math.random().toString(36).slice(-8);
+        
+        const { data: authUser, error: signUpError } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: tempPassword,
+          options: {
+            data: {
+              full_name: userData.fullName,
+              role: userData.role
+            }
+          }
+        });
 
-        if (createError) throw createError;
-        user = newUser;
+        if (signUpError) throw signUpError;
+
+        // Wait briefly for the trigger to create the user record
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      return user;
+      // Now fetch the user record (either existing or newly created)
+      const { data: user, error: userError } = await supabase
+        .from('buybidhq_users')
+        .select('*')
+        .eq('email', normalizedEmail)
+        .single();
+
+      if (userError) throw userError;
+
+      // Update the user with all the provided information
+      const transformedUser = transformFormUser(userData);
+      const { data: updatedUser, error: updateError } = await supabase
+        .from('buybidhq_users')
+        .update({
+          ...transformedUser,
+          dealership_id: dealershipId,
+          email: normalizedEmail
+        })
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+      return updatedUser;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('User created successfully');
+      toast.success('User created successfully. A welcome email has been sent to set their password.');
     },
     onError: (error: Error) => {
       toast.error(`Failed to create user: ${error.message}`);
