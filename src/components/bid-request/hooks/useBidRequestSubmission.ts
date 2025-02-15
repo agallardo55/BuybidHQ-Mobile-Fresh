@@ -50,10 +50,10 @@ export const useBidRequestSubmission = () => {
         throw error;
       }
 
-      // Fetch buyer details for SMS notifications
+      // Fetch buyer details for notifications
       const { data: buyers, error: buyersError } = await supabase
         .from('buyers')
-        .select('id, buyer_mobile, buyer_name')
+        .select('id, buyer_mobile, buyer_name, email')
         .in('id', selectedBuyers);
 
       if (buyersError) {
@@ -61,38 +61,72 @@ export const useBidRequestSubmission = () => {
         throw buyersError;
       }
 
-      // Send SMS to each buyer
+      // Send notifications to each buyer
       for (const buyer of buyers) {
-        if (!buyer.buyer_mobile) {
-          console.warn(`No mobile number found for buyer ${buyer.id}`);
-          continue;
-        }
-
         const bidResponseUrl = `${window.location.origin}/bid-response?request=${requestId}&buyer=${buyer.id}`;
         
-        try {
-          const { error: smsError } = await supabase.functions.invoke('send-bid-sms', {
-            body: {
-              type: 'bid_request',
-              phoneNumber: buyer.buyer_mobile,
-              vehicleDetails: {
-                year: formData.year,
-                make: formData.make,
-                model: formData.model
-              },
-              bidRequestUrl: bidResponseUrl
-            }
-          });
+        // Send SMS notification if mobile number is available
+        if (buyer.buyer_mobile) {
+          try {
+            const { error: smsError } = await supabase.functions.invoke('send-bid-sms', {
+              body: {
+                type: 'bid_request',
+                phoneNumber: buyer.buyer_mobile,
+                vehicleDetails: {
+                  year: formData.year,
+                  make: formData.make,
+                  model: formData.model
+                },
+                bidRequestUrl: bidResponseUrl
+              }
+            });
 
-          if (smsError) {
-            console.error(`Error sending SMS to buyer ${buyer.id}:`, smsError);
-            toast.error(`Failed to send notification to ${buyer.buyer_name}`);
-          } else {
-            console.log(`SMS sent successfully to buyer ${buyer.id} at ${buyer.buyer_mobile}`);
+            if (smsError) {
+              console.error(`Error sending SMS to buyer ${buyer.id}:`, smsError);
+              toast.error(`Failed to send SMS to ${buyer.buyer_name}`);
+            } else {
+              console.log(`SMS sent successfully to buyer ${buyer.id} at ${buyer.buyer_mobile}`);
+              toast.success(`SMS notification sent to ${buyer.buyer_name}`);
+            }
+          } catch (smsError) {
+            console.error(`Error invoking SMS function for buyer ${buyer.id}:`, smsError);
+            toast.error(`Failed to send SMS to ${buyer.buyer_name}`);
           }
-        } catch (smsError) {
-          console.error(`Error invoking SMS function for buyer ${buyer.id}:`, smsError);
-          toast.error(`Failed to send notification to ${buyer.buyer_name}`);
+        }
+
+        // Send email notification if email is available
+        if (buyer.email) {
+          try {
+            const { error: emailError } = await supabase.functions.invoke('send-bid-email', {
+              body: {
+                type: 'bid_request',
+                email: buyer.email,
+                buyerName: buyer.buyer_name,
+                vehicleDetails: {
+                  year: formData.year,
+                  make: formData.make,
+                  model: formData.model
+                },
+                bidRequestUrl: bidResponseUrl
+              }
+            });
+
+            if (emailError) {
+              console.error(`Error sending email to buyer ${buyer.id}:`, emailError);
+              toast.error(`Failed to send email to ${buyer.buyer_name}`);
+            } else {
+              console.log(`Email sent successfully to buyer ${buyer.id} at ${buyer.email}`);
+              toast.success(`Email notification sent to ${buyer.buyer_name}`);
+            }
+          } catch (emailError) {
+            console.error(`Error invoking email function for buyer ${buyer.id}:`, emailError);
+            toast.error(`Failed to send email to ${buyer.buyer_name}`);
+          }
+        }
+
+        // Show warning if neither SMS nor email could be sent
+        if (!buyer.buyer_mobile && !buyer.email) {
+          toast.error(`No contact information available for ${buyer.buyer_name}`);
         }
       }
 
