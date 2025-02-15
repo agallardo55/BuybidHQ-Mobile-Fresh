@@ -10,7 +10,7 @@ const ScannerModal = ({ videoRef, onCancel }: ScannerModalProps) => {
   return (
     <div className="fixed inset-0 bg-black z-50">
       <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-        <div className="relative w-full max-w-md aspect-[9/16]">
+        <div className="relative w-full max-w-2xl aspect-video">
           <video 
             ref={videoRef}
             className="w-full h-full object-cover rounded-lg"
