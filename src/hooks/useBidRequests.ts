@@ -5,7 +5,6 @@ import { BidRequest } from "@/components/bid-request/types";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
 
-// Define types for the database response
 type Vehicle = {
   year: string | null;
   make: string | null;
@@ -13,10 +12,6 @@ type Vehicle = {
   trim: string | null;
   vin: string | null;
   mileage: string | null;
-};
-
-type Dealership = {
-  dealer_name: string | null;
 };
 
 type Buyer = {
@@ -74,8 +69,9 @@ export const useBidRequests = () => {
             )
           `);
 
-        // Apply filter based on role
-        if (currentUser?.role !== 'dealer') {
+        // Note: We don't need to filter by user_id for admin users
+        // The RLS policies will handle the access control
+        if (currentUser?.role !== 'admin') {
           query = query.eq('user_id', userData.user.id);
         }
 
