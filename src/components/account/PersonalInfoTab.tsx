@@ -36,6 +36,16 @@ export const PersonalInfoTab = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate required fields
+    if (!formData.fullName || !formData.email || !formData.mobileNumber || !formData.phoneCarrier) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields: Full Name, Email, Mobile Number, and Carrier.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
@@ -92,7 +102,7 @@ export const PersonalInfoTab = () => {
         <div className="grid grid-cols-1 gap-4">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
+              Full Name <span className="text-red-500">*</span>
             </label>
             <Input
               id="fullName"
@@ -105,7 +115,7 @@ export const PersonalInfoTab = () => {
           </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email address
+              Email address <span className="text-red-500">*</span>
             </label>
             <Input
               id="email"
@@ -118,7 +128,7 @@ export const PersonalInfoTab = () => {
           </div>
           <div>
             <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700 mb-1">
-              Mobile Number
+              Mobile Number <span className="text-red-500">*</span>
             </label>
             <Input
               id="mobileNumber"
@@ -133,11 +143,12 @@ export const PersonalInfoTab = () => {
           </div>
           <div>
             <label htmlFor="phoneCarrier" className="block text-sm font-medium text-gray-700 mb-1">
-              Mobile Carrier
+              Mobile Carrier <span className="text-red-500">*</span>
             </label>
             <Select
               value={formData.phoneCarrier}
               onValueChange={(value) => handleChange({ target: { name: 'phoneCarrier', value } })}
+              required
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select carrier" />
