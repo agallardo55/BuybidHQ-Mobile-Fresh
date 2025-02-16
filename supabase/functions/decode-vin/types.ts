@@ -36,3 +36,10 @@ export interface NHTSAEngineData {
   configuration: string;
   turbo: boolean;
 }
+
+export interface NHTSATransmissionData {
+  style?: string;
+  speeds?: string;
+  type?: string;
+}
+

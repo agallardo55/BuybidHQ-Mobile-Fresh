@@ -14,25 +14,97 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
   console.log('NHTSA data:', nhtsaData);
   console.log('CarAPI data:', carApiData);
 
-  // If CarAPI data is available, use it as primary source
-  if (carApiData) {
-    // Get the best matching trim
-    const year = parseInt(carApiData.year?.toString() || nhtsaData.year || '');
-    const bestTrim = carApiData.trims ? findBestTrimMatch(carApiData.trims, year) : '';
+  const mergedData: VehicleData = {
+    year: '',
+    make: '',
+    model: '',
+    trim: '',
+    engineCylinders: '',
+    transmission: '',
+    drivetrain: ''
+  };
 
-    return {
-      year: carApiData.year?.toString() || nhtsaData.year || '',
-      make: carApiData.make || nhtsaData.make || '',
-      model: carApiData.model || nhtsaData.model || '',
-      trim: bestTrim || nhtsaData.trim || '',
-      engineCylinders: nhtsaData.engineCylinders || '',
-      transmission: carApiData.specs?.transmission || nhtsaData.transmission || '',
-      drivetrain: carApiData.specs?.drive_type || nhtsaData.drivetrain || ''
-    };
+  // Start with NHTSA data as base
+  Object.assign(mergedData, nhtsaData);
+
+  // Enhance with CarAPI data if available
+  if (carApiData) {
+    const year = parseInt(carApiData.year?.toString() || nhtsaData.year || '');
+    
+    // Year: Use CarAPI if available and valid
+    if (carApiData.year) {
+      mergedData.year = carApiData.year.toString();
+    }
+
+    // Make: Prefer CarAPI if available
+    if (carApiData.make) {
+      mergedData.make = carApiData.make;
+    }
+
+    // Model: Prefer CarAPI if available
+    if (carApiData.model) {
+      mergedData.model = carApiData.model;
+    }
+
+    // Trim: Use best match from CarAPI trims if available
+    if (carApiData.trims && carApiData.trims.length > 0) {
+      const bestTrim = findBestTrimMatch(carApiData.trims, year);
+      if (bestTrim && (!mergedData.trim || bestTrim.length > mergedData.trim.length)) {
+        mergedData.trim = bestTrim;
+      }
+    } else if (carApiData.trim) {
+      mergedData.trim = carApiData.trim;
+    }
+
+    // Transmission: Combine both sources if possible
+    if (carApiData.specs?.transmission) {
+      if (mergedData.transmission) {
+        // If NHTSA provided transmission info, combine them
+        mergedData.transmission = `${carApiData.specs.transmission} ${mergedData.transmission}`.trim();
+      } else {
+        mergedData.transmission = carApiData.specs.transmission;
+      }
+    }
+
+    // Drivetrain: Use CarAPI's drive_type if available
+    if (carApiData.specs?.drive_type) {
+      mergedData.drivetrain = carApiData.specs.drive_type;
+    }
+
+    // Engine: Enhance NHTSA engine data with CarAPI data if available
+    if (carApiData.specs?.engine_number_of_cylinders || carApiData.specs?.displacement_l) {
+      const engineParts = [];
+      
+      if (carApiData.specs.displacement_l) {
+        engineParts.push(`${carApiData.specs.displacement_l}L`);
+      }
+      
+      if (carApiData.specs.engine_number_of_cylinders) {
+        engineParts.push(`${carApiData.specs.engine_number_of_cylinders}-Cylinder`);
+      }
+      
+      if (carApiData.specs.turbo) {
+        engineParts.push('Turbo');
+      }
+      
+      const carApiEngine = engineParts.join(' ');
+      
+      // Use the more detailed engine description
+      if (carApiEngine.length > mergedData.engineCylinders.length) {
+        mergedData.engineCylinders = carApiEngine;
+      }
+    }
   }
 
-  // Fallback to NHTSA data
-  return nhtsaData;
+  // Clean up any remaining empty strings with default values
+  Object.keys(mergedData).forEach(key => {
+    if (!mergedData[key]) {
+      mergedData[key] = 'N/A';
+    }
+  });
+
+  console.log('Final merged data:', mergedData);
+  return mergedData;
 }
 
 serve(async (req) => {
@@ -117,3 +189,4 @@ serve(async (req) => {
     );
   }
 });
+

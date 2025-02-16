@@ -1,5 +1,5 @@
 
-import { VehicleData, CarApiData, NHTSAEngineData } from "./types.ts";
+import { VehicleData, CarApiData, NHTSAEngineData, NHTSATransmissionData } from "./types.ts";
 import { formatNHTSAEngine } from "./engineUtils.ts";
 
 export async function fetchData<T>(url: string, options?: RequestInit): Promise<T | null> {
@@ -30,6 +30,46 @@ export async function fetchData<T>(url: string, options?: RequestInit): Promise<
   }
 }
 
+function extractTransmissionInfo(results: any[]): NHTSATransmissionData {
+  const transmissionInfo: NHTSATransmissionData = {};
+  
+  for (const result of results) {
+    if (result?.Value && result.Value !== "Not Applicable") {
+      switch (result.Variable) {
+        case 'Transmission Style':
+          transmissionInfo.style = result.Value;
+          break;
+        case 'Number of Forward Gears':
+          transmissionInfo.speeds = result.Value;
+          break;
+        case 'Transmission Control Type':
+          transmissionInfo.type = result.Value;
+          break;
+      }
+    }
+  }
+  
+  return transmissionInfo;
+}
+
+function formatTransmissionString(nhtsaData: NHTSATransmissionData): string {
+  const parts = [];
+  
+  if (nhtsaData.speeds) {
+    parts.push(`${nhtsaData.speeds}-Speed`);
+  }
+  
+  if (nhtsaData.style) {
+    parts.push(nhtsaData.style);
+  }
+  
+  if (nhtsaData.type) {
+    parts.push(`(${nhtsaData.type})`);
+  }
+  
+  return parts.join(' ') || '';
+}
+
 export async function fetchNHTSAData(vin: string): Promise<VehicleData> {
   const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
   console.log('Calling NHTSA API:', nhtsaUrl);
@@ -56,48 +96,61 @@ export async function fetchNHTSAData(vin: string): Promise<VehicleData> {
   };
 
   if (nhtsaData?.Results) {
+    // Extract transmission data
+    const transmissionInfo = extractTransmissionInfo(nhtsaData.Results);
+    
+    // Process all other fields
     for (const result of nhtsaData.Results) {
-      if (result?.Value && result.Value !== "Not Applicable") {
-        switch (result.Variable) {
-          case 'Model Year':
-            vehicleData.year = result.Value;
-            break;
-          case 'Make':
-            vehicleData.make = result.Value;
-            break;
-          case 'Model':
-            vehicleData.model = result.Value;
-            break;
-          case 'Trim':
-            console.log('NHTSA Trim value:', result.Value);
-            vehicleData.trim = result.Value;
-            break;
-          case 'Engine Number of Cylinders':
-            engineData.cylinders = result.Value;
-            break;
-          case 'Engine Configuration':
-            engineData.configuration = result.Value;
-            break;
-          case 'Displacement (L)':
-            engineData.displacement = result.Value;
-            break;
-          case 'Turbo':
-            engineData.turbo = result.Value === 'Yes';
-            break;
-          case 'Transmission Style':
-            vehicleData.transmission = result.Value;
-            break;
-          case 'Drive Type':
-            vehicleData.drivetrain = result.Value;
-            break;
+      if (result?.Value) {
+        const value = result.Value;
+        console.log(`Processing NHTSA field: ${result.Variable} = ${value}`);
+        
+        if (value !== "Not Applicable") {
+          switch (result.Variable) {
+            case 'Model Year':
+              vehicleData.year = value;
+              break;
+            case 'Make':
+              vehicleData.make = value;
+              break;
+            case 'Model':
+              vehicleData.model = value;
+              break;
+            case 'Trim':
+            case 'Trim2':
+            case 'Series':
+              if (!vehicleData.trim || vehicleData.trim.length < value.length) {
+                console.log(`Using ${result.Variable} for trim: ${value}`);
+                vehicleData.trim = value;
+              }
+              break;
+            case 'Engine Number of Cylinders':
+              engineData.cylinders = value;
+              break;
+            case 'Engine Configuration':
+              engineData.configuration = value;
+              break;
+            case 'Displacement (L)':
+              engineData.displacement = value;
+              break;
+            case 'Turbo':
+              engineData.turbo = value === 'Yes';
+              break;
+            case 'Drive Type':
+              vehicleData.drivetrain = value;
+              break;
+          }
         }
       }
     }
+
+    // Format transmission string
+    vehicleData.transmission = formatTransmissionString(transmissionInfo);
   }
 
   // Format engine data
   vehicleData.engineCylinders = formatNHTSAEngine(engineData);
-  console.log('Formatted engine data:', vehicleData.engineCylinders);
+  console.log('Formatted NHTSA data:', vehicleData);
 
   return vehicleData;
 }
@@ -115,3 +168,4 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string): Promise<
 
   return carApiResponse?.data || null;
 }
+
