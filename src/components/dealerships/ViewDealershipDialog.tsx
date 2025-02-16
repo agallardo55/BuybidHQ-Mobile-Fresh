@@ -1,27 +1,17 @@
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Dealership } from "@/types/dealerships";
-
 interface ViewDealershipDialogProps {
   dealership: Dealership | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
 const ViewDealershipDialog = ({
   dealership,
   isOpen,
-  onOpenChange,
+  onOpenChange
 }: ViewDealershipDialogProps) => {
   if (!dealership) return null;
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+  return <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>View Dealership Details</DialogTitle>
@@ -62,7 +52,7 @@ const ViewDealershipDialog = ({
             </div>
 
             <div>
-              <h3 className="font-semibold mb-1">Primary Dealer</h3>
+              <h3 className="font-semibold mb-1">Dealer Admin</h3>
               <div className="grid grid-cols-1 gap-2">
                 <div>
                   <p className="text-sm text-gray-500">Name</p>
@@ -125,8 +115,6 @@ const ViewDealershipDialog = ({
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
-
 export default ViewDealershipDialog;
