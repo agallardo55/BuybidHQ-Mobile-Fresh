@@ -52,17 +52,21 @@ const BidRequestNavigation = () => {
                 Users
               </Link>
             )}
-            <TooltipProvider>
+            <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button 
-                    className="text-gray-700 hover:text-accent transition-colors"
+                    className="text-gray-700 hover:text-accent transition-colors cursor-pointer"
+                    type="button"
                   >
                     Marketplace
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p className="font-bold" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
+                <TooltipContent 
+                  className="bg-white px-3 py-1.5 text-sm shadow-md rounded-md border z-50"
+                  sideOffset={5}
+                >
+                  <p className="font-bold whitespace-nowrap" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
