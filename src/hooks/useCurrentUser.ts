@@ -72,8 +72,20 @@ export const useCurrentUser = () => {
 
         // Format the response to match our User type
         const formattedUser: UserData = {
-          ...userData[0],
-          role: isSuperAdmin ? 'admin' as UserRole : userData[0].role
+          id: userData[0].id,
+          email: userData[0].email,
+          role: isSuperAdmin ? 'admin' as UserRole : userData[0].role,
+          full_name: userData[0].full_name,
+          mobile_number: userData[0].mobile_number,
+          address: userData[0].address,
+          city: userData[0].city,
+          state: userData[0].state,
+          zip_code: userData[0].zip_code,
+          dealership_id: userData[0].dealership_id,
+          dealer_name: userData[0].dealer_name,
+          business_phone: userData[0].business_phone,
+          business_email: userData[0].business_email,
+          phone_carrier: userData[0].phone_carrier
         };
 
         console.log('Successfully fetched user data:', formattedUser);
