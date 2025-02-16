@@ -1,0 +1,30 @@
+
+import { BidRequest } from "../types";
+
+interface ReconditioningProps {
+  request: BidRequest;
+}
+
+const Reconditioning = ({ request }: ReconditioningProps) => {
+  return (
+    <div>
+      <div className="bg-white p-4 rounded-lg border">
+        <h3 className="font-semibold text-lg mb-2">Reconditioning</h3>
+        <div className="space-y-3">
+          <div className="text-sm">
+            <div className="text-gray-500 mb-1">Estimate:</div>
+            <div className="font-medium text-lg">${request.reconEstimate || '0'}</div>
+          </div>
+          <div className="text-sm">
+            <div className="text-gray-500 mb-1">Details:</div>
+            <div className="font-medium whitespace-pre-wrap bg-gray-50 p-3 rounded-md max-h-[300px] overflow-y-auto">
+              {request.reconDetails || 'No details provided'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Reconditioning;
