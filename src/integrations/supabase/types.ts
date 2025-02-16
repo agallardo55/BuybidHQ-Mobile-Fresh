@@ -1138,6 +1138,7 @@ export type Database = {
           user_full_name: string
           dealership: string
           mobile_number: string
+          images: string[]
         }[]
       }
       get_bid_response_details: {
