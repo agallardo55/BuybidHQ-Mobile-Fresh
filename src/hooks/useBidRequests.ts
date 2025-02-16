@@ -21,7 +21,7 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // For testing purposes, return mock data with offers
+        // Mock data with consistent data structure
         const mockData: BidRequest[] = [
           {
             id: "1",
@@ -112,6 +112,8 @@ export const useBidRequests = () => {
       }
     },
     enabled: !!currentUser,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    cacheTime: 30 * 60 * 1000, // Keep data in cache for 30 minutes
   });
 
   const updateBidRequestMutation = useMutation({
