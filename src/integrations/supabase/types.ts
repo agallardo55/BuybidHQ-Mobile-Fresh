@@ -1156,6 +1156,18 @@ export type Database = {
           status: string
         }[]
       }
+      get_carrier_for_validated_number: {
+        Args: {
+          p_user_id: string
+          p_phone_number: string
+        }
+        Returns: {
+          carrier: string
+          number_type: Database["public"]["Enums"]["phone_number_type"]
+          area_code: string
+          is_valid: boolean
+        }[]
+      }
       get_user_dealership: {
         Args: {
           user_id: string
@@ -1247,6 +1259,13 @@ export type Database = {
           notification_ids: string[]
         }
         Returns: string[]
+      }
+      process_carrier_detection_batch: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_processed: number
+          carriers_detected: number
+        }[]
       }
       process_phone_validation_batch: {
         Args: Record<PropertyKey, never>
