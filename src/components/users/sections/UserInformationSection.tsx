@@ -83,6 +83,18 @@ const UserInformationSection = ({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="mobileNumber">Mobile Number</Label>
+            <Input
+              id="mobileNumber"
+              placeholder="(123) 456-7890"
+              value={formData.mobileNumber}
+              onChange={handlePhoneNumberChange}
+              maxLength={14}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
             <Select
               value={formData.role}
@@ -100,18 +112,6 @@ const UserInformationSection = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="mobileNumber">Mobile Number</Label>
-            <Input
-              id="mobileNumber"
-              placeholder="(123) 456-7890"
-              value={formData.mobileNumber}
-              onChange={handlePhoneNumberChange}
-              maxLength={14}
-              required
-            />
           </div>
 
           <div className="space-y-2">
