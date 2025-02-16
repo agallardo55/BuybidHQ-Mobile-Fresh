@@ -27,13 +27,15 @@ interface VehicleIdentificationProps {
     transmission: string;
     drivetrain: string;
   }) => void;
+  showValidation?: boolean;
 }
 
 const VehicleIdentification = ({
   formData,
   errors,
   onChange,
-  onVehicleDataFetched
+  onVehicleDataFetched,
+  showValidation
 }: VehicleIdentificationProps) => {
   return (
     <div className="space-y-4">
@@ -42,6 +44,7 @@ const VehicleIdentification = ({
         onChange={onChange}
         error={errors.vin}
         onVehicleDataFetched={onVehicleDataFetched}
+        showValidation={showValidation}
       />
       <FormField
         id="year"
@@ -51,6 +54,7 @@ const VehicleIdentification = ({
         onChange={onChange}
         error={errors.year}
         placeholder="2024"
+        showValidation={showValidation}
       />
       <FormField
         id="make"
@@ -59,6 +63,7 @@ const VehicleIdentification = ({
         onChange={onChange}
         error={errors.make}
         placeholder="Toyota"
+        showValidation={showValidation}
       />
       <FormField
         id="model"
@@ -67,6 +72,7 @@ const VehicleIdentification = ({
         onChange={onChange}
         error={errors.model}
         placeholder="Camry"
+        showValidation={showValidation}
       />
       <FormField
         id="trim"
@@ -75,6 +81,7 @@ const VehicleIdentification = ({
         onChange={onChange}
         error={errors.trim}
         placeholder="SE"
+        showValidation={showValidation}
       />
     </div>
   );

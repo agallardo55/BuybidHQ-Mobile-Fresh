@@ -11,6 +11,7 @@ interface FormFieldProps {
   required?: boolean;
   placeholder?: string;
   min?: string;
+  showValidation?: boolean;
 }
 
 const FormField = ({
@@ -22,10 +23,11 @@ const FormField = ({
   type = "text",
   required = true,
   placeholder,
-  min
+  min,
+  showValidation = false
 }: FormFieldProps) => {
   const isEmpty = required && value === "";
-  const showError = error || isEmpty;
+  const showError = error || (showValidation && isEmpty);
   
   return (
     <div>
@@ -42,7 +44,7 @@ const FormField = ({
         placeholder={placeholder}
         min={min}
         className={`${showError ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0 ${
-          isEmpty ? "bg-red-50" : ""
+          showError ? "bg-red-50" : ""
         }`}
       />
       {showError && (

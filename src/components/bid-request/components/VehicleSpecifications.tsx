@@ -15,12 +15,14 @@ interface VehicleSpecificationsProps {
     drivetrain?: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  showValidation?: boolean;
 }
 
 const VehicleSpecifications = ({
   formData,
   errors,
-  onChange
+  onChange,
+  showValidation
 }: VehicleSpecificationsProps) => {
   return (
     <div className="space-y-4">
@@ -33,6 +35,7 @@ const VehicleSpecifications = ({
         error={errors.mileage}
         placeholder="35000"
         min="0"
+        showValidation={showValidation}
       />
       <FormField
         id="engineCylinders"
@@ -42,6 +45,7 @@ const VehicleSpecifications = ({
         error={errors.engineCylinders}
         placeholder="Example: 2.0L 4-Cylinder Turbo"
         required={false}
+        showValidation={showValidation}
       />
       <FormField
         id="transmission"
@@ -51,6 +55,7 @@ const VehicleSpecifications = ({
         error={errors.transmission}
         placeholder="Example: 8-Speed Automatic"
         required={false}
+        showValidation={showValidation}
       />
       <FormField
         id="drivetrain"
@@ -60,6 +65,7 @@ const VehicleSpecifications = ({
         error={errors.drivetrain}
         placeholder="Example: AWD, FWD, RWD"
         required={false}
+        showValidation={showValidation}
       />
     </div>
   );

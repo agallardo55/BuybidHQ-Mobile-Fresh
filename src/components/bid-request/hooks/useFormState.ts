@@ -32,6 +32,7 @@ export const useFormState = (): FormState & FormStateActions => {
     uploadedImageUrls: [],
     isSubmitting: false,
     searchTerm: "",
+    showValidation: false,
   });
 
   const setFormData = (data: Partial<BidRequestFormData>) => {
@@ -59,6 +60,10 @@ export const useFormState = (): FormState & FormStateActions => {
 
   const setSearchTerm = (term: string) => {
     setState(prev => ({ ...prev, searchTerm: term }));
+  };
+
+  const setShowValidation = (show: boolean) => {
+    setState(prev => ({ ...prev, showValidation: show }));
   };
 
   const handleChange = (
@@ -118,6 +123,7 @@ export const useFormState = (): FormState & FormStateActions => {
     setUploadedImageUrls,
     setIsSubmitting,
     setSearchTerm,
+    setShowValidation,
     handleChange,
     handleSelectChange,
     handleImagesUploaded,

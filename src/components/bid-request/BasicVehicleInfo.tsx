@@ -27,9 +27,10 @@ interface BasicVehicleInfoProps {
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
+  showValidation?: boolean;
 }
 
-const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVehicleInfoProps) => {
+const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange, showValidation }: BasicVehicleInfoProps) => {
   const handleVehicleDataFetched = (data: {
     year: string;
     make: string;
@@ -66,11 +67,13 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange }: BasicVe
           errors={errors}
           onChange={onChange}
           onVehicleDataFetched={handleVehicleDataFetched}
+          showValidation={showValidation}
         />
         <VehicleSpecifications
           formData={formData}
           errors={errors}
           onChange={onChange}
+          showValidation={showValidation}
         />
       </div>
     </div>

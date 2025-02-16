@@ -10,6 +10,7 @@ import BuyersSection from "./BuyersSection";
 import AddBuyerDialog from "./AddBuyerDialog";
 import FormTabs from "./FormTabs";
 import { useFormNavigation } from "./hooks/useFormNavigation";
+import { validateForm } from "./hooks/useFormValidation";
 
 interface MultiStepFormProps {
   formData: BidRequestFormData;
@@ -30,6 +31,8 @@ interface MultiStepFormProps {
   isSubmitting: boolean;
   onImagesUploaded?: (urls: string[]) => void;
   onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
+  setShowValidation: (show: boolean) => void;
+  showValidation: boolean;
 }
 
 const MultiStepForm = ({
@@ -45,7 +48,9 @@ const MultiStepForm = ({
   onSubmit,
   isSubmitting,
   onImagesUploaded,
-  onBatchChange
+  onBatchChange,
+  setShowValidation,
+  showValidation
 }: MultiStepFormProps) => {
   const {
     currentStep,
@@ -53,9 +58,18 @@ const MultiStepForm = ({
     isAddBuyerOpen,
     setIsAddBuyerOpen,
     progressMap,
-    handleNext,
+    handleNext: baseHandleNext,
     handleBack
   } = useFormNavigation();
+
+  const handleNext = () => {
+    setShowValidation(true);
+    const newErrors = validateForm(formData, selectedBuyers);
+    if (Object.keys(newErrors).length === 0) {
+      baseHandleNext();
+      setShowValidation(false);
+    }
+  };
 
   return (
     <Tabs 
@@ -73,6 +87,7 @@ const MultiStepForm = ({
             errors={errors}
             onChange={onChange}
             onBatchChange={onBatchChange}
+            showValidation={showValidation}
           />
           <div className="mt-6 flex justify-end">
             <Button 
