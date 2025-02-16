@@ -25,7 +25,7 @@ export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('decode-vin', {
-        body: { vin }
+        body: JSON.stringify({ vin })
       });
 
       if (error) {
@@ -40,7 +40,7 @@ export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void
       }
 
       if (data.error) {
-        toast.error(data.message || "Failed to decode VIN");
+        toast.error(data.error || "Failed to decode VIN");
         return;
       }
 
