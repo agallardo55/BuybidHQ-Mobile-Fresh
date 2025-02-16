@@ -37,7 +37,7 @@ const Hero = () => {
       <div className="absolute inset-0 z-0 w-full h-full bg-gradient-to-b from-transparent via-black/40 to-black/60" />
       
       {/* Content */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
+      <div className="relative z-10 h-full flex items-center">
         <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center lg:pt-32">
           <div className="mx-auto max-w-3xl">
             <div className="animate-fade-in">
