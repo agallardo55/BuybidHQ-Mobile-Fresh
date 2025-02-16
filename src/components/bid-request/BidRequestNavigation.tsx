@@ -4,6 +4,12 @@ import { UserRound, Bell, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { hasRequiredRole } from "@/config/features";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const BidRequestNavigation = () => {
   const navigate = useNavigate();
@@ -46,11 +52,20 @@ const BidRequestNavigation = () => {
                 Users
               </Link>
             )}
-            <button 
-              className="text-gray-700 hover:text-accent transition-colors"
-            >
-              Marketplace
-            </button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    className="text-gray-700 hover:text-accent transition-colors"
+                  >
+                    Marketplace
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="font-bold" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           
           <div className="flex items-center space-x-6">
