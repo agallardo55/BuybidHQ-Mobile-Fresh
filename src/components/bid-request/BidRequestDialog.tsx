@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BidRequest } from "./types";
 import { format, parseISO } from "date-fns";
@@ -18,20 +19,24 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
 
   useEffect(() => {
     const fetchImages = async () => {
-      if (!request) return;
+      if (!request?.id) return;
 
-      const { data, error } = await supabase
-        .from('images')
-        .select('image_url')
-        .eq('bid_request_id', request.id);
+      try {
+        const { data, error } = await supabase
+          .from('images')
+          .select('image_url')
+          .eq('bid_request_id', request.id);
 
-      if (error) {
-        console.error('Error fetching images:', error);
-        return;
+        if (error) {
+          console.error('Error fetching images:', error);
+          return;
+        }
+
+        const urls = data.map(img => img.image_url).filter((url): url is string => url !== null);
+        setImages(urls);
+      } catch (error) {
+        console.error('Error in fetchImages:', error);
       }
-
-      const urls = data.map(img => img.image_url).filter((url): url is string => url !== null);
-      setImages(urls);
     };
 
     if (isOpen) {
@@ -151,15 +156,15 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
                 <div className="space-y-1">
                   <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
                     <div className="text-gray-500">Windshield:</div>
-                    <div className="font-medium">Clear</div>
+                    <div className="font-medium">{request.windshield || 'Clear'}</div>
                     <div className="text-gray-500">Engine Lights:</div>
-                    <div className="font-medium">None</div>
+                    <div className="font-medium">{request.engineLights || 'None'}</div>
                     <div className="text-gray-500">Brakes:</div>
-                    <div className="font-medium">Acceptable</div>
+                    <div className="font-medium">{request.brakes || 'Acceptable'}</div>
                     <div className="text-gray-500">Tires:</div>
-                    <div className="font-medium">Acceptable</div>
+                    <div className="font-medium">{request.tire || 'Acceptable'}</div>
                     <div className="text-gray-500">Maintenance:</div>
-                    <div className="font-medium">Up to date</div>
+                    <div className="font-medium">{request.maintenance || 'Up to date'}</div>
                   </div>
                 </div>
               </div>
@@ -171,12 +176,12 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
                 <div className="space-y-3">
                   <div className="text-sm">
                     <div className="text-gray-500 mb-1">Estimate:</div>
-                    <div className="font-medium text-lg">${request.reconEstimate}</div>
+                    <div className="font-medium text-lg">${request.reconEstimate || '0'}</div>
                   </div>
                   <div className="text-sm">
                     <div className="text-gray-500 mb-1">Details:</div>
                     <div className="font-medium whitespace-pre-wrap bg-gray-50 p-3 rounded-md max-h-[300px] overflow-y-auto">
-                      {request.reconDetails}
+                      {request.reconDetails || 'No details provided'}
                     </div>
                   </div>
                 </div>
