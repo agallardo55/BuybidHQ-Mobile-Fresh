@@ -69,6 +69,8 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
     </TableHead>
   );
 
+  console.log('Rendering BidRequestTable with requests:', requests); // Debug log
+
   return (
     <>
       <div className="overflow-x-auto -mx-4 sm:-mx-6 scrollbar-thin scrollbar-thumb-gray-300">
@@ -88,59 +90,67 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.map((request) => (
-                <TableRow 
-                  key={request.id} 
-                  className="text-sm cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleRowClick(request)}
-                >
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {formatDate(request.createdAt)}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {request.year}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {request.make}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {request.model}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {request.vin}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {request.mileage.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {request.buyer}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
-                    {renderHighestOffer(request)}
-                  </TableCell>
-                  <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                    <Select
-                      value={request.status}
-                      onValueChange={(value: "Pending" | "Approved" | "Declined") => 
-                        onStatusUpdate(request.id, value)
-                      }
-                    >
-                      <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
-                        ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                        ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                        ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
-                      `}>
-                        <SelectValue>{request.status}</SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Approved">Approved</SelectItem>
-                        <SelectItem value="Declined">Declined</SelectItem>
-                      </SelectContent>
-                    </Select>
+              {requests && requests.length > 0 ? (
+                requests.map((request) => (
+                  <TableRow 
+                    key={request.id} 
+                    className="text-sm cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleRowClick(request)}
+                  >
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                      {formatDate(request.createdAt)}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                      {request.year}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                      {request.make}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                      {request.model}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                      {request.vin}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                      {request.mileage.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                      {request.buyer}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                      {renderHighestOffer(request)}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <Select
+                        value={request.status}
+                        onValueChange={(value: "Pending" | "Approved" | "Declined") => 
+                          onStatusUpdate(request.id, value)
+                        }
+                      >
+                        <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
+                          ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                          ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                          ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+                        `}>
+                          <SelectValue>{request.status}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Approved">Approved</SelectItem>
+                          <SelectItem value="Declined">Declined</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-4">
+                    No bid requests found
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
