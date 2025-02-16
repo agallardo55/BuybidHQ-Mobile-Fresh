@@ -31,7 +31,7 @@ const DealershipHeader = ({
         <Dialog>
           <DialogTrigger asChild>
             <Button className="bg-accent hover:bg-accent/90" onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> Add Dealership
+              <Plus className="mr-2 h-4 w-4" /> Dealership
             </Button>
           </DialogTrigger>
         </Dialog>
@@ -41,3 +41,4 @@ const DealershipHeader = ({
 };
 
 export default DealershipHeader;
+
