@@ -4,8 +4,44 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import NotificationItem from "./NotificationItem";
-import { Notification } from "./types";
+import { Notification, NotificationContent } from "./types";
 import { toast } from "sonner";
+
+// Type guard to check if an object has the expected notification content structure
+const isValidNotificationContent = (content: unknown): content is NotificationContent => {
+  if (!content || typeof content !== 'object') return false;
+  const c = content as Record<string, unknown>;
+  
+  // All fields are optional, but if they exist they must match the expected structure
+  if (c.vehicle !== undefined && (
+    typeof c.vehicle !== 'object' ||
+    !c.vehicle ||
+    typeof (c.vehicle as any).year !== 'string' ||
+    typeof (c.vehicle as any).make !== 'string' ||
+    typeof (c.vehicle as any).model !== 'string'
+  )) {
+    return false;
+  }
+
+  if (c.buyer !== undefined && (
+    typeof c.buyer !== 'object' ||
+    !c.buyer ||
+    typeof (c.buyer as any).name !== 'string' ||
+    typeof (c.buyer as any).dealer !== 'string'
+  )) {
+    return false;
+  }
+
+  if (c.offer_amount !== undefined && typeof c.offer_amount !== 'number') {
+    return false;
+  }
+
+  if (c.bid_request_id !== undefined && typeof c.bid_request_id !== 'string') {
+    return false;
+  }
+
+  return true;
+};
 
 const NotificationList = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -33,8 +69,8 @@ const NotificationList = () => {
       
       // Validate and transform the data
       const validNotifications = (data || []).map((notification): Notification => {
-        // Ensure content is properly structured
-        let parsedContent = notification.content;
+        // Parse content if it's a string
+        let parsedContent: unknown = notification.content;
         if (typeof parsedContent === 'string') {
           try {
             parsedContent = JSON.parse(parsedContent);
@@ -44,13 +80,10 @@ const NotificationList = () => {
           }
         }
 
-        // Ensure the content matches our expected type
-        const validContent = {
-          vehicle: parsedContent.vehicle || undefined,
-          buyer: parsedContent.buyer || undefined,
-          offer_amount: typeof parsedContent.offer_amount === 'number' ? parsedContent.offer_amount : undefined,
-          bid_request_id: parsedContent.bid_request_id || undefined
-        };
+        // Validate and create a proper content object
+        const validContent: NotificationContent = isValidNotificationContent(parsedContent) 
+          ? parsedContent 
+          : {};
 
         return {
           id: notification.id,
