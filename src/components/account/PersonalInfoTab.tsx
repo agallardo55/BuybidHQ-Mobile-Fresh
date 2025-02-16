@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CarrierType } from "@/types/users";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const CARRIER_OPTIONS: CarrierType[] = [
   'Verizon Wireless',
@@ -29,6 +30,8 @@ const CARRIER_OPTIONS: CarrierType[] = [
 export const PersonalInfoTab = () => {
   const { formData, handleChange, isLoading } = useAccountForm();
   const { toast } = useToast();
+  const { currentUser } = useCurrentUser();
+  const isAdmin = currentUser?.role === 'admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,18 +40,26 @@ export const PersonalInfoTab = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { error: userError } = await supabase
-        .from('buybidhq_users')
-        .update({
-          full_name: formData.fullName,
-          email: formData.email,
-          mobile_number: formData.mobileNumber,
-          phone_carrier: formData.phoneCarrier,
+      const updateData = {
+        full_name: formData.fullName,
+        email: formData.email,
+        mobile_number: formData.mobileNumber,
+        phone_carrier: formData.phoneCarrier,
+      };
+
+      // Only include address fields if not admin
+      if (!isAdmin) {
+        Object.assign(updateData, {
           address: formData.dealershipAddress,
           city: formData.city,
           state: formData.state,
           zip_code: formData.zipCode
-        })
+        });
+      }
+
+      const { error: userError } = await supabase
+        .from('buybidhq_users')
+        .update(updateData)
         .eq('id', user.id);
 
       if (userError) throw userError;
@@ -140,57 +151,63 @@ export const PersonalInfoTab = () => {
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">
-              Address
-            </label>
-            <Input
-              id="dealershipAddress"
-              name="dealershipAddress"
-              type="text"
-              value={formData.dealershipAddress}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-              City
-            </label>
-            <Input
-              id="city"
-              name="city"
-              type="text"
-              value={formData.city}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-                State
-              </label>
-              <Input
-                id="state"
-                name="state"
-                type="text"
-                value={formData.state}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-                ZIP Code
-              </label>
-              <Input
-                id="zipCode"
-                name="zipCode"
-                type="text"
-                value={formData.zipCode}
-                onChange={handleChange}
-                maxLength={5}
-              />
-            </div>
-          </div>
+
+          {/* Only show address fields for non-admin users */}
+          {!isAdmin && (
+            <>
+              <div>
+                <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">
+                  Address
+                </label>
+                <Input
+                  id="dealershipAddress"
+                  name="dealershipAddress"
+                  type="text"
+                  value={formData.dealershipAddress}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                  City
+                </label>
+                <Input
+                  id="city"
+                  name="city"
+                  type="text"
+                  value={formData.city}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                    State
+                  </label>
+                  <Input
+                    id="state"
+                    name="state"
+                    type="text"
+                    value={formData.state}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                    ZIP Code
+                  </label>
+                  <Input
+                    id="zipCode"
+                    name="zipCode"
+                    type="text"
+                    value={formData.zipCode}
+                    onChange={handleChange}
+                    maxLength={5}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
