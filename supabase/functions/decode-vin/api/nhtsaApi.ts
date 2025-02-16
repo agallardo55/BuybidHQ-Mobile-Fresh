@@ -1,7 +1,6 @@
-
 import { VehicleData, NHTSAEngineData } from "../types.ts";
 import { fetchData } from "./fetchData.ts";
-import { formatNHTSAEngine } from "../utils/engineUtils.ts";
+import { formatNHTSAEngine } from "../engineUtils.ts";
 import { extractTransmissionInfo, formatTransmissionString } from "../utils/transmissionUtils.ts";
 
 export async function fetchNHTSAData(vin: string): Promise<VehicleData> {
