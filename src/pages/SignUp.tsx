@@ -1,170 +1,20 @@
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import PersonalInfoForm from "@/components/signup/PersonalInfoForm";
+import DealershipForm from "@/components/signup/DealershipForm";
+import { useSignUpForm } from "@/hooks/useSignUpForm";
 
 const SignUp = () => {
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'personal' | 'dealership'>('personal');
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    mobileNumber: "",
-    businessNumber: "",
-    dealershipName: "",
-    licenseNumber: "",
-    dealershipAddress: "",
-    city: "",
-    state: "",
-    zipCode: "",
-  });
-
-  const formatPhoneNumber = (value: string) => {
-    const phoneNumber = value.replace(/\D/g, '');
-    
-    if (phoneNumber.length >= 10) {
-      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
-    }
-    if (phoneNumber.length > 6) {
-      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
-    }
-    if (phoneNumber.length > 3) {
-      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
-    }
-    if (phoneNumber.length > 0) {
-      return `(${phoneNumber}`;
-    }
-    return phoneNumber;
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    
-    if (name === 'mobileNumber' || name === 'businessNumber') {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: formatPhoneNumber(value),
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleStateChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      state: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // 1. Sign up the user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-          },
-        },
-      });
-
-      if (authError) {
-        throw authError;
-      }
-
-      if (!authData.user) {
-        throw new Error('No user data returned');
-      }
-
-      // 2. Create the dealership record
-      const { data: dealershipData, error: dealershipError } = await supabase
-        .from('dealerships')
-        .insert([
-          {
-            dealer_name: formData.dealershipName,
-            dealer_id: formData.licenseNumber,
-            business_phone: formData.businessNumber,
-            business_email: formData.email,
-            address: formData.dealershipAddress,
-            city: formData.city,
-            state: formData.state,
-            zip_code: formData.zipCode,
-            primary_user_id: authData.user.id,
-            primary_dealer_name: formData.fullName,
-            primary_dealer_email: formData.email,
-            primary_dealer_phone: formData.mobileNumber
-          }
-        ])
-        .select()
-        .single();
-
-      if (dealershipError) {
-        throw dealershipError;
-      }
-
-      // 3. Update the user record with dealership info and role
-      const { error: userError } = await supabase
-        .from('buybidhq_users')
-        .update({
-          full_name: formData.fullName,
-          mobile_number: formData.mobileNumber,
-          email: formData.email,
-          role: 'dealer',
-          dealership_id: dealershipData.id,
-          address: formData.dealershipAddress,
-          city: formData.city,
-          state: formData.state,
-          zip_code: formData.zipCode,
-          is_active: true,
-          status: 'active'
-        })
-        .eq('id', authData.user.id);
-
-      if (userError) {
-        throw userError;
-      }
-
-      toast.success("Account created successfully!");
-      // The AuthRoute component will automatically redirect to /dashboard
-      // since the user is now authenticated
-    } catch (error: any) {
-      console.error('Signup error:', error);
-      toast.error(error.message || "Failed to create account");
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleNext = () => {
-    if (formData.fullName && formData.email && formData.password && formData.mobileNumber && formData.businessNumber) {
-      setCurrentStep('dealership');
-    } else {
-      toast.error("Please fill in all required fields");
-    }
-  };
-
-  const handleBack = () => {
-    setCurrentStep('personal');
-  };
+  const {
+    formData,
+    currentStep,
+    isSubmitting,
+    handleChange,
+    handleStateChange,
+    handleNext,
+    handleBack,
+    handleSubmit,
+  } = useSignUpForm();
 
   const states = [
     "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
@@ -195,191 +45,20 @@ const SignUp = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {currentStep === 'personal' ? (
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                  Full Name
-                </label>
-                <Input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  required
-                  value={formData.fullName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email address
-                </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
-                  Mobile Number
-                </label>
-                <Input
-                  id="mobileNumber"
-                  name="mobileNumber"
-                  type="tel"
-                  required
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  placeholder="(123) 456-7890"
-                  maxLength={14}
-                />
-              </div>
-              <div>
-                <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
-                  Business Number
-                </label>
-                <Input
-                  id="businessNumber"
-                  name="businessNumber"
-                  type="tel"
-                  required
-                  value={formData.businessNumber}
-                  onChange={handleChange}
-                  placeholder="(123) 456-7890"
-                  maxLength={14}
-                />
-              </div>
-              <Button
-                type="button"
-                onClick={handleNext}
-                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-              >
-                Next Step
-              </Button>
-            </div>
+            <PersonalInfoForm
+              formData={formData}
+              onNext={handleNext}
+              onChange={handleChange}
+            />
           ) : (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
-                    Dealership Name
-                  </label>
-                  <Input
-                    id="dealershipName"
-                    name="dealershipName"
-                    type="text"
-                    required
-                    value={formData.dealershipName}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
-                    Dealer ID
-                  </label>
-                  <Input
-                    id="licenseNumber"
-                    name="licenseNumber"
-                    type="text"
-                    required
-                    value={formData.licenseNumber}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700">
-                    Dealership Address
-                  </label>
-                  <Input
-                    id="dealershipAddress"
-                    name="dealershipAddress"
-                    type="text"
-                    required
-                    value={formData.dealershipAddress}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                    City
-                  </label>
-                  <Input
-                    id="city"
-                    name="city"
-                    type="text"
-                    required
-                    value={formData.city}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="state" className="block text-sm font-medium text-gray-700">
-                    State
-                  </label>
-                  <Select onValueChange={handleStateChange} value={formData.state}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {states.map((state) => (
-                        <SelectItem key={state} value={state}>
-                          {state}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
-                    ZIP Code
-                  </label>
-                  <Input
-                    id="zipCode"
-                    name="zipCode"
-                    type="text"
-                    required
-                    value={formData.zipCode}
-                    onChange={handleChange}
-                    pattern="[0-9]{5}"
-                    maxLength={5}
-                    placeholder="12345"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  type="button"
-                  onClick={handleBack}
-                  className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
-                  disabled={isSubmitting}
-                >
-                  Back
-                </Button>
-                <Button
-                  type="submit"
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Creating Account..." : "Sign up"}
-                </Button>
-              </div>
-            </div>
+            <DealershipForm
+              formData={formData}
+              onBack={handleBack}
+              onChange={handleChange}
+              onStateChange={handleStateChange}
+              isSubmitting={isSubmitting}
+              states={states}
+            />
           )}
           
           <div className="text-center mt-4">
