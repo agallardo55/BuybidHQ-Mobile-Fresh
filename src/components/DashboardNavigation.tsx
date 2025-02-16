@@ -21,6 +21,7 @@ const DashboardNavigation = () => {
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
+    { name: "Dealerships", href: "/dealerships" },
     { name: "Buyers", href: "/buyers" },
     ...(canAccessUsers ? [{ name: "Users", href: "/users" }] : []),
   ];

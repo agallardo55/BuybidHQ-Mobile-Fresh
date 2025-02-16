@@ -15,6 +15,7 @@ import CreateBidRequest from "./pages/CreateBidRequest";
 import BidResponse from "./pages/BidResponse";
 import Buyers from "./pages/Buyers";
 import Users from "./pages/Users";
+import Dealerships from "./pages/Dealerships";
 import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -92,6 +93,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Buyers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dealerships"
+              element={
+                <ProtectedRoute>
+                  <Dealerships />
                 </ProtectedRoute>
               }
             />
