@@ -11,16 +11,14 @@ import CookieConsent from "@/components/CookieConsent";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white flex flex-col w-full">
+    <div className="relative w-full bg-black">
       <Navigation />
-      <div className="flex-1">
-        <Hero />
-        <HowItWorks />
-        <Features />
-        <Pricing />
-        <ContactUs />
-        <AppDownload />
-      </div>
+      <Hero />
+      <HowItWorks />
+      <Features />
+      <Pricing />
+      <ContactUs />
+      <AppDownload />
       <Footer />
       <CookieConsent />
     </div>
