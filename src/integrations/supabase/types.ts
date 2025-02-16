@@ -688,6 +688,53 @@ export type Database = {
           },
         ]
       }
+      phone_validation_batch_results: {
+        Row: {
+          batch_id: string | null
+          carrier: string | null
+          formatted_number: string | null
+          id: string
+          is_valid: boolean | null
+          original_number: string | null
+          status: string | null
+          user_id: string | null
+          validation_date: string | null
+          validation_error: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          carrier?: string | null
+          formatted_number?: string | null
+          id?: string
+          is_valid?: boolean | null
+          original_number?: string | null
+          status?: string | null
+          user_id?: string | null
+          validation_date?: string | null
+          validation_error?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          carrier?: string | null
+          formatted_number?: string | null
+          id?: string
+          is_valid?: boolean | null
+          original_number?: string | null
+          status?: string | null
+          user_id?: string | null
+          validation_date?: string | null
+          validation_error?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_validation_batch_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reconditioning: {
         Row: {
           brakes: string | null
@@ -1188,6 +1235,14 @@ export type Database = {
           notification_ids: string[]
         }
         Returns: string[]
+      }
+      process_phone_validation_batch: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_processed: number
+          successful: number
+          failed: number
+        }[]
       }
       transfer_primary_dealer: {
         Args: {
