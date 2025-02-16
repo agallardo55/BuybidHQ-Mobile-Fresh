@@ -18,6 +18,7 @@ const Dealerships = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   const { data, isLoading } = useDealershipsQuery({
     pageSize,
@@ -103,7 +104,10 @@ const Dealerships = () => {
 
             <DealershipList
               dealerships={dealerships}
-              onView={(dealership) => setSelectedDealership(dealership)}
+              onView={(dealership) => {
+                setSelectedDealership(dealership);
+                setIsViewDialogOpen(true);
+              }}
               onEdit={(dealership) => {
                 setSelectedDealership(dealership);
                 setIsEditDialogOpen(true);
@@ -131,9 +135,11 @@ const Dealerships = () => {
         isCreateDialogOpen={isCreateDialogOpen}
         isEditDialogOpen={isEditDialogOpen}
         isDeleteDialogOpen={isDeleteDialogOpen}
+        isViewDialogOpen={isViewDialogOpen}
         setIsCreateDialogOpen={setIsCreateDialogOpen}
         setIsEditDialogOpen={setIsEditDialogOpen}
         setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+        setIsViewDialogOpen={setIsViewDialogOpen}
         onCreateSubmit={handleCreateDealership}
         onUpdateSubmit={handleUpdateDealership}
         onDeleteSubmit={handleDeleteDealership}

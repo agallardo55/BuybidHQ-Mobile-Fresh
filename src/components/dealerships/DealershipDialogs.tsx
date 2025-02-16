@@ -1,6 +1,7 @@
 
 import { Dealership, DealershipFormData } from "@/types/dealerships";
 import DealershipForm from "./DealershipForm";
+import ViewDealershipDialog from "./ViewDealershipDialog";
 import {
   Dialog,
   DialogContent,
@@ -23,9 +24,11 @@ interface DealershipDialogsProps {
   isCreateDialogOpen: boolean;
   isEditDialogOpen: boolean;
   isDeleteDialogOpen: boolean;
+  isViewDialogOpen: boolean;
   setIsCreateDialogOpen: (open: boolean) => void;
   setIsEditDialogOpen: (open: boolean) => void;
   setIsDeleteDialogOpen: (open: boolean) => void;
+  setIsViewDialogOpen: (open: boolean) => void;
   onCreateSubmit: (data: DealershipFormData) => Promise<void>;
   onUpdateSubmit: (data: DealershipFormData) => Promise<void>;
   onDeleteSubmit: () => Promise<void>;
@@ -38,9 +41,11 @@ const DealershipDialogs = ({
   isCreateDialogOpen,
   isEditDialogOpen,
   isDeleteDialogOpen,
+  isViewDialogOpen,
   setIsCreateDialogOpen,
   setIsEditDialogOpen,
   setIsDeleteDialogOpen,
+  setIsViewDialogOpen,
   onCreateSubmit,
   onUpdateSubmit,
   onDeleteSubmit,
@@ -89,6 +94,12 @@ const DealershipDialogs = ({
           )}
         </DialogContent>
       </Dialog>
+
+      <ViewDealershipDialog
+        dealership={selectedDealership}
+        isOpen={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+      />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
