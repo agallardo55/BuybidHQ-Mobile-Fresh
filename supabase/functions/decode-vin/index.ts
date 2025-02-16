@@ -77,39 +77,53 @@ function parseEngineFormat(specs: CarApiData['specs'], description?: string): st
     return '';
   }
 
-  let displacement = specs.displacement_l || '';
-  let cylinders = specs.engine_number_of_cylinders || '';
-  let forced = specs.turbo ? 'Turbo' : '';
+  // Try to extract information from specs first
+  let engineInfo = {
+    displacement: specs.displacement_l || '',
+    cylinders: specs.engine_number_of_cylinders || '',
+    forced: specs.turbo ? 'Turbo' : ''
+  };
 
-  // Try to extract information from description if available
+  // Try to extract from description if specs are incomplete
   if (description) {
     console.log('Attempting to parse engine info from description');
-    const engineRegex = /\(([\d.]+)L\s+(\d+)cyl\s*(Turbo)?\s/i;
-    const matches = description.match(engineRegex);
-    if (matches) {
-      console.log('Found engine matches in description:', matches);
-      displacement = matches[1];
-      cylinders = matches[2];
-      forced = matches[3] || '';
+    const patterns = [
+      /\(([\d.]+)L\s+(\d+)cyl\s*(Turbo)?\s/i,
+      /([\d.]+)L\s+(\d+)[\s-]*(cylinder|cyl)\s*(Turbo|Twin[-\s]Turbo|Bi[-\s]Turbo)?/i,
+      /(\d+)\s*(?:cylinder|cyl)\s*([\d.]+)L\s*(Turbo|Twin[-\s]Turbo|Bi[-\s]Turbo)?/i
+    ];
+
+    for (const pattern of patterns) {
+      const matches = description.match(pattern);
+      if (matches) {
+        console.log('Found engine matches in description:', matches);
+        engineInfo = {
+          displacement: matches[1] || engineInfo.displacement,
+          cylinders: matches[2] || engineInfo.cylinders,
+          forced: (matches[3] || matches[4] || engineInfo.forced)
+        };
+        break;
+      }
     }
   }
 
   // Format the engine string
   const parts: string[] = [];
   
-  if (displacement) {
-    parts.push(`${displacement}L`);
+  if (engineInfo.displacement) {
+    parts.push(`${engineInfo.displacement}L`);
   }
 
-  if (cylinders) {
-    // Add V or I prefix based on number of cylinders
-    const cylinderCount = parseInt(cylinders);
-    const configuration = cylinderCount > 4 ? 'V' : 'I';
-    parts.push(`${configuration}${cylinderCount}`);
+  if (engineInfo.cylinders) {
+    const cylinderCount = parseInt(engineInfo.cylinders);
+    if (!isNaN(cylinderCount)) {
+      const configuration = cylinderCount > 4 ? 'V' : 'I';
+      parts.push(`${configuration}${cylinderCount}`);
+    }
   }
 
-  if (forced) {
-    parts.push(forced);
+  if (engineInfo.forced) {
+    parts.push(engineInfo.forced);
   }
 
   const result = parts.join(' ');
@@ -117,20 +131,39 @@ function parseEngineFormat(specs: CarApiData['specs'], description?: string): st
   return result;
 }
 
+async function fetchData<T>(url: string, options?: RequestInit): Promise<T | null> {
+  try {
+    const response = await fetch(url, options);
+    const responseText = await response.text();
+    console.log(`API Response [${url}]:`, responseText);
+
+    if (!response.ok) {
+      console.error('API error:', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        response: responseText
+      });
+      return null;
+    }
+
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Error parsing response:', parseError);
+      return null;
+    }
+  } catch (fetchError) {
+    console.error('Error fetching data:', fetchError);
+    return null;
+  }
+}
+
 async function fetchNHTSAData(vin: string): Promise<VehicleData> {
   const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
   console.log('Calling NHTSA API:', nhtsaUrl);
   
-  const nhtsaResponse = await fetch(nhtsaUrl);
-  if (!nhtsaResponse.ok) {
-    console.error('NHTSA API error:', {
-      status: nhtsaResponse.status,
-      statusText: nhtsaResponse.statusText
-    });
-    throw new Error('NHTSA API request failed');
-  }
-
-  const nhtsaData = await nhtsaResponse.json();
+  const nhtsaData = await fetchData(nhtsaUrl);
   console.log('NHTSA API response:', JSON.stringify(nhtsaData));
 
   const vehicleData: VehicleData = {
@@ -181,38 +214,14 @@ async function fetchCarApiData(vin: string, CARAPI_KEY: string): Promise<CarApiD
   const carApiUrl = `https://api.carapi.app/vin/${vin}`;
   console.log('Calling CarAPI:', carApiUrl);
 
-  try {
-    const carApiResponse = await fetch(carApiUrl, {
-      headers: { 
-        'Authorization': `Bearer ${CARAPI_KEY}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    const responseText = await carApiResponse.text();
-    console.log('CarAPI raw response:', responseText);
-
-    if (!carApiResponse.ok) {
-      console.error('CarAPI error:', {
-        status: carApiResponse.status,
-        statusText: carApiResponse.statusText,
-        response: responseText
-      });
-      return null;
+  const carApiResponse = await fetchData<any>(carApiUrl, {
+    headers: { 
+      'Authorization': `Bearer ${CARAPI_KEY}`,
+      'Accept': 'application/json'
     }
+  });
 
-    try {
-      const carApiData = JSON.parse(responseText);
-      console.log('CarAPI parsed response:', JSON.stringify(carApiData));
-      return carApiData?.data || null;
-    } catch (parseError) {
-      console.error('Error parsing CarAPI response:', parseError);
-      return null;
-    }
-  } catch (fetchError) {
-    console.error('Error fetching from CarAPI:', fetchError);
-    return null;
-  }
+  return carApiResponse?.data || null;
 }
 
 function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null): VehicleData {
@@ -220,39 +229,41 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
   console.log('NHTSA data:', nhtsaData);
   console.log('CarAPI data:', carApiData);
 
-  if (!carApiData) {
-    console.log('No CarAPI data available, using NHTSA data only');
+  const essentialFields = ['year', 'make', 'model'];
+  const hasEssentialNHTSA = essentialFields.every(field => nhtsaData[field as keyof VehicleData]);
+
+  // If CarAPI data is available, use it as primary source
+  if (carApiData) {
+    // Get the best matching trim
+    const year = parseInt(carApiData.year?.toString() || nhtsaData.year || '');
+    const bestTrim = carApiData.trims ? findBestTrimMatch(carApiData.trims, year) : '';
+
+    // Get trim description for engine details
+    const trimData = carApiData.trims?.find(t => t.name === bestTrim);
+    const engineFormat = parseEngineFormat(carApiData.specs, trimData?.description);
+
+    return {
+      year: carApiData.year?.toString() || nhtsaData.year || '',
+      make: carApiData.make || nhtsaData.make || '',
+      model: carApiData.model || nhtsaData.model || '',
+      trim: bestTrim || nhtsaData.trim || '',
+      engineCylinders: engineFormat || nhtsaData.engineCylinders || '',
+      transmission: carApiData.specs?.transmission || nhtsaData.transmission || '',
+      drivetrain: carApiData.specs?.drive_type || nhtsaData.drivetrain || ''
+    };
+  }
+
+  // If no CarAPI data but NHTSA has essential fields, use NHTSA data
+  if (hasEssentialNHTSA) {
     return nhtsaData;
   }
 
-  // Find the best matching trim from CarAPI data
-  const year = parseInt(nhtsaData.year || carApiData.year?.toString() || '');
-  console.log('Looking for trims matching year:', year);
-  const bestTrim = carApiData.trims ? findBestTrimMatch(carApiData.trims, year) : '';
-
-  // Get the matching trim's description for engine details
-  const trimData = carApiData.trims?.find(t => t.name === bestTrim);
-  console.log('Selected trim data:', trimData);
-  
-  // Parse engine format using both specs and trim description
-  const engineFormat = parseEngineFormat(carApiData.specs, trimData?.description);
-  console.log('Parsed engine format:', engineFormat);
-
-  const mergedData = {
-    year: nhtsaData.year || (carApiData.year?.toString() || ''),
-    make: nhtsaData.make || (carApiData.make || ''),
-    model: nhtsaData.model || (carApiData.model || ''),
-    trim: bestTrim || nhtsaData.trim || (carApiData.trim || ''),
-    engineCylinders: engineFormat || nhtsaData.engineCylinders,
-    transmission: nhtsaData.transmission || (carApiData.specs?.transmission || ''),
-    drivetrain: nhtsaData.drivetrain || (carApiData.specs?.drive_type || '')
-  };
-
-  console.log('Final merged data:', mergedData);
-  return mergedData;
+  // If neither source has complete data, return what we have from NHTSA
+  return nhtsaData;
 }
 
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -274,45 +285,38 @@ serve(async (req) => {
     console.log('Processing VIN:', vin);
 
     try {
-      // First try NHTSA API
-      const nhtsaData = await fetchNHTSAData(vin);
-      console.log('NHTSA data received:', nhtsaData);
+      // Get CARAPI key
+      const CARAPI_KEY = Deno.env.get('CARAPI_KEY');
+      if (!CARAPI_KEY) {
+        console.error('CarAPI key not found in environment');
+        throw new Error('CarAPI key not configured');
+      }
 
-      // If NHTSA data is incomplete, try CarAPI
-      const missingData = Object.values(nhtsaData).some(value => !value);
-      if (missingData) {
-        console.log('NHTSA data incomplete, trying CarAPI');
-        const CARAPI_KEY = Deno.env.get('CARAPI_KEY');
-        if (!CARAPI_KEY) {
-          console.error('CarAPI key not found in environment');
-          throw new Error('CarAPI key not configured');
-        }
+      // Fetch data from both APIs in parallel
+      const [nhtsaData, carApiData] = await Promise.all([
+        fetchNHTSAData(vin),
+        fetchCarApiData(vin, CARAPI_KEY)
+      ]);
 
-        const carApiData = await fetchCarApiData(vin, CARAPI_KEY);
-        console.log('CarAPI data received:', carApiData);
-        
-        const mergedData = mergeVehicleData(nhtsaData, carApiData);
+      console.log('API responses received:');
+      console.log('NHTSA:', nhtsaData);
+      console.log('CarAPI:', carApiData);
 
-        // Return data if we have at least the basic information
-        if (mergedData.year || mergedData.make || mergedData.model) {
-          console.log('Returning merged data:', mergedData);
-          return new Response(
-            JSON.stringify(mergedData),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-      } else {
-        // If NHTSA data is complete, return it
-        console.log('NHTSA data complete, returning:', nhtsaData);
+      // Merge data from both sources
+      const mergedData = mergeVehicleData(nhtsaData, carApiData);
+
+      // Check if we have at least some basic vehicle information
+      if (mergedData.year || mergedData.make || mergedData.model) {
+        console.log('Returning merged data:', mergedData);
         return new Response(
-          JSON.stringify(nhtsaData),
+          JSON.stringify(mergedData),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       throw new Error('Could not decode VIN with either API');
 
-    } catch (apiError) {
+    } catch (apiError: any) {
       console.error('API Error:', apiError?.message || apiError);
       return new Response(
         JSON.stringify({ 
@@ -326,7 +330,7 @@ serve(async (req) => {
       );
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('General Error:', error?.message || error);
     return new Response(
       JSON.stringify({ 
