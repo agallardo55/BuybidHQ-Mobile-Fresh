@@ -17,75 +17,79 @@ interface VehicleData {
   drivetrain: string;
 }
 
+interface CarApiTrim {
+  name: string;
+  description: string;
+  year: number;
+}
+
 interface CarApiData {
   year?: string | number;
   make?: string;
   model?: string;
   trim?: string;
-  engine_size?: string | number;
-  engine_cylinders?: string | number;
-  forced_induction?: string;
-  power_type?: string;
-  electric_power?: string | number;
-  transmission?: string;
-  drive_type?: string;
+  specs?: {
+    displacement_l?: string;
+    engine_number_of_cylinders?: string;
+    turbo?: string | null;
+  };
+  trims?: CarApiTrim[];
 }
 
-function formatEngineData(engineSize?: string | number, engineCylinders?: string | number, forced?: string, powerType?: string, electricPower?: string | number): string {
-  // Handle pure electric vehicles
-  if (powerType?.toLowerCase().includes('electric') || powerType?.toLowerCase().includes('ev')) {
-    if (electricPower) {
-      return `Electric ${electricPower}kW`;
-    }
-    return 'Electric';
+function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number): string {
+  if (!trims || trims.length === 0) return '';
+  
+  // Filter trims for matching year
+  const yearMatches = trims.filter(trim => trim.year === year);
+  if (yearMatches.length === 0) return '';
+
+  // Prefer performance trims in this order: GTS, Turbo, S, Base
+  const preferredOrder = ['GTS', 'Turbo', 'S', 'Base'];
+  for (const preferred of preferredOrder) {
+    const match = yearMatches.find(trim => trim.name === preferred);
+    if (match) return match.name;
   }
 
-  const parts: string[] = []
-  
-  // Handle hybrids first
-  if (powerType?.toLowerCase().includes('hybrid')) {
-    if (engineSize) {
-      parts.push(`${engineSize}L`);
-    }
-    
-    // Add cylinder info for hybrids if available
-    if (engineCylinders) {
-      const cylinderStr = engineCylinders.toString();
-      if (cylinderStr.match(/^[IV]\d+$/)) {
-        parts.push(cylinderStr);
-      } else {
-        parts.push(`${cylinderStr}-Cylinder`);
-      }
-    }
-    
-    // Add hybrid designation
-    if (powerType.toLowerCase().includes('plug-in')) {
-      parts.push('PHEV');
-    } else {
-      parts.push('Hybrid');
-    }
-    
-    return parts.join(' ');
-  }
-  
-  // Handle conventional ICE engines
-  if (engineSize) {
-    parts.push(`${engineSize}L`);
-  }
-  
-  if (engineCylinders) {
-    const cylinderStr = engineCylinders.toString();
-    if (cylinderStr.match(/^[IV]\d+$/)) {
-      parts.push(cylinderStr);
-    } else {
-      parts.push(`${cylinderStr}-Cylinder`);
+  // If no preferred trim found, return the first one
+  return yearMatches[0].name;
+}
+
+function parseEngineFormat(specs: CarApiData['specs'], description?: string): string {
+  if (!specs) return '';
+
+  let displacement = specs.displacement_l || '';
+  let cylinders = specs.engine_number_of_cylinders || '';
+  let forced = specs.turbo ? 'Turbo' : '';
+
+  // Try to extract information from description if available
+  if (description) {
+    const engineRegex = /\(([\d.]+)L\s+(\d+)cyl\s*(Turbo)?\s/i;
+    const matches = description.match(engineRegex);
+    if (matches) {
+      displacement = matches[1];
+      cylinders = matches[2];
+      forced = matches[3] || '';
     }
   }
+
+  // Format the engine string
+  const parts: string[] = [];
   
+  if (displacement) {
+    parts.push(`${displacement}L`);
+  }
+
+  if (cylinders) {
+    // Add V or I prefix based on number of cylinders
+    const cylinderCount = parseInt(cylinders);
+    const configuration = cylinderCount > 4 ? 'V' : 'I';
+    parts.push(`${configuration}${cylinderCount}`);
+  }
+
   if (forced) {
     parts.push(forced);
   }
-  
+
   return parts.join(' ');
 }
 
@@ -185,22 +189,24 @@ async function fetchCarApiData(vin: string, CARAPI_KEY: string): Promise<CarApiD
 function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null): VehicleData {
   if (!carApiData) return nhtsaData;
 
-  const formattedEngine = formatEngineData(
-    carApiData.engine_size,
-    carApiData.engine_cylinders,
-    carApiData.forced_induction,
-    carApiData.power_type,
-    carApiData.electric_power
-  );
+  // Find the best matching trim from CarAPI data
+  const year = parseInt(nhtsaData.year || carApiData.year?.toString() || '');
+  const bestTrim = carApiData.trims ? findBestTrimMatch(carApiData.trims, year) : '';
+
+  // Get the matching trim's description for engine details
+  const trimData = carApiData.trims?.find(t => t.name === bestTrim);
+  
+  // Parse engine format using both specs and trim description
+  const engineFormat = parseEngineFormat(carApiData.specs, trimData?.description);
 
   return {
     year: nhtsaData.year || (carApiData.year?.toString() || ''),
     make: nhtsaData.make || (carApiData.make || ''),
     model: nhtsaData.model || (carApiData.model || ''),
-    trim: nhtsaData.trim || (carApiData.trim || ''),
-    engineCylinders: nhtsaData.engineCylinders || formattedEngine,
-    transmission: nhtsaData.transmission || (carApiData.transmission || ''),
-    drivetrain: nhtsaData.drivetrain || (carApiData.drive_type || '')
+    trim: bestTrim || nhtsaData.trim || (carApiData.trim || ''),
+    engineCylinders: engineFormat || nhtsaData.engineCylinders,
+    transmission: nhtsaData.transmission || (carApiData.specs?.transmission || ''),
+    drivetrain: nhtsaData.drivetrain || (carApiData.specs?.drive_type || '')
   };
 }
 
