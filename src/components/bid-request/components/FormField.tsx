@@ -24,6 +24,9 @@ const FormField = ({
   placeholder,
   min
 }: FormFieldProps) => {
+  const isEmpty = required && value === "";
+  const showError = error || isEmpty;
+  
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
@@ -38,10 +41,14 @@ const FormField = ({
         required={required}
         placeholder={placeholder}
         min={min}
-        className={`${error ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
+        className={`${showError ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0 ${
+          isEmpty ? "bg-red-50" : ""
+        }`}
       />
-      {error && (
-        <p className="text-red-500 text-sm mt-1">{error}</p>
+      {showError && (
+        <p className="text-red-500 text-sm mt-1">
+          {error || "This field is required"}
+        </p>
       )}
     </div>
   );
