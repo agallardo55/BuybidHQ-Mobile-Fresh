@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { VehicleData, CarApiData } from "./types.ts";
 import { fetchNHTSAData, fetchCarApiData } from "./apiUtils.ts";
@@ -58,11 +57,18 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
 
     // Transmission: Combine both sources if possible
     if (carApiData.specs?.transmission) {
+      const carApiTransmission = carApiData.specs.transmission.trim();
+      console.log('CarAPI transmission:', carApiTransmission);
+      
       if (mergedData.transmission) {
-        // If NHTSA provided transmission info, combine them
-        mergedData.transmission = `${carApiData.specs.transmission} ${mergedData.transmission}`.trim();
+        // Check if CarAPI data provides new information
+        if (!mergedData.transmission.toLowerCase().includes(carApiTransmission.toLowerCase())) {
+          mergedData.transmission = `${carApiTransmission} ${mergedData.transmission}`.trim();
+          console.log('Combined transmission:', mergedData.transmission);
+        }
       } else {
-        mergedData.transmission = carApiData.specs.transmission;
+        mergedData.transmission = carApiTransmission;
+        console.log('Using CarAPI transmission:', carApiTransmission);
       }
     }
 
@@ -100,6 +106,7 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
   Object.keys(mergedData).forEach(key => {
     if (!mergedData[key]) {
       mergedData[key] = 'N/A';
+      console.log(`Setting default value for ${key}: N/A`);
     }
   });
 
@@ -189,4 +196,3 @@ serve(async (req) => {
     );
   }
 });
-
