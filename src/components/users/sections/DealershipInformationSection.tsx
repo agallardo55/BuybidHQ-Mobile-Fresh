@@ -1,6 +1,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -20,6 +21,7 @@ interface DealershipInformationSectionProps {
 const DealershipInformationSection = ({
   formData,
   dealershipData,
+  onFormDataChange,
   onDealershipDataChange,
 }: DealershipInformationSectionProps) => {
   const states = [
@@ -98,6 +100,23 @@ const DealershipInformationSection = ({
               onChange={(e) => onDealershipDataChange({ businessEmail: e.target.value })}
             />
           </div>
+
+          {formData.role === 'dealer' && (
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isPrimaryDealer"
+                checked={formData.isPrimaryDealer}
+                onCheckedChange={(checked) => {
+                  onFormDataChange({ isPrimaryDealer: checked });
+                  if (checked) {
+                    onDealershipDataChange({ primaryUserId: formData.dealershipId });
+                  }
+                }}
+                className="data-[state=checked]:bg-custom-blue data-[state=unchecked]:bg-input"
+              />
+              <Label htmlFor="isPrimaryDealer">Primary Dealer</Label>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">

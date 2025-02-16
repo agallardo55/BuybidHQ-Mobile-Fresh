@@ -34,11 +34,14 @@ export interface Dealership {
   state: string | null;
   zip_code: string | null;
   created_at?: string;
+  primary_user_id: string | null;
+  primary_assigned_at?: string;
 }
 
 // Extended user interface with dealership information
 export interface User extends BaseUser {
   dealership?: Dealership | null;
+  isPrimaryDealer?: boolean;
 }
 
 // Form data interfaces for consistent shape across components
@@ -53,6 +56,7 @@ export interface UserFormData {
   zipCode?: string;
   dealershipId?: string;
   isActive: boolean;
+  isPrimaryDealer?: boolean;
 }
 
 export interface DealershipFormData {
@@ -64,6 +68,7 @@ export interface DealershipFormData {
   city?: string;
   state?: string;
   zipCode?: string;
+  primaryUserId?: string;
 }
 
 // Type guard for UserRole

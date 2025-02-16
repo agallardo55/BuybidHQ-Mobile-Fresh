@@ -32,20 +32,24 @@ export const useUsersMutations = () => {
 
         if (dealershipFetchError) throw dealershipFetchError;
 
+        const dealershipUpdate = {
+          dealer_name: dealershipData.dealerName,
+          dealer_id: dealershipData.dealerId,
+          business_phone: dealershipData.businessPhone,
+          business_email: dealershipData.businessEmail,
+          address: dealershipData.address,
+          city: dealershipData.city,
+          state: dealershipData.state,
+          zip_code: dealershipData.zipCode,
+          // Only set primary_user_id if this is a primary dealer
+          ...(userData.isPrimaryDealer && { primary_user_id: existingUser?.id })
+        };
+
         if (existingDealership) {
           // Update existing dealership
           const { data: updatedDealership, error: updateError } = await supabase
             .from('dealerships')
-            .update({
-              dealer_name: dealershipData.dealerName,
-              dealer_id: dealershipData.dealerId,
-              business_phone: dealershipData.businessPhone,
-              business_email: dealershipData.businessEmail,
-              address: dealershipData.address,
-              city: dealershipData.city,
-              state: dealershipData.state,
-              zip_code: dealershipData.zipCode
-            })
+            .update(dealershipUpdate)
             .eq('id', existingDealership.id)
             .select()
             .single();
@@ -56,16 +60,7 @@ export const useUsersMutations = () => {
           // Create new dealership
           const { data: newDealership, error: createError } = await supabase
             .from('dealerships')
-            .insert({
-              dealer_name: dealershipData.dealerName,
-              dealer_id: dealershipData.dealerId,
-              business_phone: dealershipData.businessPhone,
-              business_email: dealershipData.businessEmail,
-              address: dealershipData.address,
-              city: dealershipData.city,
-              state: dealershipData.state,
-              zip_code: dealershipData.zipCode
-            })
+            .insert(dealershipUpdate)
             .select()
             .single();
 
@@ -136,20 +131,24 @@ export const useUsersMutations = () => {
 
       // Handle dealership data if provided
       if (dealershipData) {
+        const dealershipUpdate = {
+          dealer_name: dealershipData.dealerName,
+          dealer_id: dealershipData.dealerId,
+          business_phone: dealershipData.businessPhone,
+          business_email: dealershipData.businessEmail,
+          address: dealershipData.address,
+          city: dealershipData.city,
+          state: dealershipData.state,
+          zip_code: dealershipData.zipCode,
+          // Update primary_user_id if applicable
+          ...(userData.isPrimaryDealer && { primary_user_id: userId })
+        };
+
         if (dealershipId) {
           // Update existing dealership
           const { error: updateError } = await supabase
             .from('dealerships')
-            .update({
-              dealer_name: dealershipData.dealerName,
-              dealer_id: dealershipData.dealerId,
-              business_phone: dealershipData.businessPhone,
-              business_email: dealershipData.businessEmail,
-              address: dealershipData.address,
-              city: dealershipData.city,
-              state: dealershipData.state,
-              zip_code: dealershipData.zipCode
-            })
+            .update(dealershipUpdate)
             .eq('id', dealershipId);
 
           if (updateError) throw updateError;
@@ -157,21 +156,22 @@ export const useUsersMutations = () => {
           // Create new dealership
           const { data: newDealership, error: createError } = await supabase
             .from('dealerships')
-            .insert({
-              dealer_name: dealershipData.dealerName,
-              dealer_id: dealershipData.dealerId,
-              business_phone: dealershipData.businessPhone,
-              business_email: dealershipData.businessEmail,
-              address: dealershipData.address,
-              city: dealershipData.city,
-              state: dealershipData.state,
-              zip_code: dealershipData.zipCode
-            })
+            .insert(dealershipUpdate)
             .select()
             .single();
 
           if (createError) throw createError;
           dealershipId = newDealership.id;
+        }
+
+        // If this user is no longer the primary dealer, remove their primary_user_id
+        if (!userData.isPrimaryDealer) {
+          const { error: clearPrimaryError } = await supabase
+            .from('dealerships')
+            .update({ primary_user_id: null })
+            .eq('primary_user_id', userId);
+
+          if (clearPrimaryError) throw clearPrimaryError;
         }
       }
 
@@ -209,6 +209,29 @@ export const useUsersMutations = () => {
         .single();
 
       if (fetchError) throw fetchError;
+
+      // If user is a primary dealer, we need to handle that first
+      if (user.role === 'dealer') {
+        const { data: dealership, error: dealershipError } = await supabase
+          .from('dealerships')
+          .select('primary_user_id')
+          .eq('primary_user_id', userId)
+          .single();
+
+        if (dealershipError && !dealershipError.message.includes('No rows found')) {
+          throw dealershipError;
+        }
+
+        if (dealership) {
+          // Clear the primary_user_id before deleting
+          const { error: clearPrimaryError } = await supabase
+            .from('dealerships')
+            .update({ primary_user_id: null })
+            .eq('primary_user_id', userId);
+
+          if (clearPrimaryError) throw clearPrimaryError;
+        }
+      }
 
       // Move user to deleted_users table
       const { error: deleteError } = await supabase

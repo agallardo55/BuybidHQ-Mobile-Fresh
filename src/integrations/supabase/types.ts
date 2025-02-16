@@ -454,6 +454,8 @@ export type Database = {
           dealer_id: string | null
           dealer_name: string
           id: string
+          primary_assigned_at: string | null
+          primary_user_id: string | null
           state: string | null
           zip_code: string | null
         }
@@ -466,6 +468,8 @@ export type Database = {
           dealer_id?: string | null
           dealer_name: string
           id?: string
+          primary_assigned_at?: string | null
+          primary_user_id?: string | null
           state?: string | null
           zip_code?: string | null
         }
@@ -478,10 +482,20 @@ export type Database = {
           dealer_id?: string | null
           dealer_name?: string
           id?: string
+          primary_assigned_at?: string | null
+          primary_user_id?: string | null
           state?: string | null
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "dealerships_primary_user_id_fkey"
+            columns: ["primary_user_id"]
+            isOneToOne: false
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deleted_users: {
         Row: {
@@ -1110,6 +1124,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_primary_dealer: {
+        Args: {
+          checking_user_id: string
+          dealership_id: string
+        }
+        Returns: boolean
+      }
       is_superadmin: {
         Args: {
           user_email: string
@@ -1121,6 +1142,14 @@ export type Database = {
           notification_ids: string[]
         }
         Returns: string[]
+      }
+      transfer_primary_dealer: {
+        Args: {
+          current_primary_id: string
+          new_primary_id: string
+          target_dealership_id: string
+        }
+        Returns: boolean
       }
       validate_bid_submission_token: {
         Args: {
