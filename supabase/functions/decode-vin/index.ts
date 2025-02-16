@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -6,32 +5,63 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-function formatEngineData(engineSize?: string | number, engineCylinders?: string | number, forced?: string): string {
+function formatEngineData(engineSize?: string | number, engineCylinders?: string | number, forced?: string, powerType?: string, electricPower?: string | number): string {
+  // Handle pure electric vehicles
+  if (powerType?.toLowerCase().includes('electric') || powerType?.toLowerCase().includes('ev')) {
+    if (electricPower) {
+      return `Electric ${electricPower}kW`;
+    }
+    return 'Electric';
+  }
+
   const parts: string[] = []
   
-  // Format displacement
-  if (engineSize) {
-    parts.push(`${engineSize}L`)
+  // Handle hybrids first
+  if (powerType?.toLowerCase().includes('hybrid')) {
+    if (engineSize) {
+      parts.push(`${engineSize}L`);
+    }
+    
+    // Add cylinder info for hybrids if available
+    if (engineCylinders) {
+      const cylinderStr = engineCylinders.toString();
+      if (cylinderStr.match(/^[IV]\d+$/)) {
+        parts.push(cylinderStr);
+      } else {
+        parts.push(`${cylinderStr}-Cylinder`);
+      }
+    }
+    
+    // Add hybrid designation
+    if (powerType.toLowerCase().includes('plug-in')) {
+      parts.push('PHEV');
+    } else {
+      parts.push('Hybrid');
+    }
+    
+    return parts.join(' ');
   }
   
-  // Format cylinders
+  // Handle conventional ICE engines
+  if (engineSize) {
+    parts.push(`${engineSize}L`);
+  }
+  
   if (engineCylinders) {
-    // Check if it's already formatted (like "V6" or "I4")
-    const cylinderStr = engineCylinders.toString()
+    const cylinderStr = engineCylinders.toString();
     if (cylinderStr.match(/^[IV]\d+$/)) {
-      parts.push(cylinderStr)
+      parts.push(cylinderStr);
     } else {
-      // Format as "X-Cylinder"
-      parts.push(`${cylinderStr}-Cylinder`)
+      parts.push(`${cylinderStr}-Cylinder`);
     }
   }
   
   // Add forced induction info if present
   if (forced) {
-    parts.push(forced)
+    parts.push(forced);
   }
   
-  return parts.join(' ')
+  return parts.join(' ');
 }
 
 serve(async (req) => {
@@ -164,7 +194,9 @@ serve(async (req) => {
                 const formattedEngine = formatEngineData(
                   data.engine_size,
                   data.engine_cylinders,
-                  data.forced_induction
+                  data.forced_induction,
+                  data.power_type,
+                  data.electric_power
                 )
                 
                 vehicleData = {
