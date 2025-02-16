@@ -1221,6 +1221,7 @@ export type Database = {
           dealer_name: string
           business_phone: string
           business_email: string
+          phone_carrier: string
         }[]
       }
       handle_user_deletion: {
