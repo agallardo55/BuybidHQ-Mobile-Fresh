@@ -99,57 +99,74 @@ serve(async (req) => {
           throw new Error('CarAPI key not configured')
         }
 
-        const carApiUrl = `https://api.carapi.app/vin/${vin}`
-        console.log('Calling CarAPI:', carApiUrl)
+        try {
+          const carApiUrl = `https://api.carapi.app/vin/${vin}`
+          console.log('Calling CarAPI:', carApiUrl)
 
-        const carApiResponse = await fetch(carApiUrl, {
-          headers: { 
-            'Authorization': `Bearer ${CARAPI_KEY}`,
-            'Accept': 'application/json'
-          }
-        })
-
-        if (!carApiResponse.ok) {
-          console.error('CarAPI error:', {
-            status: carApiResponse.status,
-            statusText: carApiResponse.statusText
+          const carApiResponse = await fetch(carApiUrl, {
+            headers: { 
+              'Authorization': `Bearer ${CARAPI_KEY}`,
+              'Accept': 'application/json'
+            }
           })
-          throw new Error('CarAPI request failed')
-        }
 
-        const carApiData = await carApiResponse.json()
-        console.log('CarAPI response:', JSON.stringify(carApiData))
+          const responseText = await carApiResponse.text()
+          console.log('CarAPI raw response:', responseText)
 
-        if (carApiData?.data) {
-          const data = carApiData.data
-          vehicleData = {
-            year: vehicleData.year || (data.year?.toString() || ''),
-            make: vehicleData.make || (data.make || ''),
-            model: vehicleData.model || (data.model || ''),
-            trim: vehicleData.trim || (data.trim || ''),
-            engineCylinders: vehicleData.engineCylinders || 
-              `${data.engine_size || ''} ${data.engine_cylinders || ''}`.trim() || '',
-            transmission: vehicleData.transmission || (data.transmission || ''),
-            drivetrain: vehicleData.drivetrain || (data.drive_type || '')
+          if (!carApiResponse.ok) {
+            console.error('CarAPI error:', {
+              status: carApiResponse.status,
+              statusText: carApiResponse.statusText,
+              response: responseText
+            })
+            // Don't throw here - just log and continue with NHTSA data
+            console.log('Continuing with NHTSA data only')
+          } else {
+            try {
+              const carApiData = JSON.parse(responseText)
+              console.log('CarAPI parsed response:', JSON.stringify(carApiData))
+
+              if (carApiData?.data) {
+                const data = carApiData.data
+                vehicleData = {
+                  year: vehicleData.year || (data.year?.toString() || ''),
+                  make: vehicleData.make || (data.make || ''),
+                  model: vehicleData.model || (data.model || ''),
+                  trim: vehicleData.trim || (data.trim || ''),
+                  engineCylinders: vehicleData.engineCylinders || 
+                    `${data.engine_size || ''} ${data.engine_cylinders || ''}`.trim() || '',
+                  transmission: vehicleData.transmission || (data.transmission || ''),
+                  drivetrain: vehicleData.drivetrain || (data.drive_type || '')
+                }
+              } else {
+                console.warn('No data object in CarAPI response')
+              }
+            } catch (parseError) {
+              console.error('Error parsing CarAPI response:', parseError)
+              // Continue with NHTSA data
+              console.log('Continuing with NHTSA data due to parse error')
+            }
           }
-        } else {
-          console.warn('No data object in CarAPI response')
+        } catch (carApiError) {
+          console.error('CarAPI request error:', carApiError)
+          // Continue with NHTSA data
+          console.log('Continuing with NHTSA data due to request error')
         }
       }
 
       console.log('Final vehicle data:', JSON.stringify(vehicleData))
       
-      // Validate that we have at least some basic data
-      if (!vehicleData.year && !vehicleData.make && !vehicleData.model) {
+      // Return data if we have at least the basic information
+      if (vehicleData.year || vehicleData.make || vehicleData.model) {
+        return new Response(
+          JSON.stringify(vehicleData),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        )
+      } else {
         throw new Error('Could not decode VIN with either API')
       }
-
-      return new Response(
-        JSON.stringify(vehicleData),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
 
     } catch (apiError) {
       console.error('API Error:', apiError?.message || apiError)
