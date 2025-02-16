@@ -1,10 +1,9 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, Menu, X, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Tooltip,
@@ -12,12 +11,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import NotificationList from "./notifications/NotificationList";
 
 const DashboardNavigation = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const isMobile = useIsMobile();
-  const { toast } = useToast();
   const { currentUser, isLoading } = useCurrentUser();
 
   const canAccessUsers = currentUser?.role === 'admin' || currentUser?.role === 'dealer';
@@ -28,24 +33,45 @@ const DashboardNavigation = () => {
     ...(canAccessUsers ? [{ name: "Users", href: "/users" }] : []),
   ];
 
-  const handleNotificationsToggle = () => {
-    toast({
-      title: "Notifications",
-      description: (
-        <div className="space-y-4">
-          <div className="p-4 border rounded-lg bg-gray-50">
-            <p className="font-medium text-gray-900">New Bid Request</p>
-            <p className="text-sm text-gray-500 mt-1">A new bid request has been submitted for a 2024 Toyota Camry.</p>
-            <p className="text-xs text-gray-400 mt-2">2 hours ago</p>
-          </div>
-          <div className="p-4 border rounded-lg bg-gray-50">
-            <p className="font-medium text-gray-900">Bid Accepted</p>
-            <p className="text-sm text-gray-500 mt-1">Your bid for the 2023 Honda Civic has been accepted.</p>
-            <p className="text-xs text-gray-400 mt-2">1 day ago</p>
-          </div>
-        </div>
-      ),
-    });
+  useEffect(() => {
+    fetchUnreadCount();
+    subscribeToNotifications();
+  }, []);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .is('read_at', null)
+        .is('cleared_at', null);
+
+      if (error) throw error;
+      setUnreadCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+
+  const subscribeToNotifications = () => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications'
+        },
+        () => {
+          fetchUnreadCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   };
 
   const handleLogout = async () => {
@@ -103,17 +129,25 @@ const DashboardNavigation = () => {
               >
                 <UserRound className="h-5 w-5" />
               </Link>
-              <button 
-                className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-                aria-label="Notifications"
-                onClick={handleNotificationsToggle}
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-0.5 right-0.5 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
-                </span>
-              </button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button 
+                    className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
+                    aria-label="Notifications"
+                  >
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0.5 right-0.5 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
+                      </span>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[380px] p-0" align="end">
+                  <NotificationList />
+                </PopoverContent>
+              </Popover>
               <button 
                 onClick={handleLogout}
                 className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
@@ -174,20 +208,29 @@ const DashboardNavigation = () => {
               >
                 <UserRound className="h-5 w-5" />
               </Link>
-              <button 
-                className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-                aria-label="Notifications"
-                onClick={() => {
-                  handleNotificationsToggle();
-                  setIsOpen(false);
-                }}
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-0.5 right-0.5 flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
-                </span>
-              </button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button 
+                    className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
+                    aria-label="Notifications"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0.5 right-0.5 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
+                      </span>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[380px] p-0" align="end">
+                  <NotificationList />
+                </PopoverContent>
+              </Popover>
               <button 
                 onClick={() => {
                   handleLogout();
@@ -207,4 +250,3 @@ const DashboardNavigation = () => {
 };
 
 export default DashboardNavigation;
-

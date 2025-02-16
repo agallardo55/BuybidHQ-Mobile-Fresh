@@ -587,6 +587,47 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          cleared_at: string | null
+          content: Json
+          created_at: string
+          id: string
+          read_at: string | null
+          reference_id: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          cleared_at?: string | null
+          content: Json
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          reference_id?: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          cleared_at?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          reference_id?: string | null
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reconditioning: {
         Row: {
           brakes: string | null
@@ -912,6 +953,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      clear_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       create_complete_bid_request: {
         Args: {
           vehicle_data: Json
@@ -1071,6 +1116,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_notifications_as_read: {
+        Args: {
+          notification_ids: string[]
+        }
+        Returns: string[]
+      }
       validate_bid_submission_token: {
         Args: {
           p_token: string
@@ -1086,6 +1137,11 @@ export type Database = {
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
+      notification_type:
+        | "bid_request"
+        | "bid_response"
+        | "bid_accepted"
+        | "bid_declined"
       user_role: "basic" | "individual" | "dealer" | "associate" | "admin"
       user_role_old: "admin" | "dealer" | "associate"
     }
