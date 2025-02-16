@@ -16,6 +16,37 @@ type VehicleData = {
   drivetrain: string;
 }
 
+function formatEngine(displacement: string, cylinders: string, aspirationType?: string): string {
+  // Convert cylinders number to V format when applicable
+  let cylinderFormat = '';
+  const cylinderNum = parseInt(cylinders);
+  if (!isNaN(cylinderNum) && cylinderNum > 3) {
+    cylinderFormat = `V${cylinderNum}`;
+  } else if (cylinders) {
+    cylinderFormat = `${cylinders}-Cylinder`;
+  }
+
+  // Combine displacement and cylinder format
+  let engineString = '';
+  if (displacement) {
+    engineString += `${displacement}L`;
+    if (cylinderFormat) {
+      engineString += ` ${cylinderFormat}`;
+    }
+  } else if (cylinderFormat) {
+    engineString = cylinderFormat;
+  }
+
+  // Add turbo/supercharger information if available
+  if (aspirationType?.toLowerCase().includes('turbo')) {
+    engineString += ' Turbo';
+  } else if (aspirationType?.toLowerCase().includes('super')) {
+    engineString += ' Supercharged';
+  }
+
+  return engineString;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -45,6 +76,10 @@ serve(async (req) => {
       drivetrain: ''
     }
 
+    let engineDisplacement = '';
+    let engineCylinders = '';
+    let engineAspiration = '';
+
     if (nhtsaData.Results) {
       const processNHTSAValue = (value: string | null): string => {
         if (!value || value === 'Not Applicable' || value === 'null') return ''
@@ -67,7 +102,10 @@ serve(async (req) => {
             vehicleData.trim = processNHTSAValue(result.Value)
             break
           case 'Engine Number of Cylinders':
-            vehicleData.engineCylinders = processNHTSAValue(result.Value)
+            engineCylinders = processNHTSAValue(result.Value)
+            break
+          case 'Displacement (L)':
+            engineDisplacement = processNHTSAValue(result.Value)
             break
           case 'Transmission Style':
             vehicleData.transmission = processNHTSAValue(result.Value)
@@ -77,6 +115,9 @@ serve(async (req) => {
             break
         }
       }
+
+      // Format engine information
+      vehicleData.engineCylinders = formatEngine(engineDisplacement, engineCylinders, engineAspiration)
     }
 
     // If NHTSA data is incomplete, try CarAPI
@@ -96,12 +137,19 @@ serve(async (req) => {
 
       if (carApiData.data) {
         const data = carApiData.data
+        // Format engine string from CarAPI data
+        const carApiEngine = formatEngine(
+          data.engine_size?.toString() || '',
+          data.engine_cylinders?.toString() || '',
+          data.aspiration || ''
+        )
+
         vehicleData = {
           year: vehicleData.year || data.year?.toString() || '',
           make: vehicleData.make || data.make || '',
           model: vehicleData.model || data.model || '',
           trim: vehicleData.trim || data.trim || '',
-          engineCylinders: vehicleData.engineCylinders || `${data.engine_size}L ${data.engine_cylinders}-Cylinder` || '',
+          engineCylinders: vehicleData.engineCylinders || carApiEngine || '',
           transmission: vehicleData.transmission || data.transmission || '',
           drivetrain: vehicleData.drivetrain || data.drive_type || ''
         }
