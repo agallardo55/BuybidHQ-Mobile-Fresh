@@ -1072,6 +1072,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_phone_numbers: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_processed: number
+          standardized: number
+          invalid: number
+          duplicates: number
+        }[]
+      }
       clear_notifications: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1275,6 +1284,12 @@ export type Database = {
           failed: number
         }[]
       }
+      standardize_phone_number: {
+        Args: {
+          phone_input: string
+        }
+        Returns: string
+      }
       transfer_primary_dealer: {
         Args: {
           current_primary_id: string
@@ -1309,6 +1324,7 @@ export type Database = {
         | "voip"
         | "toll_free"
         | "unknown"
+      phone_validation_status: "pending" | "valid" | "invalid"
       user_role: "basic" | "individual" | "dealer" | "associate" | "admin"
       user_role_old: "admin" | "dealer" | "associate"
     }
