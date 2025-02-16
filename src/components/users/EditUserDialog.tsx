@@ -10,6 +10,7 @@ import { User, UserFormData, DealershipFormData, transformDatabaseUser } from "@
 import { useState, useEffect } from "react";
 import UserInformationSection from "./sections/UserInformationSection";
 import DealershipInformationSection from "./sections/DealershipInformationSection";
+import SecuritySection from "./sections/SecuritySection";
 import { Button } from "@/components/ui/button";
 
 interface EditUserDialogProps {
@@ -87,9 +88,10 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
         <form onSubmit={handleSubmit}>
           <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
             <Tabs defaultValue="user-info" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="user-info">User Information</TabsTrigger>
                 <TabsTrigger value="dealership-info">Dealership Information</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
               </TabsList>
               <TabsContent value="user-info" className="mt-4">
                 <UserInformationSection
@@ -104,6 +106,9 @@ const EditUserDialog = ({ user, isOpen, onOpenChange, onUpdate }: EditUserDialog
                   onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
                   onDealershipDataChange={(data) => setDealershipData(prev => ({ ...prev, ...data }))}
                 />
+              </TabsContent>
+              <TabsContent value="security" className="mt-4">
+                <SecuritySection userEmail={formData.email} />
               </TabsContent>
             </Tabs>
             <div className="mt-6">
