@@ -66,6 +66,8 @@ const BidRequestDashboard = () => {
   };
 
   const filteredRequests = bidRequests.filter((request) => {
+    if (!searchTerm) return true;
+    
     const searchString = searchTerm.toLowerCase();
     return (
       request.year.toString().includes(searchString) ||
