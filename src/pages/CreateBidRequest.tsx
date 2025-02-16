@@ -22,6 +22,7 @@ const CreateBidRequest = () => {
     handleImagesUploaded,
     toggleBuyer,
     handleSubmit,
+    setErrors
   } = useCreateBidRequest();
 
   const [showValidation, setShowValidation] = useState(false);
@@ -67,6 +68,7 @@ const CreateBidRequest = () => {
               onImagesUploaded={handleImagesUploaded}
               showValidation={showValidation}
               setShowValidation={setShowValidation}
+              setErrors={setErrors}
             />
             <div className="mt-6 pt-4 border-t border-gray-200 bg-white">
               <p className="text-sm text-gray-500 text-center">

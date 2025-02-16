@@ -33,6 +33,7 @@ interface MultiStepFormProps {
   onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
   setShowValidation: (show: boolean) => void;
   showValidation: boolean;
+  setErrors: (errors: FormErrors) => void;
 }
 
 const MultiStepForm = ({
@@ -50,7 +51,8 @@ const MultiStepForm = ({
   onImagesUploaded,
   onBatchChange,
   setShowValidation,
-  showValidation
+  showValidation,
+  setErrors
 }: MultiStepFormProps) => {
   const {
     currentStep,
@@ -62,10 +64,48 @@ const MultiStepForm = ({
     handleBack
   } = useFormNavigation();
 
+  const validateCurrentStep = () => {
+    const stepErrors: FormErrors = {};
+    
+    if (currentStep === "basic-info") {
+      if (!formData.year) stepErrors.year = "Year is required";
+      if (!formData.make) stepErrors.make = "Make is required";
+      if (!formData.model) stepErrors.model = "Model is required";
+      if (!formData.trim) stepErrors.trim = "Trim is required";
+      if (!formData.vin) stepErrors.vin = "VIN is required";
+      if (!formData.mileage) stepErrors.mileage = "Mileage is required";
+
+      // VIN validation
+      if (formData.vin && formData.vin.length !== 17) {
+        stepErrors.vin = "VIN must be 17 characters";
+      }
+
+      // Year validation
+      const currentYear = new Date().getFullYear();
+      const year = parseInt(formData.year);
+      if (year < 1900 || year > currentYear + 1) {
+        stepErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
+      }
+
+      // Mileage validation
+      if (parseInt(formData.mileage) < 0) {
+        stepErrors.mileage = "Mileage cannot be negative";
+      }
+    } else if (currentStep === "buyers") {
+      if (selectedBuyers.length === 0) {
+        stepErrors.buyers = "Please select at least one buyer";
+      }
+    }
+
+    return stepErrors;
+  };
+
   const handleNext = () => {
     setShowValidation(true);
-    const newErrors = validateForm(formData, selectedBuyers);
-    if (Object.keys(newErrors).length === 0) {
+    const stepErrors = validateCurrentStep();
+    setErrors(stepErrors);
+
+    if (Object.keys(stepErrors).length === 0) {
       baseHandleNext();
       setShowValidation(false);
     }
