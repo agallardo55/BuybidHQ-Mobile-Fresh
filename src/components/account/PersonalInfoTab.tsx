@@ -5,6 +5,26 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAccountForm } from "@/hooks/useAccountForm";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CarrierType } from "@/types/users";
+
+const CARRIER_OPTIONS: CarrierType[] = [
+  'Verizon Wireless',
+  'AT&T',
+  'T-Mobile',
+  'Sprint',
+  'US Cellular',
+  'Metro PCS',
+  'Boost Mobile',
+  'Cricket',
+  'Virgin Mobile'
+];
 
 export const PersonalInfoTab = () => {
   const { formData, handleChange, isLoading } = useAccountForm();
@@ -23,6 +43,7 @@ export const PersonalInfoTab = () => {
           full_name: formData.fullName,
           email: formData.email,
           mobile_number: formData.mobileNumber,
+          phone_carrier: formData.phoneCarrier,
           address: formData.dealershipAddress,
           city: formData.city,
           state: formData.state,
@@ -98,6 +119,26 @@ export const PersonalInfoTab = () => {
               placeholder="(123) 456-7890"
               maxLength={14}
             />
+          </div>
+          <div>
+            <label htmlFor="phoneCarrier" className="block text-sm font-medium text-gray-700 mb-1">
+              Mobile Carrier
+            </label>
+            <Select
+              value={formData.phoneCarrier}
+              onValueChange={(value) => handleChange({ target: { name: 'phoneCarrier', value } })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select carrier" />
+              </SelectTrigger>
+              <SelectContent>
+                {CARRIER_OPTIONS.map(carrier => (
+                  <SelectItem key={carrier} value={carrier}>
+                    {carrier}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">

@@ -1,13 +1,34 @@
 
 import { useState, useEffect } from "react";
 import { useCurrentUser } from "./useCurrentUser";
+import { CarrierType } from "@/types/users";
+
+interface AccountFormData {
+  fullName: string;
+  email: string;
+  mobileNumber: string;
+  phoneCarrier?: CarrierType;
+  businessNumber: string;
+  dealershipName: string;
+  licenseNumber: string;
+  dealershipAddress: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  subscriptionType: string;
+  cardNumber: string;
+  cardExpiry: string;
+  cardCvc: string;
+  cardName: string;
+}
 
 export const useAccountForm = () => {
   const { currentUser, isLoading } = useCurrentUser();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AccountFormData>({
     fullName: "",
     email: "",
     mobileNumber: "",
+    phoneCarrier: undefined,
     businessNumber: "",
     dealershipName: "",
     licenseNumber: "",
@@ -29,6 +50,7 @@ export const useAccountForm = () => {
         fullName: currentUser.full_name || "",
         email: currentUser.email || "",
         mobileNumber: currentUser.mobile_number || "",
+        phoneCarrier: currentUser.phone_carrier as CarrierType || undefined,
         businessNumber: currentUser.business_phone || "",
         dealershipName: currentUser.dealer_name || "",
         dealershipAddress: currentUser.address || "",
@@ -57,7 +79,7 @@ export const useAccountForm = () => {
     return phoneNumber;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     
     if (name === 'mobileNumber' || name === 'businessNumber') {
