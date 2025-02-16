@@ -4,14 +4,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import NotificationItem from "./NotificationItem";
+import { Notification } from "./types";
+import { toast } from "sonner";
 
 const NotificationList = () => {
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchNotifications();
-    subscribeToNotifications();
+    const unsubscribe = subscribeToNotifications();
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const fetchNotifications = async () => {
@@ -19,13 +25,42 @@ const NotificationList = () => {
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
+        .is('cleared_at', null)
         .order('created_at', { ascending: false })
         .limit(10);
 
       if (error) throw error;
-      setNotifications(data || []);
+      
+      // Validate and transform the data
+      const validNotifications = (data || []).map((notification): Notification => {
+        // Ensure content is properly structured
+        let parsedContent = notification.content;
+        if (typeof parsedContent === 'string') {
+          try {
+            parsedContent = JSON.parse(parsedContent);
+          } catch (e) {
+            console.error('Invalid notification content:', notification);
+            parsedContent = {};
+          }
+        }
+
+        return {
+          id: notification.id,
+          type: notification.type,
+          content: parsedContent,
+          created_at: notification.created_at,
+          read_at: notification.read_at,
+          cleared_at: notification.cleared_at,
+          user_id: notification.user_id,
+        };
+      });
+
+      setNotifications(validNotifications);
+      setError(null);
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setError('Failed to load notifications');
+      toast.error('Failed to load notifications');
     } finally {
       setLoading(false);
     }
@@ -42,7 +77,14 @@ const NotificationList = () => {
           table: 'notifications'
         },
         (payload) => {
-          setNotifications(prev => [payload.new, ...prev]);
+          try {
+            const newNotification = payload.new as Notification;
+            if (!newNotification.cleared_at) {
+              setNotifications(prev => [newNotification, ...prev]);
+            }
+          } catch (error) {
+            console.error('Error processing new notification:', error);
+          }
         }
       )
       .subscribe();
@@ -70,6 +112,7 @@ const NotificationList = () => {
       );
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      toast.error('Failed to mark notification as read');
     }
   };
 
@@ -81,11 +124,28 @@ const NotificationList = () => {
       setNotifications([]);
     } catch (error) {
       console.error('Error clearing notifications:', error);
+      toast.error('Failed to clear notifications');
     }
   };
 
   if (loading) {
     return <div className="p-4 text-center text-gray-500">Loading notifications...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-center text-red-500">
+        {error}
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={fetchNotifications}
+          className="mt-2"
+        >
+          Retry
+        </Button>
+      </div>
+    );
   }
 
   return (
