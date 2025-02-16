@@ -33,8 +33,8 @@ const Hero = () => {
       {/* Dark overlay for better contrast */}
       <div className="absolute inset-0 z-0 bg-black/30" />
       
-      {/* Gradient overlay for better text visibility */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent" />
+      {/* Single gradient overlay for smooth transition */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/40 to-black/60" />
       
       {/* Content */}
       <div className="relative z-10">
@@ -78,11 +78,6 @@ const Hero = () => {
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Bottom gradient decoration */}
-      <div className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
-        <div className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#325AE7]/30 to-[#325AE7]/30 opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" />
       </div>
     </div>
   );
