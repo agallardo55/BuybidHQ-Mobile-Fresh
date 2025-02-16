@@ -73,7 +73,7 @@ export const useBidRequests = () => {
           return {
             id: item.id,
             createdAt: item.created_at,
-            year: item.vehicles.year,
+            year: parseInt(item.vehicles.year) || 0, // Convert string to number
             make: item.vehicles.make,
             model: item.vehicles.model,
             trim: item.vehicles.trim,
