@@ -454,9 +454,15 @@ export type Database = {
           dealer_id: string | null
           dealer_name: string
           id: string
+          is_active: boolean | null
+          last_updated_at: string | null
+          last_updated_by: string | null
+          license_number: string | null
+          notes: string | null
           primary_assigned_at: string | null
           primary_user_id: string | null
           state: string | null
+          website: string | null
           zip_code: string | null
         }
         Insert: {
@@ -468,9 +474,15 @@ export type Database = {
           dealer_id?: string | null
           dealer_name: string
           id?: string
+          is_active?: boolean | null
+          last_updated_at?: string | null
+          last_updated_by?: string | null
+          license_number?: string | null
+          notes?: string | null
           primary_assigned_at?: string | null
           primary_user_id?: string | null
           state?: string | null
+          website?: string | null
           zip_code?: string | null
         }
         Update: {
@@ -482,12 +494,25 @@ export type Database = {
           dealer_id?: string | null
           dealer_name?: string
           id?: string
+          is_active?: boolean | null
+          last_updated_at?: string | null
+          last_updated_by?: string | null
+          license_number?: string | null
+          notes?: string | null
           primary_assigned_at?: string | null
           primary_user_id?: string | null
           state?: string | null
+          website?: string | null
           zip_code?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "dealerships_last_updated_by_fkey"
+            columns: ["last_updated_by"]
+            isOneToOne: false
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "dealerships_primary_user_id_fkey"
             columns: ["primary_user_id"]
