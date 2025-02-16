@@ -62,10 +62,7 @@ const BidRequestNavigation = () => {
                     Marketplace
                   </button>
                 </TooltipTrigger>
-                <TooltipContent 
-                  className="bg-white px-3 py-1.5 text-sm shadow-md rounded-md border z-50"
-                  sideOffset={5}
-                >
+                <TooltipContent sideOffset={5}>
                   <p className="font-bold whitespace-nowrap" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
                 </TooltipContent>
               </Tooltip>
@@ -105,3 +102,4 @@ const BidRequestNavigation = () => {
 };
 
 export default BidRequestNavigation;
+
