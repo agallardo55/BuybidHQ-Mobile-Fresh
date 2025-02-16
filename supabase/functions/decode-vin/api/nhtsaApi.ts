@@ -1,3 +1,4 @@
+
 import { VehicleData, NHTSAEngineData } from "../types.ts";
 import { fetchData } from "./fetchData.ts";
 import { formatNHTSAEngine } from "../engineUtils.ts";
@@ -32,7 +33,7 @@ export async function fetchNHTSAData(vin: string): Promise<VehicleData> {
     // Log all fields for debugging
     console.log('All NHTSA fields:');
     nhtsaData.Results.forEach(result => {
-      if (result?.Value && result.Value !== "Not Applicable") {
+      if (result?.Value) {
         console.log(`${result.Variable}: ${result.Value}`);
       }
     });
@@ -42,7 +43,7 @@ export async function fetchNHTSAData(vin: string): Promise<VehicleData> {
     
     // Process all other fields
     for (const result of nhtsaData.Results) {
-      if (result?.Value && result.Value !== "Not Applicable") {
+      if (result?.Value) {
         const value = result.Value;
         console.log(`Processing NHTSA field: ${result.Variable} = ${value}`);
         

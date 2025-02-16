@@ -30,6 +30,7 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
   // Enhance with CarAPI data if available
   if (carApiData) {
     const year = parseInt(carApiData.year?.toString() || nhtsaData.year || '');
+    console.log('Processing trim data with year:', year);
     
     // Year: Use CarAPI if available
     if (carApiData.year) {
@@ -48,11 +49,16 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
 
     // Trim: Use best match from CarAPI trims if available
     if (carApiData.trims && carApiData.trims.length > 0) {
+      console.log('Found CarAPI trims:', carApiData.trims);
       const bestTrim = findBestTrimMatch(carApiData.trims, year);
       if (bestTrim && (!mergedData.trim || bestTrim.length > mergedData.trim.length)) {
+        console.log('Using CarAPI trim:', bestTrim);
         mergedData.trim = bestTrim;
+      } else {
+        console.log('Keeping NHTSA trim:', mergedData.trim);
       }
     } else if (carApiData.trim) {
+      console.log('Using CarAPI single trim:', carApiData.trim);
       mergedData.trim = carApiData.trim;
     }
 
