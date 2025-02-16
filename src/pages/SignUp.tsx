@@ -10,9 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState<'personal' | 'dealership'>('personal');
   const [formData, setFormData] = useState({
     fullName: "",
@@ -29,15 +32,11 @@ const SignUp = () => {
   });
 
   const formatPhoneNumber = (value: string) => {
-    // Remove all non-digit characters
     const phoneNumber = value.replace(/\D/g, '');
     
-    // Format the number as (XXX) XXX-XXXX
     if (phoneNumber.length >= 10) {
       return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
     }
-    
-    // Partial formatting as user types
     if (phoneNumber.length > 6) {
       return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
     }
@@ -54,7 +53,6 @@ const SignUp = () => {
     const { name, value } = e.target;
     
     if (name === 'mobileNumber' || name === 'businessNumber') {
-      // Format phone numbers
       setFormData((prev) => ({
         ...prev,
         [name]: formatPhoneNumber(value),
@@ -74,15 +72,67 @@ const SignUp = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Sign up data:", formData);
-    navigate("/dashboard");
+    setIsSubmitting(true);
+
+    try {
+      // Sign up the user with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+          },
+        },
+      });
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (!authData.user) {
+        throw new Error('No user data returned');
+      }
+
+      // Create the user profile in the public.profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: authData.user.id,
+            full_name: formData.fullName,
+            mobile_number: formData.mobileNumber,
+            business_phone: formData.businessNumber,
+            dealer_name: formData.dealershipName,
+            dealer_id: formData.licenseNumber,
+            address: formData.dealershipAddress,
+            city: formData.city,
+            state: formData.state,
+            zip_code: formData.zipCode,
+          },
+        ]);
+
+      if (profileError) {
+        throw profileError;
+      }
+
+      toast.success("Account created successfully!");
+      // The AuthRoute component will automatically redirect to /dashboard
+      // since the user is now authenticated
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      toast.error(error.message || "Failed to create account");
+      setIsSubmitting(false);
+    }
   };
 
   const handleNext = () => {
     if (formData.fullName && formData.email && formData.password && formData.mobileNumber && formData.businessNumber) {
       setCurrentStep('dealership');
+    } else {
+      toast.error("Please fill in all required fields");
     }
   };
 
@@ -291,14 +341,16 @@ const SignUp = () => {
                   type="button"
                   onClick={handleBack}
                   className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  disabled={isSubmitting}
                 >
                   Back
                 </Button>
                 <Button
                   type="submit"
                   className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+                  disabled={isSubmitting}
                 >
-                  Sign up
+                  {isSubmitting ? "Creating Account..." : "Sign up"}
                 </Button>
               </div>
             </div>
@@ -319,4 +371,3 @@ const SignUp = () => {
 };
 
 export default SignUp;
-
