@@ -71,7 +71,7 @@ const Hero = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="text-lg px-8 py-6 hover:bg-accent hover:text-accent-foreground text-white border-white hover:border-accent w-full sm:w-auto backdrop-blur-[2px]"
+                  className="text-lg px-8 py-6 text-[#325AE7] hover:bg-[#325AE7] hover:text-white border-[#325AE7] w-full sm:w-auto backdrop-blur-[2px]"
                   onClick={scrollToHowItWorks}
                 >
                   Learn More
