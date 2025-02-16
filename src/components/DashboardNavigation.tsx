@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, Menu, X, LogOut } from "lucide-react";
@@ -5,6 +6,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const DashboardNavigation = () => {
   const navigate = useNavigate();
@@ -19,7 +26,6 @@ const DashboardNavigation = () => {
     { name: "Dashboard", href: "/dashboard" },
     { name: "Buyers", href: "/buyers" },
     ...(canAccessUsers ? [{ name: "Users", href: "/users" }] : []),
-    { name: "Marketplace", href: "#" },
   ];
 
   const handleNotificationsToggle = () => {
@@ -70,6 +76,21 @@ const DashboardNavigation = () => {
                   </Link>
                 </div>
               ))}
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button 
+                      className="text-gray-700 hover:text-accent transition-colors cursor-pointer"
+                      type="button"
+                    >
+                      Marketplace
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={5}>
+                    <p className="font-bold whitespace-nowrap" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
           
@@ -128,6 +149,22 @@ const DashboardNavigation = () => {
                 </Link>
               </div>
             ))}
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Marketplace
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent sideOffset={5}>
+                  <p className="font-bold whitespace-nowrap" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <div className="flex items-center space-x-4 px-3 py-2">
               <Link 
                 to="/account"
@@ -170,3 +207,4 @@ const DashboardNavigation = () => {
 };
 
 export default DashboardNavigation;
+
