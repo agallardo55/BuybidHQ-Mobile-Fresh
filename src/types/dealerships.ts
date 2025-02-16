@@ -18,6 +18,12 @@ export interface Dealership {
   last_updated_at: string | null;
   last_updated_by: string | null;
   created_at: string;
+  primary_dealer?: {
+    id: string;
+    full_name: string | null;
+    email: string;
+    mobile_number: string | null;
+  } | null;
 }
 
 export interface DealershipFormData {
