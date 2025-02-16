@@ -1037,6 +1037,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      batch_process_carrier_detection: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_processed: number
+          carriers_detected: number
+          carriers_by_type: Json
+        }[]
+      }
       can_access_bid_request: {
         Args: {
           checking_user_id: string
