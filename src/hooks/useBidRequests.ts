@@ -27,7 +27,6 @@ export const useBidRequests = () => {
             id,
             created_at,
             status,
-            highest_offer,
             vehicles (
               year,
               make,
@@ -53,6 +52,9 @@ export const useBidRequests = () => {
             ),
             buybidhq_users (
               full_name
+            ),
+            bid_responses (
+              offer_amount
             )
           `)
           .order('created_at', { ascending: false });
@@ -62,32 +64,39 @@ export const useBidRequests = () => {
           throw error;
         }
 
-        return data.map((item): BidRequest => ({
-          id: item.id,
-          createdAt: item.created_at,
-          year: item.vehicles.year,
-          make: item.vehicles.make,
-          model: item.vehicles.model,
-          trim: item.vehicles.trim,
-          vin: item.vehicles.vin,
-          mileage: parseInt(item.vehicles.mileage),
-          buyer: item.buybidhq_users.full_name,
-          highestOffer: item.highest_offer,
-          status: item.status,
-          engineCylinders: item.vehicles.engine,
-          transmission: item.vehicles.transmission,
-          drivetrain: item.vehicles.drivetrain,
-          exteriorColor: item.vehicles.exterior,
-          interiorColor: item.vehicles.interior,
-          accessories: item.vehicles.options,
-          windshield: item.reconditioning.windshield,
-          engineLights: item.reconditioning.engine_light,
-          brakes: item.reconditioning.brakes,
-          tire: item.reconditioning.tires,
-          maintenance: item.reconditioning.maintenance,
-          reconEstimate: item.reconditioning.recon_est,
-          reconDetails: item.reconditioning.recod_details
-        }));
+        return data.map((item): BidRequest => {
+          // Find the highest offer among all bid responses
+          const highestOffer = item.bid_responses?.length > 0
+            ? Math.max(...item.bid_responses.map(response => response.offer_amount))
+            : null;
+
+          return {
+            id: item.id,
+            createdAt: item.created_at,
+            year: item.vehicles.year,
+            make: item.vehicles.make,
+            model: item.vehicles.model,
+            trim: item.vehicles.trim,
+            vin: item.vehicles.vin,
+            mileage: parseInt(item.vehicles.mileage),
+            buyer: item.buybidhq_users.full_name,
+            highestOffer: highestOffer,
+            status: item.status,
+            engineCylinders: item.vehicles.engine,
+            transmission: item.vehicles.transmission,
+            drivetrain: item.vehicles.drivetrain,
+            exteriorColor: item.vehicles.exterior,
+            interiorColor: item.vehicles.interior,
+            accessories: item.vehicles.options,
+            windshield: item.reconditioning.windshield,
+            engineLights: item.reconditioning.engine_light,
+            brakes: item.reconditioning.brakes,
+            tire: item.reconditioning.tires,
+            maintenance: item.reconditioning.maintenance,
+            reconEstimate: item.reconditioning.recon_est,
+            reconDetails: item.reconditioning.recod_details
+          };
+        });
 
       } catch (error) {
         console.error("Error in bid requests query:", error);
@@ -97,7 +106,7 @@ export const useBidRequests = () => {
     },
     enabled: !!currentUser,
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 30 * 60 * 1000, // Keep data in cache for 30 minutes (renamed from cacheTime)
+    gcTime: 30 * 60 * 1000, // Keep data in cache for 30 minutes
   });
 
   const updateBidRequestMutation = useMutation({
