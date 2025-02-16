@@ -18,10 +18,10 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative overflow-hidden bg-white">
+    <div className="relative min-h-screen overflow-hidden bg-white">
       {/* Background Image with lighter overlay */}
       <div 
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 w-full h-full"
         style={{
           backgroundImage: 'url("/lovable-uploads/7714b9d3-7b2d-44ce-acb1-c667d628a989.png")',
           backgroundSize: 'cover',
@@ -31,14 +31,14 @@ const Hero = () => {
       />
       
       {/* Dark overlay for better contrast */}
-      <div className="absolute inset-0 z-0 bg-black/30" />
+      <div className="absolute inset-0 z-0 w-full h-full bg-black/30" />
       
       {/* Single gradient overlay for smooth transition */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-black/40 to-black/60" />
+      <div className="absolute inset-0 z-0 w-full h-full bg-gradient-to-b from-transparent via-black/40 to-black/60" />
       
       {/* Content */}
-      <div className="relative z-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center lg:pt-32">
+      <div className="relative z-10 flex items-center justify-center min-h-screen">
+        <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center lg:pt-32">
           <div className="mx-auto max-w-3xl">
             <div className="animate-fade-in">
               <span className="rounded-full bg-white/20 px-3 py-1 text-sm font-semibold leading-6 text-white ring-1 ring-inset ring-white/40 backdrop-blur-md">
