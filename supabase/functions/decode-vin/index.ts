@@ -85,91 +85,70 @@ function parseEngineFormat(specs: CarApiData['specs'], description?: string): st
   console.log('Parsing engine format with specs:', specs);
   console.log('Description:', description);
 
-  if (!specs) {
-    console.log('No specs available for engine parsing');
+  if (!specs && !description) {
+    console.log('No specs or description available for engine parsing');
     return '';
   }
 
-  // Engine configuration patterns
-  const enginePatterns = [
-    // Pattern for detailed engine specs in description
-    /(?:([VI]\d{1,2})|(\d{1,2})[\s-]*(cylinder|cyl))?\s*([\d.]+)L?\s*(Twin[-\s]?Turbo|Bi[-\s]?Turbo|Turbo|Supercharged|Hybrid)?/i,
-    // Pattern for simple displacement and cylinders
-    /([\d.]+)L?\s*(\d{1,2})\s*(?:cylinder|cyl)/i,
-    // Pattern for cylinder count only
-    /([VI]\d{1,2}|\d{1,2})\s*(?:cylinder|cyl)/i
-  ];
-
-  let engineInfo = {
-    displacement: specs.displacement_l || '',
-    cylinders: specs.engine_number_of_cylinders || '',
-    configuration: '',
-    forced: specs.turbo ? 'Turbo' : ''
-  };
-
-  // Try to extract from description first
+  // First try to parse from trim description as it's most detailed
   if (description) {
-    console.log('Attempting to parse engine info from description:', description);
-    for (const pattern of enginePatterns) {
-      const matches = description.match(pattern);
-      if (matches) {
-        console.log('Found engine matches in description:', matches);
-        
-        // Extract engine configuration (V or I)
-        if (matches[1] && matches[1].match(/^[VI]\d{1,2}/)) {
-          engineInfo.configuration = matches[1][0]; // Get V or I
-          engineInfo.cylinders = matches[1].slice(1); // Get cylinder count
-        } else if (matches[2]) {
-          engineInfo.cylinders = matches[2];
-        }
+    // Pattern to match format like "(2.0L 4cyl Turbo 7AM)" or "(3.6L 6cyl Turbo)"
+    const trimPattern = /\(([\d.]+)L\s+(\d+)cyl\s+(Turbo)?\s*\w*\)/i;
+    const matches = description.match(trimPattern);
+    
+    if (matches) {
+      console.log('Found engine matches in trim description:', matches);
+      const displacement = matches[1];
+      const cylinders = matches[2];
+      const forced = matches[3];
+      
+      // Determine engine configuration (V or I) based on cylinder count
+      const cylinderCount = parseInt(cylinders);
+      const configuration = cylinderCount > 4 ? 'V' : 'I';
+      
+      // Build the engine string
+      const parts = [
+        `${displacement}L`,
+        `${configuration}${cylinders}`,
+        forced
+      ].filter(Boolean); // Remove empty/undefined values
+      
+      const result = parts.join(' ');
+      console.log('Engine format from trim description:', result);
+      return result;
+    }
+  }
 
-        // Get displacement if present
-        if (matches[4]) {
-          engineInfo.displacement = matches[4];
-        }
-
-        // Get forced induction type if present
-        if (matches[5]) {
-          engineInfo.forced = matches[5];
-        }
-
-        break;
+  // Fallback to specs if description parsing failed
+  if (specs) {
+    const parts = [];
+    
+    // Add displacement if available
+    if (specs.displacement_l) {
+      parts.push(`${specs.displacement_l}L`);
+    }
+    
+    // Add cylinder configuration and count if available
+    if (specs.engine_number_of_cylinders) {
+      const cylinderCount = parseInt(specs.engine_number_of_cylinders);
+      if (!isNaN(cylinderCount)) {
+        // Use V for 6+ cylinders, I for 4 or less
+        const configuration = cylinderCount > 4 ? 'V' : 'I';
+        parts.push(`${configuration}${cylinderCount}`);
       }
     }
-  }
-
-  // If no configuration is found, determine based on cylinder count
-  if (!engineInfo.configuration && engineInfo.cylinders) {
-    const cylinderCount = parseInt(engineInfo.cylinders);
-    if (!isNaN(cylinderCount)) {
-      engineInfo.configuration = cylinderCount > 4 ? 'V' : 'I';
+    
+    // Add forced induction info
+    if (specs.turbo) {
+      parts.push('Turbo');
     }
+    
+    const result = parts.join(' ');
+    console.log('Engine format from specs:', result);
+    return result;
   }
 
-  // Format the engine string
-  const parts: string[] = [];
-
-  // Add displacement if available
-  if (engineInfo.displacement) {
-    parts.push(`${engineInfo.displacement}L`);
-  }
-
-  // Add cylinder configuration and count if available
-  if (engineInfo.cylinders) {
-    const cylinderCount = parseInt(engineInfo.cylinders);
-    if (!isNaN(cylinderCount)) {
-      parts.push(`${engineInfo.configuration || (cylinderCount > 4 ? 'V' : 'I')}${cylinderCount}`);
-    }
-  }
-
-  // Add forced induction type if available
-  if (engineInfo.forced) {
-    parts.push(engineInfo.forced);
-  }
-
-  const result = parts.join(' ');
-  console.log('Final engine format:', result);
-  return result;
+  return '';
 }
 
 async function fetchData<T>(url: string, options?: RequestInit): Promise<T | null> {
@@ -270,39 +249,31 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
   console.log('NHTSA data:', nhtsaData);
   console.log('CarAPI data:', carApiData);
 
-  const essentialFields = ['year', 'make', 'model'];
-  const hasEssentialNHTSA = essentialFields.every(field => nhtsaData[field as keyof VehicleData]);
-
   // If CarAPI data is available, use it as primary source
   if (carApiData) {
-    // Get the best matching trim
+    // Get the best matching trim and its description
     const year = parseInt(carApiData.year?.toString() || nhtsaData.year || '');
     const bestTrim = carApiData.trims ? findBestTrimMatch(carApiData.trims, year) : '';
-
-    // Get trim description for engine details
     const trimData = carApiData.trims?.find(t => t.name === bestTrim);
-    const engineFormat = parseEngineFormat(carApiData.specs, trimData?.description);
+    
+    // Use the trim description for engine format if available
+    const engineFormat = parseEngineFormat(
+      carApiData.specs,
+      trimData?.description || undefined
+    );
 
     return {
       year: carApiData.year?.toString() || nhtsaData.year || '',
       make: carApiData.make || nhtsaData.make || '',
       model: carApiData.model || nhtsaData.model || '',
       trim: bestTrim || nhtsaData.trim || '',
-      engineCylinders: engineFormat || parseEngineFormat({ engine_number_of_cylinders: nhtsaData.engineCylinders }) || '',
+      engineCylinders: engineFormat || '',
       transmission: carApiData.specs?.transmission || nhtsaData.transmission || '',
       drivetrain: carApiData.specs?.drive_type || nhtsaData.drivetrain || ''
     };
   }
 
-  // If no CarAPI data but NHTSA has essential fields, format the engine data
-  if (hasEssentialNHTSA) {
-    return {
-      ...nhtsaData,
-      engineCylinders: parseEngineFormat({ engine_number_of_cylinders: nhtsaData.engineCylinders }) || ''
-    };
-  }
-
-  // If neither source has complete data, return what we have from NHTSA with formatted engine
+  // Fallback to NHTSA data with formatted engine
   return {
     ...nhtsaData,
     engineCylinders: parseEngineFormat({ engine_number_of_cylinders: nhtsaData.engineCylinders }) || ''
