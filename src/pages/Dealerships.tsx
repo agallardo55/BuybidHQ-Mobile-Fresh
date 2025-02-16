@@ -33,11 +33,14 @@ const Dealerships = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { dealerships, total, isLoading } = useDealershipsQuery({
+  const { data, isLoading } = useDealershipsQuery({
     pageSize,
     currentPage,
     searchTerm,
   });
+
+  const dealerships = data?.dealerships || [];
+  const total = data?.total || 0;
 
   const mutations = useDealershipMutations();
 
