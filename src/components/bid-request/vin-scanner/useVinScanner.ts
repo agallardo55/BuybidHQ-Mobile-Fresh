@@ -24,6 +24,15 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
     }
   };
 
+  const tryGetUserMedia = async (constraints: MediaStreamConstraints): Promise<MediaStream | null> => {
+    try {
+      return await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (error) {
+      console.error('getUserMedia error:', error);
+      return null;
+    }
+  };
+
   const startScan = async () => {
     try {
       setIsScanning(true);
@@ -32,30 +41,49 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
         codeReader.current = new BrowserMultiFormatReader();
       }
 
-      const constraints = {
+      // Try with environment camera first
+      let stream = await tryGetUserMedia({
         video: { 
-          facingMode: { exact: 'environment' }, // Force rear camera
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          aspectRatio: { ideal: 16/9 }
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
         }
-      };
+      });
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      // If that fails, try with any camera
+      if (!stream) {
+        stream = await tryGetUserMedia({
+          video: true
+        });
+      }
+
+      // If still no stream, show error
+      if (!stream) {
+        throw new Error("Could not access any camera");
+      }
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
 
+      // Start decoding from video element
       const result = await codeReader.current.decodeFromVideoElement(videoRef.current!);
       
       if (result) {
         handleScannedResult(result);
       }
-    } catch (error) {
+    } catch (error: any) {
       if (isScanning) { // Only show error if we haven't cancelled
         console.error('Scanning error:', error);
-        toast.error("Failed to start scanner. Please check camera permissions.");
+        let errorMessage = "Failed to start scanner.";
+        if (error.name === 'NotAllowedError') {
+          errorMessage += " Please check camera permissions.";
+        } else if (error.name === 'NotFoundError') {
+          errorMessage += " No camera found.";
+        } else if (error.name === 'NotReadableError') {
+          errorMessage += " Camera may be in use by another application.";
+        }
+        toast.error(errorMessage);
       }
       cleanupScanner();
       setIsScanning(false);
