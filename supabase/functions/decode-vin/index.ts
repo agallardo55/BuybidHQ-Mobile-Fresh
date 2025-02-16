@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { VehicleData, CarApiData } from "./types.ts";
 import { fetchNHTSAData, fetchCarApiData } from "./apiUtils.ts";
@@ -30,7 +31,7 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
   if (carApiData) {
     const year = parseInt(carApiData.year?.toString() || nhtsaData.year || '');
     
-    // Year: Use CarAPI if available and valid
+    // Year: Use CarAPI if available
     if (carApiData.year) {
       mergedData.year = carApiData.year.toString();
     }
@@ -196,3 +197,4 @@ serve(async (req) => {
     );
   }
 });
+
