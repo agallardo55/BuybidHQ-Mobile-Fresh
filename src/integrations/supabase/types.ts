@@ -263,6 +263,10 @@ export type Database = {
           is_active: boolean | null
           mobile_number: string | null
           password_hash: string | null
+          phone_carrier: string | null
+          phone_type: string | null
+          phone_validated: boolean | null
+          phone_validation_date: string | null
           profile_photo: string | null
           role: Database["public"]["Enums"]["user_role"]
           state: string | null
@@ -286,6 +290,10 @@ export type Database = {
           is_active?: boolean | null
           mobile_number?: string | null
           password_hash?: string | null
+          phone_carrier?: string | null
+          phone_type?: string | null
+          phone_validated?: boolean | null
+          phone_validation_date?: string | null
           profile_photo?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           state?: string | null
@@ -309,6 +317,10 @@ export type Database = {
           is_active?: boolean | null
           mobile_number?: string | null
           password_hash?: string | null
+          phone_carrier?: string | null
+          phone_type?: string | null
+          phone_validated?: boolean | null
+          phone_validation_date?: string | null
           profile_photo?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           state?: string | null
