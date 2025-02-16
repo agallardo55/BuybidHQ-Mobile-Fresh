@@ -37,6 +37,38 @@ interface CarApiData {
   trims?: CarApiTrim[];
 }
 
+interface NHTSAEngineData {
+  displacement: string;
+  cylinders: string;
+  configuration: string;
+  turbo: boolean;
+}
+
+function formatNHTSAEngine(engineData: NHTSAEngineData): string {
+  if (!engineData.cylinders) return '';
+
+  const parts = [];
+
+  // Add displacement if available (e.g., "3.5L")
+  if (engineData.displacement) {
+    parts.push(`${engineData.displacement}L`);
+  }
+
+  // Add configuration and cylinders (e.g., "V6")
+  const config = engineData.configuration === 'V-Shaped' ? 'V' : 
+                 engineData.configuration === 'Inline' ? 'I' : '';
+  if (config || engineData.cylinders) {
+    parts.push(`${config}${engineData.cylinders}`);
+  }
+
+  // Add turbo if present
+  if (engineData.turbo) {
+    parts.push('Turbo');
+  }
+
+  return parts.join(' ');
+}
+
 function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number): string {
   if (!trims || trims.length === 0) {
     console.log('No trims available for matching');
@@ -196,6 +228,14 @@ async function fetchNHTSAData(vin: string): Promise<VehicleData> {
     drivetrain: ''
   };
 
+  // Collect engine data as we process the results
+  const engineData: NHTSAEngineData = {
+    displacement: '',
+    cylinders: '',
+    configuration: '',
+    turbo: false
+  };
+
   if (nhtsaData?.Results) {
     for (const result of nhtsaData.Results) {
       if (result?.Value && result.Value !== "Not Applicable") {
@@ -214,7 +254,16 @@ async function fetchNHTSAData(vin: string): Promise<VehicleData> {
             vehicleData.trim = result.Value;
             break;
           case 'Engine Number of Cylinders':
-            vehicleData.engineCylinders = result.Value;
+            engineData.cylinders = result.Value;
+            break;
+          case 'Engine Configuration':
+            engineData.configuration = result.Value;
+            break;
+          case 'Displacement (L)':
+            engineData.displacement = result.Value;
+            break;
+          case 'Turbo':
+            engineData.turbo = result.Value === 'Yes';
             break;
           case 'Transmission Style':
             vehicleData.transmission = result.Value;
@@ -226,6 +275,10 @@ async function fetchNHTSAData(vin: string): Promise<VehicleData> {
       }
     }
   }
+
+  // Format engine data
+  vehicleData.engineCylinders = formatNHTSAEngine(engineData);
+  console.log('Formatted engine data:', vehicleData.engineCylinders);
 
   return vehicleData;
 }
