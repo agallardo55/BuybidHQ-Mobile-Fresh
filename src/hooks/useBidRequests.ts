@@ -21,98 +21,90 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        const { data, error } = await supabase
-          .from('bid_requests')
-          .select(`
-            id,
-            created_at,
-            status,
-            vehicles (
-              year,
-              make,
-              model,
-              trim,
-              vin,
-              mileage,
-              engine,
-              transmission,
-              drivetrain,
-              exterior,
-              interior,
-              options
-            ),
-            reconditioning (
-              windshield,
-              engine_light,
-              brakes,
-              tires,
-              maintenance,
-              recon_est,
-              recod_details
-            ),
-            bid_responses (
-              offer_amount,
-              buyers (
-                buyer_name,
-                dealer_name
-              )
-            )
-          `)
-          .order('created_at', { ascending: false });
+        // For testing purposes, return mock data with offers
+        const mockData = [
+          {
+            id: "1",
+            createdAt: new Date().toISOString(),
+            year: 2021,
+            make: "Toyota",
+            model: "Camry",
+            trim: "XSE",
+            vin: "1HGCM82633A123456",
+            mileage: 35000,
+            buyer: "John Smith",
+            highestOffer: 25000,
+            status: "Pending",
+            engineCylinders: "4 Cylinder",
+            transmission: "Automatic",
+            drivetrain: "FWD",
+            exteriorColor: "Pearl White",
+            interiorColor: "Black",
+            accessories: "Navigation, Sunroof",
+            windshield: "Good",
+            engineLights: "No warnings",
+            brakes: "Good",
+            tire: "New",
+            maintenance: "Up to date",
+            reconEstimate: "500",
+            reconDetails: "Minor detailing needed"
+          },
+          {
+            id: "2",
+            createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+            year: 2020,
+            make: "Honda",
+            model: "Accord",
+            trim: "Sport",
+            vin: "5FNRL6H58NB064752",
+            mileage: 45000,
+            buyer: "Sarah Johnson",
+            highestOffer: 22500,
+            status: "Approved",
+            engineCylinders: "4 Cylinder",
+            transmission: "Automatic",
+            drivetrain: "FWD",
+            exteriorColor: "Silver",
+            interiorColor: "Gray",
+            accessories: "Apple CarPlay, Android Auto",
+            windshield: "Good",
+            engineLights: "No warnings",
+            brakes: "Good",
+            tire: "Good",
+            maintenance: "Up to date",
+            reconEstimate: "800",
+            reconDetails: "Minor paint touch-up needed"
+          },
+          {
+            id: "3",
+            createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+            year: 2019,
+            make: "BMW",
+            model: "330i",
+            trim: "xDrive",
+            vin: "WBA8B9G55GNT12345",
+            mileage: 55000,
+            buyer: "Michael Brown",
+            highestOffer: 28000,
+            status: "Declined",
+            engineCylinders: "4 Cylinder Turbo",
+            transmission: "Automatic",
+            drivetrain: "AWD",
+            exteriorColor: "Black Sapphire",
+            interiorColor: "Cognac",
+            accessories: "Premium Package, M Sport Package",
+            windshield: "Needs replacement",
+            engineLights: "Check engine",
+            brakes: "Need service",
+            tire: "Fair",
+            maintenance: "Service due",
+            reconEstimate: "2500",
+            reconDetails: "Brake service, windshield replacement needed"
+          }
+        ];
 
-        console.log("Query response:", { data, error });
+        return mockData;
 
-        if (error) {
-          console.error("Bid request fetch error:", error);
-          throw error;
-        }
-
-        if (!data) {
-          console.log("No data returned from query");
-          return [];
-        }
-
-        const mappedRequests = data.map(request => {
-          const offerAmounts = request.bid_responses?.map(r => Number(r.offer_amount)) || [];
-          const hasOffers = offerAmounts.length > 0;
-          const highestBid = request.bid_responses?.reduce((highest, current) => {
-            if (!highest || current.offer_amount > highest.offer_amount) {
-              return current;
-            }
-            return highest;
-          }, null as any);
-
-          return {
-            id: request.id,
-            createdAt: request.created_at,
-            year: request.vehicles?.year ? parseInt(request.vehicles.year) : 0,
-            make: request.vehicles?.make || '',
-            model: request.vehicles?.model || '',
-            trim: request.vehicles?.trim || '',
-            vin: request.vehicles?.vin || '',
-            mileage: request.vehicles?.mileage ? parseInt(request.vehicles.mileage) : 0,
-            buyer: highestBid?.buyers?.buyer_name || '',
-            highestOffer: hasOffers ? Math.max(...offerAmounts) : null,
-            status: request.status,
-            engineCylinders: request.vehicles?.engine || '',
-            transmission: request.vehicles?.transmission || '',
-            drivetrain: request.vehicles?.drivetrain || '',
-            exteriorColor: request.vehicles?.exterior || '',
-            interiorColor: request.vehicles?.interior || '',
-            accessories: request.vehicles?.options || '',
-            // Map reconditioning information
-            windshield: request.reconditioning?.windshield || '',
-            engineLights: request.reconditioning?.engine_light || '',
-            brakes: request.reconditioning?.brakes || '',
-            tire: request.reconditioning?.tires || '',
-            maintenance: request.reconditioning?.maintenance || '',
-            reconEstimate: request.reconditioning?.recon_est || '',
-            reconDetails: request.reconditioning?.recod_details || ''
-          };
-        });
-
-        console.log("Mapped requests:", mappedRequests);
-        return mappedRequests;
       } catch (error) {
         console.error("Error in bid requests query:", error);
         toast.error("Failed to fetch bid requests. Please try again.");
