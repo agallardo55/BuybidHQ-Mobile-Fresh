@@ -18,7 +18,13 @@ const BidRequestDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'createdAt', direction: 'desc' });
-  const { bidRequests, isLoading, updateBidRequest } = useBidRequests();
+  const { bidRequests = [], isLoading, updateBidRequest } = useBidRequests();
+
+  // Reset to first page when search term changes
+  const handleSearchChange = (newSearchTerm: string) => {
+    setSearchTerm(newSearchTerm);
+    setCurrentPage(1);
+  };
 
   const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
     updateBidRequest({ id, status: newStatus });
@@ -38,7 +44,7 @@ const BidRequestDashboard = () => {
   };
 
   const sortRequests = (requests: BidRequest[]) => {
-    if (!sortConfig.field || !sortConfig.direction) {
+    if (!requests || !sortConfig.field || !sortConfig.direction) {
       return requests;
     }
 
@@ -114,7 +120,7 @@ const BidRequestDashboard = () => {
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <SearchHeader 
               searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
+              setSearchTerm={handleSearchChange}
             />
             
             {isLoading ? (
@@ -128,15 +134,17 @@ const BidRequestDashboard = () => {
                   onSort={handleSort}
                 />
 
-                <TableFooter
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  pageSize={pageSize}
-                  totalItems={sortedRequests.length}
-                  onPageChange={setCurrentPage}
-                  onPageSizeChange={handlePageSizeChange}
-                  getPageNumbers={getPageNumbers}
-                />
+                {sortedRequests.length > 0 && (
+                  <TableFooter
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    pageSize={pageSize}
+                    totalItems={sortedRequests.length}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={handlePageSizeChange}
+                    getPageNumbers={getPageNumbers}
+                  />
+                )}
               </>
             )}
           </div>
