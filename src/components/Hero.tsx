@@ -19,22 +19,22 @@ const Hero = () => {
 
   return (
     <div className="relative overflow-hidden bg-white">
-      {/* Background Image with darker overlay */}
+      {/* Background Image with lighter overlay */}
       <div 
         className="absolute inset-0 z-0"
         style={{
           backgroundImage: 'url("/lovable-uploads/94134d83-efce-4155-94dd-82f3fc460e65.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'brightness(0.5)',
+          filter: 'brightness(0.6)',
         }}
       />
       
       {/* Dark overlay for better contrast */}
-      <div className="absolute inset-0 z-0 bg-black/40" />
+      <div className="absolute inset-0 z-0 bg-black/30" />
       
       {/* Gradient overlay for better text visibility */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/70 via-black/50 to-transparent" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent" />
       
       {/* Content */}
       <div className="relative z-10">
