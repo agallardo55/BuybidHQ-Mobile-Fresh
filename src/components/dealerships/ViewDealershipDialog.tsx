@@ -60,6 +60,30 @@ const ViewDealershipDialog = ({
                 </div>
               </div>
             </div>
+
+            <div>
+              <h3 className="font-semibold mb-1">Primary Dealer</h3>
+              <div className="grid grid-cols-1 gap-2">
+                <div>
+                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="text-sm">
+                    {dealership.primary_dealer?.full_name || 'Not Assigned'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="text-sm">
+                    {dealership.primary_dealer?.email || 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="text-sm">
+                    {dealership.primary_dealer?.mobile_number || 'N/A'}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-4">

@@ -460,6 +460,9 @@ export type Database = {
           license_number: string | null
           notes: string | null
           primary_assigned_at: string | null
+          primary_dealer_email: string | null
+          primary_dealer_name: string | null
+          primary_dealer_phone: string | null
           primary_user_id: string | null
           state: string | null
           website: string | null
@@ -480,6 +483,9 @@ export type Database = {
           license_number?: string | null
           notes?: string | null
           primary_assigned_at?: string | null
+          primary_dealer_email?: string | null
+          primary_dealer_name?: string | null
+          primary_dealer_phone?: string | null
           primary_user_id?: string | null
           state?: string | null
           website?: string | null
@@ -500,6 +506,9 @@ export type Database = {
           license_number?: string | null
           notes?: string | null
           primary_assigned_at?: string | null
+          primary_dealer_email?: string | null
+          primary_dealer_name?: string | null
+          primary_dealer_phone?: string | null
           primary_user_id?: string | null
           state?: string | null
           website?: string | null
