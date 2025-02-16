@@ -264,7 +264,7 @@ export type Database = {
           mobile_number: string | null
           password_hash: string | null
           phone_carrier: string | null
-          phone_type: string | null
+          phone_type: Database["public"]["Enums"]["phone_number_type"] | null
           phone_validated: boolean | null
           phone_validation_date: string | null
           profile_photo: string | null
@@ -291,7 +291,7 @@ export type Database = {
           mobile_number?: string | null
           password_hash?: string | null
           phone_carrier?: string | null
-          phone_type?: string | null
+          phone_type?: Database["public"]["Enums"]["phone_number_type"] | null
           phone_validated?: boolean | null
           phone_validation_date?: string | null
           profile_photo?: string | null
@@ -318,7 +318,7 @@ export type Database = {
           mobile_number?: string | null
           password_hash?: string | null
           phone_carrier?: string | null
-          phone_type?: string | null
+          phone_type?: Database["public"]["Enums"]["phone_number_type"] | null
           phone_validated?: boolean | null
           phone_validation_date?: string | null
           profile_photo?: string | null
@@ -690,39 +690,51 @@ export type Database = {
       }
       phone_validation_batch_results: {
         Row: {
+          area_code: string | null
           batch_id: string | null
           carrier: string | null
           formatted_number: string | null
           id: string
+          is_mobile: boolean | null
           is_valid: boolean | null
+          number_type: string | null
           original_number: string | null
           status: string | null
           user_id: string | null
           validation_date: string | null
+          validation_details: Json | null
           validation_error: string | null
         }
         Insert: {
+          area_code?: string | null
           batch_id?: string | null
           carrier?: string | null
           formatted_number?: string | null
           id?: string
+          is_mobile?: boolean | null
           is_valid?: boolean | null
+          number_type?: string | null
           original_number?: string | null
           status?: string | null
           user_id?: string | null
           validation_date?: string | null
+          validation_details?: Json | null
           validation_error?: string | null
         }
         Update: {
+          area_code?: string | null
           batch_id?: string | null
           carrier?: string | null
           formatted_number?: string | null
           id?: string
+          is_mobile?: boolean | null
           is_valid?: boolean | null
+          number_type?: string | null
           original_number?: string | null
           status?: string | null
           user_id?: string | null
           validation_date?: string | null
+          validation_details?: Json | null
           validation_error?: string | null
         }
         Relationships: [
@@ -1272,6 +1284,12 @@ export type Database = {
         | "bid_response"
         | "bid_accepted"
         | "bid_declined"
+      phone_number_type:
+        | "mobile"
+        | "landline"
+        | "voip"
+        | "toll_free"
+        | "unknown"
       user_role: "basic" | "individual" | "dealer" | "associate" | "admin"
       user_role_old: "admin" | "dealer" | "associate"
     }
