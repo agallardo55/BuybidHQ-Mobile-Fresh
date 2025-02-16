@@ -19,6 +19,7 @@ interface UserData {
   dealer_name: string | null;
   business_phone: string | null;
   business_email: string | null;
+  phone_carrier: string | null;
 }
 
 export const useCurrentUser = () => {
