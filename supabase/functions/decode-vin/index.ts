@@ -6,6 +6,34 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+function formatEngineData(engineSize?: string | number, engineCylinders?: string | number, forced?: string): string {
+  const parts: string[] = []
+  
+  // Format displacement
+  if (engineSize) {
+    parts.push(`${engineSize}L`)
+  }
+  
+  // Format cylinders
+  if (engineCylinders) {
+    // Check if it's already formatted (like "V6" or "I4")
+    const cylinderStr = engineCylinders.toString()
+    if (cylinderStr.match(/^[IV]\d+$/)) {
+      parts.push(cylinderStr)
+    } else {
+      // Format as "X-Cylinder"
+      parts.push(`${cylinderStr}-Cylinder`)
+    }
+  }
+  
+  // Add forced induction info if present
+  if (forced) {
+    parts.push(forced)
+  }
+  
+  return parts.join(' ')
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -71,6 +99,7 @@ serve(async (req) => {
                 vehicleData.model = result.Value
                 break
               case 'Trim':
+                console.log('NHTSA Trim value:', result.Value)
                 vehicleData.trim = result.Value
                 break
               case 'Engine Number of Cylinders':
@@ -128,16 +157,29 @@ serve(async (req) => {
 
               if (carApiData?.data) {
                 const data = carApiData.data
+                
+                // Log trim value from CarAPI
+                console.log('CarAPI Trim value:', data.trim)
+                
+                const formattedEngine = formatEngineData(
+                  data.engine_size,
+                  data.engine_cylinders,
+                  data.forced_induction
+                )
+                
                 vehicleData = {
                   year: vehicleData.year || (data.year?.toString() || ''),
                   make: vehicleData.make || (data.make || ''),
                   model: vehicleData.model || (data.model || ''),
                   trim: vehicleData.trim || (data.trim || ''),
-                  engineCylinders: vehicleData.engineCylinders || 
-                    `${data.engine_size || ''} ${data.engine_cylinders || ''}`.trim() || '',
+                  engineCylinders: vehicleData.engineCylinders || formattedEngine,
                   transmission: vehicleData.transmission || (data.transmission || ''),
                   drivetrain: vehicleData.drivetrain || (data.drive_type || '')
                 }
+                
+                // Log final trim and engine values
+                console.log('Final trim value:', vehicleData.trim)
+                console.log('Final engine value:', vehicleData.engineCylinders)
               } else {
                 console.warn('No data object in CarAPI response')
               }
