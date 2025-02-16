@@ -22,7 +22,7 @@ export const useBidRequests = () => {
         console.log("Current user role:", currentUser?.role);
 
         // For testing purposes, return mock data with offers
-        const mockData = [
+        const mockData: BidRequest[] = [
           {
             id: "1",
             createdAt: new Date().toISOString(),
@@ -34,7 +34,7 @@ export const useBidRequests = () => {
             mileage: 35000,
             buyer: "John Smith",
             highestOffer: 25000,
-            status: "Pending",
+            status: "Pending" as const,
             engineCylinders: "4 Cylinder",
             transmission: "Automatic",
             drivetrain: "FWD",
@@ -60,7 +60,7 @@ export const useBidRequests = () => {
             mileage: 45000,
             buyer: "Sarah Johnson",
             highestOffer: 22500,
-            status: "Approved",
+            status: "Approved" as const,
             engineCylinders: "4 Cylinder",
             transmission: "Automatic",
             drivetrain: "FWD",
@@ -86,7 +86,7 @@ export const useBidRequests = () => {
             mileage: 55000,
             buyer: "Michael Brown",
             highestOffer: 28000,
-            status: "Declined",
+            status: "Declined" as const,
             engineCylinders: "4 Cylinder Turbo",
             transmission: "Automatic",
             drivetrain: "AWD",
