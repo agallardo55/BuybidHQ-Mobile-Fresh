@@ -7,15 +7,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const ContactUs = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [captchaValue, setCaptchaValue] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!captchaValue) {
       toast({
@@ -25,31 +27,40 @@ const ContactUs = () => {
       });
       return;
     }
-    // In a real application, you would handle form submission here
-    console.log("Form submitted:", { name, email, message, captchaValue });
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-contact-email', {
+        body: { name, email, message }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message sent successfully",
+        description: "We'll get back to you as soon as possible.",
+      });
+
+      // Reset form
+      setName("");
+      setEmail("");
+      setMessage("");
+      setCaptchaValue(null);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        variant: "destructive",
+        title: "Error sending message",
+        description: "Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCaptchaChange = (value: string | null) => {
     setCaptchaValue(value);
   };
-
-  const contactMethods = [
-    {
-      icon: <Phone className="w-6 h-6 text-accent" />,
-      title: "Phone",
-      details: "+1 (555) 000-0000",
-    },
-    {
-      icon: <Mail className="w-6 h-6 text-accent" />,
-      title: "Email",
-      details: "contact@example.com",
-    },
-    {
-      icon: <MessageSquare className="w-6 h-6 text-accent" />,
-      title: "Live Chat",
-      details: "Available 24/7",
-    },
-  ];
 
   return (
     <section id="contact" className="py-24 bg-secondary">
@@ -59,23 +70,7 @@ const ContactUs = () => {
           <p className="mt-4 text-lg text-gray-600">Get in touch with our team for any questions or support</p>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-12 items-start max-w-5xl mx-auto">
-          <div className="space-y-8">
-            <div className="grid gap-6">
-              {contactMethods.map((method, index) => (
-                <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
-                  <div className="p-2 bg-accent/10 rounded-full">
-                    {method.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary">{method.title}</h3>
-                    <p className="text-gray-600">{method.details}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
+        <div className="max-w-2xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
@@ -115,8 +110,12 @@ const ContactUs = () => {
                 onChange={handleCaptchaChange}
               />
             </div>
-            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-              Send Message
+            <Button 
+              type="submit" 
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Send Message"}
             </Button>
           </form>
         </div>
