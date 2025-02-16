@@ -18,10 +18,10 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black backface-hidden">
+    <div className="relative h-[70vh] overflow-hidden bg-black backface-hidden">
       {/* Background Image Container */}
       <div 
-        className="absolute inset-0 z-0 w-full min-h-screen transform-gpu backface-hidden"
+        className="absolute inset-0 z-0 w-full h-full transform-gpu backface-hidden"
         style={{
           backgroundImage: 'url("/lovable-uploads/7714b9d3-7b2d-44ce-acb1-c667d628a989.png")',
           backgroundSize: 'cover',
@@ -31,14 +31,14 @@ const Hero = () => {
       />
       
       {/* Dark overlay */}
-      <div className="absolute inset-0 z-10 w-full min-h-screen bg-black/30 backface-hidden" />
+      <div className="absolute inset-0 z-10 w-full h-full bg-black/30 backface-hidden" />
       
       {/* Gradient overlay */}
-      <div className="absolute inset-0 z-20 w-full min-h-screen bg-gradient-to-b from-transparent via-black/40 to-black/60 backface-hidden" />
+      <div className="absolute inset-0 z-20 w-full h-full bg-gradient-to-b from-transparent via-black/40 to-black/60 backface-hidden" />
       
       {/* Content */}
-      <div className="absolute inset-0 z-30 w-full min-h-screen">
-        <div className="min-h-screen flex items-center">
+      <div className="absolute inset-0 z-30 w-full h-full">
+        <div className="h-full flex items-center">
           <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center lg:pt-32">
             <div className="mx-auto max-w-3xl">
               <div className="animate-fade-in">
@@ -63,7 +63,7 @@ const Hero = () => {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6 animate-slide-in" style={{ animationDelay: "0.4s" }}>
                 <Button 
-                  className="bg-[#325AE7] hover:bg-[#325AE7]/90 text-lg px-8 py-6 w-full sm:w-auto shadow-lg"
+                  className="bg-[#325AE7] hover:bg-[#325AE7]/70 text-lg px-8 py-6 w-full sm:w-auto shadow-lg transition-colors duration-200"
                   onClick={scrollToPricing}
                 >
                   Get Started
@@ -71,7 +71,7 @@ const Hero = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="text-lg px-8 py-6 text-[#325AE7] hover:bg-[#325AE7] hover:text-white border-[#325AE7] w-full sm:w-auto backdrop-blur-[2px]"
+                  className="text-lg px-8 py-6 text-[#325AE7] hover:bg-[#325AE7]/20 hover:text-[#325AE7] border-[#325AE7] w-full sm:w-auto backdrop-blur-[2px] transition-colors duration-200"
                   onClick={scrollToHowItWorks}
                 >
                   Learn More
