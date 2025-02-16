@@ -2,6 +2,9 @@
 // Database User Role type matching Supabase enum
 export type UserRole = 'basic' | 'individual' | 'dealer' | 'associate' | 'admin';
 
+// Carrier type for mobile providers
+export type CarrierType = 'Verizon Wireless' | 'AT&T' | 'T-Mobile' | 'Sprint' | 'US Cellular' | 'Metro PCS' | 'Boost Mobile' | 'Cricket' | 'Virgin Mobile';
+
 // Base user interface matching database schema
 export interface BaseUser {
   id: string;
@@ -20,6 +23,8 @@ export interface BaseUser {
   created_at?: string;
   updated_at?: string | null;
   deleted_at?: string | null;
+  phone_carrier: string | null;
+  phone_validated: boolean;
 }
 
 // Dealership interface matching database schema
@@ -57,6 +62,8 @@ export interface UserFormData {
   dealershipId?: string;
   isActive: boolean;
   isPrimaryDealer?: boolean;
+  phoneCarrier?: string;
+  phoneValidated?: boolean;
 }
 
 export interface DealershipFormData {
@@ -93,7 +100,9 @@ export const transformDatabaseUser = (dbUser: BaseUser): UserFormData => {
     state: dbUser.state || '',
     zipCode: dbUser.zip_code || '',
     dealershipId: dbUser.dealership_id || undefined,
-    isActive: dbUser.is_active
+    isActive: dbUser.is_active,
+    phoneCarrier: dbUser.phone_carrier || undefined,
+    phoneValidated: dbUser.phone_validated
   };
 };
 
@@ -109,6 +118,9 @@ export const transformFormUser = (formData: UserFormData): Partial<BaseUser> => 
     state: formData.state || null,
     zip_code: formData.zipCode || null,
     dealership_id: formData.dealershipId || null,
-    is_active: formData.isActive
+    is_active: formData.isActive,
+    phone_carrier: formData.phoneCarrier || null,
+    phone_validated: formData.phoneValidated || false
   };
 };
+
