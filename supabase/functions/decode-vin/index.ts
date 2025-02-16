@@ -1,300 +1,12 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { VehicleData, CarApiData } from "./types.ts";
+import { fetchNHTSAData, fetchCarApiData } from "./apiUtils.ts";
+import { findBestTrimMatch } from "./trimUtils.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-// Types for better code organization
-interface VehicleData {
-  year: string;
-  make: string;
-  model: string;
-  trim: string;
-  engineCylinders: string;
-  transmission: string;
-  drivetrain: string;
-}
-
-interface CarApiTrim {
-  name: string;
-  description: string;
-  year: number;
-}
-
-interface CarApiData {
-  year?: string | number;
-  make?: string;
-  model?: string;
-  trim?: string;
-  specs?: {
-    displacement_l?: string;
-    engine_number_of_cylinders?: string;
-    turbo?: string | null;
-    transmission?: string;
-    drive_type?: string;
-  };
-  trims?: CarApiTrim[];
-}
-
-interface NHTSAEngineData {
-  displacement: string;
-  cylinders: string;
-  configuration: string;
-  turbo: boolean;
-}
-
-function formatNHTSAEngine(engineData: NHTSAEngineData): string {
-  if (!engineData.cylinders) return '';
-
-  const parts = [];
-
-  // Add displacement if available (e.g., "3.5L")
-  if (engineData.displacement) {
-    parts.push(`${engineData.displacement}L`);
-  }
-
-  // Add configuration and cylinders (e.g., "V6")
-  const config = engineData.configuration === 'V-Shaped' ? 'V' : 
-                 engineData.configuration === 'Inline' ? 'I' : '';
-  if (config || engineData.cylinders) {
-    parts.push(`${config}${engineData.cylinders}`);
-  }
-
-  // Add turbo if present
-  if (engineData.turbo) {
-    parts.push('Turbo');
-  }
-
-  return parts.join(' ');
-}
-
-function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number): string {
-  if (!trims || trims.length === 0) {
-    console.log('No trims available for matching');
-    return '';
-  }
-  
-  // Allow for slight year variations (e.g., early/late production)
-  const yearMatches = trims.filter(trim => Math.abs(trim.year - year) <= 1);
-  console.log(`Found ${yearMatches.length} trims matching year ${year}:`, yearMatches);
-
-  if (yearMatches.length === 0) {
-    console.log('No trims match the vehicle year, using all trims');
-    // Fallback to all trims if no year matches
-    yearMatches = trims;
-  }
-
-  // Common trim level patterns in order of preference
-  const trimPatterns = [
-    // Performance/Luxury trims
-    /^(GTS|GT|RS|AMG|M|Type[ -]?R|Type[ -]?S|F[ -]?SPORT)/i,
-    // Sport/Premium trims
-    /^(Sport|S[ -]?Line|R[ -]?Line|M[ -]?Sport|F[ -]?Sport)/i,
-    // Luxury trims
-    /^(Premium|Luxury|Limited|Platinum|Executive)/i,
-    // Base trims with qualifiers
-    /^(SE[ -]?L|SE|LE|XLE|XSE)/i,
-    // Basic trims
-    /^(Base|Standard|L|S|EX)/i
-  ];
-
-  // Try to find a match using trim patterns
-  for (const pattern of trimPatterns) {
-    const match = yearMatches.find(trim => pattern.test(trim.name));
-    if (match) {
-      console.log(`Found matching trim using pattern ${pattern}:`, match.name);
-      return match.name;
-    }
-  }
-
-  // If no patterns match, return the first trim
-  console.log(`No preferred trim found, using first available: ${yearMatches[0].name}`);
-  return yearMatches[0].name;
-}
-
-function parseEngineFormat(specs: CarApiData['specs'], description?: string): string {
-  console.log('Parsing engine format with specs:', specs);
-  console.log('Description:', description);
-
-  if (!specs && !description) {
-    console.log('No specs or description available for engine parsing');
-    return '';
-  }
-
-  // First try to parse from trim description as it's most detailed
-  if (description) {
-    // Pattern to match format like "(2.0L 4cyl Turbo 7AM)" or "(3.6L 6cyl Turbo)"
-    const trimPattern = /\(([\d.]+)L\s+(\d+)cyl\s+(Turbo)?\s*\w*\)/i;
-    const matches = description.match(trimPattern);
-    
-    if (matches) {
-      console.log('Found engine matches in trim description:', matches);
-      const displacement = matches[1];
-      const cylinders = matches[2];
-      const forced = matches[3];
-      
-      // Determine engine configuration (V or I) based on cylinder count
-      const cylinderCount = parseInt(cylinders);
-      const configuration = cylinderCount > 4 ? 'V' : 'I';
-      
-      // Build the engine string
-      const parts = [
-        `${displacement}L`,
-        `${configuration}${cylinders}`,
-        forced
-      ].filter(Boolean); // Remove empty/undefined values
-      
-      const result = parts.join(' ');
-      console.log('Engine format from trim description:', result);
-      return result;
-    }
-  }
-
-  // Fallback to specs if description parsing failed
-  if (specs) {
-    const parts = [];
-    
-    // Add displacement if available
-    if (specs.displacement_l) {
-      parts.push(`${specs.displacement_l}L`);
-    }
-    
-    // Add cylinder configuration and count if available
-    if (specs.engine_number_of_cylinders) {
-      const cylinderCount = parseInt(specs.engine_number_of_cylinders);
-      if (!isNaN(cylinderCount)) {
-        // Use V for 6+ cylinders, I for 4 or less
-        const configuration = cylinderCount > 4 ? 'V' : 'I';
-        parts.push(`${configuration}${cylinderCount}`);
-      }
-    }
-    
-    // Add forced induction info
-    if (specs.turbo) {
-      parts.push('Turbo');
-    }
-    
-    const result = parts.join(' ');
-    console.log('Engine format from specs:', result);
-    return result;
-  }
-
-  return '';
-}
-
-async function fetchData<T>(url: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const response = await fetch(url, options);
-    const responseText = await response.text();
-    console.log(`API Response [${url}]:`, responseText);
-
-    if (!response.ok) {
-      console.error('API error:', {
-        url,
-        status: response.status,
-        statusText: response.statusText,
-        response: responseText
-      });
-      return null;
-    }
-
-    try {
-      return JSON.parse(responseText);
-    } catch (parseError) {
-      console.error('Error parsing response:', parseError);
-      return null;
-    }
-  } catch (fetchError) {
-    console.error('Error fetching data:', fetchError);
-    return null;
-  }
-}
-
-async function fetchNHTSAData(vin: string): Promise<VehicleData> {
-  const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
-  console.log('Calling NHTSA API:', nhtsaUrl);
-  
-  const nhtsaData = await fetchData(nhtsaUrl);
-  console.log('NHTSA API response:', JSON.stringify(nhtsaData));
-
-  const vehicleData: VehicleData = {
-    year: '',
-    make: '',
-    model: '',
-    trim: '',
-    engineCylinders: '',
-    transmission: '',
-    drivetrain: ''
-  };
-
-  // Collect engine data as we process the results
-  const engineData: NHTSAEngineData = {
-    displacement: '',
-    cylinders: '',
-    configuration: '',
-    turbo: false
-  };
-
-  if (nhtsaData?.Results) {
-    for (const result of nhtsaData.Results) {
-      if (result?.Value && result.Value !== "Not Applicable") {
-        switch (result.Variable) {
-          case 'Model Year':
-            vehicleData.year = result.Value;
-            break;
-          case 'Make':
-            vehicleData.make = result.Value;
-            break;
-          case 'Model':
-            vehicleData.model = result.Value;
-            break;
-          case 'Trim':
-            console.log('NHTSA Trim value:', result.Value);
-            vehicleData.trim = result.Value;
-            break;
-          case 'Engine Number of Cylinders':
-            engineData.cylinders = result.Value;
-            break;
-          case 'Engine Configuration':
-            engineData.configuration = result.Value;
-            break;
-          case 'Displacement (L)':
-            engineData.displacement = result.Value;
-            break;
-          case 'Turbo':
-            engineData.turbo = result.Value === 'Yes';
-            break;
-          case 'Transmission Style':
-            vehicleData.transmission = result.Value;
-            break;
-          case 'Drive Type':
-            vehicleData.drivetrain = result.Value;
-            break;
-        }
-      }
-    }
-  }
-
-  // Format engine data
-  vehicleData.engineCylinders = formatNHTSAEngine(engineData);
-  console.log('Formatted engine data:', vehicleData.engineCylinders);
-
-  return vehicleData;
-}
-
-async function fetchCarApiData(vin: string, CARAPI_KEY: string): Promise<CarApiData | null> {
-  const carApiUrl = `https://api.carapi.app/vin/${vin}`;
-  console.log('Calling CarAPI:', carApiUrl);
-
-  const carApiResponse = await fetchData<any>(carApiUrl, {
-    headers: { 
-      'Authorization': `Bearer ${CARAPI_KEY}`,
-      'Accept': 'application/json'
-    }
-  });
-
-  return carApiResponse?.data || null;
 }
 
 function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null): VehicleData {
@@ -304,33 +16,23 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
 
   // If CarAPI data is available, use it as primary source
   if (carApiData) {
-    // Get the best matching trim and its description
+    // Get the best matching trim
     const year = parseInt(carApiData.year?.toString() || nhtsaData.year || '');
     const bestTrim = carApiData.trims ? findBestTrimMatch(carApiData.trims, year) : '';
-    const trimData = carApiData.trims?.find(t => t.name === bestTrim);
-    
-    // Use the trim description for engine format if available
-    const engineFormat = parseEngineFormat(
-      carApiData.specs,
-      trimData?.description || undefined
-    );
 
     return {
       year: carApiData.year?.toString() || nhtsaData.year || '',
       make: carApiData.make || nhtsaData.make || '',
       model: carApiData.model || nhtsaData.model || '',
       trim: bestTrim || nhtsaData.trim || '',
-      engineCylinders: engineFormat || '',
+      engineCylinders: nhtsaData.engineCylinders || '',
       transmission: carApiData.specs?.transmission || nhtsaData.transmission || '',
       drivetrain: carApiData.specs?.drive_type || nhtsaData.drivetrain || ''
     };
   }
 
-  // Fallback to NHTSA data with formatted engine
-  return {
-    ...nhtsaData,
-    engineCylinders: parseEngineFormat({ engine_number_of_cylinders: nhtsaData.engineCylinders }) || ''
-  };
+  // Fallback to NHTSA data
+  return nhtsaData;
 }
 
 serve(async (req) => {
