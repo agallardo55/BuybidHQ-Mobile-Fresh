@@ -54,11 +54,34 @@ serve(async (req) => {
   }
 
   try {
-    const { vin } = await req.json()
+    // Parse the request body
+    const body = await req.text();
+    let vin: string;
+    
+    try {
+      const data = JSON.parse(body);
+      vin = data.vin;
+    } catch (e) {
+      console.error('Error parsing request body:', e);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body format' }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     console.log('Decoding VIN:', vin)
 
     if (!vin || vin.length !== 17) {
-      throw new Error('Invalid VIN format')
+      return new Response(
+        JSON.stringify({ error: 'Invalid VIN format' }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     // First try NHTSA API
