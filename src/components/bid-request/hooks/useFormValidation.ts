@@ -14,11 +14,6 @@ export const useFormValidation = () => {
     if (!formData.mileage) newErrors.mileage = "Mileage is required";
     if (selectedBuyers.length === 0) newErrors.buyers = "Please select at least one buyer";
     
-    // Technical specifications validation
-    if (!formData.engineCylinders) newErrors.engineCylinders = "Engine information is required";
-    if (!formData.transmission) newErrors.transmission = "Transmission is required";
-    if (!formData.drivetrain) newErrors.drivetrain = "Drivetrain is required";
-    
     // VIN validation
     if (formData.vin && formData.vin.length !== 17) {
       newErrors.vin = "VIN must be 17 characters";

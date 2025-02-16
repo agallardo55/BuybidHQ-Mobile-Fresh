@@ -40,7 +40,8 @@ const VehicleSpecifications = ({
         value={formData.engineCylinders}
         onChange={onChange}
         error={errors.engineCylinders}
-        placeholder="2.5L 4-Cylinder"
+        placeholder="Example: 2.0L 4-Cylinder Turbo"
+        required={false}
       />
       <FormField
         id="transmission"
@@ -48,7 +49,8 @@ const VehicleSpecifications = ({
         value={formData.transmission}
         onChange={onChange}
         error={errors.transmission}
-        placeholder="8-Speed Automatic"
+        placeholder="Example: 8-Speed Automatic"
+        required={false}
       />
       <FormField
         id="drivetrain"
@@ -56,7 +58,8 @@ const VehicleSpecifications = ({
         value={formData.drivetrain}
         onChange={onChange}
         error={errors.drivetrain}
-        placeholder="AWD"
+        placeholder="Example: AWD, FWD, RWD"
+        required={false}
       />
     </div>
   );
