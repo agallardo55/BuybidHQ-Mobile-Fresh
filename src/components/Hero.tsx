@@ -18,26 +18,27 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white">
-      {/* Background Image with lighter overlay */}
+    <div className="relative min-h-screen overflow-hidden bg-black">
+      {/* Background Image Container */}
       <div 
-        className="absolute inset-0 z-0 w-full h-full"
+        className="absolute inset-0 z-0 w-full h-full will-change-transform"
         style={{
           backgroundImage: 'url("/lovable-uploads/7714b9d3-7b2d-44ce-acb1-c667d628a989.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'brightness(0.6)',
+          transform: 'translate3d(0, 0, 0)',
         }}
       />
       
-      {/* Dark overlay for better contrast */}
-      <div className="absolute inset-0 z-0 w-full h-full bg-black/30" />
+      {/* Dark overlay */}
+      <div className="absolute inset-0 z-[1] w-full h-full bg-black/30" />
       
-      {/* Single gradient overlay for smooth transition */}
-      <div className="absolute inset-0 z-0 w-full h-full bg-gradient-to-b from-transparent via-black/40 to-black/60" />
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 z-[2] w-full h-full bg-gradient-to-b from-transparent via-black/40 to-black/60" />
       
       {/* Content */}
-      <div className="relative z-10 h-full flex items-center">
+      <div className="relative z-[3] h-full flex items-center">
         <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center lg:pt-32">
           <div className="mx-auto max-w-3xl">
             <div className="animate-fade-in">
