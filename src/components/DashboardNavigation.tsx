@@ -1,22 +1,14 @@
 
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { UserRound, Bell, Menu, X, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import NotificationList from "./notifications/NotificationList";
+import Logo from "./navigation/Logo";
+import NavItems from "./navigation/NavItems";
+import UserActions from "./navigation/UserActions";
+import MobileMenu from "./navigation/MobileMenu";
 
 const DashboardNavigation = () => {
   const navigate = useNavigate();
@@ -84,78 +76,19 @@ const DashboardNavigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center">
-              <img 
-                src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-                alt="BuyBidHQ Logo" 
-                className="h-8 w-auto"
-              />
-            </Link>
-            <div className="hidden md:flex items-center space-x-8 ml-8">
-              {navItems.map((item) => (
-                <div key={item.name}>
-                  <Link 
-                    to={item.href} 
-                    className="text-gray-700 hover:text-accent transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                </div>
-              ))}
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button 
-                      className="text-gray-700 hover:text-accent transition-colors cursor-pointer"
-                      type="button"
-                    >
-                      Marketplace
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent sideOffset={5}>
-                    <p className="font-bold whitespace-nowrap" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            <Logo />
+            <NavItems 
+              items={navItems}
+              className="hidden md:flex items-center space-x-8 ml-8"
+            />
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-6">
-              <Link 
-                to="/account"
-                className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-                aria-label="Account"
-              >
-                <UserRound className="h-5 w-5" />
-              </Link>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button 
-                    className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-                    aria-label="Notifications"
-                  >
-                    <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-0.5 right-0.5 flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
-                      </span>
-                    )}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[380px] p-0" align="end">
-                  <NotificationList />
-                </PopoverContent>
-              </Popover>
-              <button 
-                onClick={handleLogout}
-                className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-                aria-label="Log out"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
-            </div>
+            <UserActions 
+              unreadCount={unreadCount}
+              onLogout={handleLogout}
+              className="hidden md:flex"
+            />
             <div className="md:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -168,83 +101,13 @@ const DashboardNavigation = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-b">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {navItems.map((item) => (
-              <div key={item.name}>
-                <Link
-                  to={item.href}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              </div>
-            ))}
-            <TooltipProvider delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button 
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
-                    type="button"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Marketplace
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent sideOffset={5}>
-                  <p className="font-bold whitespace-nowrap" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <div className="flex items-center space-x-4 px-3 py-2">
-              <Link 
-                to="/account"
-                className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-                aria-label="Account"
-                onClick={() => setIsOpen(false)}
-              >
-                <UserRound className="h-5 w-5" />
-              </Link>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button 
-                    className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-                    aria-label="Notifications"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsOpen(false);
-                    }}
-                  >
-                    <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-0.5 right-0.5 flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
-                      </span>
-                    )}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[380px] p-0" align="end">
-                  <NotificationList />
-                </PopoverContent>
-              </Popover>
-              <button 
-                onClick={() => {
-                  handleLogout();
-                  setIsOpen(false);
-                }}
-                className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-                aria-label="Log out"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MobileMenu 
+        isOpen={isOpen}
+        navItems={navItems}
+        unreadCount={unreadCount}
+        onLogout={handleLogout}
+        onClose={() => setIsOpen(false)}
+      />
     </nav>
   );
 };
