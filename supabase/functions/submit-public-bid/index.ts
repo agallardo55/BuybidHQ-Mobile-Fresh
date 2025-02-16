@@ -54,39 +54,6 @@ serve(async (req) => {
       )
     }
 
-    // Get vehicle and bid request details
-    const { data: requestDetails, error: requestError } = await supabase
-      .from('bid_requests')
-      .select(`
-        id,
-        user_id,
-        vehicle_id,
-        vehicles (
-          year,
-          make,
-          model
-        )
-      `)
-      .eq('id', bid_request_id)
-      .single()
-
-    if (requestError) {
-      console.error('Error fetching bid request details:', requestError)
-      throw requestError
-    }
-
-    // Get buyer details
-    const { data: buyerDetails, error: buyerError } = await supabase
-      .from('buyers')
-      .select('buyer_name, dealer_name')
-      .eq('id', buyer_id)
-      .single()
-
-    if (buyerError) {
-      console.error('Error fetching buyer details:', buyerError)
-      throw buyerError
-    }
-
     // Insert the bid response
     const { data: bidResponse, error: insertError } = await supabase
       .from('bid_responses')
@@ -102,33 +69,6 @@ serve(async (req) => {
     if (insertError) {
       console.error('Error inserting bid response:', insertError)
       throw insertError
-    }
-
-    // Create notification for the bid request creator
-    const { error: notificationError } = await supabase
-      .from('notifications')
-      .insert({
-        user_id: requestDetails.user_id,
-        type: 'bid_response',
-        content: {
-          bid_request_id: bid_request_id,
-          vehicle: {
-            year: requestDetails.vehicles.year,
-            make: requestDetails.vehicles.make,
-            model: requestDetails.vehicles.model
-          },
-          buyer: {
-            name: buyerDetails.buyer_name,
-            dealer: buyerDetails.dealer_name
-          },
-          offer_amount: offerAmount
-        },
-        reference_id: bidResponse.id
-      })
-
-    if (notificationError) {
-      console.error('Error creating notification:', notificationError)
-      // Don't throw here as the bid was already submitted successfully
     }
 
     // Mark the token as used
