@@ -44,10 +44,18 @@ const NotificationList = () => {
           }
         }
 
+        // Ensure the content matches our expected type
+        const validContent = {
+          vehicle: parsedContent.vehicle || undefined,
+          buyer: parsedContent.buyer || undefined,
+          offer_amount: typeof parsedContent.offer_amount === 'number' ? parsedContent.offer_amount : undefined,
+          bid_request_id: parsedContent.bid_request_id || undefined
+        };
+
         return {
           id: notification.id,
           type: notification.type,
-          content: parsedContent,
+          content: validContent,
           created_at: notification.created_at,
           read_at: notification.read_at,
           cleared_at: notification.cleared_at,
