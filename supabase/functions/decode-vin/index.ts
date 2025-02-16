@@ -18,6 +18,7 @@ serve(async (req) => {
     const { vin } = await req.json()
     
     if (!vin || vin.length !== 17) {
+      console.error('Invalid VIN format:', vin)
       return new Response(
         JSON.stringify({ error: 'Invalid VIN format' }),
         { 
@@ -31,12 +32,20 @@ serve(async (req) => {
 
     // First try NHTSA API
     try {
-      const nhtsaResponse = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`)
+      const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`
+      console.log('Calling NHTSA API:', nhtsaUrl)
+      
+      const nhtsaResponse = await fetch(nhtsaUrl)
       if (!nhtsaResponse.ok) {
+        console.error('NHTSA API error:', {
+          status: nhtsaResponse.status,
+          statusText: nhtsaResponse.statusText
+        })
         throw new Error('NHTSA API request failed')
       }
+
       const nhtsaData = await nhtsaResponse.json()
-      console.log('NHTSA API response:', nhtsaData)
+      console.log('NHTSA API response:', JSON.stringify(nhtsaData))
 
       let vehicleData = {
         year: '',
@@ -48,9 +57,9 @@ serve(async (req) => {
         drivetrain: ''
       }
 
-      if (nhtsaData.Results) {
+      if (nhtsaData?.Results) {
         for (const result of nhtsaData.Results) {
-          if (result.Value && result.Value !== "Not Applicable") {
+          if (result?.Value && result.Value !== "Not Applicable") {
             switch (result.Variable) {
               case 'Model Year':
                 vehicleData.year = result.Value
@@ -76,6 +85,8 @@ serve(async (req) => {
             }
           }
         }
+      } else {
+        console.warn('No Results array in NHTSA response')
       }
 
       // If NHTSA data is incomplete, try CarAPI
@@ -84,10 +95,14 @@ serve(async (req) => {
         console.log('NHTSA data incomplete, trying CarAPI')
         const CARAPI_KEY = Deno.env.get('CARAPI_KEY')
         if (!CARAPI_KEY) {
+          console.error('CarAPI key not found in environment')
           throw new Error('CarAPI key not configured')
         }
 
-        const carApiResponse = await fetch(`https://api.carapi.app/vin/${vin}`, {
+        const carApiUrl = `https://api.carapi.app/vin/${vin}`
+        console.log('Calling CarAPI:', carApiUrl)
+
+        const carApiResponse = await fetch(carApiUrl, {
           headers: { 
             'Authorization': `Bearer ${CARAPI_KEY}`,
             'Accept': 'application/json'
@@ -95,27 +110,40 @@ serve(async (req) => {
         })
 
         if (!carApiResponse.ok) {
+          console.error('CarAPI error:', {
+            status: carApiResponse.status,
+            statusText: carApiResponse.statusText
+          })
           throw new Error('CarAPI request failed')
         }
 
         const carApiData = await carApiResponse.json()
-        console.log('CarAPI response:', carApiData)
+        console.log('CarAPI response:', JSON.stringify(carApiData))
 
-        if (carApiData.data) {
+        if (carApiData?.data) {
           const data = carApiData.data
           vehicleData = {
-            year: vehicleData.year || data.year?.toString() || '',
-            make: vehicleData.make || data.make || '',
-            model: vehicleData.model || data.model || '',
-            trim: vehicleData.trim || data.trim || '',
-            engineCylinders: vehicleData.engineCylinders || `${data.engine_size || ''} ${data.engine_cylinders || ''}`.trim() || '',
-            transmission: vehicleData.transmission || data.transmission || '',
-            drivetrain: vehicleData.drivetrain || data.drive_type || ''
+            year: vehicleData.year || (data.year?.toString() || ''),
+            make: vehicleData.make || (data.make || ''),
+            model: vehicleData.model || (data.model || ''),
+            trim: vehicleData.trim || (data.trim || ''),
+            engineCylinders: vehicleData.engineCylinders || 
+              `${data.engine_size || ''} ${data.engine_cylinders || ''}`.trim() || '',
+            transmission: vehicleData.transmission || (data.transmission || ''),
+            drivetrain: vehicleData.drivetrain || (data.drive_type || '')
           }
+        } else {
+          console.warn('No data object in CarAPI response')
         }
       }
 
-      console.log('Final vehicle data:', vehicleData)
+      console.log('Final vehicle data:', JSON.stringify(vehicleData))
+      
+      // Validate that we have at least some basic data
+      if (!vehicleData.year && !vehicleData.make && !vehicleData.model) {
+        throw new Error('Could not decode VIN with either API')
+      }
+
       return new Response(
         JSON.stringify(vehicleData),
         { 
@@ -124,9 +152,12 @@ serve(async (req) => {
       )
 
     } catch (apiError) {
-      console.error('API Error:', apiError)
+      console.error('API Error:', apiError?.message || apiError)
       return new Response(
-        JSON.stringify({ error: 'Failed to decode VIN. Please try again.' }),
+        JSON.stringify({ 
+          error: 'Failed to decode VIN. Please try again.',
+          details: apiError?.message || 'Unknown API error'
+        }),
         { 
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -135,9 +166,12 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error decoding VIN:', error)
+    console.error('General Error:', error?.message || error)
     return new Response(
-      JSON.stringify({ error: error.message || 'Failed to decode VIN' }),
+      JSON.stringify({ 
+        error: error?.message || 'Failed to decode VIN',
+        details: 'Unexpected error occurred'
+      }),
       { 
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
