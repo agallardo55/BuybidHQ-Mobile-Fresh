@@ -70,8 +70,7 @@ const Hero = () => {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button 
-                  variant="outline" 
-                  className="text-lg px-8 py-6 text-[#325AE7] hover:bg-[#325AE7]/20 hover:text-[#325AE7] border-[#325AE7] w-full sm:w-auto backdrop-blur-[2px] transition-colors duration-200"
+                  className="bg-white hover:bg-white/70 text-[#325AE7] text-lg px-8 py-6 w-full sm:w-auto shadow-lg transition-colors duration-200"
                   onClick={scrollToHowItWorks}
                 >
                   Learn More
