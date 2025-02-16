@@ -18,7 +18,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative h-screen overflow-hidden bg-black backface-hidden">
+    <div className="relative min-h-screen overflow-hidden bg-black backface-hidden">
       {/* Background Image Container */}
       <div 
         className="absolute inset-0 z-0 w-full h-full transform-gpu backface-hidden"
@@ -71,7 +71,8 @@ const Hero = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="text-lg px-8 py-6 hover:bg-white/20 text-white border-white hover:text-white w-full sm:w-auto backdrop-blur-md shadow-lg"
+                  className="text-lg px-8 py-6 hover:bg-black/40 text-white border-2 border-white hover:text-white w-full sm:w-auto backdrop-blur-md shadow-lg"
+                  style={{ textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)' }}
                   onClick={scrollToHowItWorks}
                 >
                   Learn More
