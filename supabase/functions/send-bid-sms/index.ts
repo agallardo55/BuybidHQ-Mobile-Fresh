@@ -59,13 +59,19 @@ serve(async (req) => {
       vehicleDetails
     });
 
+    // Get Twilio credentials from environment variables
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')
     const twilioPhoneNumber = Deno.env.get('TWILIO_PHONE_NUMBER')
 
+    // Add more detailed error logging
     if (!accountSid || !authToken || !twilioPhoneNumber) {
-      console.error('Missing Twilio configuration');
-      throw new Error('Missing Twilio configuration')
+      console.error('Missing Twilio configuration:', {
+        hasAccountSid: !!accountSid,
+        hasAuthToken: !!authToken,
+        hasPhoneNumber: !!twilioPhoneNumber
+      });
+      throw new Error('Missing Twilio configuration. Please ensure all required environment variables are set.')
     }
 
     // Format the Twilio phone number
