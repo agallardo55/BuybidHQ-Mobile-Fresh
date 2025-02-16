@@ -21,7 +21,7 @@ const Hero = () => {
     <div className="relative min-h-screen overflow-hidden bg-black backface-hidden">
       {/* Background Image Container */}
       <div 
-        className="absolute inset-0 z-0 w-full h-full transform-gpu backface-hidden"
+        className="absolute inset-0 z-0 w-full min-h-screen transform-gpu backface-hidden"
         style={{
           backgroundImage: 'url("/lovable-uploads/7714b9d3-7b2d-44ce-acb1-c667d628a989.png")',
           backgroundSize: 'cover',
@@ -31,18 +31,18 @@ const Hero = () => {
       />
       
       {/* Dark overlay */}
-      <div className="absolute inset-0 z-10 w-full h-full bg-black/30 backface-hidden" />
+      <div className="absolute inset-0 z-10 w-full min-h-screen bg-black/30 backface-hidden" />
       
       {/* Gradient overlay */}
-      <div className="absolute inset-0 z-20 w-full h-full bg-gradient-to-b from-transparent via-black/40 to-black/60 backface-hidden" />
+      <div className="absolute inset-0 z-20 w-full min-h-screen bg-gradient-to-b from-transparent via-black/40 to-black/60 backface-hidden" />
       
       {/* Content */}
-      <div className="absolute inset-0 z-30 w-full h-full">
-        <div className="h-full flex items-center">
+      <div className="absolute inset-0 z-30 w-full min-h-screen">
+        <div className="min-h-screen flex items-center">
           <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center lg:pt-32">
             <div className="mx-auto max-w-3xl">
               <div className="animate-fade-in">
-                <span className="rounded-full bg-white/20 px-3 py-1 text-sm font-semibold leading-6 text-white ring-1 ring-inset ring-white/40 backdrop-blur-md">
+                <span className="rounded-full bg-white/20 px-3 py-1 text-sm font-semibold leading-6 text-white ring-1 ring-inset ring-white/40 backdrop-blur-[2px]">
                   The future is now
                 </span>
               </div>
@@ -71,8 +71,7 @@ const Hero = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="text-lg px-8 py-6 hover:bg-black/40 text-white border-2 border-white hover:text-white w-full sm:w-auto backdrop-blur-md shadow-lg"
-                  style={{ textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)' }}
+                  className="text-lg px-8 py-6 hover:bg-accent hover:text-accent-foreground text-white border-white hover:border-accent w-full sm:w-auto backdrop-blur-[2px]"
                   onClick={scrollToHowItWorks}
                 >
                   Learn More
