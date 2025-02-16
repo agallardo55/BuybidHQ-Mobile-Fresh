@@ -1,8 +1,34 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// Types for better code organization
+interface VehicleData {
+  year: string;
+  make: string;
+  model: string;
+  trim: string;
+  engineCylinders: string;
+  transmission: string;
+  drivetrain: string;
+}
+
+interface CarApiData {
+  year?: string | number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  engine_size?: string | number;
+  engine_cylinders?: string | number;
+  forced_induction?: string;
+  power_type?: string;
+  electric_power?: string | number;
+  transmission?: string;
+  drive_type?: string;
 }
 
 function formatEngineData(engineSize?: string | number, engineCylinders?: string | number, forced?: string, powerType?: string, electricPower?: string | number): string {
@@ -56,7 +82,6 @@ function formatEngineData(engineSize?: string | number, engineCylinders?: string
     }
   }
   
-  // Add forced induction info if present
   if (forced) {
     parts.push(forced);
   }
@@ -64,186 +89,178 @@ function formatEngineData(engineSize?: string | number, engineCylinders?: string
   return parts.join(' ');
 }
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      headers: corsHeaders
-    })
+async function fetchNHTSAData(vin: string): Promise<VehicleData> {
+  const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
+  console.log('Calling NHTSA API:', nhtsaUrl);
+  
+  const nhtsaResponse = await fetch(nhtsaUrl);
+  if (!nhtsaResponse.ok) {
+    console.error('NHTSA API error:', {
+      status: nhtsaResponse.status,
+      statusText: nhtsaResponse.statusText
+    });
+    throw new Error('NHTSA API request failed');
+  }
+
+  const nhtsaData = await nhtsaResponse.json();
+  console.log('NHTSA API response:', JSON.stringify(nhtsaData));
+
+  const vehicleData: VehicleData = {
+    year: '',
+    make: '',
+    model: '',
+    trim: '',
+    engineCylinders: '',
+    transmission: '',
+    drivetrain: ''
+  };
+
+  if (nhtsaData?.Results) {
+    for (const result of nhtsaData.Results) {
+      if (result?.Value && result.Value !== "Not Applicable") {
+        switch (result.Variable) {
+          case 'Model Year':
+            vehicleData.year = result.Value;
+            break;
+          case 'Make':
+            vehicleData.make = result.Value;
+            break;
+          case 'Model':
+            vehicleData.model = result.Value;
+            break;
+          case 'Trim':
+            console.log('NHTSA Trim value:', result.Value);
+            vehicleData.trim = result.Value;
+            break;
+          case 'Engine Number of Cylinders':
+            vehicleData.engineCylinders = result.Value;
+            break;
+          case 'Transmission Style':
+            vehicleData.transmission = result.Value;
+            break;
+          case 'Drive Type':
+            vehicleData.drivetrain = result.Value;
+            break;
+        }
+      }
+    }
+  }
+
+  return vehicleData;
+}
+
+async function fetchCarApiData(vin: string, CARAPI_KEY: string): Promise<CarApiData | null> {
+  const carApiUrl = `https://api.carapi.app/vin/${vin}`;
+  console.log('Calling CarAPI:', carApiUrl);
+
+  const carApiResponse = await fetch(carApiUrl, {
+    headers: { 
+      'Authorization': `Bearer ${CARAPI_KEY}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  const responseText = await carApiResponse.text();
+  console.log('CarAPI raw response:', responseText);
+
+  if (!carApiResponse.ok) {
+    console.error('CarAPI error:', {
+      status: carApiResponse.status,
+      statusText: carApiResponse.statusText,
+      response: responseText
+    });
+    return null;
   }
 
   try {
-    const { vin } = await req.json()
+    const carApiData = JSON.parse(responseText);
+    console.log('CarAPI parsed response:', JSON.stringify(carApiData));
+    return carApiData?.data || null;
+  } catch (parseError) {
+    console.error('Error parsing CarAPI response:', parseError);
+    return null;
+  }
+}
+
+function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null): VehicleData {
+  if (!carApiData) return nhtsaData;
+
+  const formattedEngine = formatEngineData(
+    carApiData.engine_size,
+    carApiData.engine_cylinders,
+    carApiData.forced_induction,
+    carApiData.power_type,
+    carApiData.electric_power
+  );
+
+  return {
+    year: nhtsaData.year || (carApiData.year?.toString() || ''),
+    make: nhtsaData.make || (carApiData.make || ''),
+    model: nhtsaData.model || (carApiData.model || ''),
+    trim: nhtsaData.trim || (carApiData.trim || ''),
+    engineCylinders: nhtsaData.engineCylinders || formattedEngine,
+    transmission: nhtsaData.transmission || (carApiData.transmission || ''),
+    drivetrain: nhtsaData.drivetrain || (carApiData.drive_type || '')
+  };
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { vin } = await req.json();
     
     if (!vin || vin.length !== 17) {
-      console.error('Invalid VIN format:', vin)
+      console.error('Invalid VIN format:', vin);
       return new Response(
         JSON.stringify({ error: 'Invalid VIN format' }),
         { 
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
-      )
+      );
     }
 
-    console.log('Decoding VIN:', vin)
+    console.log('Decoding VIN:', vin);
 
-    // First try NHTSA API
     try {
-      const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`
-      console.log('Calling NHTSA API:', nhtsaUrl)
-      
-      const nhtsaResponse = await fetch(nhtsaUrl)
-      if (!nhtsaResponse.ok) {
-        console.error('NHTSA API error:', {
-          status: nhtsaResponse.status,
-          statusText: nhtsaResponse.statusText
-        })
-        throw new Error('NHTSA API request failed')
-      }
-
-      const nhtsaData = await nhtsaResponse.json()
-      console.log('NHTSA API response:', JSON.stringify(nhtsaData))
-
-      let vehicleData = {
-        year: '',
-        make: '',
-        model: '',
-        trim: '',
-        engineCylinders: '',
-        transmission: '',
-        drivetrain: ''
-      }
-
-      if (nhtsaData?.Results) {
-        for (const result of nhtsaData.Results) {
-          if (result?.Value && result.Value !== "Not Applicable") {
-            switch (result.Variable) {
-              case 'Model Year':
-                vehicleData.year = result.Value
-                break
-              case 'Make':
-                vehicleData.make = result.Value
-                break
-              case 'Model':
-                vehicleData.model = result.Value
-                break
-              case 'Trim':
-                console.log('NHTSA Trim value:', result.Value)
-                vehicleData.trim = result.Value
-                break
-              case 'Engine Number of Cylinders':
-                vehicleData.engineCylinders = result.Value
-                break
-              case 'Transmission Style':
-                vehicleData.transmission = result.Value
-                break
-              case 'Drive Type':
-                vehicleData.drivetrain = result.Value
-                break
-            }
-          }
-        }
-      } else {
-        console.warn('No Results array in NHTSA response')
-      }
+      // First try NHTSA API
+      const nhtsaData = await fetchNHTSAData(vin);
 
       // If NHTSA data is incomplete, try CarAPI
-      const missingData = Object.values(vehicleData).some(value => !value)
+      const missingData = Object.values(nhtsaData).some(value => !value);
       if (missingData) {
-        console.log('NHTSA data incomplete, trying CarAPI')
-        const CARAPI_KEY = Deno.env.get('CARAPI_KEY')
+        console.log('NHTSA data incomplete, trying CarAPI');
+        const CARAPI_KEY = Deno.env.get('CARAPI_KEY');
         if (!CARAPI_KEY) {
-          console.error('CarAPI key not found in environment')
-          throw new Error('CarAPI key not configured')
+          console.error('CarAPI key not found in environment');
+          throw new Error('CarAPI key not configured');
         }
 
-        try {
-          const carApiUrl = `https://api.carapi.app/vin/${vin}`
-          console.log('Calling CarAPI:', carApiUrl)
+        const carApiData = await fetchCarApiData(vin, CARAPI_KEY);
+        const mergedData = mergeVehicleData(nhtsaData, carApiData);
 
-          const carApiResponse = await fetch(carApiUrl, {
-            headers: { 
-              'Authorization': `Bearer ${CARAPI_KEY}`,
-              'Accept': 'application/json'
-            }
-          })
-
-          const responseText = await carApiResponse.text()
-          console.log('CarAPI raw response:', responseText)
-
-          if (!carApiResponse.ok) {
-            console.error('CarAPI error:', {
-              status: carApiResponse.status,
-              statusText: carApiResponse.statusText,
-              response: responseText
-            })
-            // Don't throw here - just log and continue with NHTSA data
-            console.log('Continuing with NHTSA data only')
-          } else {
-            try {
-              const carApiData = JSON.parse(responseText)
-              console.log('CarAPI parsed response:', JSON.stringify(carApiData))
-
-              if (carApiData?.data) {
-                const data = carApiData.data
-                
-                // Log trim value from CarAPI
-                console.log('CarAPI Trim value:', data.trim)
-                
-                const formattedEngine = formatEngineData(
-                  data.engine_size,
-                  data.engine_cylinders,
-                  data.forced_induction,
-                  data.power_type,
-                  data.electric_power
-                )
-                
-                vehicleData = {
-                  year: vehicleData.year || (data.year?.toString() || ''),
-                  make: vehicleData.make || (data.make || ''),
-                  model: vehicleData.model || (data.model || ''),
-                  trim: vehicleData.trim || (data.trim || ''),
-                  engineCylinders: vehicleData.engineCylinders || formattedEngine,
-                  transmission: vehicleData.transmission || (data.transmission || ''),
-                  drivetrain: vehicleData.drivetrain || (data.drive_type || '')
-                }
-                
-                // Log final trim and engine values
-                console.log('Final trim value:', vehicleData.trim)
-                console.log('Final engine value:', vehicleData.engineCylinders)
-              } else {
-                console.warn('No data object in CarAPI response')
-              }
-            } catch (parseError) {
-              console.error('Error parsing CarAPI response:', parseError)
-              // Continue with NHTSA data
-              console.log('Continuing with NHTSA data due to parse error')
-            }
-          }
-        } catch (carApiError) {
-          console.error('CarAPI request error:', carApiError)
-          // Continue with NHTSA data
-          console.log('Continuing with NHTSA data due to request error')
+        // Return data if we have at least the basic information
+        if (mergedData.year || mergedData.make || mergedData.model) {
+          return new Response(
+            JSON.stringify(mergedData),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
-      }
-
-      console.log('Final vehicle data:', JSON.stringify(vehicleData))
-      
-      // Return data if we have at least the basic information
-      if (vehicleData.year || vehicleData.make || vehicleData.model) {
-        return new Response(
-          JSON.stringify(vehicleData),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        )
       } else {
-        throw new Error('Could not decode VIN with either API')
+        // If NHTSA data is complete, return it
+        return new Response(
+          JSON.stringify(nhtsaData),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
+
+      throw new Error('Could not decode VIN with either API');
 
     } catch (apiError) {
-      console.error('API Error:', apiError?.message || apiError)
+      console.error('API Error:', apiError?.message || apiError);
       return new Response(
         JSON.stringify({ 
           error: 'Failed to decode VIN. Please try again.',
@@ -253,11 +270,11 @@ serve(async (req) => {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
-      )
+      );
     }
 
   } catch (error) {
-    console.error('General Error:', error?.message || error)
+    console.error('General Error:', error?.message || error);
     return new Response(
       JSON.stringify({ 
         error: error?.message || 'Failed to decode VIN',
@@ -267,6 +284,6 @@ serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
-    )
+    );
   }
-})
+});
