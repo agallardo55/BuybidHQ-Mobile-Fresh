@@ -36,3 +36,9 @@ export const useFormValidation = () => {
 
   return { validateForm };
 };
+
+// Export the validateForm function directly as well
+export const validateForm = (formData: BidRequestFormData, selectedBuyers: string[]) => {
+  const { validateForm: validate } = useFormValidation();
+  return validate(formData, selectedBuyers);
+};

@@ -20,9 +20,10 @@ interface VinSectionProps {
     transmission: string;
     drivetrain: string;
   }) => void;
+  showValidation?: boolean;
 }
 
-const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionProps) => {
+const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation }: VinSectionProps) => {
   const isMobile = useIsMobile();
   const { isLoading, decodeVin } = useVinDecoder(onVehicleDataFetched);
   const { isScanning, videoRef, startScan, stopScan } = useVinScanner((scannedVin) => {
@@ -36,6 +37,8 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
     onChange(syntheticEvent);
     setTimeout(() => decodeVin(scannedVin), 100);
   });
+
+  const showError = error && showValidation;
 
   return (
     <div className="space-y-2">
@@ -63,7 +66,7 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
             onChange={onChange}
             required
             placeholder="1HGCM82633A123456"
-            className={`${error ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
+            className={`${showError ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
             maxLength={17}
           />
           <Button 
@@ -75,7 +78,7 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched }: VinSectionPr
             {isLoading ? "Loading..." : "Go"}
           </Button>
         </div>
-        {error && (
+        {showError && (
           <p className="text-red-500 text-sm mt-1">{error}</p>
         )}
       </div>

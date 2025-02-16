@@ -5,6 +5,7 @@ import MultiStepForm from "@/components/bid-request/MultiStepForm";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
+import { useState } from "react";
 
 const CreateBidRequest = () => {
   const { currentUser } = useCurrentUser();
@@ -22,6 +23,8 @@ const CreateBidRequest = () => {
     toggleBuyer,
     handleSubmit,
   } = useCreateBidRequest();
+
+  const [showValidation, setShowValidation] = useState(false);
 
   const mappedBuyers = buyers?.map(buyer => ({
     id: buyer.id,
@@ -62,6 +65,8 @@ const CreateBidRequest = () => {
               onSubmit={onSubmit}
               isSubmitting={isSubmitting}
               onImagesUploaded={handleImagesUploaded}
+              showValidation={showValidation}
+              setShowValidation={setShowValidation}
             />
             <div className="mt-6 pt-4 border-t border-gray-200 bg-white">
               <p className="text-sm text-gray-500 text-center">
