@@ -19,18 +19,31 @@ const SecuritySection = ({ userEmail }: SecuritySectionProps) => {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
-      if (error) throw error;
+      if (error) {
+        // If the error is "User already registered", we can ignore it as it's expected
+        if (error.message.includes("User already registered")) {
+          toast({
+            title: "Password reset email sent",
+            description: "Please check your email for the password reset link.",
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Password reset email sent",
         description: "Please check your email for the password reset link.",
       });
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send password reset email.",
-        variant: "destructive",
-      });
+      // Only show error toast for unexpected errors
+      if (!error.message.includes("User already registered")) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to send password reset email.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSending(false);
     }
