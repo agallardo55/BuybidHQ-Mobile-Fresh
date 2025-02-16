@@ -39,11 +39,7 @@ const SignIn = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
-        options: {
-          // Set session duration based on remember me checkbox
-          persistSession: true, // Always persist the session
-        }
+        password
       });
 
       if (error) {
