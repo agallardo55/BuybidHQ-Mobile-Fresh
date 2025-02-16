@@ -18,6 +18,7 @@ interface BasicVehicleInfoProps {
     year?: string;
     make?: string;
     model?: string;
+    trim?: string;
     mileage?: string;
     vin?: string;
     engineCylinders?: string;
