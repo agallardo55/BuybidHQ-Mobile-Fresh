@@ -33,7 +33,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           .from('buybidhq_users')
           .select(`
             *,
-            dealership:dealerships (*)
+            dealership:dealerships!buybidhq_users_dealership_id_fkey (*)
           `, { count: 'exact' });
 
         // Add search filter if searchTerm is provided
