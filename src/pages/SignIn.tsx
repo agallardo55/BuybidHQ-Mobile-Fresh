@@ -37,23 +37,20 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const { data: { session }, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: {
+          // Set session duration based on remember me checkbox
+          persistSession: true, // Always persist the session
+        }
       });
 
       if (error) {
         throw error;
       }
 
-      if (session) {
-        // If remember me is not checked, set session expiry to 1 hour
-        if (!rememberMe) {
-          await supabase.auth.refreshSession({
-            refresh_token: session.refresh_token
-          });
-        }
-        
+      if (data.session) {
         const from = (location.state as any)?.from?.pathname || '/dashboard';
         toast.success("Successfully signed in!");
         navigate(from, { replace: true });
