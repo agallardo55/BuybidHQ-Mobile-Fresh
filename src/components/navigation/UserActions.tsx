@@ -45,7 +45,7 @@ const UserActions = ({ unreadCount, onLogout, onClick, className = "" }: UserAct
             )}
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-[380px] p-0" align="start">
+        <PopoverContent className="w-[380px] p-0 mr-4" align="start">
           <NotificationList />
         </PopoverContent>
       </Popover>
