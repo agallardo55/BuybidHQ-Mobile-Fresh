@@ -111,6 +111,13 @@ export type Database = {
             referencedRelation: "buybidhq_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_bid_request_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "buyers_user_roles_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       bid_responses: {
@@ -439,6 +446,13 @@ export type Database = {
             referencedRelation: "buybidhq_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "buyers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "buyers_user_roles_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contact_submissions: {
@@ -506,6 +520,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dealership_access_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "buyers_user_roles_view"
             referencedColumns: ["id"]
           },
         ]
@@ -589,10 +610,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "dealerships_last_updated_by_fkey"
+            columns: ["last_updated_by"]
+            isOneToOne: false
+            referencedRelation: "buyers_user_roles_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "dealerships_primary_user_id_fkey"
             columns: ["primary_user_id"]
             isOneToOne: false
             referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dealerships_primary_user_id_fkey"
+            columns: ["primary_user_id"]
+            isOneToOne: false
+            referencedRelation: "buyers_user_roles_view"
             referencedColumns: ["id"]
           },
         ]
@@ -668,6 +703,13 @@ export type Database = {
             columns: ["deleted_by"]
             isOneToOne: false
             referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deleted_users_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "buyers_user_roles_view"
             referencedColumns: ["id"]
           },
         ]
@@ -809,6 +851,13 @@ export type Database = {
             referencedRelation: "buybidhq_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "buyers_user_roles_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       phone_validation_batch_results: {
@@ -866,6 +915,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phone_validation_batch_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "buyers_user_roles_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1157,7 +1213,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      buyers_user_roles_view: {
+        Row: {
+          id: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+        }
+        Insert: {
+          id?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+        }
+        Update: {
+          id?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       batch_process_carrier_detection: {
