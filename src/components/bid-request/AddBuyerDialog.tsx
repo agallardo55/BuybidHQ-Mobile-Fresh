@@ -42,8 +42,8 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         return false;
       }
 
-      // Auto-set carrier if detected
-      if (data.carrier?.name && data.carrier.name in CarrierType) {
+      // Auto-set carrier if detected and it's one of our supported carriers
+      if (data.carrier?.name && CARRIER_OPTIONS.includes(data.carrier.name as CarrierType)) {
         setFormData(prev => ({
           ...prev,
           carrier: data.carrier.name as CarrierType
@@ -74,7 +74,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     try {
       setIsValidating(true);
 
-      const result = await createBuyer({
+      const newBuyer = await createBuyer({
         fullName: formData.name,
         dealershipName: formData.dealership,
         mobileNumber: formData.mobile,
@@ -88,17 +88,13 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         zipCode: "",
       });
 
-      if (result && typeof result === 'object' && 'id' in result) {
-        // Validate phone number
-        const isValid = await validatePhoneNumber(formData.mobile, result.id);
+      // Validate phone number if buyer was created successfully
+      const isValid = await validatePhoneNumber(formData.mobile, newBuyer.id);
 
-        if (isValid) {
-          setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
-          onOpenChange(false);
-          toast.success("Buyer added successfully");
-        }
-      } else {
-        throw new Error("Failed to create buyer");
+      if (isValid) {
+        setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
+        onOpenChange(false);
+        toast.success("Buyer added successfully");
       }
     } catch (error) {
       console.error("Error adding buyer:", error);
