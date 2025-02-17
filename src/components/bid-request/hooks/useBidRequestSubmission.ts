@@ -16,6 +16,8 @@ export const useBidRequestSubmission = () => {
     const { formData, selectedBuyers, uploadedImageUrls } = formState;
 
     try {
+      console.log('Submitting bid request with data:', { formData, selectedBuyers, uploadedImageUrls });
+
       // Prepare vehicle data matching database schema
       const vehicleData = {
         year: formData.year,
@@ -34,14 +36,22 @@ export const useBidRequestSubmission = () => {
 
       // Prepare reconditioning data matching database schema
       const reconData = {
-        windshield: formData.windshield,
-        engine_light: formData.engineLights,
-        brakes: formData.brakes,
-        tires: formData.tire,
-        maintenance: formData.maintenance,
-        recon_estimate: formData.reconEstimate,
-        recon_details: formData.reconDetails
+        windshield: formData.windshield || 'None',
+        engine_light: formData.engineLights || 'No',
+        brakes: formData.brakes || 'Good',
+        tires: formData.tire || 'Good',
+        maintenance: formData.maintenance || 'Up to date',
+        recon_estimate: formData.reconEstimate || '0',
+        recon_details: formData.reconDetails || 'No additional details'
       };
+
+      console.log('Calling RPC with formatted data:', {
+        vehicle_data: vehicleData,
+        recon_data: reconData,
+        image_urls: uploadedImageUrls,
+        buyer_ids: selectedBuyers,
+        creator_id: userId
+      });
 
       const { data, error } = await supabase.rpc('create_complete_bid_request', {
         vehicle_data: vehicleData,
@@ -53,16 +63,17 @@ export const useBidRequestSubmission = () => {
 
       if (error) {
         console.error('Error creating bid request:', error);
-        toast.error('Failed to create bid request');
+        toast.error('Failed to create bid request: ' + error.message);
         throw error;
       }
 
+      console.log('Bid request created successfully:', data);
       toast.success('Bid request created successfully');
       navigate('/dashboard');
 
     } catch (error) {
       console.error('Error in submitBidRequest:', error);
-      toast.error('Failed to create bid request');
+      toast.error('Failed to create bid request. Please try again.');
       throw error;
     }
   };
