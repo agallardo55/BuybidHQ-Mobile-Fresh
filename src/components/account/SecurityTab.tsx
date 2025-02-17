@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
   DialogContent,
@@ -18,17 +17,13 @@ export const SecurityTab = () => {
   const { toast } = useToast();
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [isMFAEnabled, setIsMFAEnabled] = useState(false);
-  const [mfaFactors, setMFAFactors] = useState<any[]>([]);
   const [isEnrollingMFA, setIsEnrollingMFA] = useState(false);
   const [showMFADialog, setShowMFADialog] = useState(false);
-  const [qrCode, setQRCode] = useState<string | null>(null);
   const [verifyCode, setVerifyCode] = useState("");
-  const [secret, setSecret] = useState<string | null>(null);
   const [passwordData, setPasswordData] = useState({
     newPassword: "",
     confirmPassword: "",
   });
-  const [challengeId, setChallengeId] = useState<string | null>(null);
 
   useEffect(() => {
     checkMFAStatus();
@@ -43,8 +38,7 @@ export const SecurityTab = () => {
       
       if (error) throw error;
       
-      setMFAFactors(factors.totp);
-      setIsMFAEnabled(factors.totp.some(factor => factor.status === 'verified'));
+      setIsMFAEnabled(factors.email && factors.email.length > 0);
     } catch (error: any) {
       console.error('Error checking MFA status:', error);
       toast({
@@ -58,22 +52,26 @@ export const SecurityTab = () => {
   const handleEnrollMFA = async () => {
     try {
       setIsEnrollingMFA(true);
-      const { data, error } = await supabase.auth.mfa.enroll({
-        factorType: 'totp'
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) {
+        throw new Error("No user email found");
+      }
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email: user.email,
+        options: {
+          shouldCreateUser: false,
+        }
       });
 
       if (error) throw error;
 
-      if (data) {
-        if (data.totp.qr_code && typeof data.totp.qr_code === 'string') {
-          setQRCode(data.totp.qr_code);
-        } else {
-          console.error('Invalid QR code data received');
-          setQRCode(null);
-        }
-        setSecret(data.totp.secret);
-        setShowMFADialog(true);
-      }
+      setShowMFADialog(true);
+      toast({
+        title: "Code Sent",
+        description: "Please check your email for the verification code.",
+      });
     } catch (error: any) {
       console.error('Error enrolling MFA:', error);
       toast({
@@ -97,23 +95,22 @@ export const SecurityTab = () => {
     }
 
     try {
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: mfaFactors[0].id
-      });
-      
-      if (challengeError) throw challengeError;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) {
+        throw new Error("No user email found");
+      }
 
-      const { error: verifyError } = await supabase.auth.mfa.verify({
-        factorId: mfaFactors[0].id,
-        challengeId: challengeData.id,
-        code: verifyCode,
+      const { error } = await supabase.auth.verifyOtp({
+        email: user.email,
+        token: verifyCode,
+        type: 'email'
       });
 
-      if (verifyError) throw verifyError;
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "MFA has been enabled successfully",
+        description: "Email-based MFA has been enabled successfully",
       });
       
       setShowMFADialog(false);
@@ -123,7 +120,7 @@ export const SecurityTab = () => {
       console.error('Error verifying MFA:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to verify MFA code",
+        description: error.message || "Failed to verify code",
         variant: "destructive",
       });
     }
@@ -131,8 +128,13 @@ export const SecurityTab = () => {
 
   const handleDisableMFA = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) {
+        throw new Error("No user email found");
+      }
+
       const { error } = await supabase.auth.mfa.unenroll({
-        factorId: mfaFactors[0].id
+        factorId: 'email'
       });
 
       if (error) throw error;
@@ -219,28 +221,6 @@ export const SecurityTab = () => {
     }
   };
 
-  const QRCodeDisplay = ({ value }: { value: string }) => {
-    try {
-      return (
-        <div className="flex justify-center p-4 bg-white rounded-lg">
-          <QRCodeSVG 
-            value={value} 
-            size={200}
-            level="M"
-            includeMargin={true}
-          />
-        </div>
-      );
-    } catch (error) {
-      console.error('Error rendering QR code:', error);
-      return (
-        <div className="text-center p-4 text-red-500">
-          Unable to generate QR code. Please use the manual entry code below.
-        </div>
-      );
-    }
-  };
-
   return (
     <div className="space-y-6">
       <form onSubmit={handlePasswordUpdate} className="space-y-4">
@@ -295,11 +275,11 @@ export const SecurityTab = () => {
       </form>
 
       <div className="pt-6 border-t">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Two-Factor Authentication (2FA)</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Email-Based Two-Factor Authentication (2FA)</h3>
         {isMFAEnabled ? (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
-              Two-factor authentication is currently enabled for your account.
+              Email-based two-factor authentication is currently enabled for your account.
             </p>
             <Button
               type="button"
@@ -307,13 +287,14 @@ export const SecurityTab = () => {
               onClick={handleDisableMFA}
               className="w-full"
             >
-              Disable 2FA
+              Disable Email 2FA
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
-              Add an extra layer of security to your account by enabling two-factor authentication.
+              Add an extra layer of security by enabling email-based two-factor authentication.
+              You'll receive a verification code by email when signing in.
             </p>
             <Button
               type="button"
@@ -324,10 +305,10 @@ export const SecurityTab = () => {
               {isEnrollingMFA ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Setting up 2FA...
+                  Setting up Email 2FA...
                 </>
               ) : (
-                "Enable 2FA"
+                "Enable Email 2FA"
               )}
             </Button>
           </div>
@@ -337,34 +318,19 @@ export const SecurityTab = () => {
       <Dialog open={showMFADialog} onOpenChange={setShowMFADialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Set up Two-Factor Authentication</DialogTitle>
+            <DialogTitle>Verify Email Authentication</DialogTitle>
             <DialogDescription>
-              Scan the QR code with your authenticator app and enter the verification code below.
+              Enter the verification code sent to your email address.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {qrCode && <QRCodeDisplay value={qrCode} />}
-            {secret && (
-              <div className="space-y-2">
-                <Label htmlFor="secret">Manual entry code:</Label>
-                <Input
-                  id="secret"
-                  value={secret}
-                  readOnly
-                  onClick={(e) => (e.target as HTMLInputElement).select()}
-                />
-                <p className="text-sm text-gray-500">
-                  If you can't scan the QR code, enter this code manually in your authenticator app.
-                </p>
-              </div>
-            )}
             <div className="space-y-2">
               <Label htmlFor="verifyCode">Verification code:</Label>
               <Input
                 id="verifyCode"
                 value={verifyCode}
                 onChange={(e) => setVerifyCode(e.target.value)}
-                placeholder="Enter 6-digit code"
+                placeholder="Enter verification code"
                 maxLength={6}
               />
             </div>
@@ -373,7 +339,7 @@ export const SecurityTab = () => {
               onClick={handleVerifyMFA}
               className="w-full bg-accent hover:bg-accent/90"
             >
-              Verify and Enable 2FA
+              Verify and Enable Email 2FA
             </Button>
           </div>
         </DialogContent>
