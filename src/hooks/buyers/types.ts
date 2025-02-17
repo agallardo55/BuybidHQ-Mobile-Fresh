@@ -15,6 +15,9 @@ export interface BuyerResponse {
   accepted_bids: number;
   pending_bids: number;
   declined_bids: number;
+  phone_carrier: string | null;
+  phone_validation_status: 'pending' | 'valid' | 'invalid' | null;
+  standardized_phone: string | null;
   user: {
     full_name: string | null;
     email: string | null;
@@ -34,6 +37,8 @@ export interface MappedBuyer {
   declinedBids: number;
   ownerName: string;
   ownerEmail: string;
+  phoneCarrier?: string;
+  phoneValidationStatus?: 'pending' | 'valid' | 'invalid';
 }
 
 export interface UpdateBuyerParams {
@@ -50,4 +55,3 @@ export interface UserPermission {
   permission: string;
   created_at: string | null;
 }
-

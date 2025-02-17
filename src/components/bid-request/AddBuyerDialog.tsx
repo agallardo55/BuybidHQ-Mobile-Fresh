@@ -3,9 +3,23 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBuyers } from "@/hooks/useBuyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
+import { CarrierType } from "@/types/buyers";
+
+const CARRIER_OPTIONS: CarrierType[] = [
+  'Verizon Wireless',
+  'AT&T',
+  'T-Mobile',
+  'Sprint',
+  'US Cellular',
+  'Metro PCS',
+  'Boost Mobile',
+  'Cricket',
+  'Virgin Mobile'
+];
 
 interface AddBuyerDialogProps {
   isOpen: boolean;
@@ -19,6 +33,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     name: "",
     dealership: "",
     mobile: "",
+    carrier: "" as CarrierType | "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,8 +44,8 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       return;
     }
 
-    if (!formData.name || !formData.dealership || !formData.mobile) {
-      toast.error("Please fill in all fields");
+    if (!formData.name || !formData.dealership || !formData.mobile || !formData.carrier) {
+      toast.error("Please fill in all fields including carrier");
       return;
     }
 
@@ -39,6 +54,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         fullName: formData.name,
         dealershipName: formData.dealership,
         mobileNumber: formData.mobile,
+        phoneCarrier: formData.carrier,
         email: "", // Required by the type but not needed for this form
         businessNumber: "",
         licenseNumber: "",
@@ -48,8 +64,9 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         zipCode: "",
       });
       
-      setFormData({ name: "", dealership: "", mobile: "" });
+      setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
       onOpenChange(false);
+      toast.success("Buyer added successfully");
     } catch (error) {
       console.error("Error adding buyer:", error);
       toast.error("Failed to add buyer. Please try again.");
@@ -61,6 +78,13 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleCarrierChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      carrier: value as CarrierType
     }));
   };
 
@@ -97,6 +121,24 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
               value={formData.mobile}
               onChange={handleChange}
             />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Mobile Carrier</label>
+            <Select
+              value={formData.carrier}
+              onValueChange={handleCarrierChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select carrier" />
+              </SelectTrigger>
+              <SelectContent>
+                {CARRIER_OPTIONS.map(carrier => (
+                  <SelectItem key={carrier} value={carrier}>
+                    {carrier}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <Button 
             type="submit"

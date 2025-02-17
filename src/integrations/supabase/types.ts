@@ -361,6 +361,11 @@ export type Database = {
           email: string
           id: string
           pending_bids: number | null
+          phone_carrier: string | null
+          phone_validation_status:
+            | Database["public"]["Enums"]["buyer_phone_validation_status"]
+            | null
+          standardized_phone: string | null
           state: string | null
           updated_at: string | null
           user_id: string | null
@@ -380,6 +385,11 @@ export type Database = {
           email: string
           id?: string
           pending_bids?: number | null
+          phone_carrier?: string | null
+          phone_validation_status?:
+            | Database["public"]["Enums"]["buyer_phone_validation_status"]
+            | null
+          standardized_phone?: string | null
           state?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -399,6 +409,11 @@ export type Database = {
           email?: string
           id?: string
           pending_bids?: number | null
+          phone_carrier?: string | null
+          phone_validation_status?:
+            | Database["public"]["Enums"]["buyer_phone_validation_status"]
+            | null
+          standardized_phone?: string | null
           state?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -1296,6 +1311,13 @@ export type Database = {
           is_valid: boolean
         }[]
       }
+      get_sms_gateway_email: {
+        Args: {
+          phone_number: string
+          carrier: string
+        }
+        Returns: string
+      }
       get_user_dealership: {
         Args: {
           user_id: string
@@ -1404,6 +1426,12 @@ export type Database = {
           failed: number
         }[]
       }
+      standardize_buyer_phone: {
+        Args: {
+          phone_input: string
+        }
+        Returns: string
+      }
       standardize_phone_number: {
         Args: {
           phone_input: string
@@ -1444,6 +1472,7 @@ export type Database = {
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
+      buyer_phone_validation_status: "pending" | "valid" | "invalid"
       mfa_method: "email" | "sms"
       mfa_status: "enabled" | "disabled" | "pending"
       notification_type:

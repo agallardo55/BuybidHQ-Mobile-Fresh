@@ -12,6 +12,8 @@ export interface Buyer {
   declinedBids: number;
   ownerName: string;
   ownerEmail: string;
+  phoneCarrier?: string;
+  phoneValidationStatus?: 'pending' | 'valid' | 'invalid';
 }
 
 export interface BuyerFormData {
@@ -25,6 +27,7 @@ export interface BuyerFormData {
   city: string;
   state: string;
   zipCode: string;
+  phoneCarrier: string;
 }
 
 export interface BuyerWithBids extends Buyer {
@@ -32,4 +35,15 @@ export interface BuyerWithBids extends Buyer {
   pendingBids: number;
   declinedBids: number;
 }
+
+export type CarrierType = 
+  | 'Verizon Wireless'
+  | 'AT&T'
+  | 'T-Mobile'
+  | 'Sprint'
+  | 'US Cellular'
+  | 'Metro PCS'
+  | 'Boost Mobile'
+  | 'Cricket'
+  | 'Virgin Mobile';
 
