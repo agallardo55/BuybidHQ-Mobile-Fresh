@@ -30,6 +30,16 @@ const ContactUs = () => {
 
     setIsSubmitting(true);
     try {
+      // First verify the reCAPTCHA token
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-recaptcha', {
+        body: { token: captchaValue }
+      });
+
+      if (verifyError || !verifyData?.success) {
+        throw new Error('reCAPTCHA verification failed');
+      }
+
+      // If verification successful, proceed with sending the email
       const { error } = await supabase.functions.invoke('send-contact-email', {
         body: { name, email, message }
       });
@@ -106,7 +116,7 @@ const ContactUs = () => {
             </div>
             <div className="flex justify-center">
               <ReCAPTCHA
-                sitekey="YOUR_RECAPTCHA_SITE_KEY"
+                sitekey={process.env.VITE_RECAPTCHA_SITE_KEY || ''}
                 onChange={handleCaptchaChange}
               />
             </div>
