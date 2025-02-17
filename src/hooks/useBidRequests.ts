@@ -5,6 +5,32 @@ import { BidRequest } from "@/components/bid-request/types";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
 
+interface BidRequestDetails {
+  request_id: string;
+  created_at: string;
+  status: string;
+  year: string;
+  make: string;
+  model: string;
+  trim_level: string;
+  vin: string;
+  mileage: string;
+  user_full_name: string;
+  engine_cylinders: string;
+  transmission: string;
+  drivetrain: string;
+  exterior_color: string;
+  interior_color: string;
+  accessories: string;
+  windshield: string;
+  engine_lights: string;
+  brakes: string;
+  tire: string;
+  maintenance: string;
+  recon_estimate: string;
+  recon_details: string;
+}
+
 export const useBidRequests = () => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
@@ -22,11 +48,16 @@ export const useBidRequests = () => {
         console.log("Current user role:", currentUser?.role);
 
         // First, get the bid requests with related data
-        const { data, error } = await supabase.rpc('get_bid_request_details');
+        const { data, error } = await supabase
+          .rpc('get_bid_request_details') as { data: BidRequestDetails[] | null, error: any };
 
         if (error) {
           console.error("Error fetching bid requests:", error);
           throw error;
+        }
+
+        if (!data) {
+          return [];
         }
 
         // Get bid responses separately
