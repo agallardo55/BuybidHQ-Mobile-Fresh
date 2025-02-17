@@ -1404,6 +1404,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_dealer: {
+        Args: {
+          checking_user_id: string
+        }
+        Returns: boolean
+      }
       is_primary_dealer: {
         Args: {
           checking_user_id: string
