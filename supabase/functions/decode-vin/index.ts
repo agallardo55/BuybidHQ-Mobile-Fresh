@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { VehicleData, CarApiData } from "./types.ts";
 import { fetchNHTSAData, fetchCarApiData } from "./apiUtils.ts";
@@ -25,6 +26,12 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
 
   // Start with NHTSA data as base
   Object.assign(mergedData, nhtsaData);
+
+  // Handle Porsche models specifically when CarAPI data isn't available
+  if (mergedData.make === 'PORSCHE') {
+    console.log('Processing Porsche vehicle data');
+    handlePorscheSpecifics(mergedData);
+  }
 
   // Enhance with CarAPI data if available
   if (carApiData) {
@@ -58,14 +65,8 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
       }
     }
 
-    // For Porsche Macan GTS, force specific engine configuration
-    if (mergedData.make === 'PORSCHE' && 
-        mergedData.model === 'Macan' && 
-        mergedData.trim.includes('GTS')) {
-      mergedData.engineCylinders = '3.0L 6-Cylinder Turbo';
-      console.log('Set Porsche Macan GTS engine:', mergedData.engineCylinders);
-    } else if (carApiData.specs) {
-      // Engine: Build comprehensive engine string for other models
+    if (carApiData.specs) {
+      // Engine: Build comprehensive engine string
       const engineParts = [];
       
       // Add displacement
@@ -86,28 +87,23 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
         engineParts.push('Turbo');
       }
       
-      // Add engine power if available
-      if (carApiData.specs.engine_brake_hp_from) {
-        engineParts.push(`${carApiData.specs.engine_brake_hp_from}hp`);
-      }
-      
       const engineString = engineParts.join(' ');
       if (engineString) {
         mergedData.engineCylinders = engineString;
         console.log('Set engine string:', engineString);
       }
-    }
 
-    // Transmission: Use CarAPI's detailed transmission info
-    if (carApiData.specs?.transmission_style && carApiData.specs?.transmission_speeds) {
-      mergedData.transmission = `${carApiData.specs.transmission_speeds}-Speed ${carApiData.specs.transmission_style}`;
-      console.log('Set transmission:', mergedData.transmission);
-    }
+      // Transmission: Use CarAPI's detailed transmission info
+      if (carApiData.specs.transmission_style && carApiData.specs.transmission_speeds) {
+        mergedData.transmission = `${carApiData.specs.transmission_speeds}-Speed ${carApiData.specs.transmission_style}`;
+        console.log('Set transmission:', mergedData.transmission);
+      }
 
-    // Drivetrain: Use CarAPI's drive_type if available
-    if (carApiData.specs?.drive_type) {
-      mergedData.drivetrain = carApiData.specs.drive_type;
-      console.log('Set drivetrain:', mergedData.drivetrain);
+      // Drivetrain: Use CarAPI's drive_type if available
+      if (carApiData.specs.drive_type) {
+        mergedData.drivetrain = carApiData.specs.drive_type;
+        console.log('Set drivetrain:', mergedData.drivetrain);
+      }
     }
   }
 
@@ -121,6 +117,32 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
 
   console.log('Final merged data:', mergedData);
   return mergedData;
+}
+
+function handlePorscheSpecifics(data: VehicleData) {
+  // Macan specific handling
+  if (data.model === 'Macan') {
+    if (data.trim.toLowerCase().includes('gts')) {
+      data.engineCylinders = '2.9L V6 Turbo';
+      data.transmission = '7-Speed PDK';
+      data.drivetrain = 'AWD';
+      console.log('Set Porsche Macan GTS specs');
+    } else if (data.trim.toLowerCase().includes('turbo')) {
+      data.engineCylinders = '2.9L V6 Turbo';
+      data.transmission = '7-Speed PDK';
+      data.drivetrain = 'AWD';
+      console.log('Set Porsche Macan Turbo specs');
+    }
+  }
+  // 911 specific handling
+  else if (data.model === '911') {
+    if (data.trim.toLowerCase().includes('turbo')) {
+      data.engineCylinders = '3.8L 6-Cylinder Twin-Turbo';
+      data.transmission = '8-Speed PDK';
+      data.drivetrain = 'AWD';
+      console.log('Set Porsche 911 Turbo specs');
+    }
+  }
 }
 
 serve(async (req) => {
@@ -153,15 +175,13 @@ serve(async (req) => {
         throw new Error('CarAPI key not configured');
       }
 
-      // Fetch data from both APIs in parallel
-      const [nhtsaData, carApiData] = await Promise.all([
-        fetchNHTSAData(vin),
-        fetchCarApiData(vin, CARAPI_KEY)
-      ]);
+      // First get NHTSA data to check the year
+      const nhtsaData = await fetchNHTSAData(vin);
+      console.log('NHTSA data received:', nhtsaData);
 
-      console.log('API responses received:');
-      console.log('NHTSA:', nhtsaData);
-      console.log('CarAPI:', carApiData);
+      // Then get CarAPI data if year is supported
+      const carApiData = await fetchCarApiData(vin, CARAPI_KEY, nhtsaData.year);
+      console.log('CarAPI data received:', carApiData);
 
       // Merge data from both sources
       const mergedData = mergeVehicleData(nhtsaData, carApiData);
