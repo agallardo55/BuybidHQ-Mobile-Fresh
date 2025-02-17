@@ -40,7 +40,7 @@ const SignIn = () => {
         email,
         password,
         options: {
-          captchaToken: undefined
+          persistSession: rememberMe, // When true, session persists for 7 days
         }
       });
 
@@ -124,7 +124,7 @@ const SignIn = () => {
                 htmlFor="remember"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
               >
-                Remember me
+                Remember me for 7 days
               </label>
             </div>
           </div>
