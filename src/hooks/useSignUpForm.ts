@@ -7,6 +7,7 @@ interface SignUpFormData {
   fullName: string;
   email: string;
   password: string;
+  confirmPassword: string;
   mobileNumber: string;
   businessNumber: string;
   dealershipName: string;
@@ -26,6 +27,7 @@ export const useSignUpForm = () => {
     fullName: "",
     email: "",
     password: "",
+    confirmPassword: "",
     mobileNumber: "",
     businessNumber: "",
     dealershipName: "",
@@ -87,10 +89,11 @@ export const useSignUpForm = () => {
   };
 
   const handleNext = () => {
-    if (formData.fullName && formData.email && formData.password && formData.mobileNumber && formData.businessNumber) {
+    if (formData.fullName && formData.email && formData.password && formData.confirmPassword && 
+        formData.mobileNumber && formData.businessNumber && formData.password === formData.confirmPassword) {
       setCurrentStep('dealership');
     } else {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill in all required fields and ensure passwords match");
     }
   };
 

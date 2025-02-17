@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const SecurityTab = () => {
   const { toast } = useToast();
@@ -25,6 +26,9 @@ export const SecurityTab = () => {
     newPassword: "",
     confirmPassword: "",
   });
+
+  const passwordsMatch = passwordData.newPassword === passwordData.confirmPassword;
+  const showMismatchError = passwordData.confirmPassword.length > 0 && !passwordsMatch;
 
   useEffect(() => {
     checkMFAStatus();
@@ -186,7 +190,7 @@ export const SecurityTab = () => {
       return;
     }
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
+    if (!passwordsMatch) {
       toast({
         title: "Error",
         description: "New passwords do not match.",
@@ -238,6 +242,7 @@ export const SecurityTab = () => {
               type="password"
               value={passwordData.newPassword}
               onChange={handlePasswordChange}
+              placeholder="Enter new password"
               required
               minLength={6}
             />
@@ -255,16 +260,25 @@ export const SecurityTab = () => {
               type="password"
               value={passwordData.confirmPassword}
               onChange={handlePasswordChange}
+              placeholder="Confirm new password"
               required
+              className={cn(
+                showMismatchError && "border-red-500 focus:ring-red-500 focus-visible:ring-red-500"
+              )}
               minLength={6}
             />
+            {showMismatchError && (
+              <p className="mt-1 text-sm text-red-500">
+                Passwords do not match
+              </p>
+            )}
           </div>
         </div>
 
         <Button
           type="submit"
           className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-          disabled={isUpdatingPassword}
+          disabled={isUpdatingPassword || showMismatchError}
         >
           {isUpdatingPassword ? (
             <>

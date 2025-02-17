@@ -1,12 +1,14 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface PersonalInfoFormProps {
   formData: {
     fullName: string;
     email: string;
     password: string;
+    confirmPassword: string;
     mobileNumber: string;
     businessNumber: string;
   };
@@ -16,6 +18,9 @@ interface PersonalInfoFormProps {
 }
 
 const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFormProps) => {
+  const passwordsMatch = formData.password === formData.confirmPassword;
+  const showMismatchError = formData.confirmPassword.length > 0 && !passwordsMatch;
+
   return (
     <div className="space-y-4">
       <div>
@@ -55,7 +60,33 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           required
           value={formData.password}
           onChange={onChange}
+          minLength={6}
         />
+        <p className="mt-1 text-sm text-gray-500">
+          Password must be at least 6 characters long
+        </p>
+      </div>
+      <div>
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+          Confirm Password
+        </label>
+        <Input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          required
+          value={formData.confirmPassword}
+          onChange={onChange}
+          className={cn(
+            showMismatchError && "border-red-500 focus:ring-red-500 focus-visible:ring-red-500"
+          )}
+          minLength={6}
+        />
+        {showMismatchError && (
+          <p className="mt-1 text-sm text-red-500">
+            Passwords do not match
+          </p>
+        )}
       </div>
       <div>
         <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
@@ -99,6 +130,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           type="button"
           onClick={onNext}
           className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+          disabled={showMismatchError}
         >
           Next Step
         </Button>
