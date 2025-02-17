@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordData } from "@/types/password";
+import { validatePassword, validatePasswordMatch } from "@/utils/passwordValidation";
 
 export const usePasswordUpdate = () => {
   const { toast } = useToast();
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
+  const [passwordData, setPasswordData] = useState<PasswordData>({
     newPassword: "",
     confirmPassword: "",
   });
@@ -20,22 +21,27 @@ export const usePasswordUpdate = () => {
     }));
   };
 
+  const passwordsMatch = passwordData.newPassword === passwordData.confirmPassword;
+  const showMismatchError = passwordData.confirmPassword.length > 0 && !passwordsMatch;
+
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
+    const passwordValidation = validatePassword(passwordData.newPassword);
+    if (!passwordValidation.isValid) {
       toast({
         title: "Error",
-        description: "New passwords do not match.",
+        description: passwordValidation.error,
         variant: "destructive",
       });
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
+    const matchValidation = validatePasswordMatch(passwordData.newPassword, passwordData.confirmPassword);
+    if (!matchValidation.isValid) {
       toast({
         title: "Error",
-        description: "Password must be at least 6 characters long.",
+        description: matchValidation.error,
         variant: "destructive",
       });
       return;
@@ -56,7 +62,6 @@ export const usePasswordUpdate = () => {
       });
 
       setPasswordData({
-        currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
@@ -74,6 +79,8 @@ export const usePasswordUpdate = () => {
   return {
     passwordData,
     isUpdatingPassword,
+    showMismatchError,
+    passwordsMatch,
     handlePasswordChange,
     handlePasswordUpdate,
   };
