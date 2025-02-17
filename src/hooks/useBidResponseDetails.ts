@@ -36,11 +36,12 @@ export const useBidResponseDetails = (requestId: string | null): BidResponseDeta
           return;
         }
 
-        // Fetch images for the bid request
+        // Fetch images for the bid request, ordered by sequence and creation date
         const { data: imageData, error: imageError } = await supabase
           .from('images')
           .select('image_url')
           .eq('bid_request_id', requestId)
+          .order('sequence_order', { ascending: true, nullsLast: true })
           .order('created_at', { ascending: true });
 
         if (imageError) {
@@ -62,8 +63,8 @@ export const useBidResponseDetails = (requestId: string | null): BidResponseDeta
           brakes: detail.brakes,
           tire: detail.tire,
           maintenance: detail.maintenance,
-          reconEstimate: detail.recon_estimate,
-          reconDetails: detail.recon_details,
+          reconEstimate: detail.recon_estimate || '0',
+          reconDetails: detail.recon_details || '',
           accessories: detail.accessories,
           transmission: detail.transmission,
           engineCylinders: detail.engine_cylinders,

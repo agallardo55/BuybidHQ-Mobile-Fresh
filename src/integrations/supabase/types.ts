@@ -651,18 +651,21 @@ export type Database = {
           created_at: string
           id: string
           image_url: string | null
+          sequence_order: number | null
         }
         Insert: {
           bid_request_id?: string | null
           created_at?: string
           id?: string
           image_url?: string | null
+          sequence_order?: number | null
         }
         Update: {
           bid_request_id?: string | null
           created_at?: string
           id?: string
           image_url?: string | null
+          sequence_order?: number | null
         }
         Relationships: [
           {
@@ -847,8 +850,8 @@ export type Database = {
           engine_light: string | null
           id: string
           maintenance: string | null
-          recod_details: string | null
-          recon_est: string | null
+          recon_details: string | null
+          recon_estimate: string | null
           tires: string | null
           vehicle_id: string | null
           windshield: string | null
@@ -859,8 +862,8 @@ export type Database = {
           engine_light?: string | null
           id?: string
           maintenance?: string | null
-          recod_details?: string | null
-          recon_est?: string | null
+          recon_details?: string | null
+          recon_estimate?: string | null
           tires?: string | null
           vehicle_id?: string | null
           windshield?: string | null
@@ -871,8 +874,8 @@ export type Database = {
           engine_light?: string | null
           id?: string
           maintenance?: string | null
-          recod_details?: string | null
-          recon_est?: string | null
+          recon_details?: string | null
+          recon_estimate?: string | null
           tires?: string | null
           vehicle_id?: string | null
           windshield?: string | null
@@ -1246,7 +1249,6 @@ export type Database = {
           user_full_name: string
           dealership: string
           mobile_number: string
-          images: string[]
         }[]
       }
       get_bid_response_details: {
