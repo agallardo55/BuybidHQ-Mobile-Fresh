@@ -39,6 +39,7 @@ export const useBuyersQuery = () => {
             accepted_bids,
             pending_bids,
             declined_bids,
+            phone_carrier,
             user:buybidhq_users!buyers_user_id_fkey(
               full_name,
               email
@@ -68,14 +69,15 @@ export const useBuyersQuery = () => {
           name: buyer.buyer_name || '',
           email: buyer.email || '',
           dealership: buyer.dealer_name || '',
-          mobileNumber: buyer.buyer_mobile || '', // Map buyer_mobile to mobileNumber
-          businessNumber: buyer.buyer_phone || '', // Map buyer_phone to businessNumber
+          mobileNumber: buyer.buyer_mobile || '',
+          businessNumber: buyer.buyer_phone || '',
           location: `${buyer.city || ''}, ${buyer.state || ''}`.replace(/, $/, ''),
           acceptedBids: buyer.accepted_bids || 0,
           pendingBids: buyer.pending_bids || 0,
           declinedBids: buyer.declined_bids || 0,
           ownerName: buyer.user?.full_name || 'N/A',
-          ownerEmail: buyer.user?.email || 'N/A'
+          ownerEmail: buyer.user?.email || 'N/A',
+          phoneCarrier: buyer.phone_carrier || 'N/A' // Added this mapping
         }));
 
         console.log("Mapped buyers:", mappedBuyers);
