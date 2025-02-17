@@ -65,7 +65,12 @@ export const SecurityTab = () => {
       if (error) throw error;
 
       if (data) {
-        setQRCode(data.totp.qr_code);
+        if (data.totp.qr_code && typeof data.totp.qr_code === 'string') {
+          setQRCode(data.totp.qr_code);
+        } else {
+          console.error('Invalid QR code data received');
+          setQRCode(null);
+        }
         setSecret(data.totp.secret);
         setShowMFADialog(true);
       }
@@ -214,6 +219,28 @@ export const SecurityTab = () => {
     }
   };
 
+  const QRCodeDisplay = ({ value }: { value: string }) => {
+    try {
+      return (
+        <div className="flex justify-center p-4 bg-white rounded-lg">
+          <QRCodeSVG 
+            value={value} 
+            size={200}
+            level="M"
+            includeMargin={true}
+          />
+        </div>
+      );
+    } catch (error) {
+      console.error('Error rendering QR code:', error);
+      return (
+        <div className="text-center p-4 text-red-500">
+          Unable to generate QR code. Please use the manual entry code below.
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="space-y-6">
       <form onSubmit={handlePasswordUpdate} className="space-y-4">
@@ -316,11 +343,7 @@ export const SecurityTab = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {qrCode && (
-              <div className="flex justify-center p-4 bg-white rounded-lg">
-                <QRCodeSVG value={qrCode} size={200} />
-              </div>
-            )}
+            {qrCode && <QRCodeDisplay value={qrCode} />}
             {secret && (
               <div className="space-y-2">
                 <Label htmlFor="secret">Manual entry code:</Label>
