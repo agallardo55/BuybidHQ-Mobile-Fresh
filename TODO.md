@@ -1,4 +1,3 @@
-
 # TODOs and Future Improvements
 
 ## Authentication & User Management
@@ -47,6 +46,22 @@
 - [ ] Implement delegation system for temporary access
 
 ## Security Improvements
+- [ ] Implement Multi-Factor Authentication (MFA)
+    - Add 6-digit PIN verification flow after password login
+    - Create dedicated MFA verification page
+    - Implement PIN generation and SMS/email delivery
+    - Add PIN expiration (5-minute timeout)
+    - Set maximum PIN retry attempts (3 attempts)
+    - Implement cooldown period after failed attempts
+    - Create backup verification methods
+    - Add trusted device remembering option
+    - Implement MFA recovery process
+    - Add MFA enrollment during first login
+    - Create MFA settings management in user profile
+    - Add audit logging for MFA attempts
+    - Implement secure PIN storage and validation
+    - Add MFA bypass for whitelisted IPs (admin only)
+
 - [ ] Add two-factor authentication (2FA)
 - [ ] Implement session management
 - [ ] Add IP-based login restrictions
