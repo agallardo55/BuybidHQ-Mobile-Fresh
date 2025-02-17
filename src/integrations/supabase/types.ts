@@ -419,6 +419,7 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
+          inquiry_type: string | null
           message: string
           name: string
         }
@@ -426,6 +427,7 @@ export type Database = {
           created_at?: string | null
           email: string
           id?: string
+          inquiry_type?: string | null
           message: string
           name: string
         }
@@ -433,6 +435,7 @@ export type Database = {
           created_at?: string | null
           email?: string
           id?: string
+          inquiry_type?: string | null
           message?: string
           name?: string
         }
