@@ -10,6 +10,7 @@ import BuyersLoading from "@/components/buyers/BuyersLoading";
 import { useBuyersState } from "@/hooks/buyers/useBuyersState";
 import { filterBuyers, sortBuyers, handleSort } from "@/utils/buyerUtils";
 import { Buyer } from "@/types/buyers";
+import { MappedBuyer } from "@/hooks/buyers/types";
 
 const Buyers = () => {
   const {
@@ -55,13 +56,21 @@ const Buyers = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleView = (buyer: Buyer) => {
-    setSelectedBuyer(buyer);
+  const handleView = (buyer: MappedBuyer) => {
+    // Convert MappedBuyer to Buyer
+    const convertedBuyer: Buyer = {
+      ...buyer,
+    };
+    setSelectedBuyer(convertedBuyer);
     setIsViewDialogOpen(true);
   };
 
-  const handleEdit = (buyer: Buyer) => {
-    setSelectedBuyer(buyer);
+  const handleEdit = (buyer: MappedBuyer) => {
+    // Convert MappedBuyer to Buyer
+    const convertedBuyer: Buyer = {
+      ...buyer,
+    };
+    setSelectedBuyer(convertedBuyer);
     setIsEditDialogOpen(true);
   };
 
@@ -89,7 +98,7 @@ const Buyers = () => {
     return <BuyersLoading />;
   }
 
-  const filteredBuyers = filterBuyers(buyers, searchTerm);
+  const filteredBuyers = filterBuyers(buyers as unknown as Buyer[], searchTerm);
   const sortedBuyers = sortBuyers(filteredBuyers, sortConfig);
   const totalPages = Math.ceil(sortedBuyers.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;

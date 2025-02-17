@@ -5,7 +5,8 @@ export interface Buyer {
   name: string;
   email: string;
   dealership: string;
-  phone: string;
+  mobileNumber: string;
+  businessNumber: string;
   location: string;
   acceptedBids: number;
   pendingBids: number;
