@@ -1,94 +1,92 @@
 
-import { useState, useEffect } from "react";
-import { VehicleDetails } from "@/components/bid-response/types";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useParams } from "react-router-dom";
 
-interface BidResponseDetails {
-  isLoading: boolean;
-  error: string | null;
-  vehicleDetails: VehicleDetails | null;
-  creatorInfo: { phoneNumber: string; fullName: string } | null;
+interface BidResponseDetailsType {
+  request_id: string;
+  created_at: string;
+  status: string;
+  year: string;
+  make: string;
+  model: string;
+  trim_level: string;
+  vin: string;
+  mileage: string;
+  user_full_name: string;
+  engine_cylinders: string;
+  transmission: string;
+  drivetrain: string;
+  exterior_color: string;
+  interior_color: string;
+  accessories: string;
+  windshield: string;
+  engine_lights: string;
+  brakes: string;
+  tire: string;
+  maintenance: string;
+  recon_estimate: string;
+  recon_details: string;
+  dealership: string | null;
+  mobile_number: string | null;
 }
 
-export const useBidResponseDetails = (requestId: string | null): BidResponseDetails => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails | null>(null);
-  const [creatorInfo, setCreatorInfo] = useState<{ phoneNumber: string; fullName: string } | null>(null);
+export const useBidResponseDetails = () => {
+  const { id } = useParams();
 
-  useEffect(() => {
-    const fetchBidRequestDetails = async () => {
-      if (!requestId) {
-        setError('This bid request has expired.');
-        return;
+  return useQuery({
+    queryKey: ['bidResponse', id],
+    queryFn: async () => {
+      if (!id) throw new Error('No bid response ID provided');
+
+      const { data, error } = await supabase
+        .rpc('get_bid_request_details', {
+          p_request_id: id
+        });
+
+      if (error) {
+        console.error('Error fetching bid response details:', error);
+        throw error;
       }
 
-      try {
-        // Fetch bid request details
-        const { data: requestData, error: requestError } = await supabase.rpc('get_bid_request_details', {
-          p_request_id: requestId
-        });
-
-        if (requestError) throw requestError;
-
-        if (!requestData?.[0]) {
-          setError('This bid request has expired.');
-          return;
-        }
-
-        // Fetch images for the bid request, ordered by sequence and creation date
-        const { data: imageData, error: imageError } = await supabase
-          .from('images')
-          .select('image_url')
-          .eq('bid_request_id', requestId)
-          .order('sequence_order', { ascending: true })
-          .order('created_at', { ascending: true });
-
-        if (imageError) {
-          console.error('Error fetching images:', imageError);
-        }
-
-        const detail = requestData[0];
-        setVehicleDetails({
-          year: detail.year,
-          make: detail.make,
-          model: detail.model,
-          trim: detail.trim_level,
-          mileage: parseFloat(detail.mileage) || 0,
-          exteriorColor: detail.exterior_color,
-          interiorColor: detail.interior_color,
-          vin: detail.vin,
-          windshield: detail.windshield,
-          engineLights: detail.engine_lights,
-          brakes: detail.brakes,
-          tire: detail.tire,
-          maintenance: detail.maintenance,
-          reconEstimate: detail.recon_estimate || '0',
-          reconDetails: detail.recon_details || '',
-          accessories: detail.accessories,
-          transmission: detail.transmission,
-          engineCylinders: detail.engine_cylinders,
-          drivetrain: detail.drivetrain,
-          userFullName: detail.user_full_name,
-          dealership: detail.dealership,
-          mobileNumber: detail.mobile_number,
-          images: imageData?.map(img => img.image_url) || []
-        });
-
-        setCreatorInfo({
-          phoneNumber: detail.mobile_number,
-          fullName: detail.user_full_name
-        });
-      } catch (err) {
-        console.error('Error fetching bid request:', err);
-        setError('Failed to load bid request details');
-      } finally {
-        setIsLoading(false);
+      if (!data || data.length === 0) {
+        throw new Error('No bid response found');
       }
-    };
 
-    fetchBidRequestDetails();
-  }, [requestId]);
+      const details = data[0] as BidResponseDetailsType;
 
-  return { isLoading, error, vehicleDetails, creatorInfo };
+      return {
+        requestId: details.request_id,
+        createdAt: new Date(details.created_at),
+        status: details.status,
+        vehicle: {
+          year: parseInt(details.year),
+          make: details.make,
+          model: details.model,
+          trim: details.trim_level,
+          vin: details.vin,
+          mileage: parseInt(details.mileage),
+          engineCylinders: details.engine_cylinders,
+          transmission: details.transmission,
+          drivetrain: details.drivetrain,
+          exteriorColor: details.exterior_color,
+          interiorColor: details.interior_color,
+          accessories: details.accessories,
+          windshield: details.windshield,
+          engineLights: details.engine_lights,
+          brakes: details.brakes,
+          tire: details.tire,
+          maintenance: details.maintenance,
+          reconEstimate: details.recon_estimate,
+          reconDetails: details.recon_details
+        },
+        buyer: {
+          name: details.user_full_name,
+          dealership: details.dealership || 'N/A',
+          mobileNumber: details.mobile_number || 'N/A'
+        }
+      };
+    },
+    enabled: !!id
+  });
 };

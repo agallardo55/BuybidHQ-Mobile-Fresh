@@ -1,31 +1,13 @@
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAccountForm } from "@/hooks/useAccountForm";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { CarrierType, UserRole } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-
-const CARRIER_OPTIONS: CarrierType[] = [
-  'Verizon Wireless',
-  'AT&T',
-  'T-Mobile',
-  'Sprint',
-  'US Cellular',
-  'Metro PCS',
-  'Boost Mobile',
-  'Cricket',
-  'Virgin Mobile'
-];
+import { RoleDisplay } from "./form-sections/RoleDisplay";
+import { ContactInfo } from "./form-sections/ContactInfo";
+import { AddressInfo } from "./form-sections/AddressInfo";
 
 export const PersonalInfoTab = () => {
   const { formData, handleChange, isLoading } = useAccountForm();
@@ -100,148 +82,9 @@ export const PersonalInfoTab = () => {
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
-          {/* Role Dropdown (Read-only) */}
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-              Role
-            </label>
-            <Select
-              value={currentUser?.role}
-              disabled
-              onValueChange={() => {}}
-            >
-              <SelectTrigger className="bg-gray-50">
-                <SelectValue placeholder="Loading..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="basic">Basic</SelectItem>
-                <SelectItem value="individual">Individual</SelectItem>
-                <SelectItem value="dealer">Dealer</SelectItem>
-                <SelectItem value="associate">Associate</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name <span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="fullName"
-              name="fullName"
-              type="text"
-              required
-              value={formData.fullName}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email address <span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700 mb-1">
-              Mobile Number <span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="mobileNumber"
-              name="mobileNumber"
-              type="tel"
-              required
-              value={formData.mobileNumber}
-              onChange={handleChange}
-              placeholder="(123) 456-7890"
-              maxLength={14}
-            />
-          </div>
-          <div>
-            <label htmlFor="phoneCarrier" className="block text-sm font-medium text-gray-700 mb-1">
-              Mobile Carrier <span className="text-red-500">*</span>
-            </label>
-            <Select
-              value={formData.phoneCarrier}
-              onValueChange={(value) => handleChange({ target: { name: 'phoneCarrier', value } })}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select carrier" />
-              </SelectTrigger>
-              <SelectContent>
-                {CARRIER_OPTIONS.map(carrier => (
-                  <SelectItem key={carrier} value={carrier}>
-                    {carrier}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Only show address fields for non-admin users */}
-          {!isAdmin && (
-            <>
-              <div>
-                <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">
-                  Address
-                </label>
-                <Input
-                  id="dealershipAddress"
-                  name="dealershipAddress"
-                  type="text"
-                  value={formData.dealershipAddress}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-                  City
-                </label>
-                <Input
-                  id="city"
-                  name="city"
-                  type="text"
-                  value={formData.city}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-                    State
-                  </label>
-                  <Input
-                    id="state"
-                    name="state"
-                    type="text"
-                    value={formData.state}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-                    ZIP Code
-                  </label>
-                  <Input
-                    id="zipCode"
-                    name="zipCode"
-                    type="text"
-                    value={formData.zipCode}
-                    onChange={handleChange}
-                    maxLength={5}
-                  />
-                </div>
-              </div>
-            </>
-          )}
+          <RoleDisplay />
+          <ContactInfo formData={formData} handleChange={handleChange} />
+          {!isAdmin && <AddressInfo formData={formData} handleChange={handleChange} />}
         </div>
       </div>
 
