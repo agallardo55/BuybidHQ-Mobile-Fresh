@@ -77,7 +77,7 @@ export const useBuyersQuery = () => {
           declinedBids: buyer.declined_bids || 0,
           ownerName: buyer.user?.full_name || 'N/A',
           ownerEmail: buyer.user?.email || 'N/A',
-          phoneCarrier: buyer.phone_carrier || 'N/A' // Added this mapping
+          phoneCarrier: buyer.phone_carrier || 'N/A'
         }));
 
         console.log("Mapped buyers:", mappedBuyers);
