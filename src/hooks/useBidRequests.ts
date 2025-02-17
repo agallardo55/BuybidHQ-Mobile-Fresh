@@ -47,8 +47,8 @@ export const useBidRequests = () => {
               brakes,
               tires,
               maintenance,
-              recon_est,
-              recod_details
+              recon_estimate,
+              recon_details
             ),
             buybidhq_users (
               full_name
@@ -73,7 +73,7 @@ export const useBidRequests = () => {
           return {
             id: item.id,
             createdAt: item.created_at,
-            year: parseInt(item.vehicles.year) || 0, // Convert string to number
+            year: parseInt(item.vehicles.year) || 0,
             make: item.vehicles.make,
             model: item.vehicles.model,
             trim: item.vehicles.trim,
@@ -93,8 +93,8 @@ export const useBidRequests = () => {
             brakes: item.reconditioning.brakes,
             tire: item.reconditioning.tires,
             maintenance: item.reconditioning.maintenance,
-            reconEstimate: item.reconditioning.recon_est,
-            reconDetails: item.reconditioning.recod_details
+            reconEstimate: item.reconditioning.recon_estimate,
+            reconDetails: item.reconditioning.recon_details
           };
         });
 
@@ -105,8 +105,8 @@ export const useBidRequests = () => {
       }
     },
     enabled: !!currentUser,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 30 * 60 * 1000, // Keep data in cache for 30 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const updateBidRequestMutation = useMutation({

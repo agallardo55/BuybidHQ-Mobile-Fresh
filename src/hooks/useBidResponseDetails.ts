@@ -41,7 +41,7 @@ export const useBidResponseDetails = (requestId: string | null): BidResponseDeta
           .from('images')
           .select('image_url')
           .eq('bid_request_id', requestId)
-          .order('sequence_order', { ascending: true, nullsLast: true })
+          .order('sequence_order', { ascending: true })
           .order('created_at', { ascending: true });
 
         if (imageError) {
