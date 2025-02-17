@@ -1,3 +1,4 @@
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -38,7 +39,9 @@ export const SecurityTab = () => {
       
       if (error) throw error;
       
-      setIsMFAEnabled(factors.email && factors.email.length > 0);
+      // Check if email factor exists in the all factors array
+      const hasEmailFactor = factors.all.some(factor => factor.factor_type === 'email');
+      setIsMFAEnabled(hasEmailFactor);
     } catch (error: any) {
       console.error('Error checking MFA status:', error);
       toast({
