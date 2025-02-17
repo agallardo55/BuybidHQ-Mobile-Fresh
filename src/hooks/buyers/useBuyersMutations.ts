@@ -143,7 +143,7 @@ export const useBuyersMutations = () => {
   });
 
   return {
-    createBuyer: createBuyerMutation.mutate,
+    createBuyer: createBuyerMutation.mutateAsync,  // Changed from mutate to mutateAsync
     updateBuyer: updateBuyerMutation.mutate,
     deleteBuyer: deleteBuyerMutation.mutate,
   };

@@ -7,8 +7,6 @@ import { toast } from "sonner";
 import { CarrierType } from "@/types/buyers";
 import { supabase } from "@/integrations/supabase/client";
 import AddBuyerForm from "./form-sections/AddBuyerForm";
-
-// Import CARRIER_OPTIONS from ContactInfoSection where it's defined
 import { CARRIER_OPTIONS } from "./form-sections/ContactInfoSection";
 
 interface AddBuyerDialogProps {
@@ -93,10 +91,6 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
 
       const newBuyer = await createBuyer(buyerData);
       
-      if (!newBuyer || !('id' in newBuyer)) {
-        throw new Error("Failed to create buyer");
-      }
-
       // Validate phone number if buyer was created successfully
       const isValid = await validatePhoneNumber(formData.mobile, newBuyer.id);
 
