@@ -68,7 +68,8 @@ export const useBuyersQuery = () => {
           name: buyer.buyer_name || '',
           email: buyer.email || '',
           dealership: buyer.dealer_name || '',
-          phone: buyer.buyer_mobile || '',
+          mobileNumber: buyer.buyer_mobile || '', // Map buyer_mobile to mobileNumber
+          businessNumber: buyer.buyer_phone || '', // Map buyer_phone to businessNumber
           location: `${buyer.city || ''}, ${buyer.state || ''}`.replace(/, $/, ''),
           acceptedBids: buyer.accepted_bids || 0,
           pendingBids: buyer.pending_bids || 0,
@@ -99,4 +100,3 @@ export const useBuyersQuery = () => {
     },
   });
 };
-

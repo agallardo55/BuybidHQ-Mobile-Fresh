@@ -34,7 +34,8 @@ export interface MappedBuyer {
   name: string;
   email: string;
   dealership: string;
-  phone: string;
+  mobileNumber: string; // Changed from phone to mobileNumber
+  businessNumber: string; // Added businessNumber
   location: string;
   acceptedBids: number;
   pendingBids: number;

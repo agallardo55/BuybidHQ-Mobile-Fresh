@@ -37,8 +37,8 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
       setFormData({
         fullName: buyer.name,
         email: buyer.email,
-        mobileNumber: "",
-        businessNumber: buyer.phone,
+        mobileNumber: buyer.mobileNumber, // Use mobileNumber instead of phone
+        businessNumber: buyer.businessNumber, // Use businessNumber
         dealershipName: buyer.dealership,
         licenseNumber: "",
         dealershipAddress: "",
