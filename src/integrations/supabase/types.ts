@@ -1356,14 +1356,21 @@ export type Database = {
         }
         Returns: {
           request_id: string
+          created_at: string
+          status: string
           year: string
           make: string
           model: string
           trim_level: string
           vin: string
           mileage: string
+          user_full_name: string
+          engine_cylinders: string
+          transmission: string
+          drivetrain: string
           exterior_color: string
           interior_color: string
+          accessories: string
           windshield: string
           engine_lights: string
           brakes: string
@@ -1371,13 +1378,6 @@ export type Database = {
           maintenance: string
           recon_estimate: string
           recon_details: string
-          accessories: string
-          transmission: string
-          engine_cylinders: string
-          drivetrain: string
-          user_full_name: string
-          dealership: string
-          mobile_number: string
         }[]
       }
       get_bid_response_details: {
