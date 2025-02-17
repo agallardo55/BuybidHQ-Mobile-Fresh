@@ -161,7 +161,23 @@ export const useSignUpForm = () => {
         throw userError;
       }
 
+      // 4. Create initial subscription record
+      const { error: subscriptionError } = await supabase
+        .from('subscriptions')
+        .insert([
+          {
+            user_id: authData.user.id,
+            plan_type: 'beta-access',
+            status: 'trialing'
+          }
+        ]);
+
+      if (subscriptionError) {
+        throw subscriptionError;
+      }
+
       toast.success("Account created successfully!");
+      navigate('/signin');
     } catch (error: any) {
       console.error('Signup error:', error);
       toast.error(error.message || "Failed to create account");
