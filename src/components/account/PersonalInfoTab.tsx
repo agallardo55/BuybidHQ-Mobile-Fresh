@@ -7,13 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { RoleDisplay } from "./form-sections/RoleDisplay";
 import { ContactInfo } from "./form-sections/ContactInfo";
-import { AddressInfo } from "./form-sections/AddressInfo";
 
 export const PersonalInfoTab = () => {
   const { formData, handleChange, isLoading } = useAccountForm();
   const { toast } = useToast();
   const { currentUser } = useCurrentUser();
-  const isAdmin = currentUser?.role === 'admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,16 +36,6 @@ export const PersonalInfoTab = () => {
         mobile_number: formData.mobileNumber,
         phone_carrier: formData.phoneCarrier,
       };
-
-      // Only include address fields if not admin
-      if (!isAdmin) {
-        Object.assign(updateData, {
-          address: formData.dealershipAddress,
-          city: formData.city,
-          state: formData.state,
-          zip_code: formData.zipCode
-        });
-      }
 
       const { error: userError } = await supabase
         .from('buybidhq_users')
@@ -84,7 +72,6 @@ export const PersonalInfoTab = () => {
         <div className="grid grid-cols-1 gap-4">
           <RoleDisplay />
           <ContactInfo formData={formData} handleChange={handleChange} />
-          {!isAdmin && <AddressInfo formData={formData} handleChange={handleChange} />}
         </div>
       </div>
 

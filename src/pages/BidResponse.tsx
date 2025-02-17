@@ -20,7 +20,7 @@ const BidResponse = () => {
   const token = searchParams.get('token');
   const requestId = searchParams.get('request');
   
-  const { isLoading, error, vehicleDetails } = useBidResponseDetails(requestId);
+  const { data, isLoading, error } = useBidResponseDetails();
 
   const handleSubmit = async (formData: BidResponseFormData) => {
     if (!token) {
@@ -87,7 +87,7 @@ const BidResponse = () => {
   return (
     <BidResponseLayout>
       {error ? (
-        <ErrorState message={error} />
+        <ErrorState message={error.message} />
       ) : isLoading ? (
         <LoadingState />
       ) : submitted ? (
@@ -97,9 +97,9 @@ const BidResponse = () => {
             : "Thank you! Your offer has been submitted successfully."
           } 
         />
-      ) : vehicleDetails ? (
+      ) : data ? (
         <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
-          <VehicleDetailsSection vehicle={vehicleDetails} />
+          <VehicleDetailsSection vehicle={data.vehicle} />
           <BidForm 
             onSubmit={handleSubmit} 
             isSubmitting={isSubmitting}
