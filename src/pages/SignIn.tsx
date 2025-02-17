@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -39,11 +38,7 @@ const SignIn = () => {
     try {
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password,
-        options: {
-          // Set session expiry to 7 days if rememberMe is true
-          data: { staySignedIn: rememberMe }
-        }
+        password
       });
 
       if (signInError) {
@@ -51,10 +46,10 @@ const SignIn = () => {
       }
 
       if (signInData.session) {
-        // If rememberMe is true, update session expiry
+        // If rememberMe is true, extend session
         if (rememberMe) {
-          await supabase.auth.updateUser({
-            data: { staySignedIn: true }
+          await supabase.auth.refreshSession({
+            refreshToken: signInData.session.refresh_token
           });
         }
         

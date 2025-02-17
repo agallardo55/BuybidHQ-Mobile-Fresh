@@ -4,31 +4,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import VehicleInformation from "./VehicleInformation";
 import VehicleCondition from "./VehicleCondition";
-
-interface VehicleDetails {
-  year: number;
-  make: string;
-  model: string;
-  trim: string;
-  vin: string;
-  mileage: number;
-  engineCylinders: string;
-  transmission: string;
-  drivetrain: string;
-  exteriorColor: string;
-  interiorColor: string;
-  accessories: string;
-  windshield: string;
-  engineLights: string;
-  brakes: string;
-  tire: string;
-  maintenance: string;
-  reconEstimate: string;
-  reconDetails: string;
-  userFullName?: string;
-  dealership?: string;
-  mobileNumber?: string;
-}
+import { VehicleDetails } from "./types";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -36,6 +12,13 @@ interface VehicleDetailsSectionProps {
 
 const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Convert number to string if needed
+  const formattedVehicle: VehicleDetails = {
+    ...vehicle,
+    year: String(vehicle.year),
+    mileage: String(vehicle.mileage)
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border">
@@ -56,11 +39,11 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           </Button>
         </div>
 
-        <VehicleInformation vehicle={vehicle} />
+        <VehicleInformation vehicle={formattedVehicle} />
 
         {isExpanded && (
           <div className="mt-6 border-t pt-6">
-            <VehicleCondition vehicle={vehicle} />
+            <VehicleCondition vehicle={formattedVehicle} />
           </div>
         )}
       </div>
