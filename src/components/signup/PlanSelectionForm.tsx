@@ -51,14 +51,6 @@ const PlanSelectionForm = ({ onSelect, onBack }: PlanSelectionFormProps) => {
           </ul>
         </Card>
       </div>
-
-      <Button
-        type="button"
-        onClick={onBack}
-        className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
-      >
-        Back
-      </Button>
     </div>
   );
 };

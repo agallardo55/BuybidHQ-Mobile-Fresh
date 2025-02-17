@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -22,7 +21,7 @@ interface SignUpFormData {
 export const useSignUpForm = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'personal' | 'plan' | 'dealership'>('personal');
+  const [currentStep, setCurrentStep] = useState<'plan' | 'personal' | 'dealership'>('plan');
   const [formData, setFormData] = useState<SignUpFormData>({
     fullName: "",
     email: "",
@@ -84,22 +83,22 @@ export const useSignUpForm = () => {
       ...prev,
       planType,
     }));
-    setCurrentStep('dealership');
+    setCurrentStep('personal');
   };
 
   const handleNext = () => {
     if (formData.fullName && formData.email && formData.password && formData.mobileNumber && formData.businessNumber) {
-      setCurrentStep('plan');
+      setCurrentStep('dealership');
     } else {
       toast.error("Please fill in all required fields");
     }
   };
 
   const handleBack = () => {
-    if (currentStep === 'plan') {
-      setCurrentStep('personal');
-    } else if (currentStep === 'dealership') {
+    if (currentStep === 'personal') {
       setCurrentStep('plan');
+    } else if (currentStep === 'dealership') {
+      setCurrentStep('personal');
     }
   };
 
@@ -108,7 +107,6 @@ export const useSignUpForm = () => {
     setIsSubmitting(true);
 
     try {
-      // 1. Sign up the user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -127,7 +125,6 @@ export const useSignUpForm = () => {
         throw new Error('No user data returned');
       }
 
-      // 2. Create the dealership record
       const { data: dealershipData, error: dealershipError } = await supabase
         .from('dealerships')
         .insert([
@@ -153,7 +150,6 @@ export const useSignUpForm = () => {
         throw dealershipError;
       }
 
-      // 3. Update the user record with dealership info and role
       const { error: userError } = await supabase
         .from('buybidhq_users')
         .update({
@@ -175,7 +171,6 @@ export const useSignUpForm = () => {
         throw userError;
       }
 
-      // 4. Create initial subscription record
       const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert([
@@ -193,7 +188,6 @@ export const useSignUpForm = () => {
       toast.success("Account created successfully!");
       
       if (formData.planType === 'individual') {
-        // Redirect to Stripe checkout (we'll implement this next)
         navigate('/checkout');
       } else {
         navigate('/signin');
