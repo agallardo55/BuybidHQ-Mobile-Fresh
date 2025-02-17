@@ -66,7 +66,7 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
           <SortableHeader field="name">Name</SortableHeader>
           <SortableHeader field="email">Email</SortableHeader>
           <SortableHeader field="dealership">Dealership</SortableHeader>
-          <SortableHeader field="phone">Phone</SortableHeader>
+          <SortableHeader field="mobileNumber">Mobile Number</SortableHeader>
           <SortableHeader field="location">Location</SortableHeader>
           <TableHead className="text-sm">
             <div className="flex items-center gap-1">
@@ -92,7 +92,7 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.name}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.email}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.dealership}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.phone}</TableCell>
+            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.mobileNumber}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.location}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.acceptedBids}</TableCell>
             <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.pendingBids}</TableCell>
@@ -137,4 +137,3 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
 };
 
 export default BuyersTable;
-
