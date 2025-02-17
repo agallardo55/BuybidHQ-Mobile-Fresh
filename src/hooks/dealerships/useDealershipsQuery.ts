@@ -21,17 +21,10 @@ export const useDealershipsQuery = ({ pageSize, currentPage, searchTerm }: Deale
         const from = (currentPage - 1) * pageSize;
         const to = from + pageSize - 1;
 
+        // First get the dealerships
         let query = supabase
           .from('dealerships')
-          .select(`
-            *,
-            primary_dealer:buybidhq_users!dealerships_primary_user_id_fkey (
-              id,
-              full_name,
-              email,
-              mobile_number
-            )
-          `, { count: 'exact' });
+          .select('*', { count: 'exact' });
 
         if (searchTerm) {
           query = query.or([
@@ -41,17 +34,38 @@ export const useDealershipsQuery = ({ pageSize, currentPage, searchTerm }: Deale
           ].join(','));
         }
 
-        const { data, error, count } = await query
+        const { data: dealerships, error: dealershipsError, count } = await query
           .range(from, to)
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Error fetching dealerships:', error);
-          throw error;
+        if (dealershipsError) {
+          console.error('Error fetching dealerships:', dealershipsError);
+          throw dealershipsError;
         }
 
+        // Then get the primary dealer information separately
+        const primaryUserIds = dealerships
+          ?.filter(d => d.primary_user_id)
+          .map(d => d.primary_user_id) || [];
+
+        const { data: primaryDealers, error: primaryDealersError } = await supabase
+          .from('buybidhq_users')
+          .select('id, full_name, email, mobile_number')
+          .in('id', primaryUserIds);
+
+        if (primaryDealersError) {
+          console.error('Error fetching primary dealers:', primaryDealersError);
+          throw primaryDealersError;
+        }
+
+        // Map primary dealers to dealerships
+        const dealershipsWithPrimaryDealer = dealerships?.map(dealership => ({
+          ...dealership,
+          primary_dealer: primaryDealers?.find(pd => pd.id === dealership.primary_user_id) || null
+        })) || [];
+
         return {
-          dealerships: data as Dealership[] || [],
+          dealerships: dealershipsWithPrimaryDealer as Dealership[],
           total: count || 0
         };
       } catch (error: any) {
