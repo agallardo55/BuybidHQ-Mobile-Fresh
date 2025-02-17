@@ -1,26 +1,12 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBuyers } from "@/hooks/useBuyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
 import { CarrierType } from "@/types/buyers";
 import { supabase } from "@/integrations/supabase/client";
-
-const CARRIER_OPTIONS: CarrierType[] = [
-  'Verizon Wireless',
-  'AT&T',
-  'T-Mobile',
-  'Sprint',
-  'US Cellular',
-  'Metro PCS',
-  'Boost Mobile',
-  'Cricket',
-  'Virgin Mobile'
-];
+import AddBuyerForm from "./form-sections/AddBuyerForm";
 
 interface AddBuyerDialogProps {
   isOpen: boolean;
@@ -57,7 +43,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       }
 
       // Auto-set carrier if detected
-      if (data.carrier?.name && CARRIER_OPTIONS.includes(data.carrier.name as CarrierType)) {
+      if (data.carrier?.name && data.carrier.name in CarrierType) {
         setFormData(prev => ({
           ...prev,
           carrier: data.carrier.name as CarrierType
@@ -88,7 +74,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     try {
       setIsValidating(true);
 
-      const buyerResponse = await createBuyer({
+      const result = await createBuyer({
         fullName: formData.name,
         dealershipName: formData.dealership,
         mobileNumber: formData.mobile,
@@ -102,17 +88,17 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         zipCode: "",
       });
 
-      if (!buyerResponse || !buyerResponse.id) {
+      if (result && typeof result === 'object' && 'id' in result) {
+        // Validate phone number
+        const isValid = await validatePhoneNumber(formData.mobile, result.id);
+
+        if (isValid) {
+          setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
+          onOpenChange(false);
+          toast.success("Buyer added successfully");
+        }
+      } else {
         throw new Error("Failed to create buyer");
-      }
-
-      // Validate phone number
-      const isValid = await validatePhoneNumber(formData.mobile, buyerResponse.id);
-
-      if (isValid) {
-        setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
-        onOpenChange(false);
-        toast.success("Buyer added successfully");
       }
     } catch (error) {
       console.error("Error adding buyer:", error);
@@ -143,63 +129,13 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         <DialogHeader>
           <DialogTitle>Add New Buyer</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Name</label>
-            <Input 
-              placeholder="Enter buyer name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Dealership</label>
-            <Input 
-              placeholder="Enter dealership name"
-              name="dealership"
-              value={formData.dealership}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Mobile</label>
-            <Input 
-              placeholder="Enter mobile number"
-              name="mobile"
-              value={formData.mobile}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Mobile Carrier</label>
-            <Select
-              value={formData.carrier}
-              onValueChange={handleCarrierChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select carrier (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {CARRIER_OPTIONS.map(carrier => (
-                  <SelectItem key={carrier} value={carrier}>
-                    {carrier}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-gray-500">
-              Carrier will be auto-detected during validation
-            </p>
-          </div>
-          <Button 
-            type="submit"
-            className="w-full bg-custom-blue hover:bg-custom-blue/90 text-white"
-            disabled={isValidating}
-          >
-            {isValidating ? "Validating..." : "Add Buyer"}
-          </Button>
-        </form>
+        <AddBuyerForm
+          formData={formData}
+          isValidating={isValidating}
+          onChange={handleChange}
+          onCarrierChange={handleCarrierChange}
+          onSubmit={handleSubmit}
+        />
       </DialogContent>
     </Dialog>
   );
