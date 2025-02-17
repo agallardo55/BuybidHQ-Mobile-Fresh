@@ -4,10 +4,14 @@ export interface VehicleDetails {
   make: string;
   model: string;
   trim: string;
-  mileage: number;
+  vin: string;
+  mileage: string;
+  engineCylinders: string;
+  transmission: string;
+  drivetrain: string;
   exteriorColor: string;
   interiorColor: string;
-  vin: string;
+  accessories: string;
   windshield: string;
   engineLights: string;
   brakes: string;
@@ -15,16 +19,12 @@ export interface VehicleDetails {
   maintenance: string;
   reconEstimate: string;
   reconDetails: string;
-  accessories: string;
-  transmission: string;
-  engineCylinders: string;
-  drivetrain: string;
-  userFullName: string;
-  dealership: string;
-  mobileNumber: string;
-  images?: string[];
+  userFullName?: string;
+  dealership?: string;
+  mobileNumber?: string;
 }
 
 export interface BidResponseFormData {
   offerAmount: string;
+  notes?: string;
 }

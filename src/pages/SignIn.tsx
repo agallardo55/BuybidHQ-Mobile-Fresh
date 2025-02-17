@@ -19,6 +19,7 @@ const SignIn = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    // Check if user is already authenticated
     if (user) {
       const from = (location.state as any)?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
@@ -36,10 +37,13 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      // Setting session duration using staySignedIn option
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: {
+          // Set session expiry to 7 days if rememberMe is true
+          data: { staySignedIn: rememberMe }
+        }
       });
 
       if (signInError) {
