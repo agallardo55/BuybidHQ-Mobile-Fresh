@@ -7,19 +7,27 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('Received request for reCAPTCHA site key')
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight request')
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
     const siteKey = Deno.env.get('RECAPTCHA_SITE_KEY')
+    console.log('Retrieved site key:', siteKey ? 'Site key found' : 'Site key not found')
+    
     if (!siteKey) {
       throw new Error('reCAPTCHA site key not configured')
     }
 
+    const response = { siteKey }
+    console.log('Sending successful response')
+    
     return new Response(
-      JSON.stringify({ siteKey }),
+      JSON.stringify(response),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
