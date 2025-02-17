@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -37,7 +38,10 @@ const SignIn = () => {
     try {
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: {
+          captchaToken: undefined
+        }
       });
 
       if (signInError) {
@@ -45,62 +49,6 @@ const SignIn = () => {
       }
 
       if (signInData.session) {
-        // Check if MFA is required
-        const { data: mfaData, error: mfaError } = await supabase
-          .from('mfa_settings')
-          .select('status, method')
-          .eq('user_id', signInData.session.user.id)
-          .single();
-
-        if (mfaError) {
-          console.error('Error checking MFA status:', mfaError);
-        }
-
-        // If MFA is enabled, generate verification code and redirect to MFA page
-        if (mfaData?.status === 'enabled') {
-          const { data: verificationResults, error: verificationError } = await supabase
-            .rpc('create_mfa_verification', {
-              p_user_id: signInData.session.user.id,
-              p_method: mfaData.method
-            });
-
-          if (verificationError) {
-            throw verificationError;
-          }
-
-          const verificationData = verificationResults[0];
-          if (!verificationData) {
-            throw new Error('Failed to generate verification code');
-          }
-
-          // Store session temporarily
-          sessionStorage.setItem('pending_mfa_session', JSON.stringify({
-            userId: signInData.session.user.id,
-            verificationId: verificationData.verification_id,
-            method: mfaData.method,
-            destination: (location.state as any)?.from?.pathname || '/dashboard'
-          }));
-
-          // Call edge function to send/log verification code
-          const { error: sendError } = await supabase.functions.invoke('send-mfa-email', {
-            body: {
-              user_id: signInData.session.user.id,
-              verification_code: verificationData.code
-            }
-          });
-
-          if (sendError) {
-            console.error('Error sending verification code:', sendError);
-            toast.error('Error sending verification code');
-            return;
-          }
-
-          // Redirect to MFA verification page
-          navigate('/mfa-verification');
-          return;
-        }
-
-        // If MFA is not enabled, proceed with normal login
         toast.success("Successfully signed in!");
         const from = (location.state as any)?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
