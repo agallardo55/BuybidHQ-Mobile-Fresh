@@ -40,7 +40,9 @@ const SignIn = () => {
         email,
         password,
         options: {
-          persistSession: rememberMe, // When true, session persists for 7 days
+          data: {
+            persistent: rememberMe
+          }
         }
       });
 

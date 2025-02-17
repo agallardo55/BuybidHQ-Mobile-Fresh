@@ -24,6 +24,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let warningTimer: NodeJS.Timeout;
+    let refreshTimer: NodeJS.Timeout;
+
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -37,17 +40,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const warningTime = timeUntilExpiry - (10 * 60 * 1000); // 10 minutes before expiry
 
         if (warningTime > 0) {
-          const warningTimer = setTimeout(() => {
+          warningTimer = setTimeout(() => {
             toast.warning("Your session will expire in 10 minutes. Please save any unsaved work.");
           }, warningTime);
-
-          return () => clearTimeout(warningTimer);
         }
       }
     });
 
     // Listen for changes on auth state (sign in, sign out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setSession(session);
       setIsLoading(false);
@@ -58,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Set up auto-refresh 5 minutes before expiration
         if (timeUntilExpiry > 5 * 60 * 1000) {
-          const refreshTimer = setTimeout(async () => {
+          refreshTimer = setTimeout(async () => {
             const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
             if (error) {
               toast.error("Session refresh failed. Please sign in again.");
@@ -68,13 +69,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               setUser(refreshedSession.user);
             }
           }, timeUntilExpiry - 5 * 60 * 1000);
-
-          return () => clearTimeout(refreshTimer);
         }
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (warningTimer) clearTimeout(warningTimer);
+      if (refreshTimer) clearTimeout(refreshTimer);
+    };
   }, [navigate]);
 
   return (
