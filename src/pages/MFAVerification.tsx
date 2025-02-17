@@ -85,13 +85,18 @@ const MFAVerification = () => {
       const enteredPin = pin.join('');
       
       // Verify MFA code
-      const { data: verificationResult, error: verificationError } = await supabase
+      const { data: verificationResults, error: verificationError } = await supabase
         .rpc('verify_mfa_code', {
           p_user_id: pendingSession.userId,
           p_verification_code: enteredPin
         });
 
       if (verificationError) throw verificationError;
+
+      const verificationResult = verificationResults[0];
+      if (!verificationResult) {
+        throw new Error('Verification failed');
+      }
 
       if (verificationResult.is_valid) {
         // Clear pending session
@@ -125,13 +130,18 @@ const MFAVerification = () => {
 
     setIsLoading(true);
     try {
-      const { data: verificationData, error: verificationError } = await supabase
+      const { data: verificationResults, error: verificationError } = await supabase
         .rpc('create_mfa_verification', {
           p_user_id: pendingSession.userId,
           p_method: pendingSession.method
         });
 
       if (verificationError) throw verificationError;
+
+      const verificationData = verificationResults[0];
+      if (!verificationData) {
+        throw new Error('Failed to generate verification code');
+      }
 
       // Update session storage with new verification ID
       sessionStorage.setItem('pending_mfa_session', JSON.stringify({

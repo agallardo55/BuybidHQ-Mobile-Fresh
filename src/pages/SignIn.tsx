@@ -60,7 +60,7 @@ const SignIn = () => {
 
         // If MFA is enabled, generate verification code and redirect to MFA page
         if (mfaData?.status === 'enabled') {
-          const { data: verificationData, error: verificationError } = await supabase
+          const { data: verificationResults, error: verificationError } = await supabase
             .rpc('create_mfa_verification', {
               p_user_id: signInData.session.user.id,
               p_method: mfaData.method
@@ -68,6 +68,11 @@ const SignIn = () => {
 
           if (verificationError) {
             throw verificationError;
+          }
+
+          const verificationData = verificationResults[0];
+          if (!verificationData) {
+            throw new Error('Failed to generate verification code');
           }
 
           // Store session temporarily
