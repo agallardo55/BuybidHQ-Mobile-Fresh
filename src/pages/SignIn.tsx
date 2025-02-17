@@ -36,14 +36,10 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
+      // Setting session duration using staySignedIn option
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password,
-        options: {
-          data: {
-            persistent: rememberMe
-          }
-        }
+        password
       });
 
       if (signInError) {
@@ -51,6 +47,13 @@ const SignIn = () => {
       }
 
       if (signInData.session) {
+        // If rememberMe is true, update session expiry
+        if (rememberMe) {
+          await supabase.auth.updateUser({
+            data: { staySignedIn: true }
+          });
+        }
+        
         toast.success("Successfully signed in!");
         const from = (location.state as any)?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
