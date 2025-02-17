@@ -1,4 +1,6 @@
 
+import { BuyerFormData } from "@/types/buyers";
+
 export interface BuyerResponse {
   id: string;
   user_id: string;
@@ -35,4 +37,9 @@ export interface MappedBuyer {
   ownerName: string;
   ownerEmail: string;
   phoneCarrier: string;
+}
+
+export interface UpdateBuyerParams {
+  buyerId: string;
+  buyerData: BuyerFormData;
 }
