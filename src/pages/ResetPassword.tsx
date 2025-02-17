@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -16,6 +17,9 @@ const ResetPassword = () => {
 
   // Check if we're in a recovery flow
   const isRecoveryFlow = location.hash.includes('type=recovery');
+
+  const passwordsMatch = password === confirmPassword;
+  const showMismatchError = confirmPassword.length > 0 && !passwordsMatch;
 
   useEffect(() => {
     // If we're not in a recovery flow and there's no session, redirect to login
@@ -52,7 +56,7 @@ const ResetPassword = () => {
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (!passwordsMatch) {
       toast({
         title: "Error",
         description: "Passwords do not match.",
@@ -137,15 +141,23 @@ const ResetPassword = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
                 required
-                className="mt-1"
+                className={cn(
+                  "mt-1",
+                  showMismatchError && "border-red-500 focus:ring-red-500 focus-visible:ring-red-500"
+                )}
                 minLength={6}
               />
+              {showMismatchError && (
+                <p className="mt-1 text-sm text-red-500">
+                  Passwords do not match
+                </p>
+              )}
             </div>
           </div>
           <Button 
             type="submit" 
             className="w-full bg-accent hover:bg-accent/90"
-            disabled={isLoading}
+            disabled={isLoading || showMismatchError}
           >
             {isLoading ? "Updating..." : "Update Password"}
           </Button>
