@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { VehicleData, CarApiData } from "./types.ts";
 import { fetchNHTSAData, fetchCarApiData } from "./apiUtils.ts";
@@ -51,61 +50,58 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
     if (carApiData.trims && carApiData.trims.length > 0) {
       console.log('Found CarAPI trims:', carApiData.trims);
       const bestTrim = findBestTrimMatch(carApiData.trims, year);
-      if (bestTrim && (!mergedData.trim || bestTrim.length > mergedData.trim.length)) {
+      if (bestTrim) {
         console.log('Using CarAPI trim:', bestTrim);
         mergedData.trim = bestTrim;
       } else {
         console.log('Keeping NHTSA trim:', mergedData.trim);
       }
-    } else if (carApiData.trim) {
-      console.log('Using CarAPI single trim:', carApiData.trim);
-      mergedData.trim = carApiData.trim;
     }
 
-    // Transmission: Combine both sources if possible
-    if (carApiData.specs?.transmission) {
-      const carApiTransmission = carApiData.specs.transmission.trim();
-      console.log('CarAPI transmission:', carApiTransmission);
+    // Engine: Build comprehensive engine string
+    if (carApiData.specs) {
+      const engineParts = [];
       
-      if (mergedData.transmission) {
-        // Check if CarAPI data provides new information
-        if (!mergedData.transmission.toLowerCase().includes(carApiTransmission.toLowerCase())) {
-          mergedData.transmission = `${carApiTransmission} ${mergedData.transmission}`.trim();
-          console.log('Combined transmission:', mergedData.transmission);
-        }
-      } else {
-        mergedData.transmission = carApiTransmission;
-        console.log('Using CarAPI transmission:', carApiTransmission);
+      // Add displacement
+      if (carApiData.specs.displacement_l) {
+        engineParts.push(`${carApiData.specs.displacement_l}L`);
       }
+      
+      // Add cylinder count
+      if (carApiData.specs.engine_number_of_cylinders) {
+        engineParts.push(`${carApiData.specs.engine_number_of_cylinders}-Cylinder`);
+      }
+      
+      // Add engine power if available
+      if (carApiData.specs.engine_brake_hp_from) {
+        engineParts.push(`${carApiData.specs.engine_brake_hp_from}hp`);
+      }
+      
+      // Add turbo information from either source
+      const isTurbo = carApiData.specs.turbo === 'Yes' || 
+                     (carApiData.trims && carApiData.trims.some(t => 
+                       t.description?.toLowerCase().includes('turbo')));
+      if (isTurbo) {
+        engineParts.push('Turbo');
+      }
+      
+      const engineString = engineParts.join(' ');
+      if (engineString) {
+        mergedData.engineCylinders = engineString;
+        console.log('Set engine string:', engineString);
+      }
+    }
+
+    // Transmission: Use CarAPI's detailed transmission info
+    if (carApiData.specs?.transmission_style && carApiData.specs?.transmission_speeds) {
+      mergedData.transmission = `${carApiData.specs.transmission_speeds}-Speed ${carApiData.specs.transmission_style}`;
+      console.log('Set transmission:', mergedData.transmission);
     }
 
     // Drivetrain: Use CarAPI's drive_type if available
     if (carApiData.specs?.drive_type) {
       mergedData.drivetrain = carApiData.specs.drive_type;
-    }
-
-    // Engine: Enhance NHTSA engine data with CarAPI data if available
-    if (carApiData.specs?.engine_number_of_cylinders || carApiData.specs?.displacement_l) {
-      const engineParts = [];
-      
-      if (carApiData.specs.displacement_l) {
-        engineParts.push(`${carApiData.specs.displacement_l}L`);
-      }
-      
-      if (carApiData.specs.engine_number_of_cylinders) {
-        engineParts.push(`${carApiData.specs.engine_number_of_cylinders}-Cylinder`);
-      }
-      
-      if (carApiData.specs.turbo) {
-        engineParts.push('Turbo');
-      }
-      
-      const carApiEngine = engineParts.join(' ');
-      
-      // Use the more detailed engine description
-      if (carApiEngine.length > mergedData.engineCylinders.length) {
-        mergedData.engineCylinders = carApiEngine;
-      }
+      console.log('Set drivetrain:', mergedData.drivetrain);
     }
   }
 
@@ -203,4 +199,3 @@ serve(async (req) => {
     );
   }
 });
-
