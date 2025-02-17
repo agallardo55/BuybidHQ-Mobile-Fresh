@@ -13,7 +13,7 @@ export interface Buyer {
   declinedBids: number;
   ownerName: string;
   ownerEmail: string;
-  phoneCarrier?: string;
+  phoneCarrier: string;
   phoneValidationStatus?: 'pending' | 'valid' | 'invalid' | 'processing';
 }
 
