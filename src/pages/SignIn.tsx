@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -18,7 +17,6 @@ const SignIn = () => {
   const location = useLocation();
   const { user } = useAuth();
 
-  // If user is already authenticated, redirect them
   useEffect(() => {
     if (user) {
       const from = (location.state as any)?.from?.pathname || '/dashboard';
@@ -82,6 +80,20 @@ const SignIn = () => {
             method: mfaData.method,
             destination: (location.state as any)?.from?.pathname || '/dashboard'
           }));
+
+          // Call edge function to send/log verification code
+          const { error: sendError } = await supabase.functions.invoke('send-mfa-email', {
+            body: {
+              user_id: signInData.session.user.id,
+              verification_code: verificationData.code
+            }
+          });
+
+          if (sendError) {
+            console.error('Error sending verification code:', sendError);
+            toast.error('Error sending verification code');
+            return;
+          }
 
           // Redirect to MFA verification page
           navigate('/mfa-verification');

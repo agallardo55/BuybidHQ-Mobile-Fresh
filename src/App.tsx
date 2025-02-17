@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import MFAVerification from "./pages/MFAVerification";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,10 @@ const App = () => (
                   <ResetPassword />
                 </PasswordResetRoute>
               } 
+            />
+            <Route 
+              path="/mfa-verification" 
+              element={<MFAVerification />} 
             />
             <Route
               path="/dashboard"
