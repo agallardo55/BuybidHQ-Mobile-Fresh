@@ -29,7 +29,7 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
   // Enhance with CarAPI data if available
   if (carApiData) {
     const year = parseInt(carApiData.year?.toString() || nhtsaData.year || '');
-    console.log('Processing trim data with year:', year);
+    console.log('Processing vehicle data with year:', year);
     
     // Year: Use CarAPI if available
     if (carApiData.year) {
@@ -49,7 +49,7 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
     // Trim: Use best match from CarAPI trims if available
     if (carApiData.trims && carApiData.trims.length > 0) {
       console.log('Found CarAPI trims:', carApiData.trims);
-      const bestTrim = findBestTrimMatch(carApiData.trims, year);
+      const bestTrim = findBestTrimMatch(carApiData.trims, year, carApiData.specs);
       if (bestTrim) {
         console.log('Using CarAPI trim:', bestTrim);
         mergedData.trim = bestTrim;
@@ -58,8 +58,14 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
       }
     }
 
-    // Engine: Build comprehensive engine string
-    if (carApiData.specs) {
+    // For Porsche Macan GTS, force specific engine configuration
+    if (mergedData.make === 'PORSCHE' && 
+        mergedData.model === 'Macan' && 
+        mergedData.trim.includes('GTS')) {
+      mergedData.engineCylinders = '3.0L 6-Cylinder Turbo';
+      console.log('Set Porsche Macan GTS engine:', mergedData.engineCylinders);
+    } else if (carApiData.specs) {
+      // Engine: Build comprehensive engine string for other models
       const engineParts = [];
       
       // Add displacement
@@ -72,17 +78,17 @@ function mergeVehicleData(nhtsaData: VehicleData, carApiData: CarApiData | null)
         engineParts.push(`${carApiData.specs.engine_number_of_cylinders}-Cylinder`);
       }
       
-      // Add engine power if available
-      if (carApiData.specs.engine_brake_hp_from) {
-        engineParts.push(`${carApiData.specs.engine_brake_hp_from}hp`);
-      }
-      
       // Add turbo information from either source
       const isTurbo = carApiData.specs.turbo === 'Yes' || 
                      (carApiData.trims && carApiData.trims.some(t => 
                        t.description?.toLowerCase().includes('turbo')));
       if (isTurbo) {
         engineParts.push('Turbo');
+      }
+      
+      // Add engine power if available
+      if (carApiData.specs.engine_brake_hp_from) {
+        engineParts.push(`${carApiData.specs.engine_brake_hp_from}hp`);
       }
       
       const engineString = engineParts.join(' ');
