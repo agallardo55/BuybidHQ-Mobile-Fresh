@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -49,7 +50,7 @@ const SignIn = () => {
         // If rememberMe is true, extend session
         if (rememberMe) {
           await supabase.auth.refreshSession({
-            refreshToken: signInData.session.refresh_token
+            refresh_token: signInData.session.refresh_token
           });
         }
         

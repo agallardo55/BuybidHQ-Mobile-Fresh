@@ -99,7 +99,11 @@ const BidResponse = () => {
         />
       ) : data ? (
         <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
-          <VehicleDetailsSection vehicle={data.vehicle} />
+          <VehicleDetailsSection vehicle={{
+            ...data.vehicle,
+            year: String(data.vehicle.year),
+            mileage: String(data.vehicle.mileage)
+          }} />
           <BidForm 
             onSubmit={handleSubmit} 
             isSubmitting={isSubmitting}
