@@ -54,6 +54,14 @@
 - [ ] Implement rate limiting for sensitive operations
 - [ ] Add automated security scanning
 - [ ] Create password complexity requirements
+- [ ] Add CAPTCHA protection to signup process
+    - Integrate Google reCAPTCHA v3 for seamless UX
+    - Add CAPTCHA verification in personal information step
+    - Implement server-side CAPTCHA token validation
+    - Add rate limiting for failed CAPTCHA attempts
+    - Create fallback to reCAPTCHA v2 if needed
+    - Store CAPTCHA verification results
+    - Add CAPTCHA bypass for whitelisted IPs (admin only)
 
 ## Performance Optimizations
 - [ ] Implement data caching strategy
