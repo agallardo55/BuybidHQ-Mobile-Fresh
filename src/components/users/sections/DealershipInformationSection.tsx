@@ -54,6 +54,19 @@ const DealershipInformationSection = ({
     onDealershipDataChange({ businessPhone: formattedNumber });
   };
 
+  const handlePrimaryDealerChange = (checked: boolean) => {
+    // Update the isPrimaryDealer state
+    onFormDataChange({ isPrimaryDealer: checked });
+    
+    // If becoming primary dealer, update the primaryUserId
+    if (checked) {
+      onDealershipDataChange({ primaryUserId: formData.dealershipId });
+    } else {
+      // If unchecking, clear the primaryUserId
+      onDealershipDataChange({ primaryUserId: undefined });
+    }
+  };
+
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4">Dealership Information</h3>
@@ -106,12 +119,7 @@ const DealershipInformationSection = ({
               <Switch
                 id="isPrimaryDealer"
                 checked={formData.isPrimaryDealer}
-                onCheckedChange={(checked) => {
-                  onFormDataChange({ isPrimaryDealer: checked });
-                  if (checked) {
-                    onDealershipDataChange({ primaryUserId: formData.dealershipId });
-                  }
-                }}
+                onCheckedChange={handlePrimaryDealerChange}
                 className="data-[state=checked]:bg-custom-blue data-[state=unchecked]:bg-input"
               />
               <Label htmlFor="isPrimaryDealer">Primary Dealer</Label>
