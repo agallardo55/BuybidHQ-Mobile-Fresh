@@ -18,10 +18,11 @@ const DashboardNavigation = () => {
   const { currentUser, isLoading } = useCurrentUser();
 
   const canAccessUsers = currentUser?.role === 'admin' || currentUser?.role === 'dealer';
+  const canAccessDealerships = currentUser?.role !== 'associate';
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
-    { name: "Dealerships", href: "/dealerships" },
+    ...(canAccessDealerships ? [{ name: "Dealerships", href: "/dealerships" }] : []),
     { name: "Buyers", href: "/buyers" },
     ...(canAccessUsers ? [{ name: "Users", href: "/users" }] : []),
   ];
