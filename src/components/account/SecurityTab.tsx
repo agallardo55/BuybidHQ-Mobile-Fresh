@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +28,7 @@ export const SecurityTab = () => {
     newPassword: "",
     confirmPassword: "",
   });
+  const [challengeId, setChallengeId] = useState<string | null>(null);
 
   useEffect(() => {
     checkMFAStatus();
@@ -92,14 +92,15 @@ export const SecurityTab = () => {
     }
 
     try {
-      const { error } = await supabase.auth.mfa.challenge({
+      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
         factorId: mfaFactors[0].id
       });
       
-      if (error) throw error;
+      if (challengeError) throw challengeError;
 
       const { error: verifyError } = await supabase.auth.mfa.verify({
         factorId: mfaFactors[0].id,
+        challengeId: challengeData.id,
         code: verifyCode,
       });
 
