@@ -94,34 +94,34 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 requests.map((request) => (
                   <TableRow 
                     key={request.id} 
-                    className="text-sm cursor-pointer hover:bg-gray-50"
+                    className="text-sm hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleRowClick(request)}
                   >
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {formatDate(request.createdAt)}
                     </TableCell>
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {request.year}
                     </TableCell>
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {request.make}
                     </TableCell>
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {request.model}
                     </TableCell>
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {request.vin}
                     </TableCell>
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {request.mileage.toLocaleString()}
                     </TableCell>
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {request.buyer}
                     </TableCell>
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap">
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {renderHighestOffer(request)}
                     </TableCell>
-                    <TableCell className="py-2 px-4 min-h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                       <Select
                         value={request.status}
                         onValueChange={(value: "Pending" | "Approved" | "Declined") => 

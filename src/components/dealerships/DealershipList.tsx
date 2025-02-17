@@ -39,22 +39,22 @@ const DealershipList = ({
         </TableHeader>
         <TableBody>
           {dealerships.map((dealership) => (
-            <TableRow key={dealership.id}>
-              <TableCell className="py-2 px-4 min-h-[44px]">{dealership.dealer_name}</TableCell>
-              <TableCell className="py-2 px-4 min-h-[44px]">{dealership.dealer_id}</TableCell>
-              <TableCell className="py-2 px-4 min-h-[44px]">
+            <TableRow key={dealership.id} className="text-sm hover:bg-muted/50">
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{dealership.dealer_name}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{dealership.dealer_id}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                 <div>{dealership.business_phone}</div>
                 <div className="text-sm text-gray-500">{dealership.business_email}</div>
               </TableCell>
-              <TableCell className="py-2 px-4 min-h-[44px]">
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                 <div>{dealership.city}</div>
                 <div className="text-sm text-gray-500">{dealership.state}</div>
               </TableCell>
-              <TableCell className="py-2 px-4 min-h-[44px]">
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                 <div>{dealership.primary_dealer?.full_name}</div>
                 <div className="text-sm text-gray-500">{dealership.primary_dealer?.email}</div>
               </TableCell>
-              <TableCell className="py-2 px-4 min-h-[44px]">
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                 <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"

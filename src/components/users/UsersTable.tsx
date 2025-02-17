@@ -100,13 +100,13 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
       </TableHeader>
       <TableBody>
         {users.map((user) => (
-          <TableRow key={user.id}>
-            <TableCell className="py-2 px-4 min-h-[44px]">{user.full_name || 'N/A'}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{user.email}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] capitalize">{user.role}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] capitalize">{user.status}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">{user.dealership?.dealer_name || 'N/A'}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px]">
+          <TableRow key={user.id} className="text-sm hover:bg-muted/50">
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{user.full_name || 'N/A'}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{user.email}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap capitalize">{user.role}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap capitalize">{user.status}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{user.dealership?.dealer_name || 'N/A'}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
               <div className="flex items-center gap-2">
                 {canViewUser(user) && (
                   <Button

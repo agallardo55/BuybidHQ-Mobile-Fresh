@@ -88,16 +88,16 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
       </TableHeader>
       <TableBody>
         {buyers.map((buyer) => (
-          <TableRow key={buyer.id}>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.name}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.email}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.dealership}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.mobileNumber}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.location}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.acceptedBids}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.pendingBids}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">{buyer.declinedBids}</TableCell>
-            <TableCell className="py-2 px-4 min-h-[44px] text-sm">
+          <TableRow key={buyer.id} className="text-sm hover:bg-muted/50">
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.name}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.email}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.dealership}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.mobileNumber}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.location}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.acceptedBids}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.pendingBids}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.declinedBids}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
