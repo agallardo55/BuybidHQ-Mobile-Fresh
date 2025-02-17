@@ -1,6 +1,6 @@
 
 import { Mail, MessageSquare, Phone } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +15,30 @@ const ContactUs = () => {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [captchaValue, setCaptchaValue] = useState<string | null>(null);
+  const [siteKey, setSiteKey] = useState<string | null>(null);
+  const [isLoadingKey, setIsLoadingKey] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchSiteKey = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-recaptcha-key');
+        if (error) throw error;
+        setSiteKey(data.siteKey);
+      } catch (error) {
+        console.error('Error fetching reCAPTCHA site key:', error);
+        toast({
+          variant: "destructive",
+          title: "Error loading reCAPTCHA",
+          description: "Please refresh the page and try again.",
+        });
+      } finally {
+        setIsLoadingKey(false);
+      }
+    };
+
+    fetchSiteKey();
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,15 +138,21 @@ const ContactUs = () => {
               />
             </div>
             <div className="flex justify-center">
-              <ReCAPTCHA
-                sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || ''}
-                onChange={handleCaptchaChange}
-              />
+              {isLoadingKey ? (
+                <div className="text-sm text-gray-500">Loading reCAPTCHA...</div>
+              ) : siteKey ? (
+                <ReCAPTCHA
+                  sitekey={siteKey}
+                  onChange={handleCaptchaChange}
+                />
+              ) : (
+                <div className="text-sm text-red-500">Error loading reCAPTCHA</div>
+              )}
             </div>
             <Button 
               type="submit" 
               className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !siteKey}
             >
               {isSubmitting ? "Sending..." : "Send Message"}
             </Button>
