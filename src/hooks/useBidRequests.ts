@@ -21,13 +21,14 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
+        // Use a simpler query structure to avoid recursion
         const { data, error } = await supabase
           .from('bid_requests')
           .select(`
             id,
             created_at,
             status,
-            vehicles (
+            vehicles!inner (
               year,
               make,
               model,
@@ -41,7 +42,7 @@ export const useBidRequests = () => {
               interior,
               options
             ),
-            reconditioning (
+            reconditioning!inner (
               windshield,
               engine_light,
               brakes,
@@ -50,7 +51,7 @@ export const useBidRequests = () => {
               recon_estimate,
               recon_details
             ),
-            buybidhq_users (
+            creator:buybidhq_users!bid_requests_user_id_fkey (
               full_name
             ),
             bid_responses (
@@ -79,7 +80,7 @@ export const useBidRequests = () => {
             trim: item.vehicles.trim,
             vin: item.vehicles.vin,
             mileage: parseInt(item.vehicles.mileage),
-            buyer: item.buybidhq_users.full_name,
+            buyer: item.creator.full_name,
             highestOffer: highestOffer,
             status: item.status,
             engineCylinders: item.vehicles.engine,
