@@ -21,14 +21,14 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Use a simpler query structure to avoid recursion
+        // Use a simpler query structure with proper foreign key references
         const { data, error } = await supabase
           .from('bid_requests')
           .select(`
             id,
             created_at,
             status,
-            vehicles!inner (
+            vehicles (
               year,
               make,
               model,
@@ -42,7 +42,7 @@ export const useBidRequests = () => {
               interior,
               options
             ),
-            reconditioning!inner (
+            reconditioning (
               windshield,
               engine_light,
               brakes,
@@ -51,9 +51,7 @@ export const useBidRequests = () => {
               recon_estimate,
               recon_details
             ),
-            creator:buybidhq_users!bid_requests_user_id_fkey (
-              full_name
-            ),
+            user_id,
             bid_responses (
               offer_amount
             )
@@ -64,6 +62,21 @@ export const useBidRequests = () => {
           console.error("Error fetching bid requests:", error);
           throw error;
         }
+
+        // Fetch user details separately to avoid recursion
+        const userIds = data.map(item => item.user_id);
+        const { data: users, error: usersError } = await supabase
+          .from('buybidhq_users')
+          .select('id, full_name')
+          .in('id', userIds);
+
+        if (usersError) {
+          console.error("Error fetching users:", usersError);
+          throw usersError;
+        }
+
+        // Create a map of user IDs to full names
+        const userMap = new Map(users.map(user => [user.id, user.full_name]));
 
         return data.map((item): BidRequest => {
           // Find the highest offer among all bid responses
@@ -80,7 +93,7 @@ export const useBidRequests = () => {
             trim: item.vehicles.trim,
             vin: item.vehicles.vin,
             mileage: parseInt(item.vehicles.mileage),
-            buyer: item.creator.full_name,
+            buyer: userMap.get(item.user_id) || 'Unknown',
             highestOffer: highestOffer,
             status: item.status,
             engineCylinders: item.vehicles.engine,
