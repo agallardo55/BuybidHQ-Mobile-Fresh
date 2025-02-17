@@ -37,18 +37,55 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) {
-        throw error;
+      if (signInError) {
+        throw signInError;
       }
 
-      if (data.session) {
-        const from = (location.state as any)?.from?.pathname || '/dashboard';
+      if (signInData.session) {
+        // Check if MFA is required
+        const { data: mfaData, error: mfaError } = await supabase
+          .from('mfa_settings')
+          .select('status, method')
+          .eq('user_id', signInData.session.user.id)
+          .single();
+
+        if (mfaError) {
+          console.error('Error checking MFA status:', mfaError);
+        }
+
+        // If MFA is enabled, generate verification code and redirect to MFA page
+        if (mfaData?.status === 'enabled') {
+          const { data: verificationData, error: verificationError } = await supabase
+            .rpc('create_mfa_verification', {
+              p_user_id: signInData.session.user.id,
+              p_method: mfaData.method
+            });
+
+          if (verificationError) {
+            throw verificationError;
+          }
+
+          // Store session temporarily
+          sessionStorage.setItem('pending_mfa_session', JSON.stringify({
+            userId: signInData.session.user.id,
+            verificationId: verificationData.verification_id,
+            method: mfaData.method,
+            destination: (location.state as any)?.from?.pathname || '/dashboard'
+          }));
+
+          // Redirect to MFA verification page
+          navigate('/mfa-verification');
+          return;
+        }
+
+        // If MFA is not enabled, proceed with normal login
         toast.success("Successfully signed in!");
+        const from = (location.state as any)?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
       } else {
         toast.error("Something went wrong. Please try again.");

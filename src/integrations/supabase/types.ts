@@ -671,6 +671,72 @@ export type Database = {
           },
         ]
       }
+      mfa_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_verified: string | null
+          method: Database["public"]["Enums"]["mfa_method"]
+          status: Database["public"]["Enums"]["mfa_status"]
+          trusted_devices: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_verified?: string | null
+          method?: Database["public"]["Enums"]["mfa_method"]
+          status?: Database["public"]["Enums"]["mfa_status"]
+          trusted_devices?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_verified?: string | null
+          method?: Database["public"]["Enums"]["mfa_method"]
+          status?: Database["public"]["Enums"]["mfa_status"]
+          trusted_devices?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mfa_verifications: {
+        Row: {
+          attempts: number | null
+          created_at: string | null
+          expires_at: string
+          id: string
+          method: Database["public"]["Enums"]["mfa_method"]
+          user_id: string
+          verification_code: string
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          method: Database["public"]["Enums"]["mfa_method"]
+          user_id: string
+          verification_code: string
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          method?: Database["public"]["Enums"]["mfa_method"]
+          user_id?: string
+          verification_code?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           cleared_at: string | null
@@ -1127,11 +1193,26 @@ export type Database = {
         }
         Returns: string
       }
+      create_mfa_verification: {
+        Args: {
+          p_user_id: string
+          p_method: Database["public"]["Enums"]["mfa_method"]
+        }
+        Returns: {
+          verification_id: string
+          code: string
+          expires_at: string
+        }[]
+      }
       generate_bid_submission_token: {
         Args: {
           p_bid_request_id: string
           p_buyer_id: string
         }
+        Returns: string
+      }
+      generate_verification_code: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       get_bid_request_details: {
@@ -1344,9 +1425,22 @@ export type Database = {
           has_existing_bid: boolean
         }[]
       }
+      verify_mfa_code: {
+        Args: {
+          p_user_id: string
+          p_verification_code: string
+        }
+        Returns: {
+          is_valid: boolean
+          attempts_remaining: number
+          error_message: string
+        }[]
+      }
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
+      mfa_method: "email" | "sms"
+      mfa_status: "enabled" | "disabled" | "pending"
       notification_type:
         | "bid_request"
         | "bid_response"

@@ -5,6 +5,14 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+interface PendingMFASession {
+  userId: string;
+  verificationId: string;
+  method: 'email' | 'sms';
+  destination: string;
+}
 
 const MFAVerification = () => {
   const [pin, setPin] = useState(['', '', '', '', '', '']);
@@ -12,6 +20,17 @@ const MFAVerification = () => {
   const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes in seconds
   const [attemptsRemaining, setAttemptsRemaining] = useState(3);
   const navigate = useNavigate();
+  const [pendingSession, setPendingSession] = useState<PendingMFASession | null>(null);
+
+  // Load pending session
+  useEffect(() => {
+    const sessionData = sessionStorage.getItem('pending_mfa_session');
+    if (!sessionData) {
+      navigate('/signin');
+      return;
+    }
+    setPendingSession(JSON.parse(sessionData));
+  }, [navigate]);
 
   // Handle timer countdown
   useEffect(() => {
@@ -49,6 +68,12 @@ const MFAVerification = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!pendingSession) {
+      toast.error("Session expired. Please sign in again.");
+      navigate('/signin');
+      return;
+    }
+
     if (pin.some(digit => !digit)) {
       toast.error("Please enter all 6 digits");
       return;
@@ -57,20 +82,30 @@ const MFAVerification = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Implement actual PIN verification logic
       const enteredPin = pin.join('');
-      console.log('Verifying PIN:', enteredPin);
-
-      // Simulate verification (remove this in actual implementation)
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (attemptsRemaining > 1) {
-        setAttemptsRemaining(prev => prev - 1);
-        toast.error("Invalid PIN. Please try again.");
+      // Verify MFA code
+      const { data: verificationResult, error: verificationError } = await supabase
+        .rpc('verify_mfa_code', {
+          p_user_id: pendingSession.userId,
+          p_verification_code: enteredPin
+        });
+
+      if (verificationError) throw verificationError;
+
+      if (verificationResult.is_valid) {
+        // Clear pending session
+        sessionStorage.removeItem('pending_mfa_session');
+        
+        toast.success("Verification successful!");
+        navigate(pendingSession.destination);
       } else {
-        // Handle locked out state
-        toast.error("Too many failed attempts. Please try again later.");
-        navigate('/signin');
+        setAttemptsRemaining(verificationResult.attempts_remaining);
+        toast.error(verificationResult.error_message || "Invalid PIN. Please try again.");
+        
+        if (verificationResult.attempts_remaining <= 0) {
+          navigate('/signin');
+        }
       }
     } catch (error: any) {
       console.error("MFA verification error:", error);
@@ -82,11 +117,30 @@ const MFAVerification = () => {
 
   // Handle resend code
   const handleResendCode = async () => {
+    if (!pendingSession) {
+      toast.error("Session expired. Please sign in again.");
+      navigate('/signin');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // TODO: Implement actual resend logic
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data: verificationData, error: verificationError } = await supabase
+        .rpc('create_mfa_verification', {
+          p_user_id: pendingSession.userId,
+          p_method: pendingSession.method
+        });
+
+      if (verificationError) throw verificationError;
+
+      // Update session storage with new verification ID
+      sessionStorage.setItem('pending_mfa_session', JSON.stringify({
+        ...pendingSession,
+        verificationId: verificationData.verification_id
+      }));
+
       setTimeRemaining(300); // Reset timer
+      setAttemptsRemaining(3); // Reset attempts
       toast.success("New code sent successfully");
     } catch (error: any) {
       console.error("Resend code error:", error);
@@ -107,7 +161,7 @@ const MFAVerification = () => {
           />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Verify Your Identity</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Enter the 6-digit code sent to your device
+            Enter the 6-digit code sent to your {pendingSession?.method === 'email' ? 'email' : 'phone'}
           </p>
         </div>
 
