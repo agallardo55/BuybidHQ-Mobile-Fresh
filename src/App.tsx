@@ -80,13 +80,10 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            {/* Remove ProtectedRoute wrapper for bid-response */}
             <Route
               path="/bid-response"
-              element={
-                <ProtectedRoute>
-                  <BidResponse />
-                </ProtectedRoute>
-              }
+              element={<BidResponse />}
             />
             <Route
               path="/buyers"
