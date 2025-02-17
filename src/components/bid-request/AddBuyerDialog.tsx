@@ -88,13 +88,12 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     try {
       setIsValidating(true);
 
-      // Create buyer first to get the ID
-      const newBuyer = await createBuyer({
+      const buyerResponse = await createBuyer({
         fullName: formData.name,
         dealershipName: formData.dealership,
         mobileNumber: formData.mobile,
-        phoneCarrier: formData.carrier,
-        email: "", // Required by the type but not needed for this form
+        phoneCarrier: formData.carrier || "",
+        email: "",
         businessNumber: "",
         licenseNumber: "",
         dealershipAddress: "",
@@ -103,8 +102,12 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         zipCode: "",
       });
 
+      if (!buyerResponse || !buyerResponse.id) {
+        throw new Error("Failed to create buyer");
+      }
+
       // Validate phone number
-      const isValid = await validatePhoneNumber(formData.mobile, newBuyer.id);
+      const isValid = await validatePhoneNumber(formData.mobile, buyerResponse.id);
 
       if (isValid) {
         setFormData({ name: "", dealership: "", mobile: "", carrier: "" });

@@ -19,6 +19,7 @@ const defaultFormData: BuyerFormData = {
   city: "",
   state: "",
   zipCode: "",
+  phoneCarrier: "",
 };
 
 export const useBuyersState = () => {

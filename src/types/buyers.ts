@@ -13,7 +13,7 @@ export interface Buyer {
   ownerName: string;
   ownerEmail: string;
   phoneCarrier?: string;
-  phoneValidationStatus?: 'pending' | 'valid' | 'invalid';
+  phoneValidationStatus?: 'pending' | 'valid' | 'invalid' | 'processing';
 }
 
 export interface BuyerFormData {
@@ -46,4 +46,3 @@ export type CarrierType =
   | 'Boost Mobile'
   | 'Cricket'
   | 'Virgin Mobile';
-

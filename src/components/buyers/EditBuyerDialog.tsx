@@ -28,6 +28,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
     city: "",
     state: "",
     zipCode: "",
+    phoneCarrier: "",
   });
 
   useEffect(() => {
@@ -44,6 +45,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         city,
         state,
         zipCode: "",
+        phoneCarrier: buyer.phoneCarrier || "",
       });
     }
   }, [buyer]);
