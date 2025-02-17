@@ -8,7 +8,7 @@ import { useCurrentUser } from "./useCurrentUser";
 interface BidRequestDetails {
   request_id: string;
   created_at: string;
-  status: string;
+  status: "Pending" | "Approved" | "Declined";  // Updated to match BidRequest type
   year: string;
   make: string;
   model: string;
@@ -84,6 +84,11 @@ export const useBidRequests = () => {
           const responses = responsesMap.get(item.request_id) || [];
           const highestOffer = responses.length > 0 ? Math.max(...responses) : null;
 
+          // Validate status is one of the allowed values
+          const status = ["Pending", "Approved", "Declined"].includes(item.status) 
+            ? item.status as "Pending" | "Approved" | "Declined"
+            : "Pending"; // Default to "Pending" if invalid status
+
           return {
             id: item.request_id,
             createdAt: item.created_at,
@@ -95,7 +100,7 @@ export const useBidRequests = () => {
             mileage: parseInt(item.mileage),
             buyer: item.user_full_name || 'Unknown',
             highestOffer,
-            status: item.status,
+            status,
             engineCylinders: item.engine_cylinders,
             transmission: item.transmission,
             drivetrain: item.drivetrain,
