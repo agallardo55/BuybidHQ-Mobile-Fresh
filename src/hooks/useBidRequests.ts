@@ -8,7 +8,7 @@ import { useCurrentUser } from "./useCurrentUser";
 interface BidRequestDetails {
   request_id: string;
   created_at: string;
-  status: "Pending" | "Approved" | "Declined";  // Updated to match BidRequest type
+  status: string;
   year: string;
   make: string;
   model: string;
@@ -47,38 +47,43 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // First, get all bid request IDs
-        const { data: bidRequestIds, error: bidRequestError } = await supabase
+        // Get bid requests directly
+        const { data: requests, error: requestError } = await supabase
           .from('bid_requests')
-          .select('id');
+          .select('id, created_at, status');
 
-        if (bidRequestError) {
-          console.error("Error fetching bid request IDs:", bidRequestError);
-          throw bidRequestError;
+        if (requestError) {
+          console.error("Error fetching bid requests:", requestError);
+          throw requestError;
         }
 
-        if (!bidRequestIds || bidRequestIds.length === 0) {
+        if (!requests || requests.length === 0) {
           return [];
         }
 
-        // Then get details for each bid request
-        const detailsPromises = bidRequestIds.map(async ({ id }) => {
+        // Get details for each request
+        const detailsPromises = requests.map(async (request) => {
           const { data, error } = await supabase
             .rpc('get_bid_request_details', {
-              p_request_id: id
+              p_request_id: request.id
             });
 
           if (error) {
-            console.error(`Error fetching details for request ${id}:`, error);
+            console.error(`Error fetching details for request ${request.id}:`, error);
             return null;
           }
 
-          return data?.[0];
+          // Combine the request status with the details
+          return {
+            ...data?.[0],
+            created_at: request.created_at,
+            status: request.status
+          };
         });
 
         const details = (await Promise.all(detailsPromises)).filter(Boolean) as BidRequestDetails[];
 
-        // Get bid responses separately
+        // Get bid responses
         const requestIds = details.map(item => item.request_id);
         const { data: responses, error: responsesError } = await supabase
           .from('bid_responses')
@@ -90,22 +95,22 @@ export const useBidRequests = () => {
           throw responsesError;
         }
 
-        // Create a map of bid request IDs to their responses
+        // Map responses
         const responsesMap = new Map();
         responses?.forEach(response => {
-          const responses = responsesMap.get(response.bid_request_id) || [];
-          responses.push(response.offer_amount);
-          responsesMap.set(response.bid_request_id, responses);
+          const offers = responsesMap.get(response.bid_request_id) || [];
+          offers.push(response.offer_amount);
+          responsesMap.set(response.bid_request_id, offers);
         });
 
+        // Transform to final format
         return details.map((item): BidRequest => {
           const responses = responsesMap.get(item.request_id) || [];
           const highestOffer = responses.length > 0 ? Math.max(...responses) : null;
 
-          // Validate status is one of the allowed values
           const status = ["Pending", "Approved", "Declined"].includes(item.status) 
             ? item.status as "Pending" | "Approved" | "Declined"
-            : "Pending"; // Default to "Pending" if invalid status
+            : "Pending";
 
           return {
             id: item.request_id,
