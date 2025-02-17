@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CarrierType } from "@/types/users";
+import { CarrierType, UserRole } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const CARRIER_OPTIONS: CarrierType[] = [
@@ -100,6 +100,29 @@ export const PersonalInfoTab = () => {
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
+          {/* Role Dropdown (Read-only) */}
+          <div>
+            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+              Role
+            </label>
+            <Select
+              value={currentUser?.role}
+              disabled
+              onValueChange={() => {}}
+            >
+              <SelectTrigger className="bg-gray-50">
+                <SelectValue placeholder="Loading..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="basic">Basic</SelectItem>
+                <SelectItem value="individual">Individual</SelectItem>
+                <SelectItem value="dealer">Dealer</SelectItem>
+                <SelectItem value="associate">Associate</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
               Full Name <span className="text-red-500">*</span>
