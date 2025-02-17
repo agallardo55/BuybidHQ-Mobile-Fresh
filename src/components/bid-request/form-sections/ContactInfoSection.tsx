@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CarrierType } from "@/types/buyers";
 
-const CARRIER_OPTIONS: CarrierType[] = [
+export const CARRIER_OPTIONS: CarrierType[] = [
   'Verizon Wireless',
   'AT&T',
   'T-Mobile',
