@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import PersonalInfoForm from "@/components/signup/PersonalInfoForm";
 import DealershipForm from "@/components/signup/DealershipForm";
+import PlanSelectionForm from "@/components/signup/PlanSelectionForm";
 import { useSignUpForm } from "@/hooks/useSignUpForm";
 
 const SignUp = () => {
@@ -11,6 +12,7 @@ const SignUp = () => {
     isSubmitting,
     handleChange,
     handleStateChange,
+    handlePlanSelect,
     handleNext,
     handleBack,
     handleSubmit,
@@ -36,10 +38,13 @@ const SignUp = () => {
           <h2 className="mt-6 text-2xl sm:text-3xl font-bold text-gray-900">Create your account</h2>
           <div className="flex justify-center space-x-4 mt-4">
             <div className={`h-2 w-16 rounded ${currentStep === 'personal' ? 'bg-accent' : 'bg-gray-200'}`} />
+            <div className={`h-2 w-16 rounded ${currentStep === 'plan' ? 'bg-accent' : 'bg-gray-200'}`} />
             <div className={`h-2 w-16 rounded ${currentStep === 'dealership' ? 'bg-accent' : 'bg-gray-200'}`} />
           </div>
           <p className="mt-4 text-sm text-gray-600">
-            {currentStep === 'personal' ? 'Step 1: Personal Information' : 'Step 2: Dealership Information'}
+            {currentStep === 'personal' ? 'Step 1: Personal Information' : 
+             currentStep === 'plan' ? 'Step 2: Select Your Plan' :
+             'Step 3: Dealership Information'}
           </p>
         </div>
 
@@ -49,6 +54,11 @@ const SignUp = () => {
               formData={formData}
               onNext={handleNext}
               onChange={handleChange}
+            />
+          ) : currentStep === 'plan' ? (
+            <PlanSelectionForm
+              onSelect={handlePlanSelect}
+              onBack={handleBack}
             />
           ) : (
             <DealershipForm

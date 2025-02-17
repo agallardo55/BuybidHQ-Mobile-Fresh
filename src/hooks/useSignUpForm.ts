@@ -16,12 +16,13 @@ interface SignUpFormData {
   city: string;
   state: string;
   zipCode: string;
+  planType: 'beta-access' | 'individual' | undefined;
 }
 
 export const useSignUpForm = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'personal' | 'dealership'>('personal');
+  const [currentStep, setCurrentStep] = useState<'personal' | 'plan' | 'dealership'>('personal');
   const [formData, setFormData] = useState<SignUpFormData>({
     fullName: "",
     email: "",
@@ -34,6 +35,7 @@ export const useSignUpForm = () => {
     city: "",
     state: "",
     zipCode: "",
+    planType: undefined
   });
 
   const formatPhoneNumber = (value: string) => {
@@ -77,16 +79,28 @@ export const useSignUpForm = () => {
     }));
   };
 
+  const handlePlanSelect = (planType: 'beta-access' | 'individual') => {
+    setFormData((prev) => ({
+      ...prev,
+      planType,
+    }));
+    setCurrentStep('dealership');
+  };
+
   const handleNext = () => {
     if (formData.fullName && formData.email && formData.password && formData.mobileNumber && formData.businessNumber) {
-      setCurrentStep('dealership');
+      setCurrentStep('plan');
     } else {
       toast.error("Please fill in all required fields");
     }
   };
 
   const handleBack = () => {
-    setCurrentStep('personal');
+    if (currentStep === 'plan') {
+      setCurrentStep('personal');
+    } else if (currentStep === 'dealership') {
+      setCurrentStep('plan');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,8 +181,8 @@ export const useSignUpForm = () => {
         .insert([
           {
             user_id: authData.user.id,
-            plan_type: 'beta-access',
-            status: 'trialing'
+            plan_type: formData.planType || 'beta-access',
+            status: formData.planType === 'individual' ? 'pending' : 'trialing'
           }
         ]);
 
@@ -177,7 +191,13 @@ export const useSignUpForm = () => {
       }
 
       toast.success("Account created successfully!");
-      navigate('/signin');
+      
+      if (formData.planType === 'individual') {
+        // Redirect to Stripe checkout (we'll implement this next)
+        navigate('/checkout');
+      } else {
+        navigate('/signin');
+      }
     } catch (error: any) {
       console.error('Signup error:', error);
       toast.error(error.message || "Failed to create account");
@@ -191,6 +211,7 @@ export const useSignUpForm = () => {
     isSubmitting,
     handleChange,
     handleStateChange,
+    handlePlanSelect,
     handleNext,
     handleBack,
     handleSubmit,
