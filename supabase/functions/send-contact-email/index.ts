@@ -15,6 +15,10 @@ interface ContactFormRequest {
   inquiryType: string;
 }
 
+// For testing, we'll send all emails to this address until domain is verified
+const TEST_EMAIL = 'adam@cmigpartners.com'
+const IS_TEST_MODE = true // Set this to false once domain is verified
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -22,6 +26,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Processing contact form submission')
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -30,20 +36,34 @@ serve(async (req) => {
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
     const { name, email, message, inquiryType } = await req.json() as ContactFormRequest
 
+    console.log('Received form data:', {
+      name,
+      email: IS_TEST_MODE ? `${email} (will be sent to ${TEST_EMAIL})` : email,
+      inquiryType,
+      testMode: IS_TEST_MODE
+    })
+
     // Store the submission in the database
     const { error: dbError } = await supabase
       .from('contact_submissions')
       .insert([{ name, email, message, inquiryType }])
 
     if (dbError) {
+      console.error('Database error:', dbError)
       throw new Error(`Database error: ${dbError.message}`)
     }
 
+    console.log('Successfully stored submission in database')
+
+    // In test mode, override the recipient email with the test email
+    const toEmail = IS_TEST_MODE ? TEST_EMAIL : email
+    const subject = `${IS_TEST_MODE ? '[TEST MODE] ' : ''}New ${inquiryType} Contact Form Submission`
+
     // Send email
     const { data, error } = await resend.emails.send({
-      from: 'BuyBidHQ <notifications@buybidhq.com>',
-      to: 'adam@cmigpartners.com',
-      subject: `New ${inquiryType} Contact Form Submission`,
+      from: 'onboarding@resend.dev',
+      to: [toEmail],
+      subject: subject,
       html: `
         <h2>New Contact Form Submission</h2>
         <p><strong>Inquiry Type:</strong> ${inquiryType}</p>
@@ -55,13 +75,25 @@ serve(async (req) => {
     })
 
     if (error) {
+      console.error('Email sending error:', error)
       throw error
     }
 
-    console.log('Email sent successfully:', data)
+    console.log('Email sent successfully:', {
+      emailId: data?.id,
+      testMode: IS_TEST_MODE,
+      originalRecipient: email,
+      actualRecipient: toEmail
+    })
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ 
+        success: true,
+        emailId: data?.id,
+        testMode: IS_TEST_MODE,
+        originalRecipient: email,
+        actualRecipient: toEmail
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -70,7 +102,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in send-contact-email function:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
