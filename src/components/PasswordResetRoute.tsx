@@ -4,7 +4,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const PasswordResetRoute = ({ children }: { children: ReactNode }) => {
-  const { isLoading } = useAuth();
+  const { isLoading, user } = useAuth();
   const location = useLocation();
 
   // We only show loading state while checking auth
@@ -15,8 +15,13 @@ export const PasswordResetRoute = ({ children }: { children: ReactNode }) => {
   // Check if this is a password reset attempt by looking for the token in the URL
   const hasResetToken = location.hash.includes('type=recovery');
 
-  // If there's no reset token, redirect to forgot-password
-  if (!hasResetToken) {
+  // If there's no reset token and user is logged in, redirect to dashboard
+  if (!hasResetToken && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // If there's no reset token and user is not logged in, redirect to forgot-password
+  if (!hasResetToken && !user) {
     return <Navigate to="/forgot-password" replace />;
   }
 

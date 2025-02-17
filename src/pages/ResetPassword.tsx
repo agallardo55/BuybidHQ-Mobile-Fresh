@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,6 +12,22 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if we're in a recovery flow
+  const isRecoveryFlow = location.hash.includes('type=recovery');
+
+  useEffect(() => {
+    // If we're not in a recovery flow and there's no session, redirect to login
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!isRecoveryFlow && !session) {
+        navigate('/signin');
+      }
+    };
+    
+    checkSession();
+  }, [navigate, isRecoveryFlow]);
 
   const validatePassword = (password: string) => {
     if (password.length < 6) {
@@ -83,7 +99,9 @@ const ResetPassword = () => {
             alt="BuyBidHQ Logo" 
             className="mx-auto h-12 w-auto"
           />
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Set New Password</h2>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+            {isRecoveryFlow ? "Reset Your Password" : "Set New Password"}
+          </h2>
           <p className="mt-2 text-sm text-gray-600">
             Please enter your new password below.
           </p>
