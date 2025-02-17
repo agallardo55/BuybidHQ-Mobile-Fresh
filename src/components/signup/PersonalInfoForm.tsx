@@ -87,7 +87,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           maxLength={14}
         />
       </div>
-      <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <Button
           type="button"
           onClick={onBack}
