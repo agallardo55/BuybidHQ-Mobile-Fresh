@@ -40,6 +40,7 @@ export const useBuyersQuery = () => {
             pending_bids,
             declined_bids,
             phone_carrier,
+            phone_validation_status,
             user:buybidhq_users!buyers_user_id_fkey(
               full_name,
               email
@@ -63,24 +64,30 @@ export const useBuyersQuery = () => {
         console.log("Raw buyers data:", data);
 
         const typedData = data as unknown as BuyerResponse[];
-        const mappedBuyers: MappedBuyer[] = typedData.map(buyer => ({
-          id: buyer.id,
-          user_id: buyer.user_id || '',
-          name: buyer.buyer_name || '',
-          email: buyer.email || '',
-          dealership: buyer.dealer_name || '',
-          mobileNumber: buyer.buyer_mobile || '',
-          businessNumber: buyer.buyer_phone || '',
-          location: `${buyer.city || ''}, ${buyer.state || ''}`.replace(/, $/, ''),
-          acceptedBids: buyer.accepted_bids || 0,
-          pendingBids: buyer.pending_bids || 0,
-          declinedBids: buyer.declined_bids || 0,
-          ownerName: buyer.user?.full_name || 'N/A',
-          ownerEmail: buyer.user?.email || 'N/A',
-          phoneCarrier: buyer.phone_carrier || 'N/A'
-        }));
+        const mappedBuyers: MappedBuyer[] = typedData.map(buyer => {
+          console.log("Mapping buyer data:", buyer);
+          console.log("Phone carrier:", buyer.phone_carrier);
+          
+          return {
+            id: buyer.id,
+            user_id: buyer.user_id || '',
+            name: buyer.buyer_name || '',
+            email: buyer.email || '',
+            dealership: buyer.dealer_name || '',
+            mobileNumber: buyer.buyer_mobile || '',
+            businessNumber: buyer.buyer_phone || '',
+            location: `${buyer.city || ''}, ${buyer.state || ''}`.replace(/, $/, ''),
+            acceptedBids: buyer.accepted_bids || 0,
+            pendingBids: buyer.pending_bids || 0,
+            declinedBids: buyer.declined_bids || 0,
+            ownerName: buyer.user?.full_name || 'N/A',
+            ownerEmail: buyer.user?.email || 'N/A',
+            phoneCarrier: buyer.phone_carrier || 'N/A',
+            phoneValidationStatus: buyer.phone_validation_status
+          };
+        });
 
-        console.log("Mapped buyers:", mappedBuyers);
+        console.log("Mapped buyers with carriers:", mappedBuyers);
         return mappedBuyers;
       } catch (error: any) {
         console.error("Error in buyers query:", error);
