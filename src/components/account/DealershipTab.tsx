@@ -126,38 +126,40 @@ export const DealershipTab = () => {
               onChange={handleChange}
             />
           </div>
-          <div>
-            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-              State
-            </label>
-            <Select onValueChange={handleStateChange} value={formData.state}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select state" />
-              </SelectTrigger>
-              <SelectContent>
-                {states.map((state) => (
-                  <SelectItem key={state} value={state}>
-                    {state}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-              ZIP Code
-            </label>
-            <Input
-              id="zipCode"
-              name="zipCode"
-              type="text"
-              required
-              value={formData.zipCode}
-              onChange={handleChange}
-              pattern="[0-9]{5}"
-              maxLength={5}
-              placeholder="12345"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                State
+              </label>
+              <Select onValueChange={handleStateChange} value={formData.state}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {states.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                ZIP Code
+              </label>
+              <Input
+                id="zipCode"
+                name="zipCode"
+                type="text"
+                required
+                value={formData.zipCode}
+                onChange={handleChange}
+                pattern="[0-9]{5}"
+                maxLength={5}
+                placeholder="12345"
+              />
+            </div>
           </div>
         </div>
       </div>
