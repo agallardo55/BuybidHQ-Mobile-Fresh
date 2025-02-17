@@ -47,21 +47,39 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // First, get the bid requests with related data
-        const { data, error } = await supabase
-          .rpc('get_bid_request_details') as { data: BidRequestDetails[] | null, error: any };
+        // First, get all bid request IDs
+        const { data: bidRequestIds, error: bidRequestError } = await supabase
+          .from('bid_requests')
+          .select('id');
 
-        if (error) {
-          console.error("Error fetching bid requests:", error);
-          throw error;
+        if (bidRequestError) {
+          console.error("Error fetching bid request IDs:", bidRequestError);
+          throw bidRequestError;
         }
 
-        if (!data) {
+        if (!bidRequestIds || bidRequestIds.length === 0) {
           return [];
         }
 
+        // Then get details for each bid request
+        const detailsPromises = bidRequestIds.map(async ({ id }) => {
+          const { data, error } = await supabase
+            .rpc('get_bid_request_details', {
+              p_request_id: id
+            });
+
+          if (error) {
+            console.error(`Error fetching details for request ${id}:`, error);
+            return null;
+          }
+
+          return data?.[0];
+        });
+
+        const details = (await Promise.all(detailsPromises)).filter(Boolean) as BidRequestDetails[];
+
         // Get bid responses separately
-        const requestIds = data.map(item => item.request_id);
+        const requestIds = details.map(item => item.request_id);
         const { data: responses, error: responsesError } = await supabase
           .from('bid_responses')
           .select('bid_request_id, offer_amount')
@@ -80,7 +98,7 @@ export const useBidRequests = () => {
           responsesMap.set(response.bid_request_id, responses);
         });
 
-        return data.map((item): BidRequest => {
+        return details.map((item): BidRequest => {
           const responses = responsesMap.get(item.request_id) || [];
           const highestOffer = responses.length > 0 ? Math.max(...responses) : null;
 
