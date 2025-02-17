@@ -16,8 +16,12 @@ export interface BuyerResponse {
   pending_bids: number;
   declined_bids: number;
   phone_carrier: string | null;
-  phone_validation_status: 'pending' | 'valid' | 'invalid' | null;
+  phone_validation_status: 'pending' | 'processing' | 'valid' | 'invalid' | null;
   standardized_phone: string | null;
+  line_type: string | null;
+  carrier_detail: Record<string, any> | null;
+  last_validated_at: string | null;
+  is_ported: boolean | null;
   user: {
     full_name: string | null;
     email: string | null;
@@ -38,7 +42,10 @@ export interface MappedBuyer {
   ownerName: string;
   ownerEmail: string;
   phoneCarrier?: string;
-  phoneValidationStatus?: 'pending' | 'valid' | 'invalid';
+  phoneValidationStatus?: 'pending' | 'processing' | 'valid' | 'invalid';
+  lineType?: string;
+  lastValidatedAt?: string;
+  isPortedNumber?: boolean;
 }
 
 export interface UpdateBuyerParams {

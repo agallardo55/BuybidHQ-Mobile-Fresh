@@ -353,6 +353,7 @@ export type Database = {
           buyer_mobile: string | null
           buyer_name: string | null
           buyer_phone: string | null
+          carrier_detail: Json | null
           city: string | null
           created_at: string
           dealer_name: string | null
@@ -360,6 +361,9 @@ export type Database = {
           declined_bids: number | null
           email: string
           id: string
+          is_ported: boolean | null
+          last_validated_at: string | null
+          line_type: string | null
           pending_bids: number | null
           phone_carrier: string | null
           phone_validation_status:
@@ -377,6 +381,7 @@ export type Database = {
           buyer_mobile?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
+          carrier_detail?: Json | null
           city?: string | null
           created_at?: string
           dealer_name?: string | null
@@ -384,6 +389,9 @@ export type Database = {
           declined_bids?: number | null
           email: string
           id?: string
+          is_ported?: boolean | null
+          last_validated_at?: string | null
+          line_type?: string | null
           pending_bids?: number | null
           phone_carrier?: string | null
           phone_validation_status?:
@@ -401,6 +409,7 @@ export type Database = {
           buyer_mobile?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
+          carrier_detail?: Json | null
           city?: string | null
           created_at?: string
           dealer_name?: string | null
@@ -408,6 +417,9 @@ export type Database = {
           declined_bids?: number | null
           email?: string
           id?: string
+          is_ported?: boolean | null
+          last_validated_at?: string | null
+          line_type?: string | null
           pending_bids?: number | null
           phone_carrier?: string | null
           phone_validation_status?:
@@ -1458,6 +1470,12 @@ export type Database = {
           has_existing_bid: boolean
         }[]
       }
+      validate_phone_with_twilio: {
+        Args: {
+          phone_input: string
+        }
+        Returns: Json
+      }
       verify_mfa_code: {
         Args: {
           p_user_id: string
@@ -1472,7 +1490,11 @@ export type Database = {
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
-      buyer_phone_validation_status: "pending" | "valid" | "invalid"
+      buyer_phone_validation_status:
+        | "pending"
+        | "valid"
+        | "invalid"
+        | "processing"
       mfa_method: "email" | "sms"
       mfa_status: "enabled" | "disabled" | "pending"
       notification_type:

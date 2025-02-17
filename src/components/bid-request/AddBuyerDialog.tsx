@@ -8,6 +8,7 @@ import { useBuyers } from "@/hooks/useBuyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
 import { CarrierType } from "@/types/buyers";
+import { supabase } from "@/integrations/supabase/client";
 
 const CARRIER_OPTIONS: CarrierType[] = [
   'Verizon Wireless',
@@ -35,6 +36,41 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     mobile: "",
     carrier: "" as CarrierType | "",
   });
+  const [isValidating, setIsValidating] = useState(false);
+
+  const validatePhoneNumber = async (phoneNumber: string, buyerId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-phone', {
+        body: { phone_number: phoneNumber, buyer_id: buyerId }
+      });
+
+      if (error) throw error;
+
+      if (!data.is_valid) {
+        toast.error("Invalid phone number. Please check and try again.");
+        return false;
+      }
+
+      if (data.line_type !== 'mobile') {
+        toast.error("Please provide a mobile phone number.");
+        return false;
+      }
+
+      // Auto-set carrier if detected
+      if (data.carrier?.name && CARRIER_OPTIONS.includes(data.carrier.name as CarrierType)) {
+        setFormData(prev => ({
+          ...prev,
+          carrier: data.carrier.name as CarrierType
+        }));
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Phone validation error:", error);
+      toast.error("Failed to validate phone number. Please try again.");
+      return false;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,13 +80,16 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       return;
     }
 
-    if (!formData.name || !formData.dealership || !formData.mobile || !formData.carrier) {
-      toast.error("Please fill in all fields including carrier");
+    if (!formData.name || !formData.dealership || !formData.mobile) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
     try {
-      await createBuyer({
+      setIsValidating(true);
+
+      // Create buyer first to get the ID
+      const newBuyer = await createBuyer({
         fullName: formData.name,
         dealershipName: formData.dealership,
         mobileNumber: formData.mobile,
@@ -63,13 +102,20 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         state: "",
         zipCode: "",
       });
-      
-      setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
-      onOpenChange(false);
-      toast.success("Buyer added successfully");
+
+      // Validate phone number
+      const isValid = await validatePhoneNumber(formData.mobile, newBuyer.id);
+
+      if (isValid) {
+        setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
+        onOpenChange(false);
+        toast.success("Buyer added successfully");
+      }
     } catch (error) {
       console.error("Error adding buyer:", error);
       toast.error("Failed to add buyer. Please try again.");
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -129,7 +175,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
               onValueChange={handleCarrierChange}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select carrier" />
+                <SelectValue placeholder="Select carrier (optional)" />
               </SelectTrigger>
               <SelectContent>
                 {CARRIER_OPTIONS.map(carrier => (
@@ -139,12 +185,16 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-sm text-gray-500">
+              Carrier will be auto-detected during validation
+            </p>
           </div>
           <Button 
             type="submit"
             className="w-full bg-custom-blue hover:bg-custom-blue/90 text-white"
+            disabled={isValidating}
           >
-            Add Buyer
+            {isValidating ? "Validating..." : "Add Buyer"}
           </Button>
         </form>
       </DialogContent>
