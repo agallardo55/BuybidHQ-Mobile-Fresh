@@ -12,9 +12,10 @@ interface PersonalInfoFormProps {
   };
   onNext: () => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBack: () => void;
 }
 
-const PersonalInfoForm = ({ formData, onNext, onChange }: PersonalInfoFormProps) => {
+const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFormProps) => {
   return (
     <div className="space-y-4">
       <div>
@@ -86,13 +87,22 @@ const PersonalInfoForm = ({ formData, onNext, onChange }: PersonalInfoFormProps)
           maxLength={14}
         />
       </div>
-      <Button
-        type="button"
-        onClick={onNext}
-        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-      >
-        Next Step
-      </Button>
+      <div className="space-y-4">
+        <Button
+          type="button"
+          onClick={onBack}
+          className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800"
+        >
+          Back
+        </Button>
+        <Button
+          type="button"
+          onClick={onNext}
+          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+        >
+          Next Step
+        </Button>
+      </div>
     </div>
   );
 };

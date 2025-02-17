@@ -59,6 +59,7 @@ const SignUp = () => {
               formData={formData}
               onNext={handleNext}
               onChange={handleChange}
+              onBack={handleBack}
             />
           ) : (
             <DealershipForm
