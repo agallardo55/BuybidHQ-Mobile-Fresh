@@ -1444,6 +1444,12 @@ export type Database = {
         }
         Returns: string
       }
+      standardize_carrier_name: {
+        Args: {
+          carrier: string
+        }
+        Returns: string
+      }
       standardize_phone_number: {
         Args: {
           phone_input: string
