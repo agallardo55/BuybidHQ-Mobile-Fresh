@@ -1291,6 +1291,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_admin_status: {
+        Args: {
+          checking_user_id: string
+        }
+        Returns: boolean
+      }
       check_user_role: {
         Args: {
           user_id: string
