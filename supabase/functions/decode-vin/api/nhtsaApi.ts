@@ -1,96 +1,135 @@
 
-import { VehicleData, NHTSAEngineData } from "../types.ts";
 import { fetchData } from "./fetchData.ts";
-import { formatNHTSAEngine } from "../engineUtils.ts";
-import { extractTransmissionInfo, formatTransmissionString } from "../utils/transmissionUtils.ts";
+import { cleanTrimValue } from "../utils/trimUtils.ts";
+import { VehicleData } from "../types.ts";
 
-export async function fetchNHTSAData(vin: string): Promise<VehicleData> {
-  const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
-  console.log('Calling NHTSA API:', nhtsaUrl);
-  
-  const nhtsaData = await fetchData(nhtsaUrl);
-  console.log('NHTSA API response:', JSON.stringify(nhtsaData));
+interface NHTSAResult {
+  Value: string;
+  ValueId: string;
+  Variable: string;
+  VariableId: number;
+}
 
-  const vehicleData: VehicleData = {
-    year: '',
-    make: '',
-    model: '',
-    trim: '',
-    engineCylinders: '',
-    transmission: '',
-    drivetrain: ''
-  };
+interface NHTSAResponse {
+  Count: number;
+  Message: string;
+  SearchCriteria: string;
+  Results: NHTSAResult[];
+}
 
-  // Collect engine data as we process the results
-  const engineData: NHTSAEngineData = {
-    displacement: '',
-    cylinders: '',
-    configuration: '',
-    turbo: false
-  };
+export async function fetchNHTSAData(vin: string): Promise<VehicleData | null> {
+  const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
+  const data = await fetchData<NHTSAResponse>(url);
 
-  if (nhtsaData?.Results) {
-    // Log all fields for debugging
-    console.log('All NHTSA fields:');
-    nhtsaData.Results.forEach(result => {
-      if (result?.Value) {
-        console.log(`${result.Variable}: ${result.Value}`);
-      }
-    });
-
-    // Extract transmission data
-    const transmissionInfo = extractTransmissionInfo(nhtsaData.Results);
-    
-    // Process all other fields
-    for (const result of nhtsaData.Results) {
-      if (result?.Value) {
-        const value = result.Value;
-        console.log(`Processing NHTSA field: ${result.Variable} = ${value}`);
-        
-        switch (result.Variable) {
-          case 'Model Year':
-            vehicleData.year = value;
-            break;
-          case 'Make':
-            vehicleData.make = value;
-            break;
-          case 'Model':
-            vehicleData.model = value;
-            break;
-          case 'Trim':
-          case 'Trim2':
-          case 'Series':
-            if (!vehicleData.trim || vehicleData.trim.length < value.length) {
-              console.log(`Using ${result.Variable} for trim: ${value}`);
-              vehicleData.trim = value;
-            }
-            break;
-          case 'Engine Number of Cylinders':
-            engineData.cylinders = value;
-            break;
-          case 'Engine Configuration':
-            engineData.configuration = value;
-            break;
-          case 'Displacement (L)':
-            engineData.displacement = value;
-            break;
-          case 'Turbo':
-            engineData.turbo = value === 'Yes';
-            break;
-          case 'Drive Type':
-            vehicleData.drivetrain = value;
-            break;
-        }
-      }
-    }
-
-    // Format transmission string
-    vehicleData.transmission = formatTransmissionString(transmissionInfo);
+  if (!data?.Results) {
+    console.error('No results from NHTSA API');
+    return null;
   }
 
-  // Format engine data
-  vehicleData.engineCylinders = formatNHTSAEngine(engineData);
-  console.log('Final NHTSA vehicle data:', vehicleData);
+  const vehicleData: VehicleData = {
+    year: "",
+    make: "",
+    model: "",
+    trim: "",
+    engineCylinders: "",
+    transmission: "",
+    drivetrain: "",
+  };
 
+  const trimData = {
+    trim: "",
+    trim2: "",
+    series: "",
+  };
+
+  for (const result of data.Results) {
+    const { Variable, Value } = result;
+    if (!Value || Value === "null") continue;
+
+    switch (Variable) {
+      case "Model Year":
+        vehicleData.year = Value;
+        break;
+      case "Make":
+        vehicleData.make = Value;
+        break;
+      case "Model":
+        vehicleData.model = Value;
+        break;
+      case "Trim":
+        trimData.trim = Value;
+        break;
+      case "Trim2":
+        trimData.trim2 = Value;
+        break;
+      case "Series":
+        trimData.series = Value;
+        break;
+      case "Engine Number of Cylinders":
+        vehicleData.engineCylinders = `${Value} Cylinder`;
+        break;
+      case "Transmission Style":
+        vehicleData.transmission = Value;
+        break;
+      case "Drive Type":
+        vehicleData.drivetrain = Value;
+        break;
+    }
+  }
+
+  // Process trim data based on priority and manufacturer-specific rules
+  vehicleData.trim = determineTrim(trimData, vehicleData.make);
+
+  console.log('Processed NHTSA data:', vehicleData);
   return vehicleData;
+}
+
+function determineTrim(
+  trimData: { trim: string; trim2: string; series: string },
+  make: string
+): string {
+  // Clean all trim values
+  const cleanedTrim = cleanTrimValue(trimData.trim);
+  const cleanedTrim2 = cleanTrimValue(trimData.trim2);
+  const cleanedSeries = cleanTrimValue(trimData.series);
+
+  console.log('Cleaned trim values:', {
+    trim: cleanedTrim,
+    trim2: cleanedTrim2,
+    series: cleanedSeries
+  });
+
+  // Handle manufacturer-specific cases
+  if (make.toLowerCase() === 'porsche') {
+    return handlePorscheTrim(cleanedTrim, cleanedTrim2, cleanedSeries);
+  }
+
+  // Default trim determination logic
+  if (cleanedTrim) return cleanedTrim;
+  if (cleanedTrim2) return cleanedTrim2;
+  if (cleanedSeries) return cleanedSeries;
+
+  return "";
+}
+
+function handlePorscheTrim(trim: string, trim2: string, series: string): string {
+  // Porsche-specific trim handling
+  if (trim.includes('GTS') || trim2.includes('GTS')) {
+    return 'GTS';
+  }
+
+  if (trim.includes('Turbo')) {
+    return trim.includes('S') ? 'Turbo S' : 'Turbo';
+  }
+
+  // Use series information for Porsche when relevant
+  if (series.includes('Cayenne') || series.includes('Macan')) {
+    const baseTrim = trim || trim2;
+    if (baseTrim) {
+      return `${baseTrim}`;
+    }
+    return series.split(' ')[1] || series; // Extract model variant
+  }
+
+  return trim || trim2 || series;
 }
