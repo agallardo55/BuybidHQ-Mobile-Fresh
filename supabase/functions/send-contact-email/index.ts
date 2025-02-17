@@ -12,6 +12,7 @@ interface ContactFormRequest {
   name: string;
   email: string;
   message: string;
+  inquiryType: string;
 }
 
 serve(async (req) => {
@@ -27,12 +28,12 @@ serve(async (req) => {
     )
 
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
-    const { name, email, message } = await req.json() as ContactFormRequest
+    const { name, email, message, inquiryType } = await req.json() as ContactFormRequest
 
     // Store the submission in the database
     const { error: dbError } = await supabase
       .from('contact_submissions')
-      .insert([{ name, email, message }])
+      .insert([{ name, email, message, inquiryType }])
 
     if (dbError) {
       throw new Error(`Database error: ${dbError.message}`)
@@ -42,9 +43,10 @@ serve(async (req) => {
     const { data, error } = await resend.emails.send({
       from: 'BuyBidHQ <notifications@buybidhq.com>',
       to: 'adam@cmigpartners.com',
-      subject: 'New Contact Form Submission',
+      subject: `New ${inquiryType} Contact Form Submission`,
       html: `
         <h2>New Contact Form Submission</h2>
+        <p><strong>Inquiry Type:</strong> ${inquiryType}</p>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong></p>

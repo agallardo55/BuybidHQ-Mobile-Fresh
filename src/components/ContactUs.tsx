@@ -8,11 +8,19 @@ import { Button } from "@/components/ui/button";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const ContactUs = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [inquiryType, setInquiryType] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [captchaValue, setCaptchaValue] = useState<string | null>(null);
   const [siteKey, setSiteKey] = useState<string | null>(null);
@@ -42,6 +50,15 @@ const ContactUs = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!inquiryType) {
+      toast({
+        variant: "destructive",
+        title: "Inquiry type required",
+        description: "Please select an inquiry type",
+      });
+      return;
+    }
+
     if (!captchaValue) {
       toast({
         variant: "destructive",
@@ -64,7 +81,7 @@ const ContactUs = () => {
 
       // If verification successful, proceed with sending the email
       const { error } = await supabase.functions.invoke('send-contact-email', {
-        body: { name, email, message }
+        body: { name, email, message, inquiryType }
       });
 
       if (error) throw error;
@@ -78,6 +95,7 @@ const ContactUs = () => {
       setName("");
       setEmail("");
       setMessage("");
+      setInquiryType("");
       setCaptchaValue(null);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -105,6 +123,19 @@ const ContactUs = () => {
         
         <div className="max-w-2xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
+            <div className="space-y-2">
+              <Label htmlFor="inquiryType">Inquiry Type</Label>
+              <Select value={inquiryType} onValueChange={setInquiryType}>
+                <SelectTrigger id="inquiryType">
+                  <SelectValue placeholder="Select inquiry type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="support">Support</SelectItem>
+                  <SelectItem value="sales">Sales</SelectItem>
+                  <SelectItem value="general">General Question</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input
