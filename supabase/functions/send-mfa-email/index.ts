@@ -32,33 +32,20 @@ serve(async (req) => {
       throw new Error('User not found')
     }
 
-    // Send email using Resend
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'BuyBidHQ <noreply@buybid.com>',
-        to: userData.email,
-        subject: 'Your Verification Code',
-        html: `
-          <h2>Verification Code</h2>
-          <p>Your verification code is: <strong>${verification_code}</strong></p>
-          <p>This code will expire in 5 minutes.</p>
-          <p>If you didn't request this code, please ignore this email.</p>
-        `,
-      }),
-    })
-
-    const data = await res.json()
+    // Log the verification code for testing
+    console.log('==========================================')
+    console.log('MFA Verification Code for Testing')
+    console.log('==========================================')
+    console.log(`Email: ${userData.email}`)
+    console.log(`Code: ${verification_code}`)
+    console.log('==========================================')
 
     return new Response(
-      JSON.stringify({ message: 'Verification code sent successfully' }),
+      JSON.stringify({ message: 'Verification code logged successfully' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Error in send-mfa-email:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
@@ -68,4 +55,3 @@ serve(async (req) => {
     )
   }
 })
-
