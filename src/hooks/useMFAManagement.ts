@@ -2,25 +2,27 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { 
+  checkEmailMFAStatus, 
+  sendMFAEnrollmentEmail, 
+  verifyMFACode,
+  disableMFA 
+} from "@/utils/mfaUtils";
+import { MFAState } from "@/types/mfa";
 
 export const useMFAManagement = () => {
   const { toast } = useToast();
-  const [isMFAEnabled, setIsMFAEnabled] = useState(false);
-  const [isEnrollingMFA, setIsEnrollingMFA] = useState(false);
-  const [showMFADialog, setShowMFADialog] = useState(false);
+  const [state, setState] = useState<MFAState>({
+    isMFAEnabled: false,
+    isEnrollingMFA: false,
+    showMFADialog: false,
+  });
   const [verifyCode, setVerifyCode] = useState("");
 
   const checkMFAStatus = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: factors, error } = await supabase.auth.mfa.listFactors();
-      
-      if (error) throw error;
-      
-      const hasEmailFactor = factors.all.some(factor => factor.factor_type === 'email');
-      setIsMFAEnabled(hasEmailFactor);
+      const isEnabled = await checkEmailMFAStatus();
+      setState(prev => ({ ...prev, isMFAEnabled: isEnabled }));
     } catch (error: any) {
       console.error('Error checking MFA status:', error);
       toast({
@@ -33,23 +35,11 @@ export const useMFAManagement = () => {
 
   const handleEnrollMFA = async () => {
     try {
-      setIsEnrollingMFA(true);
+      setState(prev => ({ ...prev, isEnrollingMFA: true }));
       
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.email) {
-        throw new Error("No user email found");
-      }
+      await sendMFAEnrollmentEmail();
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email: user.email,
-        options: {
-          shouldCreateUser: false,
-        }
-      });
-
-      if (error) throw error;
-
-      setShowMFADialog(true);
+      setState(prev => ({ ...prev, showMFADialog: true }));
       toast({
         title: "Code Sent",
         description: "Please check your email for the verification code.",
@@ -62,7 +52,7 @@ export const useMFAManagement = () => {
         variant: "destructive",
       });
     } finally {
-      setIsEnrollingMFA(false);
+      setState(prev => ({ ...prev, isEnrollingMFA: false }));
     }
   };
 
@@ -82,20 +72,18 @@ export const useMFAManagement = () => {
         throw new Error("No user email found");
       }
 
-      const { error } = await supabase.auth.verifyOtp({
-        email: user.email,
-        token: verifyCode,
-        type: 'email'
-      });
+      const result = await verifyMFACode(user.email, verifyCode);
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       toast({
         title: "Success",
         description: "Email-based MFA has been enabled successfully",
       });
       
-      setShowMFADialog(false);
+      setState(prev => ({ ...prev, showMFADialog: false }));
       setVerifyCode("");
       checkMFAStatus();
     } catch (error: any) {
@@ -110,16 +98,7 @@ export const useMFAManagement = () => {
 
   const handleDisableMFA = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.email) {
-        throw new Error("No user email found");
-      }
-
-      const { error } = await supabase.auth.mfa.unenroll({
-        factorId: 'email'
-      });
-
-      if (error) throw error;
+      await disableMFA();
 
       toast({
         title: "Success",
@@ -142,12 +121,10 @@ export const useMFAManagement = () => {
   }, []);
 
   return {
-    isMFAEnabled,
-    isEnrollingMFA,
-    showMFADialog,
+    ...state,
     verifyCode,
     setVerifyCode,
-    setShowMFADialog,
+    setShowMFADialog: (show: boolean) => setState(prev => ({ ...prev, showMFADialog: show })),
     handleEnrollMFA,
     handleVerifyMFA,
     handleDisableMFA,
