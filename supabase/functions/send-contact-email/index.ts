@@ -28,8 +28,12 @@ serve(async (req) => {
   try {
     console.log('Processing contact form submission')
 
-    const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
     const { name, email, message, inquiryType } = await req.json() as ContactFormRequest
+
+    // Validate required fields
+    if (!name || !email || !message || !inquiryType) {
+      throw new Error('Missing required fields')
+    }
 
     console.log('Received form data:', {
       type: 'contact_form',
@@ -37,20 +41,41 @@ serve(async (req) => {
       testMode: IS_TEST_MODE
     })
 
-    // Store the submission in the database
+    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // Store the submission in the database
     const { error: dbError } = await supabase
       .from('contact_submissions')
-      .insert([{ name, email, message, inquiryType }])
+      .insert([{ 
+        name, 
+        email, 
+        message, 
+        inquiry_type: inquiryType 
+      }])
 
     if (dbError) {
       console.error('Database error:', dbError)
-      throw new Error('Failed to store contact submission')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to store contact submission',
+          details: dbError.message 
+        }), 
+        { 
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
     }
+
+    // Initialize Resend
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
 
     // In test mode, override the recipient email with the test email
     const toEmail = IS_TEST_MODE ? TEST_EMAIL : email
@@ -89,7 +114,19 @@ serve(async (req) => {
 
     if (error) {
       console.error('Email sending error:', error)
-      throw error
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to send email notification',
+          details: error.message 
+        }), 
+        { 
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
     }
 
     console.log('Email sent successfully:', {
@@ -118,7 +155,7 @@ serve(async (req) => {
     console.error('Error in send-contact-email function:', error)
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to send email notification',
+        error: 'Failed to process contact form submission',
         details: error.message 
       }), 
       { 
