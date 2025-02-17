@@ -21,94 +21,63 @@ export const useBidRequests = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Use a simpler query structure with proper foreign key references
-        const { data, error } = await supabase
-          .from('bid_requests')
-          .select(`
-            id,
-            created_at,
-            status,
-            vehicles (
-              year,
-              make,
-              model,
-              trim,
-              vin,
-              mileage,
-              engine,
-              transmission,
-              drivetrain,
-              exterior,
-              interior,
-              options
-            ),
-            reconditioning (
-              windshield,
-              engine_light,
-              brakes,
-              tires,
-              maintenance,
-              recon_estimate,
-              recon_details
-            ),
-            user_id,
-            bid_responses (
-              offer_amount
-            )
-          `)
-          .order('created_at', { ascending: false });
+        // First, get the bid requests with related data
+        const { data, error } = await supabase.rpc('get_bid_request_details');
 
         if (error) {
           console.error("Error fetching bid requests:", error);
           throw error;
         }
 
-        // Fetch user details separately to avoid recursion
-        const userIds = data.map(item => item.user_id);
-        const { data: users, error: usersError } = await supabase
-          .from('buybidhq_users')
-          .select('id, full_name')
-          .in('id', userIds);
+        // Get bid responses separately
+        const requestIds = data.map(item => item.request_id);
+        const { data: responses, error: responsesError } = await supabase
+          .from('bid_responses')
+          .select('bid_request_id, offer_amount')
+          .in('bid_request_id', requestIds);
 
-        if (usersError) {
-          console.error("Error fetching users:", usersError);
-          throw usersError;
+        if (responsesError) {
+          console.error("Error fetching bid responses:", responsesError);
+          throw responsesError;
         }
 
-        // Create a map of user IDs to full names
-        const userMap = new Map(users.map(user => [user.id, user.full_name]));
+        // Create a map of bid request IDs to their responses
+        const responsesMap = new Map();
+        responses?.forEach(response => {
+          const responses = responsesMap.get(response.bid_request_id) || [];
+          responses.push(response.offer_amount);
+          responsesMap.set(response.bid_request_id, responses);
+        });
 
         return data.map((item): BidRequest => {
-          // Find the highest offer among all bid responses
-          const highestOffer = item.bid_responses?.length > 0
-            ? Math.max(...item.bid_responses.map(response => response.offer_amount))
-            : null;
+          const responses = responsesMap.get(item.request_id) || [];
+          const highestOffer = responses.length > 0 ? Math.max(...responses) : null;
 
           return {
-            id: item.id,
+            id: item.request_id,
             createdAt: item.created_at,
-            year: parseInt(item.vehicles.year) || 0,
-            make: item.vehicles.make,
-            model: item.vehicles.model,
-            trim: item.vehicles.trim,
-            vin: item.vehicles.vin,
-            mileage: parseInt(item.vehicles.mileage),
-            buyer: userMap.get(item.user_id) || 'Unknown',
-            highestOffer: highestOffer,
+            year: parseInt(item.year) || 0,
+            make: item.make,
+            model: item.model,
+            trim: item.trim_level,
+            vin: item.vin,
+            mileage: parseInt(item.mileage),
+            buyer: item.user_full_name || 'Unknown',
+            highestOffer,
             status: item.status,
-            engineCylinders: item.vehicles.engine,
-            transmission: item.vehicles.transmission,
-            drivetrain: item.vehicles.drivetrain,
-            exteriorColor: item.vehicles.exterior,
-            interiorColor: item.vehicles.interior,
-            accessories: item.vehicles.options,
-            windshield: item.reconditioning.windshield,
-            engineLights: item.reconditioning.engine_light,
-            brakes: item.reconditioning.brakes,
-            tire: item.reconditioning.tires,
-            maintenance: item.reconditioning.maintenance,
-            reconEstimate: item.reconditioning.recon_estimate,
-            reconDetails: item.reconditioning.recon_details
+            engineCylinders: item.engine_cylinders,
+            transmission: item.transmission,
+            drivetrain: item.drivetrain,
+            exteriorColor: item.exterior_color,
+            interiorColor: item.interior_color,
+            accessories: item.accessories,
+            windshield: item.windshield,
+            engineLights: item.engine_lights,
+            brakes: item.brakes,
+            tire: item.tire,
+            maintenance: item.maintenance,
+            reconEstimate: item.recon_estimate,
+            reconDetails: item.recon_details
           };
         });
 
