@@ -52,34 +52,39 @@ export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void
         return;
       }
 
-      // Ensure trims are properly processed
-      const processedTrims = response.availableTrims?.map((trim: any) => ({
-        name: trim.name || '',
-        description: trim.description || '',
-        specs: {
-          engine: trim.specs?.engine || '',
-          transmission: trim.specs?.transmission || '',
-          drivetrain: trim.specs?.drivetrain || ''
-        }
-      })) || [];
+      // Ensure trims are properly processed and filtered
+      const processedTrims = (response.availableTrims || [])
+        .filter((trim: any) => trim && trim.name) // Filter out any null or invalid trims
+        .map((trim: any) => ({
+          name: trim.name.trim(),
+          description: trim.description?.trim() || '',
+          specs: {
+            engine: trim.specs?.engine?.trim() || '',
+            transmission: trim.specs?.transmission?.trim() || '',
+            drivetrain: trim.specs?.drivetrain?.trim() || ''
+          }
+        }));
 
       console.log('Processed trims:', processedTrims);
 
       const vehicleData: VehicleData = {
-        year: response.year || "",
-        make: response.make || "",
-        model: response.model || "",
-        trim: response.trim || "",
-        engineCylinders: response.engineCylinders || "",
-        transmission: response.transmission || "",
-        drivetrain: response.drivetrain || "",
+        year: (response.year || "").toString(),
+        make: (response.make || "").trim(),
+        model: (response.model || "").trim(),
+        trim: (response.trim || "").trim(),
+        engineCylinders: (response.engineCylinders || "").trim(),
+        transmission: (response.transmission || "").trim(),
+        drivetrain: (response.drivetrain || "").trim(),
         availableTrims: processedTrims
       };
 
       console.log('Final vehicle data:', vehicleData);
-      console.log('Available trims:', vehicleData.availableTrims);
 
-      onVehicleDataFetched?.(vehicleData);
+      if (onVehicleDataFetched) {
+        console.log('Calling onVehicleDataFetched with data:', vehicleData);
+        onVehicleDataFetched(vehicleData);
+      }
+      
       toast.success("Vehicle information retrieved successfully");
     } catch (error: any) {
       console.error('Error decoding VIN:', error);
