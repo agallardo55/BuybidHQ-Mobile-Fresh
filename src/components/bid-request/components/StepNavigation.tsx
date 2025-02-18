@@ -24,12 +24,15 @@ const StepNavigation = ({
           Back
         </Button>
       )}
-      <Button 
-        onClick={onNext}
-        className={`bg-custom-blue hover:bg-custom-blue/90 text-white ${!showBack ? "w-full" : ""}`}
-      >
-        {nextLabel}
-      </Button>
+      <div className={!showBack ? "w-full" : ""}>
+        <Button 
+          onClick={onNext}
+          variant="custom-blue"
+          className={!showBack ? "w-full" : ""}
+        >
+          {nextLabel}
+        </Button>
+      </div>
     </div>
   );
 };
