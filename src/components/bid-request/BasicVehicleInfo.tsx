@@ -66,19 +66,26 @@ const BasicVehicleInfo = ({
       }
     }>;
   }) => {
+    console.log('Vehicle data received in BasicVehicleInfo:', data);
+    
+    // Always use batch changes to properly handle complex data
+    const changes = Object.entries(data).map(([name, value]) => ({
+      name,
+      value
+    }));
+    
+    console.log('Sending batch changes:', changes);
+    
     if (onBatchChange) {
-      const changes = Object.entries(data).map(([name, value]) => ({
-        name,
-        value: value
-      }));
       onBatchChange(changes);
     } else {
+      // Fallback for simple string values if batch change isn't available
       Object.entries(data).forEach(([key, value]) => {
-        if (key !== 'availableTrims') {
+        if (typeof value === 'string') {
           const syntheticEvent = {
             target: {
               name: key,
-              value: value || ""
+              value: value
             }
           } as React.ChangeEvent<HTMLInputElement>;
           onChange(syntheticEvent);
