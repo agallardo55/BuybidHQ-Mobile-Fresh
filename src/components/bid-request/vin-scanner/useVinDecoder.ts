@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { TrimOption } from "../types";
 
 interface VehicleData {
   year: string;
@@ -11,15 +12,7 @@ interface VehicleData {
   engineCylinders: string;
   transmission: string;
   drivetrain: string;
-  availableTrims: Array<{
-    name: string;
-    description: string;
-    specs?: {
-      engine?: string;
-      transmission?: string;
-      drivetrain?: string;
-    }
-  }>;
+  availableTrims: TrimOption[];
 }
 
 export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void) {
@@ -59,7 +52,7 @@ export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void
         return;
       }
 
-      const vehicleData = {
+      const vehicleData: VehicleData = {
         year: data.year || "",
         make: data.make || "",
         model: data.model || "",

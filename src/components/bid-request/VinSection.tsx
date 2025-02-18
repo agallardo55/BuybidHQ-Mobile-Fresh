@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ScannerModal from "./vin-scanner/ScannerModal";
 import { useVinScanner } from "./vin-scanner/useVinScanner";
 import { useVinDecoder } from "./vin-scanner/useVinDecoder";
+import { TrimOption } from "./types";
 
 interface VinSectionProps {
   vin: string;
@@ -19,6 +20,7 @@ interface VinSectionProps {
     engineCylinders: string;
     transmission: string;
     drivetrain: string;
+    availableTrims: TrimOption[];
   }) => void;
   showValidation?: boolean;
 }
