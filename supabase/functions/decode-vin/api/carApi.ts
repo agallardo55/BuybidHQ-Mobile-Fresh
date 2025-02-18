@@ -14,16 +14,17 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
     }
   });
 
-  if (!vinResponse?.data) {
-    console.log('No data received from CarAPI VIN endpoint');
+  if (!vinResponse?.data?.vehicle) {
+    console.log('No vehicle data received from CarAPI VIN endpoint:', vinResponse);
     return null;
   }
 
-  console.log('CarAPI VIN Response:', vinResponse.data);
+  const vehicleData = vinResponse.data.vehicle;
+  console.log('CarAPI VIN Response vehicle data:', vehicleData);
 
   // If we got valid VIN data, fetch trims
-  if (vinResponse.data.make && vinResponse.data.model && vinResponse.data.year) {
-    const trimEndpoint = `https://api.carapi.app/api/trims?make=${encodeURIComponent(vinResponse.data.make)}&model=${encodeURIComponent(vinResponse.data.model)}&year=${vinResponse.data.year}`;
+  if (vehicleData.make && vehicleData.model && vehicleData.year) {
+    const trimEndpoint = `https://api.carapi.app/api/trims?make=${encodeURIComponent(vehicleData.make)}&model=${encodeURIComponent(vehicleData.model)}&year=${vehicleData.year}&verbose=yes`;
     console.log('Fetching trims from CarAPI:', trimEndpoint);
 
     const trimResponse = await fetchData<any>(trimEndpoint, {
@@ -36,14 +37,31 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
     console.log('CarAPI Trim Response:', trimResponse?.data);
 
     // Merge trim data with vehicle data
-    if (trimResponse?.data?.data) {
+    if (trimResponse?.data?.trims) {
       return {
-        ...vinResponse.data,
-        trims: trimResponse.data.data
+        year: vehicleData.year,
+        make: vehicleData.make,
+        model: vehicleData.model,
+        specs: vehicleData.specs,
+        trims: trimResponse.data.trims.map((trim: any) => ({
+          name: trim.name,
+          description: trim.description || '',
+          specs: {
+            engine: trim.engine?.name || '',
+            transmission: trim.transmission?.name || '',
+            drivetrain: trim.drive_type || ''
+          }
+        }))
       };
     }
   }
 
   // If no trims found, return just the vehicle data
-  return vinResponse.data;
+  return {
+    year: vehicleData.year,
+    make: vehicleData.make,
+    model: vehicleData.model,
+    specs: vehicleData.specs,
+    trims: []
+  };
 }
