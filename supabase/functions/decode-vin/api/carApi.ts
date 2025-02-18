@@ -23,9 +23,15 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
     const vehicleData = vinResponse.data.vehicle;
     console.log('CarAPI VIN Response vehicle data:', JSON.stringify(vehicleData));
 
+    // Clean up make/model for better trim matching
+    const make = vehicleData.make?.toUpperCase().trim();
+    const model = vehicleData.model?.replace(/\s+/g, ' ').trim();
+    const year = vehicleData.year;
+
     // If we got valid VIN data, fetch trims with more specific parameters
-    if (vehicleData.make && vehicleData.model && vehicleData.year) {
-      const trimEndpoint = `https://api.carapi.app/api/trims?make=${encodeURIComponent(vehicleData.make)}&model=${encodeURIComponent(vehicleData.model)}&year=${vehicleData.year}&detailed=yes&verbose=yes`;
+    if (make && model && year) {
+      // Use a more general query first to ensure we get results
+      const trimEndpoint = `https://api.carapi.app/api/trims?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&year=${year}&detailed=yes&verbose=yes&include_makes=yes&include_models=yes`;
       console.log('Fetching trims from CarAPI:', trimEndpoint);
 
       const trimResponse = await fetchData<any>(trimEndpoint, {
@@ -35,13 +41,15 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
         }
       });
 
+      console.log('Trim response:', JSON.stringify(trimResponse?.data));
+
       if (trimResponse?.data?.trims && trimResponse.data.trims.length > 0) {
-        console.log('Found trims:', JSON.stringify(trimResponse.data.trims));
+        console.log(`Found ${trimResponse.data.trims.length} trims:`, JSON.stringify(trimResponse.data.trims));
         
         const processedData = {
           year: vehicleData.year,
-          make: vehicleData.make,
-          model: vehicleData.model,
+          make: make,
+          model: model,
           specs: {
             ...vehicleData.specs,
             engine_number_of_cylinders: vehicleData.specs?.engine_number_of_cylinders || '',
@@ -63,14 +71,16 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
         
         console.log('Processed CarAPI data with trims:', JSON.stringify(processedData));
         return processedData;
+      } else {
+        console.log('No trims found for:', { make, model, year });
       }
     }
 
     // If no trims found or couldn't fetch trims, return basic vehicle data
     const basicData = {
       year: vehicleData.year,
-      make: vehicleData.make,
-      model: vehicleData.model,
+      make: make || vehicleData.make,
+      model: model || vehicleData.model,
       specs: {
         engine_number_of_cylinders: vehicleData.specs?.engine_number_of_cylinders || '',
         displacement_l: vehicleData.specs?.displacement_l || '',
