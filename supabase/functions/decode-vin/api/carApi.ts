@@ -15,19 +15,22 @@ export async function fetchCarApiData(vin: string, apiKey: string): Promise<CarA
       return null;
     }
 
+    const API_URL = `https://api.carapi.app/api/vin/${vin}`;
+
     // Log the request (hiding most of the API key)
     console.log('CarAPI Request:', {
       vin,
       apiKey: `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`,
-      url: `https://api.carapi.app/api/vin/${vin}`
+      url: API_URL
     });
 
     // Make the API request
-    const response = await fetchData<any>(`https://api.carapi.app/api/vin/${vin}`, {
+    const response = await fetchData<any>(API_URL, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': apiKey // CarAPI expects the raw key, not Bearer token
       }
     });
 

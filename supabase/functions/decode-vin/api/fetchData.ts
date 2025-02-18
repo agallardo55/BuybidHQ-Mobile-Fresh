@@ -2,16 +2,18 @@
 export async function fetchData<T>(url: string, options?: RequestInit): Promise<T | null> {
   try {
     console.log('Making request to:', url);
+    console.log('Request headers:', options?.headers);
     
     const response = await fetch(url, {
       ...options,
       headers: {
         ...options?.headers,
-        'Accept': 'application/json'
       }
     });
 
     const text = await response.text();
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers));
     console.log('Raw API Response:', text);
 
     if (!response.ok) {
