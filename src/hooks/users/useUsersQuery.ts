@@ -24,6 +24,7 @@ type DbUser = {
   zip_code: string | null;
   phone_carrier: string | null;
   phone_validated: boolean;
+  company: string | null;
   dealership: {
     id: string;
     dealer_name: string;
@@ -70,6 +71,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
             zip_code,
             phone_carrier,
             phone_validated,
+            company,
             dealership:dealerships (
               id,
               dealer_name,
@@ -114,6 +116,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           deleted_at: dbUser.deleted_at,
           phone_carrier: dbUser.phone_carrier,
           phone_validated: dbUser.phone_validated,
+          company: dbUser.company,
           dealership: dbUser.dealership ? {
             id: dbUser.dealership.id,
             dealer_name: dbUser.dealership.dealer_name,
