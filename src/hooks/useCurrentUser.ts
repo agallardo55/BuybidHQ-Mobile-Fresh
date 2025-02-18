@@ -23,6 +23,25 @@ interface UserData {
   phone_carrier: string | null;
 }
 
+// Define the exact shape of the database response
+interface DatabaseUserResponse {
+  id: string;
+  email: string;
+  role: UserRole;
+  full_name: string | null;
+  mobile_number: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  dealership_id: string | null;
+  dealer_name: string | null;
+  dealer_id: string | null;
+  business_phone: string | null;
+  business_email: string | null;
+  phone_carrier: string | null;
+}
+
 export const useCurrentUser = () => {
   const navigate = useNavigate();
 
@@ -45,7 +64,7 @@ export const useCurrentUser = () => {
 
         // Get user data using our new security definer function
         const { data: userData, error: userError } = await supabase
-          .rpc('get_user_with_dealership', {
+          .rpc<DatabaseUserResponse>('get_user_with_dealership', {
             user_id: session.user.id
           });
 
@@ -84,7 +103,7 @@ export const useCurrentUser = () => {
           zip_code: userData[0].zip_code,
           dealership_id: userData[0].dealership_id,
           dealer_name: userData[0].dealer_name,
-          dealer_id: userData[0].dealer_id || null, // Ensure null if undefined
+          dealer_id: userData[0].dealer_id,
           business_phone: userData[0].business_phone,
           business_email: userData[0].business_email,
           phone_carrier: userData[0].phone_carrier
