@@ -64,7 +64,7 @@ export const useCurrentUser = () => {
 
         // Get user data using our new security definer function
         const { data: userData, error: userError } = await supabase
-          .rpc<DatabaseUserResponse>('get_user_with_dealership', {
+          .rpc<DatabaseUserResponse[], { user_id: string }>('get_user_with_dealership', {
             user_id: session.user.id
           });
 
@@ -74,7 +74,7 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        if (!userData || userData.length === 0) {
+        if (!userData || !Array.isArray(userData) || userData.length === 0) {
           console.log('No user data found for ID:', session.user.id);
           toast.error("User profile not found. Please try signing out and back in.");
           return null;
