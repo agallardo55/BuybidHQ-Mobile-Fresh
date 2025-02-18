@@ -20,6 +20,7 @@ const StepNavigation = ({
         <Button 
           onClick={onBack}
           variant="outline"
+          size="lg"
         >
           Back
         </Button>
@@ -28,6 +29,7 @@ const StepNavigation = ({
         <Button 
           onClick={onNext}
           variant="custom-blue"
+          size="lg"
           className={!showBack ? "w-full" : ""}
         >
           {nextLabel}
