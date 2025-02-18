@@ -78,11 +78,12 @@ export const useFormState = (): FormState & FormStateActions => {
     }
   };
 
-  const handleBatchChanges = (changes: Array<{ name: string; value: string }>) => {
+  const handleBatchChanges = (changes: Array<{ name: string; value: any }>) => {
     const updates: Partial<BidRequestFormData> = {};
     const newErrors = { ...state.errors };
 
     changes.forEach(({ name, value }) => {
+      // Handle both simple and complex values
       updates[name] = value;
       if (newErrors[name]) {
         delete newErrors[name];
@@ -98,6 +99,26 @@ export const useFormState = (): FormState & FormStateActions => {
 
   const handleSelectChange = (value: string, name: string) => {
     setFormData({ [name]: value });
+
+    // Auto-populate specs when a trim is selected
+    if (name === 'trim') {
+      const selectedTrim = state.formData.availableTrims.find(trim => trim.name === value);
+      if (selectedTrim?.specs) {
+        const updates: Partial<BidRequestFormData> = {};
+        if (selectedTrim.specs.engine) {
+          updates.engineCylinders = selectedTrim.specs.engine;
+        }
+        if (selectedTrim.specs.transmission) {
+          updates.transmission = selectedTrim.specs.transmission;
+        }
+        if (selectedTrim.specs.drivetrain) {
+          updates.drivetrain = selectedTrim.specs.drivetrain;
+        }
+        if (Object.keys(updates).length > 0) {
+          setFormData(updates);
+        }
+      }
+    }
   };
 
   const handleImagesUploaded = (urls: string[]) => {

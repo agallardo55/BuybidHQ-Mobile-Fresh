@@ -35,7 +35,7 @@ interface BasicVehicleInfoProps {
     drivetrain?: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
+  onBatchChange?: (changes: Array<{ name: string; value: any }>) => void;
   onSelectChange: (value: string, name: string) => void;
   showValidation?: boolean;
 }
@@ -56,22 +56,33 @@ const BasicVehicleInfo = ({
     engineCylinders: string;
     transmission: string;
     drivetrain: string;
+    availableTrims: Array<{
+      name: string;
+      description: string;
+      specs?: {
+        engine?: string;
+        transmission?: string;
+        drivetrain?: string;
+      }
+    }>;
   }) => {
     if (onBatchChange) {
       const changes = Object.entries(data).map(([name, value]) => ({
         name,
-        value: value || "",
+        value: value
       }));
       onBatchChange(changes);
     } else {
       Object.entries(data).forEach(([key, value]) => {
-        const syntheticEvent = {
-          target: {
-            name: key,
-            value: value || ""
-          }
-        } as React.ChangeEvent<HTMLInputElement>;
-        onChange(syntheticEvent);
+        if (key !== 'availableTrims') {
+          const syntheticEvent = {
+            target: {
+              name: key,
+              value: value || ""
+            }
+          } as React.ChangeEvent<HTMLInputElement>;
+          onChange(syntheticEvent);
+        }
       });
     }
   };
