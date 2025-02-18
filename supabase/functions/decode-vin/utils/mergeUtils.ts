@@ -6,16 +6,14 @@ export function mergeVehicleData(
   nhtsaData: VehicleData,
   carApiData: CarApiData
 ): VehicleData {
-  console.log('Merging vehicle data:', { 
-    nhtsaData, 
-    carApiData: {
-      ...carApiData,
-      trims: carApiData?.trims?.map(t => ({
-        name: t.name,
-        description: t.description
-      }))
-    }
-  });
+  console.log('Starting merge with NHTSA data:', JSON.stringify(nhtsaData));
+  console.log('Starting merge with CarAPI data:', JSON.stringify({
+    ...carApiData,
+    trims: carApiData?.trims?.map(t => ({
+      name: t.name,
+      description: t.description
+    }))
+  }));
 
   const mergedData: VehicleData = {
     ...nhtsaData,
@@ -30,13 +28,17 @@ export function mergeVehicleData(
 
     // Process trims
     if (carApiData.trims && carApiData.trims.length > 0) {
-      console.log('Processing CarAPI trims for merge:', carApiData.trims);
+      console.log('Processing CarAPI trims:', JSON.stringify(carApiData.trims));
       
-      mergedData.availableTrims = carApiData.trims.map(trim => ({
-        name: trim.name,
-        description: trim.description,
-        specs: trim.specs
-      }));
+      mergedData.availableTrims = carApiData.trims.map(trim => {
+        const trimOption = {
+          name: trim.name,
+          description: trim.description,
+          specs: trim.specs
+        };
+        console.log('Created trim option:', JSON.stringify(trimOption));
+        return trimOption;
+      });
 
       // Find best matching trim
       const bestTrim = findBestTrimMatch(
@@ -51,6 +53,8 @@ export function mergeVehicleData(
       } else {
         console.log('Keeping NHTSA trim:', mergedData.trim);
       }
+    } else {
+      console.log('No trims available from CarAPI');
     }
 
     // Engine and transmission specs
@@ -78,6 +82,6 @@ export function mergeVehicleData(
     }
   }
 
-  console.log('Final merged vehicle data:', mergedData);
+  console.log('Final merged vehicle data:', JSON.stringify(mergedData));
   return mergedData;
 }
