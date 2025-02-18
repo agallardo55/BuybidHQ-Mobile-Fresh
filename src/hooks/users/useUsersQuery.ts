@@ -15,11 +15,9 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
     queryKey: ['users', pageSize, currentPage, searchTerm],
     queryFn: async () => {
       try {
-        // Calculate range for pagination
         const from = (currentPage - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        // Get current user's session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (!session || sessionError) {
           console.error("No valid session:", sessionError);
@@ -27,20 +25,31 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           return { users: [], total: 0 };
         }
 
-        // Build the query with dealership join
         let query = supabase
           .from('buybidhq_users')
           .select(`
-            *,
-            dealership:dealerships(*)
+            id,
+            created_at,
+            full_name,
+            email,
+            mobile_number,
+            role,
+            is_active,
+            dealership_id,
+            deleted_at,
+            dealership:dealerships (
+              id,
+              dealer_name,
+              dealer_id,
+              business_phone,
+              business_email
+            )
           `, { count: 'exact' });
 
-        // Add search filter if searchTerm is provided
         if (searchTerm) {
           query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
         }
 
-        // Execute query with pagination
         const { data, error, count } = await query
           .range(from, to)
           .is('deleted_at', null)
