@@ -98,7 +98,7 @@ export const useSignUpForm = () => {
 
   const handleNext = () => {
     if (formData.fullName && formData.email && formData.password && formData.confirmPassword && 
-        formData.mobileNumber && formData.businessNumber && formData.password === formData.confirmPassword) {
+        formData.mobileNumber && formData.password === formData.confirmPassword) {
       setCurrentStep('dealership');
     } else {
       toast.error("Please fill in all required fields and ensure passwords match");
@@ -180,7 +180,8 @@ export const useSignUpForm = () => {
           state: formData.state,
           zip_code: formData.zipCode,
           is_active: true,
-          status: 'active'
+          status: 'active',
+          sms_consent: formData.smsConsent
         })
         .eq('id', authData.user.id);
 
