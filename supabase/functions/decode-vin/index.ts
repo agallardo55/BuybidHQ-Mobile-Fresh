@@ -28,17 +28,8 @@ serve(async (req) => {
     console.log('Processing VIN:', vin);
 
     try {
-      // Get CARAPI key
-      const CARAPI_KEY = Deno.env.get('CARAPI_KEY');
-      if (!CARAPI_KEY) {
-        console.error('CarAPI key not found in environment');
-        throw new Error('CarAPI key not configured');
-      }
-
-      console.log('CarAPI key found:', CARAPI_KEY.substring(0, 4) + '...');
-
-      // Get CarAPI data
-      const carApiData = await fetchCarApiData(vin, CARAPI_KEY);
+      // Get CarAPI data - no API key needed
+      const carApiData = await fetchCarApiData(vin);
       console.log('CarAPI data received:', carApiData);
 
       if (!carApiData) {
@@ -50,7 +41,7 @@ serve(async (req) => {
         year: carApiData.year?.toString() || '',
         make: carApiData.make || '',
         model: carApiData.model || '',
-        trim: '',
+        trim: carApiData.specs?.trim || '',
         engineCylinders: carApiData.specs?.engine_number_of_cylinders || '',
         transmission: carApiData.specs?.transmission || '',
         drivetrain: carApiData.specs?.drive_type || '',
@@ -58,7 +49,7 @@ serve(async (req) => {
           name: trim.name,
           description: trim.description,
           specs: {
-            engine: `${trim.name} Engine`,
+            engine: `${trim.description?.split('(')[1]?.split(')')[0] || ''}`,
             transmission: carApiData.specs?.transmission || '',
             drivetrain: carApiData.specs?.drive_type || ''
           }
