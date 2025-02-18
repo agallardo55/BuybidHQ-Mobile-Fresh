@@ -13,6 +13,7 @@ interface DealershipFormProps {
   formData: {
     dealershipName: string;
     licenseNumber: string;
+    businessNumber: string;
     dealershipAddress: string;
     city: string;
     state: string;
@@ -60,6 +61,21 @@ const DealershipForm = ({
             required
             value={formData.licenseNumber}
             onChange={onChange}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
+            Business Number
+          </label>
+          <Input
+            id="businessNumber"
+            name="businessNumber"
+            type="tel"
+            required
+            value={formData.businessNumber}
+            onChange={onChange}
+            placeholder="(123) 456-7890"
+            maxLength={14}
           />
         </div>
         <div className="sm:col-span-2">

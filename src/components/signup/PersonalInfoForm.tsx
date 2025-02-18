@@ -11,7 +11,6 @@ interface PersonalInfoFormProps {
     password: string;
     confirmPassword: string;
     mobileNumber: string;
-    businessNumber: string;
     smsConsent?: boolean;
   };
   onNext: () => void;
@@ -127,21 +126,6 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         >
           I agree to receive SMS messages from BuybidHQ at the number provided. Message frequency varies. Msg & data rates may apply. Reply STOP to unsubscribe.
         </label>
-      </div>
-      <div>
-        <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
-          Business Number
-        </label>
-        <Input
-          id="businessNumber"
-          name="businessNumber"
-          type="tel"
-          required
-          value={formData.businessNumber}
-          onChange={onChange}
-          placeholder="(123) 456-7890"
-          maxLength={14}
-        />
       </div>
       <div className="flex flex-col sm:flex-row gap-4">
         <Button
