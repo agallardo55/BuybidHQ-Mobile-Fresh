@@ -51,7 +51,7 @@ serve(async (req) => {
         engineCylinders: carApiData.specs?.engine_number_of_cylinders || '',
         transmission: carApiData.specs?.transmission_speeds + "-speed " + carApiData.specs?.transmission_style || '',
         drivetrain: carApiData.specs?.drive_type || '',
-        availableTrims: carApiData.trims?.map(trim => ({
+        availableTrims: Array.isArray(carApiData.trims) ? carApiData.trims.map(trim => ({
           name: trim.name || '',
           description: trim.description || '',
           specs: {
@@ -59,11 +59,11 @@ serve(async (req) => {
             transmission: `${carApiData.specs?.transmission_speeds}-speed ${carApiData.specs?.transmission_style}`,
             drivetrain: carApiData.specs?.drive_type || ''
           }
-        })) || []
+        })) : []
       };
 
-      console.log('Mapped trim data:', vehicleData.availableTrims);
-      console.log('Returning vehicle data:', vehicleData);
+      // Log the available trims for debugging
+      console.log('Available trims:', vehicleData.availableTrims);
       
       return new Response(
         JSON.stringify(vehicleData),

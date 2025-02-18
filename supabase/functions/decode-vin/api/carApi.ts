@@ -57,7 +57,7 @@ export async function fetchCarApiData(vin: string): Promise<CarApiData | null> {
         turbo: vehicle.specs?.turbo,
         trim: vehicle.specs?.trim
       },
-      trims: vehicle.trims || []
+      trims: Array.isArray(vehicle.trims) ? vehicle.trims : []
     };
   } catch (error) {
     console.error('CarAPI error:', error);
