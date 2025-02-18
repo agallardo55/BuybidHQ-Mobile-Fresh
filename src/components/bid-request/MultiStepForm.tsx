@@ -1,6 +1,5 @@
 
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { BidRequestFormData, FormErrors } from "./types";
 import BasicVehicleInfo from "./BasicVehicleInfo";
 import ColorsAndAccessories from "./ColorsAndAccessories";
@@ -9,8 +8,9 @@ import FormProgress from "./FormProgress";
 import BuyersSection from "./BuyersSection";
 import AddBuyerDialog from "./AddBuyerDialog";
 import FormTabs from "./FormTabs";
+import StepNavigation from "./components/StepNavigation";
 import { useFormNavigation } from "./hooks/useFormNavigation";
-import { validateForm } from "./hooks/useFormValidation";
+import { validateBasicInfoStep, validateBuyersStep } from "./utils/stepValidation";
 
 interface MultiStepFormProps {
   formData: BidRequestFormData;
@@ -65,39 +65,12 @@ const MultiStepForm = ({
   } = useFormNavigation();
 
   const validateCurrentStep = () => {
-    const stepErrors: FormErrors = {};
-    
     if (currentStep === "basic-info") {
-      if (!formData.year) stepErrors.year = "Year is required";
-      if (!formData.make) stepErrors.make = "Make is required";
-      if (!formData.model) stepErrors.model = "Model is required";
-      if (!formData.trim) stepErrors.trim = "Trim is required";
-      if (!formData.vin) stepErrors.vin = "VIN is required";
-      if (!formData.mileage) stepErrors.mileage = "Mileage is required";
-
-      // VIN validation
-      if (formData.vin && formData.vin.length !== 17) {
-        stepErrors.vin = "VIN must be 17 characters";
-      }
-
-      // Year validation
-      const currentYear = new Date().getFullYear();
-      const year = parseInt(formData.year);
-      if (year < 1900 || year > currentYear + 1) {
-        stepErrors.year = `Year must be between 1900 and ${currentYear + 1}`;
-      }
-
-      // Mileage validation
-      if (parseInt(formData.mileage) < 0) {
-        stepErrors.mileage = "Mileage cannot be negative";
-      }
+      return validateBasicInfoStep(formData);
     } else if (currentStep === "buyers") {
-      if (selectedBuyers.length === 0) {
-        stepErrors.buyers = "Please select at least one buyer";
-      }
+      return validateBuyersStep(selectedBuyers);
     }
-
-    return stepErrors;
+    return {};
   };
 
   const handleNext = () => {
@@ -130,14 +103,10 @@ const MultiStepForm = ({
             onSelectChange={onSelectChange}
             showValidation={showValidation}
           />
-          <div className="mt-6 flex justify-end">
-            <Button 
-              onClick={handleNext}
-              className="bg-custom-blue hover:bg-custom-blue/90"
-            >
-              Next
-            </Button>
-          </div>
+          <StepNavigation 
+            showBack={false} 
+            onNext={handleNext} 
+          />
         </TabsContent>
 
         <TabsContent value="appearance">
@@ -146,20 +115,10 @@ const MultiStepForm = ({
             onChange={onChange}
             onImagesUploaded={onImagesUploaded}
           />
-          <div className="mt-6 flex justify-between">
-            <Button 
-              onClick={handleBack}
-              variant="outline"
-            >
-              Back
-            </Button>
-            <Button 
-              onClick={handleNext}
-              className="bg-custom-blue hover:bg-custom-blue/90"
-            >
-              Next
-            </Button>
-          </div>
+          <StepNavigation 
+            onBack={handleBack}
+            onNext={handleNext}
+          />
         </TabsContent>
 
         <TabsContent value="condition">
@@ -168,20 +127,10 @@ const MultiStepForm = ({
             onChange={onChange}
             onSelectChange={onSelectChange}
           />
-          <div className="mt-6 flex justify-between">
-            <Button 
-              onClick={handleBack}
-              variant="outline"
-            >
-              Back
-            </Button>
-            <Button 
-              onClick={handleNext}
-              className="bg-custom-blue hover:bg-custom-blue/90"
-            >
-              Next
-            </Button>
-          </div>
+          <StepNavigation 
+            onBack={handleBack}
+            onNext={handleNext}
+          />
         </TabsContent>
 
         <TabsContent value="buyers">
