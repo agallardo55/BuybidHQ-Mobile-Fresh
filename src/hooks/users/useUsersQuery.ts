@@ -27,14 +27,10 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           return { users: [], total: 0 };
         }
 
-        console.log("Current user role:", currentUser?.role);
-
+        // Simplified query without joins to avoid recursion
         let query = supabase
           .from('buybidhq_users')
-          .select(`
-            *,
-            dealership:dealerships!buybidhq_users_dealership_id_fkey (*)
-          `, { count: 'exact' });
+          .select('*', { count: 'exact' });
 
         // Add search filter if searchTerm is provided
         if (searchTerm) {
@@ -45,7 +41,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
         }
 
         // Add pagination
-        const { data, error, count } = await query
+        const { data: users, error, count } = await query
           .range(from, to)
           .is('deleted_at', null)
           .order('created_at', { ascending: false });
@@ -55,8 +51,32 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           throw error;
         }
 
+        // Get dealership information in a separate query
+        const dealershipIds = users
+          ?.filter(user => user.dealership_id)
+          .map(user => user.dealership_id);
+
+        let dealerships = {};
+        if (dealershipIds?.length > 0) {
+          const { data: dealershipsData } = await supabase
+            .from('dealerships')
+            .select('*')
+            .in('id', dealershipIds);
+
+          dealerships = dealershipsData?.reduce((acc, dealership) => ({
+            ...acc,
+            [dealership.id]: dealership
+          }), {});
+        }
+
+        // Combine users with their dealership information
+        const enrichedUsers = users?.map(user => ({
+          ...user,
+          dealership: user.dealership_id ? dealerships[user.dealership_id] : null
+        }));
+
         return {
-          users: data || [],
+          users: enrichedUsers || [],
           total: count || 0
         };
       } catch (error: any) {
