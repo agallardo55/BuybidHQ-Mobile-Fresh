@@ -76,7 +76,7 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
             phone_carrier,
             phone_validated,
             company,
-            dealership:dealerships (
+            dealership:dealerships!buybidhq_users_dealership_id_fkey (
               id,
               dealer_name,
               dealer_id,
