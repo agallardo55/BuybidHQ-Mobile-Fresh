@@ -57,17 +57,16 @@ export async function fetchCarApiData(vin: string, apiKey: string): Promise<CarA
     // Log the extracted vehicle data
     console.log('CarAPI vehicle data:', vehicle);
 
-    // Map the response to our expected format
     return {
-      year: vehicle.year?.toString() || '',
-      make: vehicle.make || '',
-      model: vehicle.model || '',
+      year: vehicle.year,
+      make: vehicle.make,
+      model: vehicle.model,
       specs: {
-        engine_number_of_cylinders: vehicle.engine?.cylinders?.toString() || '',
-        displacement_l: vehicle.engine?.displacement_l?.toString() || '',
-        turbo: vehicle.engine?.turbo || false,
-        transmission: vehicle.transmission?.type || '',
-        drive_type: vehicle.drive_type || ''
+        engine_number_of_cylinders: vehicle.engine?.cylinders?.toString(),
+        displacement_l: vehicle.engine?.displacement_l?.toString(),
+        transmission: vehicle.transmission?.type,
+        drive_type: vehicle.drive_type,
+        turbo: vehicle.engine?.turbo
       },
       trims: vehicle.trims || []
     };

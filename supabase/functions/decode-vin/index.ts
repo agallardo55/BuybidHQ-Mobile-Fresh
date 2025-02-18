@@ -1,8 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { VehicleData } from "./types.ts";
-import { fetchNHTSAData, fetchCarApiData } from "./apiUtils.ts";
-import { mergeVehicleData } from "./utils/mergeUtils.ts";
+import { fetchCarApiData } from "./api/carApi.ts";
 import { handleVinError, handleApiError } from "./utils/errorUtils.ts";
 import { corsHeaders } from "./config.ts";
 
@@ -38,27 +37,39 @@ serve(async (req) => {
 
       console.log('CarAPI key found:', CARAPI_KEY.substring(0, 4) + '...');
 
-      // First get NHTSA data to check the year
-      const nhtsaData = await fetchNHTSAData(vin);
-      console.log('NHTSA data received:', nhtsaData);
-
-      // Then get CarAPI data if year is supported
+      // Get CarAPI data
       const carApiData = await fetchCarApiData(vin, CARAPI_KEY);
       console.log('CarAPI data received:', carApiData);
 
-      // Merge data from both sources
-      const mergedData = mergeVehicleData(nhtsaData, carApiData);
-
-      // Check if we have at least some basic vehicle information
-      if (mergedData.year || mergedData.make || mergedData.model) {
-        console.log('Returning merged data:', mergedData);
-        return new Response(
-          JSON.stringify(mergedData),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+      if (!carApiData) {
+        throw new Error('Could not decode VIN with CarAPI');
       }
 
-      throw new Error('Could not decode VIN with either API');
+      // Map the response to match our frontend expectations
+      const vehicleData: VehicleData = {
+        year: carApiData.year?.toString() || '',
+        make: carApiData.make || '',
+        model: carApiData.model || '',
+        trim: '',
+        engineCylinders: carApiData.specs?.engine_number_of_cylinders || '',
+        transmission: carApiData.specs?.transmission || '',
+        drivetrain: carApiData.specs?.drive_type || '',
+        availableTrims: carApiData.trims?.map(trim => ({
+          name: trim.name,
+          description: trim.description,
+          specs: {
+            engine: `${trim.name} Engine`,
+            transmission: carApiData.specs?.transmission || '',
+            drivetrain: carApiData.specs?.drive_type || ''
+          }
+        })) || []
+      };
+
+      console.log('Returning vehicle data:', vehicleData);
+      return new Response(
+        JSON.stringify(vehicleData),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
 
     } catch (apiError) {
       return handleApiError(apiError);
