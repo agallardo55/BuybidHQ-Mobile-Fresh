@@ -64,9 +64,28 @@ export const useCurrentUser = () => {
 
         // Get user data using our new security definer function
         const { data: userData, error: userError } = await supabase
-          .rpc<DatabaseUserResponse[], { user_id: string }>('get_user_with_dealership', {
-            user_id: session.user.id
-          });
+          .from('buybidhq_users')
+          .select(`
+            id,
+            email,
+            role,
+            full_name,
+            mobile_number,
+            address,
+            city,
+            state,
+            zip_code,
+            dealership_id,
+            dealer:dealerships!buybidhq_users_dealership_id_fkey (
+              dealer_name,
+              dealer_id,
+              business_phone,
+              business_email
+            ),
+            phone_carrier
+          `)
+          .eq('id', session.user.id)
+          .single();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
@@ -74,7 +93,7 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        if (!userData || !Array.isArray(userData) || userData.length === 0) {
+        if (!userData) {
           console.log('No user data found for ID:', session.user.id);
           toast.error("User profile not found. Please try signing out and back in.");
           return null;
@@ -92,21 +111,21 @@ export const useCurrentUser = () => {
 
         // Format the response to match our User type
         const formattedUser: UserData = {
-          id: userData[0].id,
-          email: userData[0].email,
-          role: isSuperAdmin ? 'admin' as UserRole : userData[0].role,
-          full_name: userData[0].full_name,
-          mobile_number: userData[0].mobile_number,
-          address: userData[0].address,
-          city: userData[0].city,
-          state: userData[0].state,
-          zip_code: userData[0].zip_code,
-          dealership_id: userData[0].dealership_id,
-          dealer_name: userData[0].dealer_name,
-          dealer_id: userData[0].dealer_id,
-          business_phone: userData[0].business_phone,
-          business_email: userData[0].business_email,
-          phone_carrier: userData[0].phone_carrier
+          id: userData.id,
+          email: userData.email,
+          role: isSuperAdmin ? 'admin' as UserRole : userData.role,
+          full_name: userData.full_name,
+          mobile_number: userData.mobile_number,
+          address: userData.address,
+          city: userData.city,
+          state: userData.state,
+          zip_code: userData.zip_code,
+          dealership_id: userData.dealership_id,
+          dealer_name: userData.dealer?.dealer_name || null,
+          dealer_id: userData.dealer?.dealer_id || null,
+          business_phone: userData.dealer?.business_phone || null,
+          business_email: userData.dealer?.business_email || null,
+          phone_carrier: userData.phone_carrier
         };
 
         console.log('Successfully fetched user data:', formattedUser);
