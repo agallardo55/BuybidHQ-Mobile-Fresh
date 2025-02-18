@@ -24,13 +24,13 @@ export async function fetchCarApiData(vin: string, apiKey: string): Promise<CarA
       url: API_URL
     });
 
-    // Make the API request
+    // Make the API request with JWT token format
     const response = await fetchData<any>(API_URL, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': apiKey // CarAPI expects the raw key, not Bearer token
+        'Authorization': `Bearer ${apiKey}` // CarAPI expects JWT token format
       }
     });
 
