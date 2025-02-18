@@ -127,6 +127,7 @@ const MultiStepForm = ({
             errors={errors}
             onChange={onChange}
             onBatchChange={onBatchChange}
+            onSelectChange={onSelectChange}
             showValidation={showValidation}
           />
           <div className="mt-6 flex justify-end">
