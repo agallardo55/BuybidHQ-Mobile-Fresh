@@ -15,24 +15,22 @@ const StepNavigation = ({
   nextLabel = "Next" 
 }: StepNavigationProps) => {
   return (
-    <div className="mt-6 flex justify-between">
+    <div className="mt-6 flex justify-end">
       {showBack && onBack && (
         <Button 
           onClick={onBack}
           variant="outline"
+          className="mr-auto"
         >
           Back
         </Button>
       )}
-      <div className={!showBack ? "w-full" : ""}>
-        <Button 
-          onClick={onNext}
-          variant="custom-blue"
-          className={!showBack ? "w-full" : ""}
-        >
-          {nextLabel}
-        </Button>
-      </div>
+      <Button 
+        onClick={onNext}
+        variant="custom-blue"
+      >
+        {nextLabel}
+      </Button>
     </div>
   );
 };
