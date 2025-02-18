@@ -1,6 +1,8 @@
 
 import FormField from "./FormField";
 import VinSection from "../VinSection";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TrimOption } from "../types";
 
 interface VehicleIdentificationProps {
   formData: {
@@ -9,6 +11,7 @@ interface VehicleIdentificationProps {
     model: string;
     trim: string;
     vin: string;
+    availableTrims: TrimOption[];
   };
   errors: {
     year?: string;
@@ -27,6 +30,7 @@ interface VehicleIdentificationProps {
     transmission: string;
     drivetrain: string;
   }) => void;
+  onSelectChange: (value: string, name: string) => void;
   showValidation?: boolean;
 }
 
@@ -35,8 +39,27 @@ const VehicleIdentification = ({
   errors,
   onChange,
   onVehicleDataFetched,
+  onSelectChange,
   showValidation
 }: VehicleIdentificationProps) => {
+  const handleTrimChange = (value: string) => {
+    onSelectChange(value, 'trim');
+    
+    // Find the selected trim to auto-populate related fields
+    const selectedTrim = formData.availableTrims.find(trim => trim.name === value);
+    if (selectedTrim?.specs) {
+      if (selectedTrim.specs.engine) {
+        onSelectChange(selectedTrim.specs.engine, 'engineCylinders');
+      }
+      if (selectedTrim.specs.transmission) {
+        onSelectChange(selectedTrim.specs.transmission, 'transmission');
+      }
+      if (selectedTrim.specs.drivetrain) {
+        onSelectChange(selectedTrim.specs.drivetrain, 'drivetrain');
+      }
+    }
+  };
+
   return (
     <div className="space-y-4">
       <VinSection 
@@ -74,15 +97,37 @@ const VehicleIdentification = ({
         placeholder="Camry"
         showValidation={showValidation}
       />
-      <FormField
-        id="trim"
-        label="Trim"
-        value={formData.trim}
-        onChange={onChange}
-        error={errors.trim}
-        placeholder="SE"
-        showValidation={showValidation}
-      />
+      <div>
+        <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">
+          Trim <span className="text-red-500">*</span>
+        </label>
+        <Select
+          value={formData.trim}
+          onValueChange={handleTrimChange}
+        >
+          <SelectTrigger 
+            id="trim"
+            className={`w-full ${errors.trim && showValidation ? "border-red-500" : ""}`}
+          >
+            <SelectValue placeholder="Select trim level" />
+          </SelectTrigger>
+          <SelectContent>
+            {formData.availableTrims.map((trim) => (
+              <SelectItem key={trim.name} value={trim.name}>
+                <div>
+                  <div className="font-medium">{trim.name}</div>
+                  {trim.description && (
+                    <div className="text-sm text-gray-500">{trim.description}</div>
+                  )}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.trim && showValidation && (
+          <p className="text-red-500 text-sm mt-1">{errors.trim}</p>
+        )}
+      </div>
     </div>
   );
 };

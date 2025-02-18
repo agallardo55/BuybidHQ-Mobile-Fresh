@@ -13,6 +13,15 @@ interface BasicVehicleInfoProps {
     transmission: string;
     drivetrain: string;
     vin: string;
+    availableTrims: Array<{
+      name: string;
+      description: string;
+      specs?: {
+        engine?: string;
+        transmission?: string;
+        drivetrain?: string;
+      }
+    }>;
   };
   errors: {
     year?: string;
@@ -27,10 +36,18 @@ interface BasicVehicleInfoProps {
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
+  onSelectChange: (value: string, name: string) => void;
   showValidation?: boolean;
 }
 
-const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange, showValidation }: BasicVehicleInfoProps) => {
+const BasicVehicleInfo = ({ 
+  formData, 
+  errors, 
+  onChange, 
+  onBatchChange,
+  onSelectChange,
+  showValidation 
+}: BasicVehicleInfoProps) => {
   const handleVehicleDataFetched = (data: {
     year: string;
     make: string;
@@ -67,6 +84,7 @@ const BasicVehicleInfo = ({ formData, errors, onChange, onBatchChange, showValid
           errors={errors}
           onChange={onChange}
           onVehicleDataFetched={handleVehicleDataFetched}
+          onSelectChange={onSelectChange}
           showValidation={showValidation}
         />
         <VehicleSpecifications

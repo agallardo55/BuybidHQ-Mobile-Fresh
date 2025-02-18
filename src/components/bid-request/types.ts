@@ -26,11 +26,22 @@ export interface BidRequest {
   reconDetails: string;
 }
 
+export interface TrimOption {
+  name: string;
+  description: string;
+  specs?: {
+    engine?: string;
+    transmission?: string;
+    drivetrain?: string;
+  }
+}
+
 export interface BidRequestFormData {
   year: string;
   make: string;
   model: string;
   trim: string;
+  availableTrims: TrimOption[];
   vin: string;
   mileage: string;
   exteriorColor: string;

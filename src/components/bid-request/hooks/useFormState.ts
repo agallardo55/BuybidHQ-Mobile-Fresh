@@ -7,6 +7,7 @@ const initialFormData: BidRequestFormData = {
   make: "",
   model: "",
   trim: "",
+  availableTrims: [],
   vin: "",
   mileage: "",
   exteriorColor: "",
