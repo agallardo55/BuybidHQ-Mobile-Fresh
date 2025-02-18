@@ -4,16 +4,12 @@ import { CarApiTrim } from "../types.ts";
 export function cleanTrimValue(trim: string): string {
   if (!trim) return "";
   
-  // Remove common prefixes and suffixes
   let cleaned = trim
     .replace(/^(trim:|series:|style:)/i, '')
     .replace(/\s+/g, ' ')
     .trim();
 
-  // Remove parenthetical content
   cleaned = cleaned.replace(/\([^)]*\)/g, '').trim();
-
-  // Remove special characters
   cleaned = cleaned.replace(/[^\w\s-]/g, '').trim();
 
   console.log(`Cleaned trim value: "${trim}" -> "${cleaned}"`);
@@ -28,46 +24,86 @@ export function findBestTrimMatch(
     engine_number_of_cylinders?: string;
   }
 ): string | null {
-  if (!trims || trims.length === 0) return null;
+  if (!trims || trims.length === 0) {
+    console.log('No trims available for matching');
+    return null;
+  }
 
-  console.log('Finding best trim match from:', trims);
+  console.log('Finding best trim match with:', {
+    year,
+    specs,
+    availableTrims: trims.map(t => ({ name: t.name, description: t.description, year: t.year }))
+  });
   
   // First try to find an exact year match
   const yearMatches = trims.filter(trim => trim.year === Number(year));
+  console.log(`Found ${yearMatches.length} trims matching year ${year}`);
   
-  if (yearMatches.length > 0) {
-    console.log('Found year matches:', yearMatches);
-    // If we have engine specs, try to match those
-    if (specs?.displacement_l || specs?.engine_number_of_cylinders) {
-      const engineMatch = yearMatches.find(trim => {
-        const description = trim.description.toLowerCase();
-        return (
-          (specs.displacement_l && description.includes(specs.displacement_l)) ||
-          (specs.engine_number_of_cylinders && 
-           description.includes(specs.engine_number_of_cylinders))
-        );
-      });
-      
-      if (engineMatch) {
-        console.log('Found engine spec match:', engineMatch);
-        return engineMatch.name;
-      }
-    }
+  const trimsToCheck = yearMatches.length > 0 ? yearMatches : trims;
+
+  // For Porsche GTS models
+  const gtsMatch = trimsToCheck.find(trim => {
+    const isGTS = trim.name.includes('GTS');
+    const matchesEngine = matchesEngineSpecs(trim.description, specs);
     
-    // If no engine match or no specs, return the first year match
-    return yearMatches[0].name;
-  }
-  
-  // If no year matches, try adjacent years
-  const targetYear = Number(year);
-  const closestTrim = trims.reduce((closest, current) => {
-    const currentDiff = Math.abs(current.year - targetYear);
-    const closestDiff = closest ? Math.abs(closest.year - targetYear) : Infinity;
-    return currentDiff < closestDiff ? current : closest;
+    console.log(`Checking trim "${trim.name}" (${trim.description}):`, {
+      isGTS,
+      matchesEngine,
+      engineSpecs: specs
+    });
+
+    return isGTS && matchesEngine;
   });
 
-  console.log('Using closest year match:', closestTrim);
-  return closestTrim?.name || null;
+  if (gtsMatch) {
+    console.log('Found matching GTS trim:', gtsMatch);
+    return 'GTS';
+  }
+
+  // If no GTS match found, try to find any trim matching engine specs
+  const engineMatch = trimsToCheck.find(trim => 
+    matchesEngineSpecs(trim.description, specs)
+  );
+
+  if (engineMatch) {
+    console.log('Found engine spec match:', engineMatch);
+    return cleanTrimValue(engineMatch.name);
+  }
+
+  // Default to first available trim if no matches found
+  console.log('No specific matches found, using first available trim');
+  return cleanTrimValue(trimsToCheck[0].name);
+}
+
+function matchesEngineSpecs(
+  description: string,
+  specs?: {
+    displacement_l?: string;
+    engine_number_of_cylinders?: string;
+  }
+): boolean {
+  if (!specs) return false;
+
+  const desc = description.toLowerCase();
+  console.log('Matching engine specs for description:', desc);
+
+  let matches = true;
+
+  if (specs.displacement_l) {
+    const displacementMatch = desc.includes(specs.displacement_l.toLowerCase() + 'l') ||
+                             desc.includes(specs.displacement_l.toLowerCase() + ' l');
+    console.log(`Displacement match (${specs.displacement_l}L):`, displacementMatch);
+    matches = matches && displacementMatch;
+  }
+
+  if (specs.engine_number_of_cylinders) {
+    const cylinderMatch = desc.includes(specs.engine_number_of_cylinders + ' cyl') ||
+                         desc.includes(specs.engine_number_of_cylinders + '-cyl');
+    console.log(`Cylinder match (${specs.engine_number_of_cylinders} cyl):`, cylinderMatch);
+    matches = matches && cylinderMatch;
+  }
+
+  return matches;
 }
 
 export function findMatchingPorscheTrim(
@@ -75,48 +111,44 @@ export function findMatchingPorscheTrim(
   displacement?: string,
   cylinders?: string
 ): string | null {
-  if (!trims || trims.length === 0) return null;
+  if (!trims || trims.length === 0) {
+    console.log('No Porsche trims available');
+    return null;
+  }
 
-  // Look for GTS trim specifically
+  console.log('Finding matching Porsche trim with specs:', {
+    displacement,
+    cylinders,
+    availableTrims: trims.map(t => ({ name: t.name, description: t.description }))
+  });
+
+  // Look for GTS trim with matching specs
   const gtsMatch = trims.find(trim => 
-    trim.name.includes('GTS') &&
-    matchesEngineSpecs(trim.description, displacement, cylinders)
+    trim.name.includes('GTS') && 
+    matchesEngineSpecs(trim.description, { 
+      displacement_l: displacement,
+      engine_number_of_cylinders: cylinders 
+    })
   );
 
   if (gtsMatch) {
-    console.log('Found GTS trim match:', gtsMatch);
-    return gtsMatch.name;
+    console.log('Found matching Porsche GTS trim:', gtsMatch);
+    return 'GTS';
   }
 
-  // Look for any trim that matches engine specs
+  // Look for any trim matching engine specs
   const engineMatch = trims.find(trim =>
-    matchesEngineSpecs(trim.description, displacement, cylinders)
+    matchesEngineSpecs(trim.description, {
+      displacement_l: displacement,
+      engine_number_of_cylinders: cylinders
+    })
   );
 
   if (engineMatch) {
-    console.log('Found engine spec match:', engineMatch);
-    return engineMatch.name;
+    console.log('Found matching Porsche trim by engine specs:', engineMatch);
+    return cleanTrimValue(engineMatch.name);
   }
 
-  // Default to first trim if no matches found
-  console.log('No specific matches found, using first trim:', trims[0]);
-  return trims[0].name;
-}
-
-function matchesEngineSpecs(
-  description: string,
-  displacement?: string,
-  cylinders?: string
-): boolean {
-  const desc = description.toLowerCase();
-  
-  if (displacement && !desc.includes(displacement.toLowerCase())) {
-    return false;
-  }
-  
-  if (cylinders && !desc.includes(cylinders.toLowerCase())) {
-    return false;
-  }
-  
-  return true;
+  console.log('No specific Porsche trim match found, using first trim');
+  return cleanTrimValue(trims[0].name);
 }
