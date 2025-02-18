@@ -36,12 +36,14 @@ serve(async (req) => {
         throw new Error('CarAPI key not configured');
       }
 
+      console.log('CarAPI key found:', CARAPI_KEY.substring(0, 4) + '...');
+
       // First get NHTSA data to check the year
       const nhtsaData = await fetchNHTSAData(vin);
       console.log('NHTSA data received:', nhtsaData);
 
       // Then get CarAPI data if year is supported
-      const carApiData = await fetchCarApiData(vin, CARAPI_KEY, nhtsaData.year);
+      const carApiData = await fetchCarApiData(vin, CARAPI_KEY);
       console.log('CarAPI data received:', carApiData);
 
       // Merge data from both sources
