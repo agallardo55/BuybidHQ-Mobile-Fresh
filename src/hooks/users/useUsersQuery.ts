@@ -27,56 +27,36 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           return { users: [], total: 0 };
         }
 
-        // Simplified query without joins to avoid recursion
+        // Build the query with dealership join
         let query = supabase
           .from('buybidhq_users')
-          .select('*', { count: 'exact' });
+          .select(`
+            *,
+            dealership:dealerships(*)
+          `, { count: 'exact' });
 
         // Add search filter if searchTerm is provided
         if (searchTerm) {
-          query = query.or([
-            `full_name.ilike.%${searchTerm}%`,
-            `email.ilike.%${searchTerm}%`
-          ].join(','));
+          query = query.or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
         }
 
-        // Add pagination
-        const { data: users, error, count } = await query
+        // Execute query with pagination
+        const { data, error, count } = await query
           .range(from, to)
           .is('deleted_at', null)
           .order('created_at', { ascending: false });
 
         if (error) {
           console.error('Error fetching users:', error);
+          if (error.message.includes('JWT expired')) {
+            navigate('/signin');
+            return { users: [], total: 0 };
+          }
           throw error;
         }
 
-        // Get dealership information in a separate query
-        const dealershipIds = users
-          ?.filter(user => user.dealership_id)
-          .map(user => user.dealership_id);
-
-        let dealerships = {};
-        if (dealershipIds?.length > 0) {
-          const { data: dealershipsData } = await supabase
-            .from('dealerships')
-            .select('*')
-            .in('id', dealershipIds);
-
-          dealerships = dealershipsData?.reduce((acc, dealership) => ({
-            ...acc,
-            [dealership.id]: dealership
-          }), {});
-        }
-
-        // Combine users with their dealership information
-        const enrichedUsers = users?.map(user => ({
-          ...user,
-          dealership: user.dealership_id ? dealerships[user.dealership_id] : null
-        }));
-
         return {
-          users: enrichedUsers || [],
+          users: data || [],
           total: count || 0
         };
       } catch (error: any) {
