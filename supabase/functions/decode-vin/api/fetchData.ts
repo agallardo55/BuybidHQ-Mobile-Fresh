@@ -1,30 +1,26 @@
 
 export async function fetchData<T>(url: string, options?: RequestInit): Promise<T | null> {
   try {
-    console.log(`Making request to ${url} with options:`, JSON.stringify(options));
-    const response = await fetch(url, options);
-    const responseText = await response.text();
-    console.log(`API Response [${url}]:`, responseText);
+    console.log('Making request to:', url);
+    
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options?.headers,
+        'Accept': 'application/json'
+      }
+    });
+
+    const text = await response.text();
+    console.log('Raw API Response:', text);
 
     if (!response.ok) {
-      console.error('API error:', {
-        url,
-        status: response.status,
-        statusText: response.statusText,
-        response: responseText,
-        headers: response.headers
-      });
-      return null;
+      throw new Error(`API error: ${response.status} ${response.statusText}\n${text}`);
     }
 
-    try {
-      return JSON.parse(responseText);
-    } catch (parseError) {
-      console.error('Error parsing response:', parseError);
-      return null;
-    }
-  } catch (fetchError) {
-    console.error('Error fetching data:', fetchError);
+    return JSON.parse(text);
+  } catch (error) {
+    console.error('fetchData error:', error);
     return null;
   }
 }
