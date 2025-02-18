@@ -7,11 +7,37 @@ import { toast } from "sonner";
 import { useCurrentUser } from "../useCurrentUser";
 import { useNavigate } from "react-router-dom";
 
+type DbUser = {
+  id: string;
+  created_at: string;
+  full_name: string | null;
+  email: string;
+  mobile_number: string | null;
+  role: User['role'];
+  is_active: boolean;
+  dealership_id: string | null;
+  deleted_at: string | null;
+  status: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  phone_carrier: string | null;
+  phone_validated: boolean;
+  dealership: {
+    id: string;
+    dealer_name: string;
+    dealer_id: string | null;
+    business_phone: string;
+    business_email: string;
+  } | null;
+};
+
 export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryParams) => {
   const { currentUser } = useCurrentUser();
   const navigate = useNavigate();
 
-  return useQuery<{ users: User[]; total: number }>({
+  return useQuery<{ users: User[]; total: number }, Error>({
     queryKey: ['users', pageSize, currentPage, searchTerm],
     queryFn: async () => {
       try {
@@ -37,6 +63,13 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
             is_active,
             dealership_id,
             deleted_at,
+            status,
+            address,
+            city,
+            state,
+            zip_code,
+            phone_carrier,
+            phone_validated,
             dealership:dealerships (
               id,
               dealer_name,
@@ -64,8 +97,36 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
           throw error;
         }
 
+        const users: User[] = (data as DbUser[])?.map(dbUser => ({
+          id: dbUser.id,
+          email: dbUser.email,
+          role: dbUser.role,
+          status: dbUser.status || '',
+          full_name: dbUser.full_name,
+          mobile_number: dbUser.mobile_number,
+          address: dbUser.address,
+          city: dbUser.city,
+          state: dbUser.state,
+          zip_code: dbUser.zip_code,
+          dealership_id: dbUser.dealership_id,
+          is_active: dbUser.is_active,
+          created_at: dbUser.created_at,
+          deleted_at: dbUser.deleted_at,
+          phone_carrier: dbUser.phone_carrier,
+          phone_validated: dbUser.phone_validated,
+          dealership: dbUser.dealership ? {
+            id: dbUser.dealership.id,
+            dealer_name: dbUser.dealership.dealer_name,
+            dealer_id: dbUser.dealership.dealer_id,
+            business_phone: dbUser.dealership.business_phone,
+            business_email: dbUser.dealership.business_email,
+            primary_user_id: null,
+            primary_assigned_at: undefined,
+          } : null
+        }));
+
         return {
-          users: data || [],
+          users,
           total: count || 0
         };
       } catch (error: any) {
