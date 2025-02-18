@@ -54,11 +54,6 @@ const ViewBuyerDialog = ({ buyer, isOpen, onOpenChange }: ViewBuyerDialogProps) 
           <InfoRow label="Business Number" value={buyer.businessNumber} />
           <InfoRow label="Mobile Carrier" value={buyer.phoneCarrier} showBadge={true} />
           <InfoRow label="Location" value={buyer.location} />
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">Owner Information</h4>
-            <InfoRow label="Owner Name" value={buyer.ownerName} />
-            <InfoRow label="Owner Email" value={buyer.ownerEmail} />
-          </div>
           <div className="mt-4 border-t pt-4">
             <h4 className="text-sm font-medium text-gray-900 mb-2">Bid Statistics</h4>
             <div className="grid grid-cols-3 gap-4">
