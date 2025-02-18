@@ -18,7 +18,12 @@ export async function fetchData<T>(url: string, options?: RequestInit): Promise<
       throw new Error(`API error: ${response.status} ${response.statusText}\n${text}`);
     }
 
-    return JSON.parse(text);
+    try {
+      return JSON.parse(text);
+    } catch (parseError) {
+      console.error('Error parsing response:', parseError);
+      return null;
+    }
   } catch (error) {
     console.error('fetchData error:', error);
     return null;

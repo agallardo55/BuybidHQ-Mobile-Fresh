@@ -4,34 +4,68 @@ import { fetchData } from "./fetchData.ts";
 
 export async function fetchCarApiData(vin: string, apiKey: string): Promise<CarApiData | null> {
   try {
-    // Simple VIN lookup first
+    // First, validate inputs
+    if (!vin || vin.length !== 17) {
+      console.error('Invalid VIN provided:', vin);
+      return null;
+    }
+
+    if (!apiKey) {
+      console.error('No API key provided');
+      return null;
+    }
+
+    // Log the request (hiding most of the API key)
+    console.log('CarAPI Request:', {
+      vin,
+      apiKey: `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`,
+      url: `https://api.carapi.app/api/vin/${vin}`
+    });
+
+    // Make the API request
     const response = await fetchData<any>(`https://api.carapi.app/api/vin/${vin}`, {
       method: 'GET',
       headers: {
-        'Authorization': apiKey,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       }
     });
 
-    if (!response?.data?.vehicle) {
-      console.log('No vehicle data found:', response);
+    // Log the raw response for debugging
+    console.log('CarAPI raw response:', JSON.stringify(response));
+
+    // Check for API errors or missing data
+    if (!response) {
+      console.error('No response from CarAPI');
       return null;
     }
 
-    const vehicle = response.data.vehicle;
-    console.log('Vehicle data:', vehicle);
+    if (response.error) {
+      console.error('CarAPI returned error:', response.error);
+      return null;
+    }
 
-    // Return basic data first
+    // Extract vehicle data
+    const vehicle = response.data?.vehicle;
+    if (!vehicle) {
+      console.error('No vehicle data in response:', response);
+      return null;
+    }
+
+    // Log the extracted vehicle data
+    console.log('CarAPI vehicle data:', vehicle);
+
+    // Return only essential data for now
     return {
       year: vehicle.year?.toString() || '',
       make: vehicle.make || '',
       model: vehicle.model || '',
       specs: {
-        engine_number_of_cylinders: vehicle.specs?.engine_number_of_cylinders || '',
-        displacement_l: vehicle.specs?.displacement_l || '',
-        turbo: vehicle.specs?.turbo || false,
-        transmission: vehicle.specs?.transmission || '',
-        drive_type: vehicle.specs?.drive_type || ''
+        engine_number_of_cylinders: '',
+        displacement_l: '',
+        turbo: false,
+        transmission: '',
+        drive_type: ''
       },
       trims: []
     };
