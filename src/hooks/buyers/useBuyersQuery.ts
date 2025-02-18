@@ -23,6 +23,7 @@ export const useBuyersQuery = () => {
 
         console.log("Current user role:", currentUser?.role);
 
+        // Using the new access cache for efficient querying
         const { data, error } = await supabase
           .from('buyers')
           .select(`
@@ -40,12 +41,9 @@ export const useBuyersQuery = () => {
             pending_bids,
             declined_bids,
             phone_carrier,
-            phone_validation_status,
-            user:buybidhq_users!buyers_user_id_fkey(
-              full_name,
-              email
-            )
-          `);
+            phone_validation_status
+          `)
+          .order('created_at', { ascending: false });
 
         if (error) {
           console.error("Buyer fetch error:", error);
@@ -80,8 +78,6 @@ export const useBuyersQuery = () => {
             acceptedBids: buyer.accepted_bids || 0,
             pendingBids: buyer.pending_bids || 0,
             declinedBids: buyer.declined_bids || 0,
-            ownerName: buyer.user?.full_name || 'N/A',
-            ownerEmail: buyer.user?.email || 'N/A',
             phoneCarrier: buyer.phone_carrier || 'N/A',
             phoneValidationStatus: buyer.phone_validation_status
           };
