@@ -31,6 +31,10 @@ type DbUser = {
     dealer_id: string | null;
     business_phone: string;
     business_email: string;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    zip_code: string | null;
   } | null;
 };
 
@@ -77,7 +81,11 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
               dealer_name,
               dealer_id,
               business_phone,
-              business_email
+              business_email,
+              address,
+              city,
+              state,
+              zip_code
             )
           `, { count: 'exact' });
 
@@ -123,6 +131,10 @@ export const useUsersQuery = ({ pageSize, currentPage, searchTerm }: UsersQueryP
             dealer_id: dbUser.dealership.dealer_id,
             business_phone: dbUser.dealership.business_phone,
             business_email: dbUser.dealership.business_email,
+            address: dbUser.dealership.address,
+            city: dbUser.dealership.city,
+            state: dbUser.dealership.state,
+            zip_code: dbUser.dealership.zip_code,
             primary_user_id: null,
             primary_assigned_at: undefined,
           } : null
