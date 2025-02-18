@@ -1,0 +1,136 @@
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import DashboardNavigation from "@/components/DashboardNavigation";
+import Footer from "@/components/Footer";
+
+const SmsTest = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("4255774907");
+
+  const testBidRequest = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-bid-sms', {
+        body: {
+          type: "bid_request",
+          phoneNumber,
+          vehicleDetails: {
+            year: "2024",
+            make: "Toyota",
+            model: "Camry"
+          },
+          bidRequestUrl: "https://buybidhq.com/bid/test123"
+        }
+      });
+
+      if (error) throw error;
+      
+      toast.success("Bid request SMS sent successfully!");
+      console.log("SMS Response:", data);
+    } catch (error) {
+      console.error("Error sending SMS:", error);
+      toast.error("Failed to send bid request SMS");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const testBidResponse = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-bid-sms', {
+        body: {
+          type: "bid_response",
+          phoneNumber,
+          vehicleDetails: {
+            year: "2024",
+            make: "Toyota",
+            model: "Camry"
+          },
+          offerAmount: "25000",
+          buyerName: "John Smith"
+        }
+      });
+
+      if (error) throw error;
+      
+      toast.success("Bid response SMS sent successfully!");
+      console.log("SMS Response:", data);
+    } catch (error) {
+      console.error("Error sending SMS:", error);
+      toast.error("Failed to send bid response SMS");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <DashboardNavigation />
+      <div className="flex-grow container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">SMS Testing Dashboard</h1>
+          
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                Test Phone Number
+              </label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Enter phone number"
+                className="mb-4"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-gray-900">Test Scenarios</h2>
+              
+              <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Scenario 1: Bid Request Notification</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Tests sending a new bid request notification SMS for a 2024 Toyota Camry
+                  </p>
+                  <Button
+                    onClick={testBidRequest}
+                    disabled={isLoading}
+                    variant="custom-blue"
+                  >
+                    Test Bid Request SMS
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Scenario 2: Bid Response Notification</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Tests sending a bid response notification SMS with a $25,000 offer
+                  </p>
+                  <Button
+                    onClick={testBidResponse}
+                    disabled={isLoading}
+                    variant="custom-blue"
+                  >
+                    Test Bid Response SMS
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+export default SmsTest;

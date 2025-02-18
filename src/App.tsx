@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import SmsTest from "./pages/SmsTest";
 
 const App = () => (
   <BrowserRouter>
@@ -109,6 +110,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Account />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sms-test"
+            element={
+              <ProtectedRoute>
+                <SmsTest />
               </ProtectedRoute>
             }
           />
