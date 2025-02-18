@@ -10,25 +10,35 @@ export interface VehicleData {
   availableTrims: TrimOption[];
 }
 
-export interface CarApiTrim {
-  name: string;
-  description: string;
-  year: number;
-}
-
 export interface CarApiData {
   year?: string | number;
   make?: string;
   model?: string;
-  trim?: string;
   specs?: {
-    displacement_l?: string;
     engine_number_of_cylinders?: string;
-    turbo?: string | null;
+    displacement_l?: string;
     transmission?: string;
     drive_type?: string;
+    turbo?: string | null;
   };
-  trims?: CarApiTrim[];
+  trims?: Array<{
+    id: number;
+    make_model_id: number;
+    year: number;
+    name: string;
+    description: string;
+    msrp: number;
+    invoice: number;
+    make_model: {
+      id: number;
+      make_id: number;
+      name: string;
+      make: {
+        id: number;
+        name: string;
+      }
+    }
+  }>;
 }
 
 export interface TrimOption {
@@ -39,17 +49,4 @@ export interface TrimOption {
     transmission?: string;
     drivetrain?: string;
   }
-}
-
-export interface NHTSAEngineData {
-  displacement: string;
-  cylinders: string;
-  configuration: string;
-  turbo: boolean;
-}
-
-export interface NHTSATransmissionData {
-  style?: string;
-  speeds?: string;
-  type?: string;
 }
