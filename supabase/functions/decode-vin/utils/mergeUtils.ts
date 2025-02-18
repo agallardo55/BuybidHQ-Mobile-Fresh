@@ -9,21 +9,29 @@ function findMatchingTrim(searchTrim: string, availableTrims: any[]): any {
 
   console.log('Searching for trim match:', { searchTrim, availableTrims });
   
-  // Try to find an exact match first
-  const exactMatch = availableTrims.find(trim => 
-    trim.name.toLowerCase() === searchTrim.toLowerCase()
-  );
+  // Normalize search trim
+  const normalizedSearch = searchTrim.toLowerCase().replace(/\s+/g, '');
+  
+  // Try to find an exact match first (case-insensitive)
+  const exactMatch = availableTrims.find(trim => {
+    const normalizedTrim = (trim.name || '').toLowerCase().replace(/\s+/g, '');
+    return normalizedTrim === normalizedSearch;
+  });
 
   if (exactMatch) {
     console.log('Found exact trim match:', exactMatch);
     return exactMatch;
   }
 
-  // If no exact match, try to find a partial match
-  const partialMatch = availableTrims.find(trim => 
-    trim.name.toLowerCase().includes(searchTrim.toLowerCase()) ||
-    searchTrim.toLowerCase().includes(trim.name.toLowerCase())
-  );
+  // If no exact match, try to find a partial match with more flexible comparison
+  const partialMatch = availableTrims.find(trim => {
+    const normalizedTrim = (trim.name || '').toLowerCase().replace(/\s+/g, '');
+    const normalizedDesc = (trim.description || '').toLowerCase();
+    
+    return normalizedTrim.includes(normalizedSearch) ||
+           normalizedSearch.includes(normalizedTrim) ||
+           normalizedDesc.includes(normalizedSearch);
+  });
 
   if (partialMatch) {
     console.log('Found partial trim match:', partialMatch);
@@ -36,37 +44,77 @@ function findMatchingTrim(searchTrim: string, availableTrims: any[]): any {
 }
 
 function getEngineDetails(nhtsaData: VehicleData, trimSpecs: any): string {
-  if (!trimSpecs || !trimSpecs.engine) {
-    return nhtsaData.engineCylinders || '';
+  // First try to use trim-specific engine details
+  if (trimSpecs?.engine) {
+    console.log('Using trim-specific engine details:', trimSpecs.engine);
+    return trimSpecs.engine;
   }
 
-  // Use trim-specific engine details if available
-  console.log('Using trim-specific engine details:', trimSpecs.engine);
-  return trimSpecs.engine;
+  // If NHTSA data has engine info, use that
+  if (nhtsaData.engineCylinders) {
+    console.log('Using NHTSA engine details:', nhtsaData.engineCylinders);
+    return nhtsaData.engineCylinders;
+  }
+
+  // Try to extract from trim description if available
+  if (trimSpecs?.description) {
+    const desc = trimSpecs.description.toLowerCase();
+    const cylinderMatch = desc.match(/(\d+)[\s-]?cyl/);
+    if (cylinderMatch) {
+      const engineInfo = `${cylinderMatch[1]} Cylinder`;
+      console.log('Extracted engine details from trim description:', engineInfo);
+      return engineInfo;
+    }
+  }
+
+  return '';
 }
 
 function getTransmission(nhtsaTransmission: string, trimTransmission: string): string {
-  // Prefer trim-specific transmission info if available
   if (trimTransmission) {
     console.log('Using trim-specific transmission:', trimTransmission);
     return trimTransmission;
   }
-  return nhtsaTransmission || '';
+
+  // Clean up and standardize NHTSA transmission
+  if (nhtsaTransmission) {
+    const trans = nhtsaTransmission.toLowerCase();
+    if (trans.includes('automatic')) return 'Automatic';
+    if (trans.includes('manual')) return 'Manual';
+    if (trans.includes('cvt')) return 'CVT';
+    return nhtsaTransmission;
+  }
+
+  return '';
 }
 
 function formatDrivetrain(drivetrain: string): string {
   if (!drivetrain) return '';
   
-  // Normalize common drivetrain terms
   const normalized = drivetrain.toLowerCase();
-  if (normalized.includes('awd') || normalized.includes('all-wheel')) {
-    return 'AWD';
-  }
-  if (normalized.includes('fwd') || normalized.includes('front-wheel')) {
-    return 'FWD';
-  }
-  if (normalized.includes('rwd') || normalized.includes('rear-wheel')) {
-    return 'RWD';
+  
+  // Map common drivetrain terms to standardized format
+  const drivetrainMap: Record<string, string> = {
+    'awd': 'AWD',
+    'all-wheel': 'AWD',
+    'all wheel': 'AWD',
+    '4wd': 'AWD',
+    '4x4': 'AWD',
+    'fwd': 'FWD',
+    'front-wheel': 'FWD',
+    'front wheel': 'FWD',
+    'rwd': 'RWD',
+    'rear-wheel': 'RWD',
+    'rear wheel': 'RWD',
+    '2wd': 'RWD'
+  };
+
+  // Check each key in the map
+  for (const [key, value] of Object.entries(drivetrainMap)) {
+    if (normalized.includes(key)) {
+      console.log(`Mapped drivetrain from "${drivetrain}" to "${value}"`);
+      return value;
+    }
   }
   
   return drivetrain;
@@ -109,7 +157,7 @@ export function mergeVehicleData(
     trim: bestTrim.name,
     engineCylinders: getEngineDetails(nhtsaData, bestTrim.specs),
     transmission: getTransmission(nhtsaData.transmission, bestTrim.specs?.transmission),
-    drivetrain: formatDrivetrain(nhtsaData.drivetrain),
+    drivetrain: formatDrivetrain(bestTrim.specs?.drivetrain || nhtsaData.drivetrain),
     availableTrims: getAvailableTrims(carApiData.trims)
   };
 
