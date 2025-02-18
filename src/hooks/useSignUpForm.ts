@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ interface SignUpFormData {
   state: string;
   zipCode: string;
   planType: 'beta-access' | 'individual' | undefined;
+  smsConsent: boolean;
 }
 
 export const useSignUpForm = () => {
@@ -36,7 +38,8 @@ export const useSignUpForm = () => {
     city: "",
     state: "",
     zipCode: "",
-    planType: undefined
+    planType: undefined,
+    smsConsent: false
   });
 
   const formatPhoneNumber = (value: string) => {
@@ -64,6 +67,11 @@ export const useSignUpForm = () => {
       setFormData((prev) => ({
         ...prev,
         [name]: formatPhoneNumber(value),
+      }));
+    } else if (name === 'smsConsent') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value === 'true',
       }));
     } else {
       setFormData((prev) => ({
@@ -108,6 +116,12 @@ export const useSignUpForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    if (!formData.smsConsent) {
+      toast.error("Please agree to receive SMS messages to continue");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({

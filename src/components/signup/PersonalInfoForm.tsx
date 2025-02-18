@@ -1,6 +1,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 interface PersonalInfoFormProps {
@@ -11,6 +12,7 @@ interface PersonalInfoFormProps {
     confirmPassword: string;
     mobileNumber: string;
     businessNumber: string;
+    smsConsent?: boolean;
   };
   onNext: () => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -20,6 +22,15 @@ interface PersonalInfoFormProps {
 const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFormProps) => {
   const passwordsMatch = formData.password === formData.confirmPassword;
   const showMismatchError = formData.confirmPassword.length > 0 && !passwordsMatch;
+
+  const handleSmsConsentChange = (checked: boolean) => {
+    onChange({
+      target: {
+        name: 'smsConsent',
+        value: checked.toString(),
+      },
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
 
   return (
     <div className="space-y-4">
@@ -102,6 +113,20 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           placeholder="(123) 456-7890"
           maxLength={14}
         />
+      </div>
+      <div className="flex items-center space-x-2">
+        <Checkbox 
+          id="smsConsent"
+          checked={formData.smsConsent}
+          onCheckedChange={handleSmsConsentChange}
+          required
+        />
+        <label 
+          htmlFor="smsConsent" 
+          className="text-sm text-gray-600 leading-none"
+        >
+          I agree to receive SMS messages from BuybidHQ at the number provided. Message frequency varies. Msg & data rates may apply. Reply STOP to unsubscribe.
+        </label>
       </div>
       <div>
         <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
