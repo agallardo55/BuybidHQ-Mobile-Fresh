@@ -15,19 +15,17 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
       }
     });
 
-    console.log('Raw VIN Response:', JSON.stringify(vinResponse));
-
     if (!vinResponse?.data?.vehicle) {
-      console.log('No vehicle data received from CarAPI VIN endpoint:', vinResponse);
+      console.log('No vehicle data received from CarAPI VIN endpoint:', JSON.stringify(vinResponse));
       return null;
     }
 
     const vehicleData = vinResponse.data.vehicle;
     console.log('CarAPI VIN Response vehicle data:', JSON.stringify(vehicleData));
 
-    // If we got valid VIN data, fetch trims
+    // If we got valid VIN data, fetch trims with more specific parameters
     if (vehicleData.make && vehicleData.model && vehicleData.year) {
-      const trimEndpoint = `https://api.carapi.app/api/trims?make=${encodeURIComponent(vehicleData.make)}&model=${encodeURIComponent(vehicleData.model)}&year=${vehicleData.year}&verbose=yes`;
+      const trimEndpoint = `https://api.carapi.app/api/trims?make=${encodeURIComponent(vehicleData.make)}&model=${encodeURIComponent(vehicleData.model)}&year=${vehicleData.year}&detailed=yes&verbose=yes`;
       console.log('Fetching trims from CarAPI:', trimEndpoint);
 
       const trimResponse = await fetchData<any>(trimEndpoint, {
@@ -37,37 +35,49 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
         }
       });
 
-      console.log('Raw Trim Response:', JSON.stringify(trimResponse));
-
-      // Merge trim data with vehicle data
-      if (trimResponse?.data?.trims) {
+      if (trimResponse?.data?.trims && trimResponse.data.trims.length > 0) {
+        console.log('Found trims:', JSON.stringify(trimResponse.data.trims));
+        
         const processedData = {
           year: vehicleData.year,
           make: vehicleData.make,
           model: vehicleData.model,
-          specs: vehicleData.specs,
+          specs: {
+            ...vehicleData.specs,
+            engine_number_of_cylinders: vehicleData.specs?.engine_number_of_cylinders || '',
+            displacement_l: vehicleData.specs?.displacement_l || '',
+            turbo: vehicleData.specs?.turbo || false,
+            transmission: vehicleData.specs?.transmission || '',
+            drive_type: vehicleData.specs?.drive_type || ''
+          },
           trims: trimResponse.data.trims.map((trim: any) => ({
-            name: trim.name,
+            name: trim.name || 'Unknown Trim',
             description: trim.description || '',
             specs: {
-              engine: trim.engine?.name || '',
-              transmission: trim.transmission?.name || '',
-              drivetrain: trim.drive_type || ''
+              engine: trim.engine?.name || vehicleData.specs?.engine_description || '',
+              transmission: trim.transmission?.name || vehicleData.specs?.transmission || '',
+              drivetrain: trim.drive_type || vehicleData.specs?.drive_type || ''
             }
           }))
         };
         
-        console.log('Processed CarAPI data:', JSON.stringify(processedData));
+        console.log('Processed CarAPI data with trims:', JSON.stringify(processedData));
         return processedData;
       }
     }
 
-    // If no trims found, return just the vehicle data
+    // If no trims found or couldn't fetch trims, return basic vehicle data
     const basicData = {
       year: vehicleData.year,
       make: vehicleData.make,
       model: vehicleData.model,
-      specs: vehicleData.specs,
+      specs: {
+        engine_number_of_cylinders: vehicleData.specs?.engine_number_of_cylinders || '',
+        displacement_l: vehicleData.specs?.displacement_l || '',
+        turbo: vehicleData.specs?.turbo || false,
+        transmission: vehicleData.specs?.transmission || '',
+        drive_type: vehicleData.specs?.drive_type || ''
+      },
       trims: []
     };
     
