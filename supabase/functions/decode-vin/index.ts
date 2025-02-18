@@ -4,6 +4,7 @@ import { VehicleData } from "./types.ts";
 import { fetchCarApiData } from "./api/carApi.ts";
 import { handleVinError, handleApiError } from "./utils/errorUtils.ts";
 import { corsHeaders } from "./config.ts";
+import { findBestTrimMatch } from "./utils/trimUtils.ts";
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -28,9 +29,9 @@ serve(async (req) => {
     console.log('Processing VIN:', vin);
 
     try {
-      // Get CarAPI data - no API key needed
+      // Get CarAPI data
       const carApiData = await fetchCarApiData(vin);
-      console.log('CarAPI data received:', carApiData);
+      console.log('Raw CarAPI data received:', JSON.stringify(carApiData, null, 2));
 
       if (!carApiData) {
         throw new Error('Could not decode VIN with CarAPI');
@@ -42,6 +43,19 @@ serve(async (req) => {
         return engineMatch ? engineMatch[1] : '';
       };
 
+      // Process trims data
+      const processedTrims = Array.isArray(carApiData.trims) ? carApiData.trims.map(trim => ({
+        name: trim.name || '',
+        description: trim.description || '',
+        specs: {
+          engine: getEngineSpecsFromDescription(trim.description),
+          transmission: `${carApiData.specs?.transmission_speeds}-speed ${carApiData.specs?.transmission_style}`,
+          drivetrain: carApiData.specs?.drive_type || ''
+        }
+      })) : [];
+
+      console.log('Processed trims:', JSON.stringify(processedTrims, null, 2));
+
       // Map the response to match our frontend expectations
       const vehicleData: VehicleData = {
         year: carApiData.year?.toString() || '',
@@ -51,19 +65,10 @@ serve(async (req) => {
         engineCylinders: carApiData.specs?.engine_number_of_cylinders || '',
         transmission: carApiData.specs?.transmission_speeds + "-speed " + carApiData.specs?.transmission_style || '',
         drivetrain: carApiData.specs?.drive_type || '',
-        availableTrims: Array.isArray(carApiData.trims) ? carApiData.trims.map(trim => ({
-          name: trim.name || '',
-          description: trim.description || '',
-          specs: {
-            engine: getEngineSpecsFromDescription(trim.description),
-            transmission: `${carApiData.specs?.transmission_speeds}-speed ${carApiData.specs?.transmission_style}`,
-            drivetrain: carApiData.specs?.drive_type || ''
-          }
-        })) : []
+        availableTrims: processedTrims
       };
 
-      // Log the available trims for debugging
-      console.log('Available trims:', vehicleData.availableTrims);
+      console.log('Final vehicle data being sent:', JSON.stringify(vehicleData, null, 2));
       
       return new Response(
         JSON.stringify(vehicleData),

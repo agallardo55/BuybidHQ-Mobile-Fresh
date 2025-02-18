@@ -29,6 +29,7 @@ interface VehicleIdentificationProps {
     engineCylinders: string;
     transmission: string;
     drivetrain: string;
+    availableTrims: TrimOption[];
   }) => void;
   onSelectChange: (value: string, name: string) => void;
   showValidation?: boolean;
@@ -42,11 +43,17 @@ const VehicleIdentification = ({
   onSelectChange,
   showValidation
 }: VehicleIdentificationProps) => {
+  console.log('VehicleIdentification rendered with formData:', formData);
+  console.log('Available trims in VehicleIdentification:', formData.availableTrims);
+
   const handleTrimChange = (value: string) => {
+    console.log('Trim selected:', value);
     onSelectChange(value, 'trim');
     
     // Find the selected trim to auto-populate related fields
     const selectedTrim = formData.availableTrims.find(trim => trim.name === value);
+    console.log('Selected trim details:', selectedTrim);
+    
     if (selectedTrim?.specs) {
       if (selectedTrim.specs.engine) {
         onSelectChange(selectedTrim.specs.engine, 'engineCylinders');
@@ -59,9 +66,6 @@ const VehicleIdentification = ({
       }
     }
   };
-
-  // Debug log to check available trims
-  console.log('Available trims:', formData.availableTrims);
 
   return (
     <div className="space-y-4">
@@ -115,16 +119,20 @@ const VehicleIdentification = ({
             <SelectValue placeholder="Select trim level" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            {formData.availableTrims && formData.availableTrims.map((trim) => (
-              <SelectItem key={trim.name} value={trim.name}>
-                <div>
-                  <div className="font-medium">{trim.name}</div>
-                  {trim.description && (
-                    <div className="text-sm text-gray-500">{trim.description}</div>
-                  )}
-                </div>
-              </SelectItem>
-            ))}
+            {formData.availableTrims && formData.availableTrims.length > 0 ? (
+              formData.availableTrims.map((trim, index) => (
+                <SelectItem key={`${trim.name}-${index}`} value={trim.name}>
+                  <div>
+                    <div className="font-medium">{trim.name}</div>
+                    {trim.description && (
+                      <div className="text-sm text-gray-500">{trim.description}</div>
+                    )}
+                  </div>
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="default" disabled>No trim levels available</SelectItem>
+            )}
           </SelectContent>
         </Select>
         {errors.trim && showValidation && (
