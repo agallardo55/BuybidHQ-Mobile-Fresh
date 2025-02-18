@@ -4,11 +4,19 @@ import { fetchData } from "./fetchData.ts";
 
 export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: string): Promise<CarApiData | null> {
   try {
+    // Check if we have a valid API key
+    if (!CARAPI_KEY) {
+      console.error('No CarAPI key provided');
+      return null;
+    }
+
     // First get vehicle data from the /vin endpoint
     const vinEndpoint = `https://api.carapi.app/api/vin/${vin}`;
     console.log('Calling CarAPI VIN endpoint:', vinEndpoint);
+    console.log('Using API key:', CARAPI_KEY.substring(0, 5) + '...');
 
     const vinResponse = await fetchData<any>(vinEndpoint, {
+      method: 'GET',
       headers: { 
         'Authorization': `Bearer ${CARAPI_KEY}`,
         'Content-Type': 'application/json',
@@ -36,6 +44,7 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
       console.log('Fetching trims from CarAPI:', trimEndpoint);
 
       const trimResponse = await fetchData<any>(trimEndpoint, {
+        method: 'GET',
         headers: { 
           'Authorization': `Bearer ${CARAPI_KEY}`,
           'Content-Type': 'application/json',

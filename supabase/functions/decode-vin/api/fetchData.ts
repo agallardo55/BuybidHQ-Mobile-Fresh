@@ -1,6 +1,7 @@
 
 export async function fetchData<T>(url: string, options?: RequestInit): Promise<T | null> {
   try {
+    console.log(`Making request to ${url} with options:`, JSON.stringify(options));
     const response = await fetch(url, options);
     const responseText = await response.text();
     console.log(`API Response [${url}]:`, responseText);
@@ -10,7 +11,8 @@ export async function fetchData<T>(url: string, options?: RequestInit): Promise<
         url,
         status: response.status,
         statusText: response.statusText,
-        response: responseText
+        response: responseText,
+        headers: response.headers
       });
       return null;
     }
