@@ -31,7 +31,7 @@ export function mergeVehicleData(
 
     // Process trims
     if (carApiData.trims && carApiData.trims.length > 0) {
-      console.log('Processing CarAPI trims for merge');
+      console.log('Processing CarAPI trims for merge:', carApiData.trims);
       
       // Get unique trim names and create TrimOptions
       const uniqueTrims = [...new Set(carApiData.trims.map(trim => trim.name))];
@@ -48,6 +48,7 @@ export function mergeVehicleData(
         };
       });
 
+      // Find best matching trim
       const bestTrim = findBestTrimMatch(
         carApiData.trims,
         mergedData.year,
