@@ -44,24 +44,24 @@ export type Database = {
       bid_request_access_cache: {
         Row: {
           bid_request_id: string | null
-          can_update: boolean | null
-          can_view: boolean | null
+          can_update: boolean
+          can_view: boolean
           id: string
           last_updated: string | null
           user_id: string | null
         }
         Insert: {
           bid_request_id?: string | null
-          can_update?: boolean | null
-          can_view?: boolean | null
+          can_update?: boolean
+          can_view?: boolean
           id?: string
           last_updated?: string | null
           user_id?: string | null
         }
         Update: {
           bid_request_id?: string | null
-          can_update?: boolean | null
-          can_view?: boolean | null
+          can_update?: boolean
+          can_view?: boolean
           id?: string
           last_updated?: string | null
           user_id?: string | null
@@ -392,17 +392,13 @@ export type Database = {
           buyer_mobile: string | null
           buyer_name: string | null
           buyer_phone: string | null
-          carrier_detail: Json | null
           city: string | null
           created_at: string
           dealer_name: string | null
-          dealer_number: string | null
           declined_bids: number | null
           email: string
           id: string
-          is_ported: boolean | null
           last_validated_at: string | null
-          line_type: string | null
           pending_bids: number | null
           phone_carrier: string | null
           phone_validation_status:
@@ -420,17 +416,13 @@ export type Database = {
           buyer_mobile?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
-          carrier_detail?: Json | null
           city?: string | null
           created_at?: string
           dealer_name?: string | null
-          dealer_number?: string | null
           declined_bids?: number | null
           email: string
           id?: string
-          is_ported?: boolean | null
           last_validated_at?: string | null
-          line_type?: string | null
           pending_bids?: number | null
           phone_carrier?: string | null
           phone_validation_status?:
@@ -448,17 +440,13 @@ export type Database = {
           buyer_mobile?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
-          carrier_detail?: Json | null
           city?: string | null
           created_at?: string
           dealer_name?: string | null
-          dealer_number?: string | null
           declined_bids?: number | null
           email?: string
           id?: string
-          is_ported?: boolean | null
           last_validated_at?: string | null
-          line_type?: string | null
           pending_bids?: number | null
           phone_carrier?: string | null
           phone_validation_status?:
