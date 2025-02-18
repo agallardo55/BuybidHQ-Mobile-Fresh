@@ -17,10 +17,6 @@ export interface BuyerResponse {
   declined_bids: number;
   phone_carrier: string | null;
   phone_validation_status?: 'pending' | 'valid' | 'invalid' | 'processing';
-  user: {
-    full_name: string;
-    email: string;
-  };
 }
 
 export interface MappedBuyer {
@@ -35,8 +31,6 @@ export interface MappedBuyer {
   acceptedBids: number;
   pendingBids: number;
   declinedBids: number;
-  ownerName: string;
-  ownerEmail: string;
   phoneCarrier: string;
   phoneValidationStatus?: 'pending' | 'valid' | 'invalid' | 'processing';
 }

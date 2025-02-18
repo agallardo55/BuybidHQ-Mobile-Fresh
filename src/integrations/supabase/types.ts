@@ -487,6 +487,38 @@ export type Database = {
           },
         ]
       }
+      buyers_access_cache: {
+        Row: {
+          access_level: string
+          buyer_id: string
+          id: string
+          last_updated: string | null
+          user_id: string
+        }
+        Insert: {
+          access_level: string
+          buyer_id: string
+          id?: string
+          last_updated?: string | null
+          user_id: string
+        }
+        Update: {
+          access_level?: string
+          buyer_id?: string
+          id?: string
+          last_updated?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyers_access_cache_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buyers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           created_at: string | null
@@ -1279,8 +1311,8 @@ export type Database = {
       }
       can_access_buyer: {
         Args: {
-          buyer_id: string
           checking_user_id: string
+          target_buyer_id: string
         }
         Returns: boolean
       }
