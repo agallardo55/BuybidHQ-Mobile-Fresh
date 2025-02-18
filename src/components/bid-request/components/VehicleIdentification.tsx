@@ -60,6 +60,9 @@ const VehicleIdentification = ({
     }
   };
 
+  // Debug log to check available trims
+  console.log('Available trims:', formData.availableTrims);
+
   return (
     <div className="space-y-4">
       <VinSection 
@@ -107,12 +110,12 @@ const VehicleIdentification = ({
         >
           <SelectTrigger 
             id="trim"
-            className={`w-full ${errors.trim && showValidation ? "border-red-500" : ""}`}
+            className={`w-full bg-white ${errors.trim && showValidation ? "border-red-500" : ""}`}
           >
             <SelectValue placeholder="Select trim level" />
           </SelectTrigger>
-          <SelectContent>
-            {formData.availableTrims.map((trim) => (
+          <SelectContent className="bg-white">
+            {formData.availableTrims && formData.availableTrims.map((trim) => (
               <SelectItem key={trim.name} value={trim.name}>
                 <div>
                   <div className="font-medium">{trim.name}</div>
