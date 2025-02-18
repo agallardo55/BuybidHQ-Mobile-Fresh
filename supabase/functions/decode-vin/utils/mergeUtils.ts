@@ -20,6 +20,7 @@ export function mergeVehicleData(
 
   const mergedData: VehicleData = {
     ...nhtsaData,
+    availableTrims: []
   };
 
   if (carApiData) {
@@ -28,9 +29,21 @@ export function mergeVehicleData(
     if (carApiData.make) mergedData.make = carApiData.make;
     if (carApiData.model) mergedData.model = carApiData.model;
 
-    // Enhanced trim handling
+    // Process trims
     if (carApiData.trims && carApiData.trims.length > 0) {
       console.log('Processing CarAPI trims for merge');
+      
+      // Map CarAPI trims to our TrimOption format
+      mergedData.availableTrims = carApiData.trims.map(trim => ({
+        name: trim.name,
+        description: trim.description,
+        specs: carApiData.specs ? {
+          engine: `${carApiData.specs.displacement_l}L ${carApiData.specs.engine_number_of_cylinders}-Cylinder${carApiData.specs.turbo ? ' Turbo' : ''}`,
+          transmission: carApiData.specs.transmission,
+          drivetrain: carApiData.specs.drive_type
+        } : undefined
+      }));
+
       const bestTrim = findBestTrimMatch(
         carApiData.trims,
         mergedData.year,

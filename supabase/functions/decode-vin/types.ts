@@ -7,6 +7,7 @@ export interface VehicleData {
   engineCylinders: string;
   transmission: string;
   drivetrain: string;
+  availableTrims: TrimOption[];
 }
 
 export interface CarApiTrim {
@@ -30,6 +31,16 @@ export interface CarApiData {
   trims?: CarApiTrim[];
 }
 
+export interface TrimOption {
+  name: string;
+  description: string;
+  specs?: {
+    engine?: string;
+    transmission?: string;
+    drivetrain?: string;
+  }
+}
+
 export interface NHTSAEngineData {
   displacement: string;
   cylinders: string;
@@ -42,4 +53,3 @@ export interface NHTSATransmissionData {
   speeds?: string;
   type?: string;
 }
-

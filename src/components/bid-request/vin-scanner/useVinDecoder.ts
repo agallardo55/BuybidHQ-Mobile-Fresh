@@ -11,6 +11,15 @@ interface VehicleData {
   engineCylinders: string;
   transmission: string;
   drivetrain: string;
+  availableTrims: Array<{
+    name: string;
+    description: string;
+    specs?: {
+      engine?: string;
+      transmission?: string;
+      drivetrain?: string;
+    }
+  }>;
 }
 
 export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void) {
@@ -52,6 +61,7 @@ export function useVinDecoder(onVehicleDataFetched?: (data: VehicleData) => void
         engineCylinders: data.engineCylinders || "",
         transmission: data.transmission || "",
         drivetrain: data.drivetrain || "",
+        availableTrims: data.availableTrims || []
       };
 
       onVehicleDataFetched?.(vehicleData);
