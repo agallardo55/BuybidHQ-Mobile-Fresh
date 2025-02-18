@@ -1,6 +1,7 @@
 
 import { VehicleData, CarApiData } from "../types.ts";
 import { findBestTrimMatch } from "./trimUtils.ts";
+import { handlePorscheSpecifics } from "./porscheUtils.ts";
 
 export function mergeVehicleData(
   nhtsaData: VehicleData,
@@ -55,6 +56,11 @@ export function mergeVehicleData(
       }
     } else {
       console.log('No trims available from CarAPI');
+    }
+
+    // Apply Porsche-specific handling
+    if (mergedData.make?.toLowerCase().includes('porsche')) {
+      handlePorscheSpecifics(mergedData);
     }
 
     // Engine and transmission specs
