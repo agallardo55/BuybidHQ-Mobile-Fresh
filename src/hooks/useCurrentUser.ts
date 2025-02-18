@@ -17,6 +17,7 @@ interface UserData {
   zip_code: string | null;
   dealership_id: string | null;
   dealer_name: string | null;
+  dealer_id: string | null;
   business_phone: string | null;
   business_email: string | null;
   phone_carrier: string | null;
@@ -83,6 +84,7 @@ export const useCurrentUser = () => {
           zip_code: userData[0].zip_code,
           dealership_id: userData[0].dealership_id,
           dealer_name: userData[0].dealer_name,
+          dealer_id: userData[0].dealer_id,
           business_phone: userData[0].business_phone,
           business_email: userData[0].business_email,
           phone_carrier: userData[0].phone_carrier
