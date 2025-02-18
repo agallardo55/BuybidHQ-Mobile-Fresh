@@ -51,9 +51,11 @@ export async function fetchCarApiData(vin: string): Promise<CarApiData | null> {
       specs: {
         engine_number_of_cylinders: vehicle.specs?.engine_number_of_cylinders,
         displacement_l: vehicle.specs?.displacement_l,
-        transmission: vehicle.specs?.transmission_speeds + "-speed " + vehicle.specs?.transmission_style,
+        transmission_speeds: vehicle.specs?.transmission_speeds,
+        transmission_style: vehicle.specs?.transmission_style,
         drive_type: vehicle.specs?.drive_type,
-        turbo: vehicle.specs?.turbo
+        turbo: vehicle.specs?.turbo,
+        trim: vehicle.specs?.trim
       },
       trims: vehicle.trims || []
     };

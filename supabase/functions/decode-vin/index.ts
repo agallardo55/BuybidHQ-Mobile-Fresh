@@ -36,6 +36,12 @@ serve(async (req) => {
         throw new Error('Could not decode VIN with CarAPI');
       }
 
+      // Extract engine specs from trim description
+      const getEngineSpecsFromDescription = (description: string) => {
+        const engineMatch = description?.match(/\((.*?)\)/);
+        return engineMatch ? engineMatch[1] : '';
+      };
+
       // Map the response to match our frontend expectations
       const vehicleData: VehicleData = {
         year: carApiData.year?.toString() || '',
@@ -43,20 +49,22 @@ serve(async (req) => {
         model: carApiData.model || '',
         trim: carApiData.specs?.trim || '',
         engineCylinders: carApiData.specs?.engine_number_of_cylinders || '',
-        transmission: carApiData.specs?.transmission || '',
+        transmission: carApiData.specs?.transmission_speeds + "-speed " + carApiData.specs?.transmission_style || '',
         drivetrain: carApiData.specs?.drive_type || '',
         availableTrims: carApiData.trims?.map(trim => ({
-          name: trim.name,
-          description: trim.description,
+          name: trim.name || '',
+          description: trim.description || '',
           specs: {
-            engine: `${trim.description?.split('(')[1]?.split(')')[0] || ''}`,
-            transmission: carApiData.specs?.transmission || '',
+            engine: getEngineSpecsFromDescription(trim.description),
+            transmission: `${carApiData.specs?.transmission_speeds}-speed ${carApiData.specs?.transmission_style}`,
             drivetrain: carApiData.specs?.drive_type || ''
           }
         })) || []
       };
 
+      console.log('Mapped trim data:', vehicleData.availableTrims);
       console.log('Returning vehicle data:', vehicleData);
+      
       return new Response(
         JSON.stringify(vehicleData),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
