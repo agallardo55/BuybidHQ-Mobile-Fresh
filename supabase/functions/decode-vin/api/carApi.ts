@@ -10,7 +10,7 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
 
     const vinResponse = await fetchData<any>(vinEndpoint, {
       headers: { 
-        'Authorization': `Bearer ${CARAPI_KEY}`,
+        'Authorization': CARAPI_KEY, // Removed 'Bearer ' prefix
         'Accept': 'application/json'
       }
     });
@@ -36,7 +36,7 @@ export async function fetchCarApiData(vin: string, CARAPI_KEY: string, year?: st
 
       const trimResponse = await fetchData<any>(trimEndpoint, {
         headers: { 
-          'Authorization': `Bearer ${CARAPI_KEY}`,
+          'Authorization': CARAPI_KEY, // Removed 'Bearer ' prefix
           'Accept': 'application/json'
         }
       });
