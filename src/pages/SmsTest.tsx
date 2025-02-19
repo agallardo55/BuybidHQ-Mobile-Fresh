@@ -108,12 +108,17 @@ const SmsTest = () => {
                 type="tel"
                 value={phoneNumber}
                 onChange={handlePhoneNumberChange}
-                placeholder="(425) 577-4907"
+                placeholder="(500) 555-0000"
                 className="mb-4"
               />
-              <p className="text-sm text-gray-500 mb-4">
-                Enter a 10-digit phone number. Example: (425) 577-4907
-              </p>
+              <div className="text-sm text-gray-500 space-y-2 mb-4">
+                <p>For testing, use these Twilio test numbers:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li><code>+15005550000</code> - Simulates successful message</li>
+                  <li><code>+15005550001</code> - Simulates failed message</li>
+                  <li><code>+15005550009</code> - Simulates unroutable message</li>
+                </ul>
+              </div>
             </div>
 
             <div className="space-y-4">

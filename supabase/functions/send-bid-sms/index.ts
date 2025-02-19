@@ -30,6 +30,8 @@ interface BidResponseSMS extends BaseSMSRequest {
 
 type SMSRequest = BidRequestSMS | BidResponseSMS
 
+const TWILIO_TEST_NUMBER = "+15005550006"
+
 function formatPhoneNumber(phoneNumber: string): string {
   // Remove all non-numeric characters
   const cleaned = phoneNumber.replace(/\D/g, '');
@@ -62,21 +64,18 @@ serve(async (req) => {
     // Get Twilio credentials from environment variables
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')
-    const twilioPhoneNumber = Deno.env.get('TWILIO_PHONE_NUMBER')
+
+    // Use test number for sending
+    const twilioPhoneNumber = TWILIO_TEST_NUMBER;
 
     // Add more detailed error logging
-    if (!accountSid || !authToken || !twilioPhoneNumber) {
+    if (!accountSid || !authToken) {
       console.error('Missing Twilio configuration:', {
         hasAccountSid: !!accountSid,
         hasAuthToken: !!authToken,
-        hasPhoneNumber: !!twilioPhoneNumber
       });
       throw new Error('Missing Twilio configuration. Please ensure all required environment variables are set.')
     }
-
-    // Format the Twilio phone number
-    const formattedTwilioNumber = formatPhoneNumber(twilioPhoneNumber);
-    console.log('Formatted Twilio number:', formattedTwilioNumber);
 
     // Format the recipient's phone number
     const formattedRecipientNumber = formatPhoneNumber(phoneNumber);
@@ -101,7 +100,7 @@ serve(async (req) => {
     const twilioResponse = await client.messages.create({
       body: message,
       to: formattedRecipientNumber,
-      from: formattedTwilioNumber,
+      from: twilioPhoneNumber,
     })
 
     console.log('Twilio response:', {
