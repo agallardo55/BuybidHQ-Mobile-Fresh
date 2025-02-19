@@ -40,16 +40,27 @@ Deno.serve(async (req) => {
 
     const vehicleData = apiResult;
 
+    // Deduplicate trims based on the FULL trim name and description
+    const seenTrims = new Set();
+    const uniqueTrims = vehicleData.trims?.filter(trim => {
+      const key = `${trim.name}|${trim.description}`;
+      if (seenTrims.has(key)) {
+        return false;
+      }
+      seenTrims.add(key);
+      return true;
+    });
+
+    console.log('Deduplicated trims:', uniqueTrims);
+
     const bestTrim = findBestTrimMatch(
-      vehicleData.trims,
+      uniqueTrims,
       vehicleData.year,
       {
         displacement_l: vehicleData.specs?.displacement_l,
         engine_number_of_cylinders: vehicleData.specs?.engine_number_of_cylinders,
       },
     );
-
-    const cleanedTrim = bestTrim ? cleanTrimValue(bestTrim) : "";
 
     // Format base engine info
     const baseEngineInfo = {
@@ -58,23 +69,8 @@ Deno.serve(async (req) => {
       turbo: vehicleData.specs?.turbo || false
     };
 
-    // Deduplicate trims based on name and description
-    const uniqueTrims = vehicleData.trims?.reduce((acc: any[], trim) => {
-      const exists = acc.some(t => 
-        t.name === trim.name && 
-        t.description === trim.description
-      );
-      
-      if (!exists) {
-        acc.push(trim);
-      }
-      return acc;
-    }, []);
-
-    console.log('Deduplicated trims:', uniqueTrims);
-
     const availableTrims = uniqueTrims?.map((trim) => {
-      // First try to extract engine info from trim description
+      // Extract engine info from trim description
       const engineMatch = trim.description?.match(/\(([\d.]+L\s+\d+cyl(?:\s+Turbo)?)[^)]*\)/i);
       
       // If no match in description, use the base engine info
@@ -86,15 +82,11 @@ Deno.serve(async (req) => {
         `${vehicleData.specs.transmission_speeds}-Speed ${vehicleData.specs.transmission_style}` :
         vehicleData.specs?.transmission_style || '';
 
-      console.log('Processing trim:', {
-        name: trim.name,
-        engineInfo,
-        transmission,
-        drivetrain: vehicleData.specs?.drive_type
-      });
+      // Extract the full trim designation from the description
+      const trimDesignation = trim.description?.split(' ')[0] || trim.name;
 
       return {
-        name: cleanTrimValue(trim.name),
+        name: trimDesignation, // Use the full trim designation
         description: trim.description?.replace(/\.{3,}|\.+$/g, '').trim() || '',
         specs: {
           engine: engineInfo.trim(),
@@ -106,13 +98,13 @@ Deno.serve(async (req) => {
     });
 
     // Find the selected trim's specs
-    const selectedTrim = availableTrims?.find(t => cleanTrimValue(t.name) === cleanedTrim);
+    const selectedTrim = availableTrims?.find(t => t.name === bestTrim);
 
     const responseData = {
       year: vehicleData.year,
       make: vehicleData.make,
       model: vehicleData.model,
-      trim: cleanedTrim,
+      trim: bestTrim || "",
       engineCylinders: selectedTrim?.specs.engine || `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`,
       transmission: selectedTrim?.specs.transmission || `${vehicleData.specs?.transmission_speeds}-Speed ${vehicleData.specs?.transmission_style}`,
       drivetrain: selectedTrim?.specs.drivetrain || vehicleData.specs?.drive_type || '',
