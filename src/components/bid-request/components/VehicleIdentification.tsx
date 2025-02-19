@@ -67,6 +67,10 @@ const VehicleIdentification = ({
     }
   };
 
+  // Find the selected trim's full description
+  const selectedTrim = formData.availableTrims.find(trim => trim.name === formData.trim);
+  const selectedTrimText = selectedTrim?.description || formData.trim || "Select trim level";
+
   return (
     <div className="space-y-4">
       <VinSection 
@@ -116,7 +120,9 @@ const VehicleIdentification = ({
             id="trim"
             className={`w-full bg-white hover:bg-gray-50 transition-colors ${errors.trim && showValidation ? "border-red-500" : ""}`}
           >
-            <SelectValue placeholder="Select trim level" className="text-left" />
+            <SelectValue placeholder="Select trim level">
+              {selectedTrimText.replace(/\.{3,}|\.+$/g, '').trim()}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-white">
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
@@ -129,7 +135,9 @@ const VehicleIdentification = ({
                   <div className="w-full">
                     <div className="font-medium text-gray-900">{trim.name}</div>
                     {trim.description && (
-                      <div className="text-sm text-gray-500 mt-0.5">{trim.description}</div>
+                      <div className="text-sm text-gray-500 mt-0.5">
+                        {trim.description.replace(/\.{3,}|\.+$/g, '').trim()}
+                      </div>
                     )}
                   </div>
                 </SelectItem>
