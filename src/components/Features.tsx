@@ -1,6 +1,5 @@
 
-import { Shield, Zap, BatteryCharging, BarChart, ShoppingBag } from "lucide-react";
-import { ComingSoonBadge } from "./ui/coming-soon-badge";
+import { Shield, Zap, BatteryCharging, BarChart } from "lucide-react";
 
 const Features = () => {
   const features = [
@@ -23,16 +22,6 @@ const Features = () => {
       icon: <BatteryCharging className="h-12 w-12 text-accent" />,
       title: "Real-time Updates",
       description: "Get instant notifications about new bids and status changes"
-    },
-    {
-      icon: <ShoppingBag className="h-12 w-12 text-accent" />,
-      title: (
-        <div className="flex items-center gap-2">
-          Marketplace
-          <ComingSoonBadge />
-        </div>
-      ),
-      description: "Access our upcoming marketplace for expanded dealer networking and opportunities"
     }
   ];
 
@@ -47,7 +36,7 @@ const Features = () => {
             Everything you need to streamline your vehicle bidding process
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <div
               key={index}
