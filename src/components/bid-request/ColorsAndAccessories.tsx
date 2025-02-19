@@ -1,4 +1,3 @@
-
 import { ImagePlus } from "lucide-react";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
@@ -154,6 +153,40 @@ const ColorsAndAccessories = ({
     onChange(syntheticEvent);
   };
 
+  const handleDeleteImage = async (url: string, isUploaded: boolean) => {
+    try {
+      if (isUploaded) {
+        // Extract the file path from the URL
+        const filePath = url.split('/').pop();
+        if (filePath) {
+          const { error } = await supabase.storage
+            .from('vehicle_images')
+            .remove([filePath]);
+
+          if (error) {
+            console.error('Error deleting file:', error);
+            toast.error('Failed to delete image');
+            return;
+          }
+
+          setUploadedImages(prev => prev.filter(img => img !== url));
+          toast.success('Image deleted successfully');
+        }
+      } else {
+        // For preview images, just remove from state
+        setSelectedFileUrls(prev => prev.filter(img => img !== url));
+        setSelectedFiles(prev => {
+          const index = selectedFileUrls.indexOf(url);
+          return prev.filter((_, i) => i !== index);
+        });
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error('Error handling image deletion:', error);
+      toast.error('Failed to delete image');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <ColorPicker
@@ -208,6 +241,7 @@ const ColorsAndAccessories = ({
         uploadedImages={uploadedImages}
         selectedFileUrls={selectedFileUrls}
         onImageClick={setPreviewImage}
+        onDeleteImage={handleDeleteImage}
       />
 
       <ImagePreviewDialog
