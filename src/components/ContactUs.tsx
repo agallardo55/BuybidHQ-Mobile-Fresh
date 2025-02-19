@@ -164,7 +164,7 @@ const ContactUs = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Your message"
-                className="min-h-[120px]"
+                className="min-h-[120px] focus-visible:ring-custom-blue"
                 required
               />
             </div>
