@@ -75,69 +75,66 @@ const ColorsAndAccessories = ({
     try {
       console.log('Starting file upload process...');
       
-      // First, try to create the bucket if it doesn't exist
-      const { data: bucketData, error: bucketError } = await supabase
-        .storage
-        .createBucket('vehicle_images', {
-          public: true,
-          fileSizeLimit: 52428800 // 50MB
-        });
-      
-      if (bucketError && !bucketError.message.includes('already exists')) {
-        console.error('Bucket creation error:', bucketError);
-        throw bucketError;
-      }
-      
       for (const file of selectedFiles) {
-        console.log(`Processing file: ${file.name}`);
-        
-        // Compress the image before upload
-        const compressedFile = await compressImage(file);
-        
-        const fileExt = file.name.split('.').pop();
-        const filePath = `${crypto.randomUUID()}.${fileExt}`;
-        
-        console.log(`Generated file path: ${filePath}`);
-        
-        const {
-          data: uploadData,
-          error: uploadError,
-        } = await supabase.storage.from('vehicle_images').upload(filePath, compressedFile);
-        
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          throw uploadError;
+        try {
+          console.log(`Processing file: ${file.name}`);
+          
+          // Compress the image before upload
+          const compressedFile = await compressImage(file);
+          
+          const fileExt = file.name.split('.').pop();
+          const filePath = `${crypto.randomUUID()}.${fileExt}`;
+          
+          console.log(`Generated file path: ${filePath}`);
+          
+          const {
+            data: uploadData,
+            error: uploadError,
+          } = await supabase.storage.from('vehicle_images').upload(filePath, compressedFile);
+          
+          if (uploadError) {
+            console.error('Upload error for file:', file.name, uploadError);
+            toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
+            continue; // Skip to next file instead of failing completely
+          }
+          
+          console.log('File uploaded successfully:', uploadData);
+          
+          const {
+            data: { publicUrl }
+          } = supabase.storage.from('vehicle_images').getPublicUrl(filePath);
+          
+          console.log('Generated public URL:', publicUrl);
+          
+          uploadedUrls.push(publicUrl);
+        } catch (fileError) {
+          console.error(`Error processing file ${file.name}:`, fileError);
+          toast.error(`Error processing ${file.name}. Skipping to next file.`);
         }
-        
-        console.log('File uploaded successfully:', uploadData);
-        
-        const {
-          data: { publicUrl }
-        } = supabase.storage.from('vehicle_images').getPublicUrl(filePath);
-        
-        console.log('Generated public URL:', publicUrl);
-        
-        uploadedUrls.push(publicUrl);
       }
 
-      console.log('All files uploaded successfully:', uploadedUrls);
+      if (uploadedUrls.length > 0) {
+        console.log('Successfully uploaded files:', uploadedUrls);
 
-      // Update uploaded images state and call the callback
-      const newUploadedImages = [...uploadedImages, ...uploadedUrls];
-      setUploadedImages(newUploadedImages);
-      onImagesUploaded?.(uploadedUrls);
-      
-      toast.success(`Successfully uploaded ${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''}`);
+        // Update uploaded images state and call the callback
+        const newUploadedImages = [...uploadedImages, ...uploadedUrls];
+        setUploadedImages(newUploadedImages);
+        onImagesUploaded?.(uploadedUrls);
+        
+        toast.success(`Successfully uploaded ${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''}`);
 
-      // Clear selected files for next upload
-      setSelectedFiles([]);
-      selectedFileUrls.forEach(url => URL.revokeObjectURL(url));
-      setSelectedFileUrls([]);
-      
-      // Close the upload dialog
-      setIsUploadDialogOpen(false);
+        // Clear selected files for next upload
+        setSelectedFiles([]);
+        selectedFileUrls.forEach(url => URL.revokeObjectURL(url));
+        setSelectedFileUrls([]);
+        
+        // Close the upload dialog
+        setIsUploadDialogOpen(false);
+      } else {
+        toast.error('No images were successfully uploaded. Please try again.');
+      }
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Upload process error:', error);
       toast.error('Failed to upload images. Please try again.');
     } finally {
       setIsUploading(false);
