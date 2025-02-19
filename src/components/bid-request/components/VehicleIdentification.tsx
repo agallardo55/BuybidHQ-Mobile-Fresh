@@ -48,10 +48,12 @@ const VehicleIdentification = ({
 
   const handleTrimChange = (value: string) => {
     console.log('Trim selected:', value);
-    onSelectChange(value, 'trim');
+    onSelectChange(value.replace(/\.{3,}|\.+$/g, '').trim(), 'trim');
     
     // Find the selected trim to auto-populate related fields
-    const selectedTrim = formData.availableTrims.find(trim => trim.name === value);
+    const selectedTrim = formData.availableTrims.find(trim => 
+      trim.name.replace(/\.{3,}|\.+$/g, '').trim() === value.replace(/\.{3,}|\.+$/g, '').trim()
+    );
     console.log('Selected trim details:', selectedTrim);
     
     if (selectedTrim?.specs) {
@@ -66,6 +68,9 @@ const VehicleIdentification = ({
       }
     }
   };
+
+  // Clean the current trim value for display
+  const displayTrim = formData.trim?.replace(/\.{3,}|\.+$/g, '').trim() || "";
 
   return (
     <div className="space-y-4">
@@ -109,7 +114,7 @@ const VehicleIdentification = ({
           Trim <span className="text-red-500">*</span>
         </label>
         <Select
-          value={formData.trim || ""}
+          value={displayTrim}
           onValueChange={handleTrimChange}
         >
           <SelectTrigger 
@@ -120,24 +125,29 @@ const VehicleIdentification = ({
           </SelectTrigger>
           <SelectContent className="bg-white">
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
-              formData.availableTrims.map((trim, index) => (
-                <SelectItem 
-                  key={`${trim.name}-${index}`} 
-                  value={trim.name}
-                  className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
-                >
-                  <div className="w-full">
-                    <div className="font-medium text-gray-900">
-                      {trim.name.replace(/\.{3,}|\.+$/g, '').trim()}
-                    </div>
-                    {trim.description && (
-                      <div className="text-sm text-gray-500 mt-0.5">
-                        {trim.description.replace(/\.{3,}|\.+$/g, '').trim()}
+              formData.availableTrims.map((trim, index) => {
+                const cleanTrimName = trim.name.replace(/\.{3,}|\.+$/g, '').trim();
+                const cleanDescription = trim.description?.replace(/\.{3,}|\.+$/g, '').trim();
+                
+                return (
+                  <SelectItem 
+                    key={`${cleanTrimName}-${index}`} 
+                    value={cleanTrimName}
+                    className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
+                  >
+                    <div className="w-full">
+                      <div className="font-medium text-gray-900">
+                        {cleanTrimName}
                       </div>
-                    )}
-                  </div>
-                </SelectItem>
-              ))
+                      {cleanDescription && (
+                        <div className="text-sm text-gray-500 mt-0.5">
+                          {cleanDescription}
+                        </div>
+                      )}
+                    </div>
+                  </SelectItem>
+                );
+              })
             ) : (
               <SelectItem value="default" disabled>No trim levels available</SelectItem>
             )}
