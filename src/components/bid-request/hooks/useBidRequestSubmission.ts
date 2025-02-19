@@ -51,10 +51,10 @@ export const useBidRequestSubmission = () => {
         image_urls: uploadedImageUrls,
         buyer_ids: selectedBuyers,
         creator_id: userId,
-        reconEstimate: formData.reconEstimate // Log the recon estimate specifically
+        reconEstimate: formData.reconEstimate
       });
 
-      const { data, error } = await supabase.rpc('create_complete_bid_request', {
+      const { data: bidRequestData, error: bidRequestError } = await supabase.rpc('create_complete_bid_request', {
         vehicle_data: vehicleData,
         recon_data: reconData,
         image_urls: uploadedImageUrls,
@@ -62,13 +62,54 @@ export const useBidRequestSubmission = () => {
         creator_id: userId
       });
 
-      if (error) {
-        console.error('Error creating bid request:', error);
-        toast.error('Failed to create bid request: ' + error.message);
-        throw error;
+      if (bidRequestError) {
+        console.error('Error creating bid request:', bidRequestError);
+        toast.error('Failed to create bid request: ' + bidRequestError.message);
+        throw bidRequestError;
       }
 
-      console.log('Bid request created successfully:', data);
+      console.log('Bid request created successfully:', bidRequestData);
+
+      // Send emails to selected buyers
+      for (const buyerId of selectedBuyers) {
+        // Get buyer details
+        const { data: buyerData, error: buyerError } = await supabase
+          .from('buyers')
+          .select('name, email')
+          .eq('id', buyerId)
+          .single();
+
+        if (buyerError) {
+          console.error('Error fetching buyer details:', buyerError);
+          continue;
+        }
+
+        // Generate unique bid submission URL
+        const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(buyerId)}`;
+
+        // Send email notification
+        const { error: emailError } = await supabase.functions.invoke('send-bid-email', {
+          body: {
+            type: 'bid_request',
+            email: buyerData.email,
+            buyerName: buyerData.name,
+            vehicleDetails: {
+              year: formData.year,
+              make: formData.make,
+              model: formData.model
+            },
+            bidRequestUrl
+          }
+        });
+
+        if (emailError) {
+          console.error('Error sending email to buyer:', buyerData.email, emailError);
+          toast.error(`Failed to send email to ${buyerData.name}`);
+        } else {
+          console.log('Email sent successfully to:', buyerData.email);
+        }
+      }
+
       toast.success('Bid request created successfully');
       navigate('/dashboard');
 
