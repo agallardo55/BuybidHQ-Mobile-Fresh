@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BuyerFormData } from "@/types/buyers";
@@ -36,14 +35,12 @@ export const useBuyersMutations = () => {
             buyer_mobile: buyerData.mobileNumber,
             buyer_phone: buyerData.businessNumber,
             dealer_name: buyerData.dealershipName,
-            dealer_number: buyerData.licenseNumber,
             address: buyerData.dealershipAddress,
             city: buyerData.city,
             state: buyerData.state,
             zip_code: buyerData.zipCode,
-            accepted_bids: 0,
-            pending_bids: 0,
-            declined_bids: 0
+            phone_carrier: buyerData.phoneCarrier,
+            phone_validation_status: 'pending'
           }
         ])
         .select()
@@ -87,7 +84,6 @@ export const useBuyersMutations = () => {
           buyer_mobile: buyerData.mobileNumber,
           buyer_phone: buyerData.businessNumber,
           dealer_name: buyerData.dealershipName,
-          dealer_number: buyerData.licenseNumber,
           address: buyerData.dealershipAddress,
           city: buyerData.city,
           state: buyerData.state,
@@ -143,7 +139,7 @@ export const useBuyersMutations = () => {
   });
 
   return {
-    createBuyer: createBuyerMutation.mutateAsync,  // Changed from mutate to mutateAsync
+    createBuyer: createBuyerMutation.mutateAsync,
     updateBuyer: updateBuyerMutation.mutate,
     deleteBuyer: deleteBuyerMutation.mutate,
   };

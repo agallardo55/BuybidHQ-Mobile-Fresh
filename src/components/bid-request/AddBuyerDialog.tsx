@@ -25,10 +25,11 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
   });
   const [isValidating, setIsValidating] = useState(false);
 
-  const validatePhoneNumber = async (phoneNumber: string, buyerId: string) => {
+  const validatePhoneNumber = async (phoneNumber: string) => {
     try {
+      setIsValidating(true);
       const { data, error } = await supabase.functions.invoke('validate-phone', {
-        body: { phone_number: phoneNumber, buyer_id: buyerId }
+        body: { phone_number: phoneNumber }
       });
 
       if (error) throw error;
@@ -49,6 +50,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
           ...prev,
           carrier: data.carrier.name as CarrierType
         }));
+        toast.success("Carrier detected automatically");
       }
 
       return true;
@@ -56,6 +58,8 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       console.error("Phone validation error:", error);
       toast.error("Failed to validate phone number. Please try again.");
       return false;
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -82,23 +86,16 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         phoneCarrier: formData.carrier || "",
         email: "",
         businessNumber: "",
-        licenseNumber: "",
         dealershipAddress: "",
         city: "",
         state: "",
         zipCode: "",
       };
 
-      const newBuyer = await createBuyer(buyerData);
-      
-      // Validate phone number if buyer was created successfully
-      const isValid = await validatePhoneNumber(formData.mobile, newBuyer.id);
-
-      if (isValid) {
-        setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
-        onOpenChange(false);
-        toast.success("Buyer added successfully");
-      }
+      await createBuyer(buyerData);
+      setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
+      onOpenChange(false);
+      toast.success("Buyer added successfully");
     } catch (error) {
       console.error("Error adding buyer:", error);
       toast.error("Failed to add buyer. Please try again.");
@@ -113,6 +110,11 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       ...prev,
       [name]: value
     }));
+
+    // Validate phone number when mobile number is complete
+    if (name === 'mobile' && value.length >= 10) {
+      validatePhoneNumber(value);
+    }
   };
 
   const handleCarrierChange = (value: string) => {
@@ -141,4 +143,3 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
 };
 
 export default AddBuyerDialog;
-
