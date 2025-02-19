@@ -50,7 +50,8 @@ export const useBidRequestSubmission = () => {
         recon_data: reconData,
         image_urls: uploadedImageUrls,
         buyer_ids: selectedBuyers,
-        creator_id: userId
+        creator_id: userId,
+        reconEstimate: formData.reconEstimate // Log the recon estimate specifically
       });
 
       const { data, error } = await supabase.rpc('create_complete_bid_request', {

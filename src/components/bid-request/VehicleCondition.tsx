@@ -43,27 +43,31 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   };
 
   const handleReconEstimateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Allow only numbers
+    // Extract numeric value
     const rawValue = e.target.value.replace(/[^0-9]/g, '');
     
-    // Update the form state with raw numeric value
+    // Create a proper synthetic event
     const syntheticEvent = {
-      ...e,
       target: {
-        ...e.target,
-        value: rawValue
+        name: 'reconEstimate',
+        value: rawValue,
+        type: 'text',
+        id: 'reconEstimate'
       }
-    };
+    } as React.ChangeEvent<HTMLInputElement>;
     
+    // Update form state with raw numeric value
     onChange(syntheticEvent);
-    // Update display value immediately for better UX
+    
+    // Update display value for user interface
     setDisplayValue(rawValue ? formatDollarAmount(rawValue) : '');
-  };
-
-  const handleReconEstimateBlur = () => {
-    if (formData.reconEstimate) {
-      setDisplayValue(formatDollarAmount(formData.reconEstimate));
-    }
+    
+    // Log for debugging
+    console.log('Recon estimate changed:', {
+      rawValue,
+      formattedValue: formatDollarAmount(rawValue),
+      currentFormData: rawValue
+    });
   };
 
   return (
@@ -164,7 +168,6 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           inputMode="numeric"
           value={displayValue}
           onChange={handleReconEstimateChange}
-          onBlur={handleReconEstimateBlur}
           placeholder="$0"
           className="font-mono focus:ring-1 focus:ring-offset-0"
         />
@@ -188,3 +191,4 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
 };
 
 export default VehicleCondition;
+
