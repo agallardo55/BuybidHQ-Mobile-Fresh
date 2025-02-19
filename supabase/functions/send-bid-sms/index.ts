@@ -30,8 +30,6 @@ interface BidResponseSMS extends BaseSMSRequest {
 
 type SMSRequest = BidRequestSMS | BidResponseSMS
 
-const TWILIO_TEST_NUMBER = "+15005550006"
-
 function formatPhoneNumber(phoneNumber: string): string {
   // Remove all non-numeric characters
   const cleaned = phoneNumber.replace(/\D/g, '');
@@ -64,15 +62,14 @@ serve(async (req) => {
     // Get Twilio credentials from environment variables
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')
-
-    // Use test number for sending
-    const twilioPhoneNumber = TWILIO_TEST_NUMBER;
+    const messagingServiceSid = Deno.env.get('TWILIO_MESSAGING_SERVICE_SID')
 
     // Add more detailed error logging
-    if (!accountSid || !authToken) {
+    if (!accountSid || !authToken || !messagingServiceSid) {
       console.error('Missing Twilio configuration:', {
         hasAccountSid: !!accountSid,
         hasAuthToken: !!authToken,
+        hasMessagingServiceSid: !!messagingServiceSid
       });
       throw new Error('Missing Twilio configuration. Please ensure all required environment variables are set.')
     }
@@ -96,11 +93,11 @@ serve(async (req) => {
 
     console.log('Sending SMS with message:', message);
 
-    // Send the message with formatted phone numbers
+    // Send the message using messaging service instead of direct phone number
     const twilioResponse = await client.messages.create({
       body: message,
       to: formattedRecipientNumber,
-      from: twilioPhoneNumber,
+      messagingServiceSid: messagingServiceSid
     })
 
     console.log('Twilio response:', {
