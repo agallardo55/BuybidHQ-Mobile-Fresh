@@ -21,7 +21,7 @@ interface ColorsAndAccessoriesProps {
 }
 
 const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
-const interiorColors = ["Black", "Tan", "Grey", "Red", "White", "Brown"];
+const interiorColors = ["Black", "Blue", "Brown", "Grey", "Red", "Tan", "White"];
 
 const compressionOptions = {
   maxSizeMB: 1,
