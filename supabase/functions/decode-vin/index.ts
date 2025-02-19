@@ -2,15 +2,24 @@
 import { cleanTrimValue, findBestTrimMatch } from "./utils/trimUtils.ts";
 import { fetchCarApiData } from "./api/carApi.ts";
 import { CarApiResult } from "./types.ts";
+import { corsHeaders } from "./config.ts";
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
   try {
     const { vin } = await req.json() as { vin: string };
 
     if (!vin) {
       return new Response(JSON.stringify({ error: "VIN is required" }), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -24,7 +33,7 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: "Failed to decode VIN from CarAPI" }),
         {
           status: 500,
-          headers: { "Content-Type": "application/json" },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
     }
@@ -78,13 +87,13 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify(responseData), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error(`Unexpected error: ${error}`);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
