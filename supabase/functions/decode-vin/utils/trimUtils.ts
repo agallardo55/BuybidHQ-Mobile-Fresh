@@ -61,7 +61,7 @@ export function findBestTrimMatch(
 
   if (gtsMatch) {
     console.log('Found matching GTS trim:', gtsMatch);
-    return 'GTS';
+    return cleanTrimValue(gtsMatch.name);
   }
 
   // If no GTS match found, try to find any trim matching engine specs
@@ -88,7 +88,7 @@ function matchesEngineSpecs(
 ): boolean {
   if (!specs) return false;
 
-  const desc = description.toLowerCase();
+  const desc = description?.toLowerCase() || '';
   console.log('Matching engine specs for description:', desc);
 
   let matches = true;
@@ -110,10 +110,21 @@ function matchesEngineSpecs(
   return matches;
 }
 
-// New function to clean engine description
 export function cleanEngineDescription(engine: string): string {
   if (!engine) return "";
   
-  // Remove transmission speed references (e.g., "7AM", "8A")
-  return engine.replace(/\s+\d+[A-Z]+$/, '').trim();
+  // Remove transmission speed references and clean up the format
+  let cleaned = engine
+    .replace(/\s+\d+[A-Z]+$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Ensure consistent format: displacement + cylinders + turbo
+  const parts = cleaned.match(/(\d+\.?\d*)\s*L\s*(\d+)\s*cyl(?:\s*Turbo)?/i);
+  if (parts) {
+    const [, displacement, cylinders] = parts;
+    cleaned = `${displacement}L ${cylinders}cyl Turbo`;
+  }
+
+  return cleaned;
 }

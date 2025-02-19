@@ -1,5 +1,5 @@
 
-import { cleanTrimValue, findBestTrimMatch } from "./utils/trimUtils.ts";
+import { cleanTrimValue, findBestTrimMatch, cleanEngineDescription } from "./utils/trimUtils.ts";
 import { fetchCarApiData } from "./api/carApi.ts";
 import { CarApiResult } from "./types.ts";
 import { corsHeaders } from "./config.ts";
@@ -51,26 +51,20 @@ Deno.serve(async (req) => {
 
     const cleanedTrim = bestTrim ? cleanTrimValue(bestTrim) : "";
 
+    // Format engine information consistently
+    const engineInfo = `${vehicleData.specs?.displacement_l}L ${vehicleData.specs?.engine_number_of_cylinders}cyl${vehicleData.specs?.turbo ? ' Turbo' : ''}`;
+    const cleanedEngine = cleanEngineDescription(engineInfo);
+
     const availableTrims = vehicleData.trims?.map((trim) => ({
       name: cleanTrimValue(trim.name),
-      description: trim.description,
+      description: trim.description?.replace(/\.{3,}|\.+$/g, '').trim() || '',
       specs: {
-        engine: `${vehicleData.specs?.displacement_l}L ${vehicleData.specs?.engine_number_of_cylinders}cyl`,
-        transmission: vehicleData.specs?.transmission_style,
-        drivetrain: vehicleData.specs?.drive_type,
+        engine: cleanedEngine,
+        transmission: vehicleData.specs?.transmission_style || '',
+        drivetrain: vehicleData.specs?.drive_type || '',
       },
       year: trim.year,
     }));
-
-    // Clean the engine description
-    function cleanEngineDescription(engine: string): string {
-      if (!engine) return "";
-      // Remove transmission speed references (e.g., "7AM", "8A")
-      return engine.replace(/\s+\d+[A-Z]+$/, "").trim();
-    }
-
-    const engineInfo = `${vehicleData.specs?.displacement_l}L ${vehicleData.specs?.engine_number_of_cylinders}cyl Turbo`;
-    const cleanedEngine = cleanEngineDescription(engineInfo);
 
     const responseData = {
       year: vehicleData.year,
