@@ -41,6 +41,13 @@ export const useFormState = (): FormState & FormStateActions => {
       ...prev,
       formData: { ...prev.formData, ...data }
     }));
+    
+    // Log form data updates for debugging
+    console.log('Form data updated:', { 
+      previous: state.formData,
+      updates: data,
+      new: { ...state.formData, ...data }
+    });
   };
 
   const setErrors = (errors: FormErrors) => {
@@ -71,7 +78,19 @@ export const useFormState = (): FormState & FormStateActions => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
-    setFormData({ [name]: value });
+    
+    // Special handling for reconEstimate to ensure it's stored as a raw number
+    if (name === 'reconEstimate') {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData({ [name]: numericValue });
+      console.log('Recon estimate updated in form state:', {
+        raw: value,
+        numeric: numericValue,
+        currentState: state.formData.reconEstimate
+      });
+    } else {
+      setFormData({ [name]: value });
+    }
     
     if (state.errors[name]) {
       setErrors({ ...state.errors, [name]: "" });
@@ -83,7 +102,6 @@ export const useFormState = (): FormState & FormStateActions => {
     const newErrors = { ...state.errors };
 
     changes.forEach(({ name, value }) => {
-      // Handle both simple and complex values
       updates[name] = value;
       if (newErrors[name]) {
         delete newErrors[name];
@@ -100,7 +118,6 @@ export const useFormState = (): FormState & FormStateActions => {
   const handleSelectChange = (value: string, name: string) => {
     setFormData({ [name]: value });
 
-    // Auto-populate specs when a trim is selected
     if (name === 'trim') {
       const selectedTrim = state.formData.availableTrims.find(trim => trim.name === value);
       if (selectedTrim?.specs) {
@@ -153,3 +170,4 @@ export const useFormState = (): FormState & FormStateActions => {
     handleBatchChanges,
   };
 };
+

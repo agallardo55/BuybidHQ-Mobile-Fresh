@@ -21,15 +21,6 @@ interface VehicleConditionProps {
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
   const [displayValue, setDisplayValue] = useState('');
 
-  useEffect(() => {
-    // Update display value when formData.reconEstimate changes
-    if (formData.reconEstimate) {
-      setDisplayValue(formatDollarAmount(formData.reconEstimate));
-    } else {
-      setDisplayValue('');
-    }
-  }, [formData.reconEstimate]);
-
   const formatDollarAmount = (value: string) => {
     const numericValue = value.replace(/\D/g, '');
     if (!numericValue) return '';
@@ -42,11 +33,25 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     }).format(Number(numericValue));
   };
 
+  // Update display value whenever formData.reconEstimate changes
+  useEffect(() => {
+    if (formData.reconEstimate) {
+      const formatted = formatDollarAmount(formData.reconEstimate);
+      setDisplayValue(formatted);
+      console.log('Updating display value from formData:', {
+        reconEstimate: formData.reconEstimate,
+        formatted
+      });
+    } else {
+      setDisplayValue('');
+    }
+  }, [formData.reconEstimate]);
+
   const handleReconEstimateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Extract numeric value
     const rawValue = e.target.value.replace(/[^0-9]/g, '');
     
-    // Create a proper synthetic event
+    // Create a proper synthetic event that matches the expected format
     const syntheticEvent = {
       target: {
         name: 'reconEstimate',
@@ -59,14 +64,11 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     // Update form state with raw numeric value
     onChange(syntheticEvent);
     
-    // Update display value for user interface
-    setDisplayValue(rawValue ? formatDollarAmount(rawValue) : '');
-    
-    // Log for debugging
-    console.log('Recon estimate changed:', {
+    // Log the state update
+    console.log('Recon estimate change:', {
       rawValue,
       formattedValue: formatDollarAmount(rawValue),
-      currentFormData: rawValue
+      currentFormData: formData.reconEstimate
     });
   };
 
