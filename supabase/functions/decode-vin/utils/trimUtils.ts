@@ -4,8 +4,9 @@ import { CarApiTrim } from "../types.ts";
 export function cleanTrimValue(trim: string): string {
   if (!trim) return "";
   
-  // First extract the base trim name (before any parentheses or descriptors)
-  let baseTrim = trim.split(/[\(\d]/, 1)[0].trim();
+  // Extract trim with its numeric designation (like P360 or P400)
+  const trimMatch = trim.match(/([A-Za-z]+\d+(?:\s+[A-Za-z]+)?)/);
+  const baseTrim = trimMatch ? trimMatch[1] : trim.split(/[\(\[]/, 1)[0].trim();
   
   // Clean up the base trim
   let cleaned = baseTrim
