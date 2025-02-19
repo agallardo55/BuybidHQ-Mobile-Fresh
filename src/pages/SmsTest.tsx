@@ -6,18 +6,35 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
+import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
 
 const SmsTest = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("4255774907");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const { formatPhoneNumber } = usePhoneFormat();
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhoneNumber(formatted);
+  };
+
+  const cleanPhoneNumber = (phone: string) => {
+    return phone.replace(/\D/g, '');
+  };
 
   const testBidRequest = async () => {
+    const cleanedPhone = cleanPhoneNumber(phoneNumber);
+    if (cleanedPhone.length !== 10) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-bid-sms', {
         body: {
           type: "bid_request",
-          phoneNumber,
+          phoneNumber: cleanedPhone,
           vehicleDetails: {
             year: "2024",
             make: "Toyota",
@@ -40,12 +57,18 @@ const SmsTest = () => {
   };
 
   const testBidResponse = async () => {
+    const cleanedPhone = cleanPhoneNumber(phoneNumber);
+    if (cleanedPhone.length !== 10) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-bid-sms', {
         body: {
           type: "bid_response",
-          phoneNumber,
+          phoneNumber: cleanedPhone,
           vehicleDetails: {
             year: "2024",
             make: "Toyota",
@@ -84,10 +107,13 @@ const SmsTest = () => {
                 id="phoneNumber"
                 type="tel"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Enter phone number"
+                onChange={handlePhoneNumberChange}
+                placeholder="(425) 577-4907"
                 className="mb-4"
               />
+              <p className="text-sm text-gray-500 mb-4">
+                Enter a 10-digit phone number. Example: (425) 577-4907
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -101,7 +127,7 @@ const SmsTest = () => {
                   </p>
                   <Button
                     onClick={testBidRequest}
-                    disabled={isLoading}
+                    disabled={isLoading || cleanPhoneNumber(phoneNumber).length !== 10}
                     variant="custom-blue"
                   >
                     Test Bid Request SMS
@@ -117,7 +143,7 @@ const SmsTest = () => {
                   </p>
                   <Button
                     onClick={testBidResponse}
-                    disabled={isLoading}
+                    disabled={isLoading || cleanPhoneNumber(phoneNumber).length !== 10}
                     variant="custom-blue"
                   >
                     Test Bid Response SMS
