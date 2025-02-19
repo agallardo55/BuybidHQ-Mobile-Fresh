@@ -75,6 +75,19 @@ const ColorsAndAccessories = ({
     try {
       console.log('Starting file upload process...');
       
+      // First, try to create the bucket if it doesn't exist
+      const { data: bucketData, error: bucketError } = await supabase
+        .storage
+        .createBucket('vehicle_images', {
+          public: true,
+          fileSizeLimit: 52428800 // 50MB
+        });
+      
+      if (bucketError && !bucketError.message.includes('already exists')) {
+        console.error('Bucket creation error:', bucketError);
+        throw bucketError;
+      }
+      
       for (const file of selectedFiles) {
         console.log(`Processing file: ${file.name}`);
         
