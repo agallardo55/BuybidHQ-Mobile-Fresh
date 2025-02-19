@@ -22,7 +22,8 @@ const CreateBidRequest = () => {
     handleImagesUploaded,
     toggleBuyer,
     handleSubmit,
-    setErrors
+    setErrors,
+    handleBatchChanges // Add this from useCreateBidRequest
   } = useCreateBidRequest();
 
   const [showValidation, setShowValidation] = useState(false);
@@ -31,7 +32,7 @@ const CreateBidRequest = () => {
     id: buyer.id,
     name: buyer.name,
     dealership: buyer.dealership,
-    mobile: buyer.mobileNumber // Updated to use mobileNumber
+    mobile: buyer.mobileNumber
   })) || [];
 
   const filteredBuyers = mappedBuyers.filter(buyer => 
@@ -69,6 +70,7 @@ const CreateBidRequest = () => {
               showValidation={showValidation}
               setShowValidation={setShowValidation}
               setErrors={setErrors}
+              onBatchChange={handleBatchChanges} // Add this prop
             />
             <div className="mt-6 pt-4 border-t border-gray-200 bg-white">
               <p className="text-sm text-gray-500 text-center">

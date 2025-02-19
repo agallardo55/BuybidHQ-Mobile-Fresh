@@ -30,7 +30,7 @@ interface MultiStepFormProps {
   onSubmit: () => void;
   isSubmitting: boolean;
   onImagesUploaded?: (urls: string[]) => void;
-  onBatchChange?: (changes: Array<{ name: string; value: string }>) => void;
+  onBatchChange?: (changes: Array<{ name: string; value: any }>) => void;
   setShowValidation: (show: boolean) => void;
   showValidation: boolean;
   setErrors: (errors: FormErrors) => void;

@@ -39,5 +39,6 @@ export const useCreateBidRequest = () => {
   return {
     ...formState,
     handleSubmit,
+    handleBatchChanges: formState.handleBatchChanges, // Explicitly expose handleBatchChanges
   };
 };
