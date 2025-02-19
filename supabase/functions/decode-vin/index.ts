@@ -51,41 +51,60 @@ Deno.serve(async (req) => {
 
     const cleanedTrim = bestTrim ? cleanTrimValue(bestTrim) : "";
 
-    // Format engine information to match what's shown in trim description
-    const engineInfo = `${vehicleData.specs?.displacement_l}L ${vehicleData.specs?.engine_number_of_cylinders}cyl${vehicleData.specs?.turbo ? ' Turbo' : ''}`;
-    console.log('Raw engine info:', engineInfo);
+    // Format base engine info
+    const baseEngineInfo = {
+      displacement: vehicleData.specs?.displacement_l || "",
+      cylinders: vehicleData.specs?.engine_number_of_cylinders || "",
+      turbo: vehicleData.specs?.turbo || false
+    };
 
     const availableTrims = vehicleData.trims?.map((trim) => {
-      // Extract engine info from trim description
-      const engineMatch = trim.description?.match(/\(([\d.]+L \d+cyl[^)]*)\)/);
-      const trimEngineInfo = engineMatch ? engineMatch[1] : engineInfo;
+      // First try to extract engine info from trim description
+      const engineMatch = trim.description?.match(/\(([\d.]+L\s+\d+cyl(?:\s+Turbo)?)[^)]*\)/i);
       
-      console.log('Trim engine info:', trimEngineInfo);
+      // If no match in description, use the base engine info
+      const engineInfo = engineMatch ? engineMatch[1] : 
+        `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`;
+
+      // Format transmission for display
+      const transmission = vehicleData.specs?.transmission_speeds ? 
+        `${vehicleData.specs.transmission_speeds}-Speed ${vehicleData.specs.transmission_style}` :
+        vehicleData.specs?.transmission_style || '';
+
+      console.log('Processing trim:', {
+        name: trim.name,
+        engineInfo,
+        transmission,
+        drivetrain: vehicleData.specs?.drive_type
+      });
 
       return {
         name: cleanTrimValue(trim.name),
         description: trim.description?.replace(/\.{3,}|\.+$/g, '').trim() || '',
         specs: {
-          engine: trimEngineInfo.trim(),
-          transmission: vehicleData.specs?.transmission_style || '',
+          engine: engineInfo.trim(),
+          transmission: transmission.trim(),
           drivetrain: vehicleData.specs?.drive_type || '',
         },
         year: trim.year,
       };
     });
 
+    // Find the selected trim's specs
+    const selectedTrim = availableTrims?.find(t => cleanTrimValue(t.name) === cleanedTrim);
+
     const responseData = {
       year: vehicleData.year,
       make: vehicleData.make,
       model: vehicleData.model,
       trim: cleanedTrim,
-      engineCylinders: engineInfo.trim(),
-      transmission: vehicleData.specs?.transmission_style,
-      drivetrain: vehicleData.specs?.drive_type,
+      engineCylinders: selectedTrim?.specs.engine || `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`,
+      transmission: selectedTrim?.specs.transmission || `${vehicleData.specs?.transmission_speeds}-Speed ${vehicleData.specs?.transmission_style}`,
+      drivetrain: selectedTrim?.specs.drivetrain || vehicleData.specs?.drive_type || '',
       availableTrims: availableTrims,
     };
 
-    console.log(`Returning VIN decode response:`, responseData);
+    console.log('Returning VIN decode response:', responseData);
 
     return new Response(JSON.stringify(responseData), {
       status: 200,
