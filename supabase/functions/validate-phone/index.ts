@@ -32,6 +32,8 @@ serve(async (req) => {
       throw new Error('Phone number is required')
     }
 
+    console.log('Received phone number for validation:', phone_number);
+
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
@@ -52,9 +54,12 @@ serve(async (req) => {
         .eq('id', buyer_id)
     }
 
-    // Call Twilio Lookup API
-    const twilioEndpoint = `https://lookups.twilio.com/v2/PhoneNumbers/${phone_number}?Fields=line_type_intelligence`;
+    // Call Twilio Lookup API with properly encoded phone number
+    const encodedPhoneNumber = encodeURIComponent(phone_number);
+    const twilioEndpoint = `https://lookups.twilio.com/v2/PhoneNumbers/${encodedPhoneNumber}?Fields=line_type_intelligence`;
     const authHeader = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+
+    console.log('Making request to Twilio endpoint:', twilioEndpoint);
 
     const response = await fetch(twilioEndpoint, {
       headers: {
@@ -64,6 +69,12 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Twilio API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText
+      });
       throw new Error(`Twilio API error: ${response.statusText}`);
     }
 
@@ -105,7 +116,8 @@ serve(async (req) => {
     console.error('Error in validate-phone function:', error);
     return new Response(
       JSON.stringify({
-        error: error.message || 'An error occurred during phone validation'
+        error: error.message || 'An error occurred during phone validation',
+        is_valid: false
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
