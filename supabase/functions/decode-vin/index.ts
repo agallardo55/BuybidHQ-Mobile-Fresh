@@ -1,5 +1,6 @@
+
 import { cleanTrimValue, findBestTrimMatch } from "./utils/trimUtils.ts";
-import { গাড়িরAPI } from "./utils/carApi.ts";
+import { fetchCarApiData } from "./api/carApi.ts";
 import { CarApiResult } from "./types.ts";
 
 Deno.serve(async (req) => {
@@ -15,13 +16,12 @@ Deno.serve(async (req) => {
 
     console.log(`Received VIN: ${vin}`);
 
-    const carApi = new গাড়িরAPI();
-    const apiResult: CarApiResult | null = await carApi.decodeVin(vin);
+    const apiResult = await fetchCarApiData(vin);
 
     if (!apiResult) {
-      console.error("Failed to decode VIN from গাড়িরAPI");
+      console.error("Failed to decode VIN from CarAPI");
       return new Response(
-        JSON.stringify({ error: "Failed to decode VIN from গাড়িরAPI" }),
+        JSON.stringify({ error: "Failed to decode VIN from CarAPI" }),
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
@@ -29,35 +29,14 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (apiResult.error) {
-      console.error(` গাড়িরAPI error: ${apiResult.error}`);
-      return new Response(JSON.stringify({ error: apiResult.error }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const { data } = apiResult;
-
-    if (!data || data.length === 0) {
-      console.warn("No data returned from গাড়িরAPI");
-      return new Response(
-        JSON.stringify({ warning: "No data returned from গাড়িরAPI" }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    const vehicleData = data[0];
+    const vehicleData = apiResult;
 
     const bestTrim = findBestTrimMatch(
       vehicleData.trims,
-      vehicleData.model_year,
+      vehicleData.year,
       {
-        displacement_l: vehicleData.engine_displacement_l,
-        engine_number_of_cylinders: vehicleData.engine_number_of_cylinders,
+        displacement_l: vehicleData.specs?.displacement_l,
+        engine_number_of_cylinders: vehicleData.specs?.engine_number_of_cylinders,
       },
     );
 
@@ -67,9 +46,9 @@ Deno.serve(async (req) => {
       name: cleanTrimValue(trim.name),
       description: trim.description,
       specs: {
-        engine: `${vehicleData.engine_displacement_l}L ${vehicleData.engine_number_of_cylinders}cyl`,
-        transmission: vehicleData.transmission_display,
-        drivetrain: vehicleData.drive_type,
+        engine: `${vehicleData.specs?.displacement_l}L ${vehicleData.specs?.engine_number_of_cylinders}cyl`,
+        transmission: vehicleData.specs?.transmission_style,
+        drivetrain: vehicleData.specs?.drive_type,
       },
       year: trim.year,
     }));
@@ -81,17 +60,17 @@ Deno.serve(async (req) => {
       return engine.replace(/\s+\d+[A-Z]+$/, "").trim();
     }
 
-    const engineInfo = `${vehicleData.engine_displacement_l}L ${vehicleData.engine_number_of_cylinders}cyl Turbo`;
+    const engineInfo = `${vehicleData.specs?.displacement_l}L ${vehicleData.specs?.engine_number_of_cylinders}cyl Turbo`;
     const cleanedEngine = cleanEngineDescription(engineInfo);
 
     const responseData = {
-      year: vehicleData.model_year,
+      year: vehicleData.year,
       make: vehicleData.make,
       model: vehicleData.model,
       trim: cleanedTrim,
       engineCylinders: cleanedEngine,
-      transmission: vehicleData.transmission_display,
-      drivetrain: vehicleData.drive_type,
+      transmission: vehicleData.specs?.transmission_style,
+      drivetrain: vehicleData.specs?.drive_type,
       availableTrims: availableTrims,
     };
 

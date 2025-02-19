@@ -1,8 +1,8 @@
 
-import { CarApiData } from "../types.ts";
 import { fetchData } from "./fetchData.ts";
+import { CarApiResult } from "../types.ts";
 
-export async function fetchCarApiData(vin: string): Promise<CarApiData | null> {
+export async function fetchCarApiData(vin: string): Promise<CarApiResult | null> {
   try {
     // First, validate input
     if (!vin || vin.length !== 17) {
