@@ -2,6 +2,10 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CarrierType } from "@/types/buyers";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useBuyers } from "@/hooks/useBuyers";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export const CARRIER_OPTIONS: CarrierType[] = [
   'Verizon Wireless',
@@ -12,7 +16,9 @@ export const CARRIER_OPTIONS: CarrierType[] = [
   'Metro PCS',
   'Boost Mobile',
   'Cricket',
-  'Virgin Mobile'
+  'Virgin Mobile',
+  'Landline',
+  'VoIP'
 ];
 
 interface ContactInfoSectionProps {
@@ -28,6 +34,59 @@ const ContactInfoSection = ({
   onChange, 
   onCarrierChange 
 }: ContactInfoSectionProps) => {
+  const { currentUser } = useCurrentUser();
+  const { validateCarrier } = useBuyers();
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationTimeout, setValidationTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Clear any existing timeout when the mobile number changes
+    if (validationTimeout) {
+      clearTimeout(validationTimeout);
+    }
+
+    // Only proceed if we have a valid mobile number
+    if (!mobile || mobile.length < 10 || !currentUser?.id) {
+      return;
+    }
+
+    // Set a new timeout to validate the carrier after a delay
+    const timeout = setTimeout(async () => {
+      setIsValidating(true);
+      try {
+        const result = await validateCarrier(currentUser.id, mobile);
+        if (result) {
+          if (result.line_type === 'mobile' && result.carrier) {
+            if (CARRIER_OPTIONS.includes(result.carrier as CarrierType)) {
+              onCarrierChange(result.carrier);
+              toast.success("Carrier detected automatically");
+            } else {
+              toast.error("Carrier not supported");
+            }
+          } else if (result.line_type === 'landline') {
+            onCarrierChange('Landline');
+            toast.warning("This appears to be a landline number");
+          } else if (result.line_type === 'voip') {
+            onCarrierChange('VoIP');
+            toast.warning("This appears to be a VoIP number");
+          }
+        }
+      } catch (error) {
+        console.error('Error validating carrier:', error);
+        toast.error("Failed to detect carrier automatically");
+      } finally {
+        setIsValidating(false);
+      }
+    }, 1000); // 1 second delay after typing stops
+
+    setValidationTimeout(timeout);
+
+    // Cleanup function to clear the timeout
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [mobile, currentUser?.id, onCarrierChange, validateCarrier]);
+
   return (
     <>
       <div className="space-y-2">
@@ -38,6 +97,11 @@ const ContactInfoSection = ({
           value={mobile}
           onChange={onChange}
         />
+        {isValidating && (
+          <p className="text-sm text-gray-500">
+            Detecting carrier...
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium">Mobile Carrier</label>
@@ -46,7 +110,7 @@ const ContactInfoSection = ({
           onValueChange={onCarrierChange}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select carrier (optional)" />
+            <SelectValue placeholder="Select carrier" />
           </SelectTrigger>
           <SelectContent>
             {CARRIER_OPTIONS.map(carrier => (
@@ -57,7 +121,7 @@ const ContactInfoSection = ({
           </SelectContent>
         </Select>
         <p className="text-sm text-gray-500">
-          Carrier will be auto-detected during validation
+          Carrier will be detected automatically when possible
         </p>
       </div>
     </>
@@ -65,3 +129,4 @@ const ContactInfoSection = ({
 };
 
 export default ContactInfoSection;
+

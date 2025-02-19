@@ -28,32 +28,6 @@ const AddBuyerForm = ({
   onCarrierChange,
   onSubmit
 }: AddBuyerFormProps) => {
-  const { currentUser } = useCurrentUser();
-  const { validateCarrier } = useBuyers();
-  const [isValidatingCarrier, setIsValidatingCarrier] = useState(false);
-
-  const handleValidateCarrier = async () => {
-    if (!currentUser?.id || !formData.mobile) {
-      toast.error("Please enter a mobile number first");
-      return;
-    }
-
-    setIsValidatingCarrier(true);
-    try {
-      const result = await validateCarrier(currentUser.id, formData.mobile);
-      if (result) {
-        if (result.carrier && CARRIER_OPTIONS.includes(result.carrier as CarrierType)) {
-          onCarrierChange(result.carrier);
-          toast.success("Carrier detected successfully");
-        } else {
-          toast.error("Carrier not supported or could not be detected");
-        }
-      }
-    } finally {
-      setIsValidatingCarrier(false);
-    }
-  };
-
   return (
     <form onSubmit={onSubmit} className="space-y-4 py-4">
       <BuyerInfoSection
@@ -68,15 +42,6 @@ const AddBuyerForm = ({
           onChange={onChange}
           onCarrierChange={onCarrierChange}
         />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleValidateCarrier}
-          disabled={isValidatingCarrier || !formData.mobile}
-          className="w-full mt-2"
-        >
-          {isValidatingCarrier ? "Detecting Carrier..." : "Detect Carrier"}
-        </Button>
       </div>
       <Button 
         type="submit"
@@ -90,3 +55,4 @@ const AddBuyerForm = ({
 };
 
 export default AddBuyerForm;
+

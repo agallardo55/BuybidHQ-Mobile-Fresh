@@ -44,5 +44,7 @@ export type CarrierType =
   | 'Metro PCS'
   | 'Boost Mobile'
   | 'Cricket'
-  | 'Virgin Mobile';
+  | 'Virgin Mobile'
+  | 'Landline'
+  | 'VoIP';
 
