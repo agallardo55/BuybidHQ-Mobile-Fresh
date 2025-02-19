@@ -1,21 +1,23 @@
 
+import { CarApiTrim } from "./types.ts";
+
 export function cleanTrimValue(trim: string): string {
   if (!trim) return "";
   
-  // Step 1: Remove common trim prefixes
-  let cleaned = trim
+  // First extract the base trim name (before any parentheses or descriptors)
+  let baseTrim = trim.split(/[\(\d]/, 1)[0].trim();
+  
+  // Clean up the base trim
+  let cleaned = baseTrim
     .replace(/^(trim:|series:|style:)/i, '')
     .replace(/\s+/g, ' ')
     .trim();
 
-  // Step 2: Remove all instances of ellipsis and trailing dots
+  // Remove all instances of ellipsis and trailing dots
   cleaned = cleaned.replace(/\.{2,}/g, '').trim();
   cleaned = cleaned.replace(/\.$/, '').trim();
   
-  // Step 3: Remove parenthetical content
-  cleaned = cleaned.replace(/\([^)]*\)/g, '').trim();
-
-  // Step 4: Remove special characters except alphanumeric, spaces, and hyphens
+  // Remove special characters except alphanumeric, spaces, and hyphens
   cleaned = cleaned.replace(/[^\w\s-]/g, '').trim();
 
   console.log(`Cleaned trim value: "${trim}" -> "${cleaned}"`);

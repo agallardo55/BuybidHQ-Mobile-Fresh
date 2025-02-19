@@ -46,7 +46,9 @@ const VehicleIdentification = ({
   console.log('VehicleIdentification rendered with formData:', formData);
 
   const cleanText = (text: string) => {
-    return text?.replace(/\.{2,}/g, '').replace(/\.$/, '').trim() || "";
+    // Extract base trim name (before any parentheses or descriptors)
+    const baseName = text?.split(/[\(\d]/, 1)[0] || "";
+    return baseName.replace(/\.{2,}/g, '').replace(/\.$/, '').trim();
   };
 
   const handleTrimChange = (value: string) => {
@@ -131,7 +133,6 @@ const VehicleIdentification = ({
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
               formData.availableTrims.map((trim, index) => {
                 const cleanTrimName = cleanText(trim.name);
-                const cleanDescription = cleanText(trim.description);
                 
                 return (
                   <SelectItem 
@@ -143,11 +144,6 @@ const VehicleIdentification = ({
                       <div className="font-medium text-gray-900">
                         {cleanTrimName}
                       </div>
-                      {cleanDescription && (
-                        <div className="text-sm text-gray-500 mt-0.5">
-                          {cleanDescription}
-                        </div>
-                      )}
                     </div>
                   </SelectItem>
                 );
