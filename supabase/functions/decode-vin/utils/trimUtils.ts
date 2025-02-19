@@ -45,26 +45,26 @@ export function findBestTrimMatch(
   
   const trimsToCheck = yearMatches.length > 0 ? yearMatches : trims;
 
-  // For Porsche GTS models
-  const gtsMatch = trimsToCheck.find(trim => {
-    const isGTS = trim.name.includes('GTS');
+  // For performance models (like EVO)
+  const performanceMatch = trimsToCheck.find(trim => {
+    const isPerfModel = trim.name.includes('EVO') || trim.name.includes('Performance');
     const matchesEngine = matchesEngineSpecs(trim.description, specs);
     
     console.log(`Checking trim "${trim.name}" (${trim.description}):`, {
-      isGTS,
+      isPerfModel,
       matchesEngine,
       engineSpecs: specs
     });
 
-    return isGTS && matchesEngine;
+    return isPerfModel && matchesEngine;
   });
 
-  if (gtsMatch) {
-    console.log('Found matching GTS trim:', gtsMatch);
-    return cleanTrimValue(gtsMatch.name);
+  if (performanceMatch) {
+    console.log('Found matching performance trim:', performanceMatch);
+    return cleanTrimValue(performanceMatch.name);
   }
 
-  // If no GTS match found, try to find any trim matching engine specs
+  // If no performance match found, try to find any trim matching engine specs
   const engineMatch = trimsToCheck.find(trim => 
     matchesEngineSpecs(trim.description, specs)
   );
@@ -119,11 +119,11 @@ export function cleanEngineDescription(engine: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 
-  // Ensure consistent format: displacement + cylinders + turbo
-  const parts = cleaned.match(/(\d+\.?\d*)\s*L\s*(\d+)\s*cyl(?:\s*Turbo)?/i);
+  // Extract and format the engine specs
+  const parts = cleaned.match(/([\d.]+)\s*L\s*(\d+)\s*cyl(?:\s*Turbo)?/i);
   if (parts) {
     const [, displacement, cylinders] = parts;
-    cleaned = `${displacement}L ${cylinders}cyl Turbo`;
+    cleaned = `${displacement}L ${cylinders}cyl${cleaned.toLowerCase().includes('turbo') ? ' Turbo' : ''}`;
   }
 
   return cleaned;

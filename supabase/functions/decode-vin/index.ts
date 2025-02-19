@@ -51,33 +51,41 @@ Deno.serve(async (req) => {
 
     const cleanedTrim = bestTrim ? cleanTrimValue(bestTrim) : "";
 
-    // Format engine information consistently
+    // Format engine information to match what's shown in trim description
     const engineInfo = `${vehicleData.specs?.displacement_l}L ${vehicleData.specs?.engine_number_of_cylinders}cyl${vehicleData.specs?.turbo ? ' Turbo' : ''}`;
-    const cleanedEngine = cleanEngineDescription(engineInfo);
+    console.log('Raw engine info:', engineInfo);
 
-    const availableTrims = vehicleData.trims?.map((trim) => ({
-      name: cleanTrimValue(trim.name),
-      description: trim.description?.replace(/\.{3,}|\.+$/g, '').trim() || '',
-      specs: {
-        engine: cleanedEngine,
-        transmission: vehicleData.specs?.transmission_style || '',
-        drivetrain: vehicleData.specs?.drive_type || '',
-      },
-      year: trim.year,
-    }));
+    const availableTrims = vehicleData.trims?.map((trim) => {
+      // Extract engine info from trim description
+      const engineMatch = trim.description?.match(/\(([\d.]+L \d+cyl[^)]*)\)/);
+      const trimEngineInfo = engineMatch ? engineMatch[1] : engineInfo;
+      
+      console.log('Trim engine info:', trimEngineInfo);
+
+      return {
+        name: cleanTrimValue(trim.name),
+        description: trim.description?.replace(/\.{3,}|\.+$/g, '').trim() || '',
+        specs: {
+          engine: trimEngineInfo.trim(),
+          transmission: vehicleData.specs?.transmission_style || '',
+          drivetrain: vehicleData.specs?.drive_type || '',
+        },
+        year: trim.year,
+      };
+    });
 
     const responseData = {
       year: vehicleData.year,
       make: vehicleData.make,
       model: vehicleData.model,
       trim: cleanedTrim,
-      engineCylinders: cleanedEngine,
+      engineCylinders: engineInfo.trim(),
       transmission: vehicleData.specs?.transmission_style,
       drivetrain: vehicleData.specs?.drive_type,
       availableTrims: availableTrims,
     };
 
-    console.log(`Returning VIN decode response: ${JSON.stringify(responseData)}`);
+    console.log(`Returning VIN decode response:`, responseData);
 
     return new Response(JSON.stringify(responseData), {
       status: 200,
