@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { CarrierType } from "@/types/buyers";
 import BuyerInfoSection from "./BuyerInfoSection";
-import ContactInfoSection from "./ContactInfoSection";
+import ContactInfoSection, { CARRIER_OPTIONS } from "./ContactInfoSection";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useBuyers } from "@/hooks/useBuyers";
 import { useState } from "react";
