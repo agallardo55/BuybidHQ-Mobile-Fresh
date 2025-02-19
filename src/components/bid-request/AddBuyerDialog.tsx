@@ -25,14 +25,35 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
   });
   const [isValidating, setIsValidating] = useState(false);
 
+  const formatPhoneNumber = (phoneNumber: string): string => {
+    // Remove all non-digit characters
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    
+    // Handle different formats
+    if (cleaned.length === 10) {
+      return `+1${cleaned}`;
+    } else if (cleaned.length === 11 && cleaned.startsWith('1')) {
+      return `+${cleaned}`;
+    }
+    return phoneNumber;
+  };
+
   const validatePhoneNumber = async (phoneNumber: string) => {
     try {
       setIsValidating(true);
+      const formattedNumber = formatPhoneNumber(phoneNumber);
+      console.log("Validating phone number:", formattedNumber);
+
       const { data, error } = await supabase.functions.invoke('validate-phone', {
-        body: { phone_number: phoneNumber }
+        body: { phone_number: formattedNumber }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Validation error:", error);
+        throw error;
+      }
+
+      console.log("Validation response:", data);
 
       if (!data.is_valid) {
         toast.error("Invalid phone number. Please check and try again.");
@@ -82,7 +103,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       const buyerData = {
         fullName: formData.name,
         dealershipName: formData.dealership,
-        mobileNumber: formData.mobile,
+        mobileNumber: formatPhoneNumber(formData.mobile),
         phoneCarrier: formData.carrier || "",
         email: "",
         businessNumber: "",
