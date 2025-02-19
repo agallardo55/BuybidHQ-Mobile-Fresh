@@ -86,6 +86,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         phoneCarrier: formData.carrier || "",
         email: "",
         businessNumber: "",
+        licenseNumber: "", // Added this required field
         dealershipAddress: "",
         city: "",
         state: "",
