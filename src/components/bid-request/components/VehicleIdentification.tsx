@@ -124,12 +124,12 @@ const VehicleIdentification = ({
                 <SelectItem 
                   key={`${trim.name}-${index}`} 
                   value={trim.name}
-                  className="hover:bg-blue-50 focus:bg-blue-50 transition-colors text-left"
+                  className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
                 >
-                  <div className="text-left">
-                    <div className="font-medium">{trim.name}</div>
+                  <div className="w-full">
+                    <div className="font-medium text-gray-900">{trim.name}</div>
                     {trim.description && (
-                      <div className="text-sm text-gray-500">{trim.description}</div>
+                      <div className="text-sm text-gray-500 mt-0.5">{trim.description}</div>
                     )}
                   </div>
                 </SelectItem>
