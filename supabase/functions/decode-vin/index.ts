@@ -1,92 +1,111 @@
+import { cleanTrimValue, findBestTrimMatch } from "./utils/trimUtils.ts";
+import { গাড়িরAPI } from "./utils/carApi.ts";
+import { CarApiResult } from "./types.ts";
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { VehicleData } from "./types.ts";
-import { fetchCarApiData } from "./api/carApi.ts";
-import { handleVinError, handleApiError } from "./utils/errorUtils.ts";
-import { corsHeaders } from "./config.ts";
-import { findBestTrimMatch } from "./utils/trimUtils.ts";
-
-serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
+Deno.serve(async (req) => {
   try {
-    const { vin } = await req.json();
-    
-    if (!vin || vin.length !== 17) {
-      console.error('Invalid VIN format:', vin);
+    const { vin } = await req.json() as { vin: string };
+
+    if (!vin) {
+      return new Response(JSON.stringify({ error: "VIN is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    console.log(`Received VIN: ${vin}`);
+
+    const carApi = new গাড়িরAPI();
+    const apiResult: CarApiResult | null = await carApi.decodeVin(vin);
+
+    if (!apiResult) {
+      console.error("Failed to decode VIN from গাড়িরAPI");
       return new Response(
-        JSON.stringify({ error: 'Invalid VIN format' }),
-        { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+        JSON.stringify({ error: "Failed to decode VIN from গাড়িরAPI" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
       );
     }
 
-    console.log('Processing VIN:', vin);
-
-    try {
-      // Get CarAPI data
-      const carApiData = await fetchCarApiData(vin);
-      console.log('Raw CarAPI data received:', JSON.stringify(carApiData, null, 2));
-
-      if (!carApiData) {
-        throw new Error('Could not decode VIN with CarAPI');
-      }
-
-      // Extract engine specs from trim description
-      const getEngineSpecsFromDescription = (description: string) => {
-        const engineMatch = description?.match(/\((.*?)\)/);
-        return engineMatch ? engineMatch[1] : '';
-      };
-
-      // Log available trims before processing
-      console.log('Available trims before processing:', carApiData.trims);
-
-      // Process trims data
-      const processedTrims = Array.isArray(carApiData.trims) ? carApiData.trims.map(trim => {
-        const trimData = {
-          name: trim.name || '',
-          description: trim.description || '',
-          specs: {
-            engine: getEngineSpecsFromDescription(trim.description),
-            transmission: `${carApiData.specs?.transmission_speeds}-speed ${carApiData.specs?.transmission_style}`,
-            drivetrain: carApiData.specs?.drive_type || ''
-          }
-        };
-        console.log('Processed trim:', trimData);
-        return trimData;
-      }) : [];
-
-      console.log('Processed trims:', JSON.stringify(processedTrims, null, 2));
-
-      // Map the response to match our frontend expectations
-      const vehicleData: VehicleData = {
-        year: carApiData.year?.toString() || '',
-        make: carApiData.make || '',
-        model: carApiData.model || '',
-        trim: carApiData.specs?.trim || '',
-        engineCylinders: carApiData.specs?.engine_number_of_cylinders || '',
-        transmission: carApiData.specs?.transmission_speeds + "-speed " + carApiData.specs?.transmission_style || '',
-        drivetrain: carApiData.specs?.drive_type || '',
-        availableTrims: processedTrims
-      };
-
-      console.log('Final vehicle data being sent:', JSON.stringify(vehicleData, null, 2));
-      
-      return new Response(
-        JSON.stringify(vehicleData),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-
-    } catch (apiError) {
-      return handleApiError(apiError);
+    if (apiResult.error) {
+      console.error(` গাড়িরAPI error: ${apiResult.error}`);
+      return new Response(JSON.stringify({ error: apiResult.error }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
+    const { data } = apiResult;
+
+    if (!data || data.length === 0) {
+      console.warn("No data returned from গাড়িরAPI");
+      return new Response(
+        JSON.stringify({ warning: "No data returned from গাড়িরAPI" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    const vehicleData = data[0];
+
+    const bestTrim = findBestTrimMatch(
+      vehicleData.trims,
+      vehicleData.model_year,
+      {
+        displacement_l: vehicleData.engine_displacement_l,
+        engine_number_of_cylinders: vehicleData.engine_number_of_cylinders,
+      },
+    );
+
+    const cleanedTrim = bestTrim ? cleanTrimValue(bestTrim) : "";
+
+    const availableTrims = vehicleData.trims?.map((trim) => ({
+      name: cleanTrimValue(trim.name),
+      description: trim.description,
+      specs: {
+        engine: `${vehicleData.engine_displacement_l}L ${vehicleData.engine_number_of_cylinders}cyl`,
+        transmission: vehicleData.transmission_display,
+        drivetrain: vehicleData.drive_type,
+      },
+      year: trim.year,
+    }));
+
+    // Clean the engine description
+    function cleanEngineDescription(engine: string): string {
+      if (!engine) return "";
+      // Remove transmission speed references (e.g., "7AM", "8A")
+      return engine.replace(/\s+\d+[A-Z]+$/, "").trim();
+    }
+
+    const engineInfo = `${vehicleData.engine_displacement_l}L ${vehicleData.engine_number_of_cylinders}cyl Turbo`;
+    const cleanedEngine = cleanEngineDescription(engineInfo);
+
+    const responseData = {
+      year: vehicleData.model_year,
+      make: vehicleData.make,
+      model: vehicleData.model,
+      trim: cleanedTrim,
+      engineCylinders: cleanedEngine,
+      transmission: vehicleData.transmission_display,
+      drivetrain: vehicleData.drive_type,
+      availableTrims: availableTrims,
+    };
+
+    console.log(`Returning VIN decode response: ${JSON.stringify(responseData)}`);
+
+    return new Response(JSON.stringify(responseData), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    return handleVinError(error);
+    console.error(`Unexpected error: ${error}`);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 });

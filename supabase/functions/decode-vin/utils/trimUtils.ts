@@ -9,6 +9,10 @@ export function cleanTrimValue(trim: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 
+  // Remove ellipsis and trailing dots
+  cleaned = cleaned.replace(/\.{3,}|\.+$/g, '').trim();
+  
+  // Remove parenthetical content
   cleaned = cleaned.replace(/\([^)]*\)/g, '').trim();
   cleaned = cleaned.replace(/[^\w\s-]/g, '').trim();
 
@@ -104,4 +108,12 @@ function matchesEngineSpecs(
   }
 
   return matches;
+}
+
+// New function to clean engine description
+export function cleanEngineDescription(engine: string): string {
+  if (!engine) return "";
+  
+  // Remove transmission speed references (e.g., "7AM", "8A")
+  return engine.replace(/\s+\d+[A-Z]+$/, '').trim();
 }
