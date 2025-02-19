@@ -90,7 +90,10 @@ const ColorsAndAccessories = ({
           const {
             data: uploadData,
             error: uploadError,
-          } = await supabase.storage.from('vehicle_images').upload(filePath, compressedFile);
+          } = await supabase.storage.from('vehicle_images').upload(filePath, compressedFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
           
           if (uploadError) {
             console.error('Upload error for file:', file.name, uploadError);
