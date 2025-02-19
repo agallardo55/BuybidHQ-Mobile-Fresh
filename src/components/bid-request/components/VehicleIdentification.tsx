@@ -46,19 +46,17 @@ const VehicleIdentification = ({
   console.log('VehicleIdentification rendered with formData:', formData);
 
   const cleanText = (text: string) => {
-    // Extract base trim name (before any parentheses or descriptors)
-    const baseName = text?.split(/[\(\d]/, 1)[0] || "";
-    return baseName.replace(/\.{2,}/g, '').replace(/\.$/, '').trim();
+    // Pass through the trim value without cleaning
+    return text || "";
   };
 
   const handleTrimChange = (value: string) => {
-    const cleanedValue = cleanText(value);
-    console.log('Trim selected:', cleanedValue);
-    onSelectChange(cleanedValue, 'trim');
+    console.log('Trim selected:', value);
+    onSelectChange(value, 'trim');
     
     // Find the selected trim to auto-populate related fields
     const selectedTrim = formData.availableTrims.find(trim => 
-      cleanText(trim.name) === cleanedValue
+      trim.name === value
     );
     console.log('Selected trim details:', selectedTrim);
     
@@ -74,9 +72,6 @@ const VehicleIdentification = ({
       }
     }
   };
-
-  // Clean the current trim value for display
-  const displayTrim = cleanText(formData.trim);
 
   return (
     <div className="space-y-4">
@@ -120,7 +115,7 @@ const VehicleIdentification = ({
           Trim <span className="text-red-500">*</span>
         </label>
         <Select
-          value={displayTrim}
+          value={formData.trim}
           onValueChange={handleTrimChange}
         >
           <SelectTrigger 
@@ -131,23 +126,19 @@ const VehicleIdentification = ({
           </SelectTrigger>
           <SelectContent className="bg-white">
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
-              formData.availableTrims.map((trim, index) => {
-                const cleanTrimName = cleanText(trim.name);
-                
-                return (
-                  <SelectItem 
-                    key={`${cleanTrimName}-${index}`} 
-                    value={cleanTrimName}
-                    className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
-                  >
-                    <div className="w-full whitespace-normal break-words">
-                      <div className="font-medium text-gray-900">
-                        {cleanTrimName}
-                      </div>
+              formData.availableTrims.map((trim, index) => (
+                <SelectItem 
+                  key={`${trim.name}-${index}`} 
+                  value={trim.name}
+                  className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
+                >
+                  <div className="w-full whitespace-normal break-words">
+                    <div className="font-medium text-gray-900">
+                      {trim.name}
                     </div>
-                  </SelectItem>
-                );
-              })
+                  </div>
+                </SelectItem>
+              ))
             ) : (
               <SelectItem value="default" disabled>No trim levels available</SelectItem>
             )}
