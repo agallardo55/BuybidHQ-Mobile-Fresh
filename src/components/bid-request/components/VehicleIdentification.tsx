@@ -44,15 +44,19 @@ const VehicleIdentification = ({
   showValidation
 }: VehicleIdentificationProps) => {
   console.log('VehicleIdentification rendered with formData:', formData);
-  console.log('Available trims in VehicleIdentification:', formData.availableTrims);
+
+  const cleanText = (text: string) => {
+    return text?.replace(/\.{2,}/g, '').replace(/\.$/, '').trim() || "";
+  };
 
   const handleTrimChange = (value: string) => {
-    console.log('Trim selected:', value);
-    onSelectChange(value.replace(/\.{3,}|\.+$/g, '').trim(), 'trim');
+    const cleanedValue = cleanText(value);
+    console.log('Trim selected:', cleanedValue);
+    onSelectChange(cleanedValue, 'trim');
     
     // Find the selected trim to auto-populate related fields
     const selectedTrim = formData.availableTrims.find(trim => 
-      trim.name.replace(/\.{3,}|\.+$/g, '').trim() === value.replace(/\.{3,}|\.+$/g, '').trim()
+      cleanText(trim.name) === cleanedValue
     );
     console.log('Selected trim details:', selectedTrim);
     
@@ -70,7 +74,7 @@ const VehicleIdentification = ({
   };
 
   // Clean the current trim value for display
-  const displayTrim = formData.trim?.replace(/\.{3,}|\.+$/g, '').trim() || "";
+  const displayTrim = cleanText(formData.trim);
 
   return (
     <div className="space-y-4">
@@ -119,15 +123,15 @@ const VehicleIdentification = ({
         >
           <SelectTrigger 
             id="trim"
-            className={`w-full bg-white hover:bg-gray-50 transition-colors ${errors.trim && showValidation ? "border-red-500" : ""}`}
+            className={`w-full bg-white hover:bg-gray-50 transition-colors [&>span]:!line-clamp-none ${errors.trim && showValidation ? "border-red-500" : ""}`}
           >
             <SelectValue placeholder="Select trim level" />
           </SelectTrigger>
           <SelectContent className="bg-white">
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
               formData.availableTrims.map((trim, index) => {
-                const cleanTrimName = trim.name.replace(/\.{3,}|\.+$/g, '').trim();
-                const cleanDescription = trim.description?.replace(/\.{3,}|\.+$/g, '').trim();
+                const cleanTrimName = cleanText(trim.name);
+                const cleanDescription = cleanText(trim.description);
                 
                 return (
                   <SelectItem 
@@ -135,7 +139,7 @@ const VehicleIdentification = ({
                     value={cleanTrimName}
                     className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
                   >
-                    <div className="w-full">
+                    <div className="w-full whitespace-normal break-words">
                       <div className="font-medium text-gray-900">
                         {cleanTrimName}
                       </div>
