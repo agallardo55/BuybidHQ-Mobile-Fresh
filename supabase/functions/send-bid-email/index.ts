@@ -35,7 +35,7 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
 
 // For testing, we'll send all emails to this address until domain is verified
 const TEST_EMAIL = 'adam@cmigpartners.com'
-const IS_TEST_MODE = true // Set this to false once domain is verified
+const IS_TEST_MODE = false // Set this to false to send to actual recipients
 
 serve(async (req) => {
   // Handle CORS preflight requests
