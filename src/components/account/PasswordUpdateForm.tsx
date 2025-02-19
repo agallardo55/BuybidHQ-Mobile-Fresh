@@ -1,5 +1,5 @@
 
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,10 +21,9 @@ export const PasswordUpdateForm = () => {
           <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
             New Password
           </label>
-          <Input
+          <PasswordInput
             id="newPassword"
             name="newPassword"
-            type="password"
             value={passwordData.newPassword}
             onChange={handlePasswordChange}
             placeholder="Enter new password"
@@ -39,10 +38,9 @@ export const PasswordUpdateForm = () => {
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
             Confirm New Password
           </label>
-          <Input
+          <PasswordInput
             id="confirmPassword"
             name="confirmPassword"
-            type="password"
             value={passwordData.confirmPassword}
             onChange={handlePasswordChange}
             placeholder="Confirm new password"
@@ -77,3 +75,4 @@ export const PasswordUpdateForm = () => {
     </form>
   );
 };
+

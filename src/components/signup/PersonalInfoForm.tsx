@@ -1,5 +1,6 @@
 
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
@@ -63,10 +64,9 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
           Password
         </label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           required
           value={formData.password}
           onChange={onChange}
@@ -80,10 +80,9 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
           Confirm Password
         </label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           required
           value={formData.confirmPassword}
           onChange={onChange}
@@ -149,3 +148,4 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
 };
 
 export default PersonalInfoForm;
+

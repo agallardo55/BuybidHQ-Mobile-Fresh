@@ -1,6 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -104,7 +104,7 @@ const ResetPassword = () => {
             className="mx-auto h-12 w-auto"
           />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            {isRecoveryFlow ? "Reset Your Password" : "Set New Password"}
+            {location.hash.includes('type=recovery') ? "Reset Your Password" : "Set New Password"}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Please enter your new password below.
@@ -116,9 +116,8 @@ const ResetPassword = () => {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 New Password
               </label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter new password"
@@ -134,9 +133,8 @@ const ResetPassword = () => {
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Confirm New Password
               </label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
