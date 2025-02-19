@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
+import { ComingSoonBadge } from "./ui/coming-soon-badge";
 
 const Pricing = () => {
   const navigate = useNavigate();
@@ -92,6 +93,13 @@ const Pricing = () => {
                   <Check className="h-5 w-5 text-accent mr-2" />
                   <span>14-day free trial</span>
                 </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span className="flex items-center gap-2">
+                    Marketplace Access
+                    <ComingSoonBadge className="bg-[#325AE7]" />
+                  </span>
+                </li>
               </ul>
             </CardContent>
             <CardFooter>
@@ -132,6 +140,13 @@ const Pricing = () => {
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
                   <span>Volume discounts</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span className="flex items-center gap-2">
+                    Marketplace Access
+                    <ComingSoonBadge className="bg-[#325AE7]" />
+                  </span>
                 </li>
               </ul>
             </CardContent>
