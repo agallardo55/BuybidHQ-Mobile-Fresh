@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BuyerFormData } from "@/types/buyers";
@@ -88,10 +89,15 @@ export const useBuyersMutations = () => {
           city: buyerData.city,
           state: buyerData.state,
           zip_code: buyerData.zipCode,
+          phone_carrier: buyerData.phoneCarrier,
+          updated_at: new Date().toISOString()
         })
         .eq('id', buyerId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Update error:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['buyers'] });

@@ -33,19 +33,28 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
 
   useEffect(() => {
     if (buyer) {
-      const [city, state] = buyer.location.split(", ");
+      // Extract city, state from location if it exists
+      const locationParts = buyer.location?.split(", ") || ["", ""];
+      const [city = "", state = ""] = locationParts;
+
       setFormData({
-        fullName: buyer.name,
-        email: buyer.email,
-        mobileNumber: buyer.mobileNumber, // Use mobileNumber instead of phone
-        businessNumber: buyer.businessNumber, // Use businessNumber
-        dealershipName: buyer.dealership,
-        licenseNumber: "",
-        dealershipAddress: "",
-        city,
-        state,
-        zipCode: "",
+        fullName: buyer.name || "",
+        email: buyer.email || "",
+        mobileNumber: buyer.mobileNumber || "",
+        businessNumber: buyer.businessNumber || "",
+        dealershipName: buyer.dealership || "",
+        licenseNumber: "", // Keeping this empty as it's not in the Buyer type
+        dealershipAddress: "", // Not available in current Buyer type
+        city: city,
+        state: state,
+        zipCode: "", // Not available in current Buyer type
         phoneCarrier: buyer.phoneCarrier || "",
+      });
+
+      // Log the data being loaded for debugging
+      console.log("Loading buyer data:", {
+        original: buyer,
+        transformed: formData
       });
     }
   }, [buyer]);
@@ -53,6 +62,12 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (buyer) {
+      // Log the data being submitted for debugging
+      console.log("Submitting buyer update:", {
+        buyerId: buyer.id,
+        formData
+      });
+      
       onUpdate({ buyerId: buyer.id, buyerData: formData });
       onOpenChange(false);
     }
@@ -67,7 +82,10 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         <AddBuyerForm
           onSubmit={handleSubmit}
           formData={formData}
-          onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+          onFormDataChange={(data) => {
+            console.log("Form data changing:", data);
+            setFormData(prev => ({ ...prev, ...data }));
+          }}
         />
       </DialogContent>
     </Dialog>
