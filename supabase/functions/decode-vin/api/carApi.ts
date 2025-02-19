@@ -27,7 +27,7 @@ export async function fetchCarApiData(vin: string): Promise<CarApiData | null> {
     });
 
     // Log the raw response for debugging
-    console.log('CarAPI raw response:', response);
+    console.log('CarAPI raw response:', JSON.stringify(response, null, 2));
 
     if (!response) {
       console.error('No response from CarAPI');
@@ -41,10 +41,10 @@ export async function fetchCarApiData(vin: string): Promise<CarApiData | null> {
       return null;
     }
 
-    // Log the extracted vehicle data
-    console.log('CarAPI vehicle data:', vehicle);
+    // Log the trims specifically
+    console.log('CarAPI trims data:', JSON.stringify(vehicle.trims, null, 2));
 
-    return {
+    const processedData = {
       year: vehicle.year,
       make: vehicle.make,
       model: vehicle.model,
@@ -59,6 +59,9 @@ export async function fetchCarApiData(vin: string): Promise<CarApiData | null> {
       },
       trims: Array.isArray(vehicle.trims) ? vehicle.trims : []
     };
+
+    console.log('Processed CarAPI data:', JSON.stringify(processedData, null, 2));
+    return processedData;
   } catch (error) {
     console.error('CarAPI error:', error);
     return null;

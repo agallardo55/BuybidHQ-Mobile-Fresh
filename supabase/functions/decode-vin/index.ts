@@ -43,16 +43,23 @@ serve(async (req) => {
         return engineMatch ? engineMatch[1] : '';
       };
 
+      // Log available trims before processing
+      console.log('Available trims before processing:', carApiData.trims);
+
       // Process trims data
-      const processedTrims = Array.isArray(carApiData.trims) ? carApiData.trims.map(trim => ({
-        name: trim.name || '',
-        description: trim.description || '',
-        specs: {
-          engine: getEngineSpecsFromDescription(trim.description),
-          transmission: `${carApiData.specs?.transmission_speeds}-speed ${carApiData.specs?.transmission_style}`,
-          drivetrain: carApiData.specs?.drive_type || ''
-        }
-      })) : [];
+      const processedTrims = Array.isArray(carApiData.trims) ? carApiData.trims.map(trim => {
+        const trimData = {
+          name: trim.name || '',
+          description: trim.description || '',
+          specs: {
+            engine: getEngineSpecsFromDescription(trim.description),
+            transmission: `${carApiData.specs?.transmission_speeds}-speed ${carApiData.specs?.transmission_style}`,
+            drivetrain: carApiData.specs?.drive_type || ''
+          }
+        };
+        console.log('Processed trim:', trimData);
+        return trimData;
+      }) : [];
 
       console.log('Processed trims:', JSON.stringify(processedTrims, null, 2));
 
