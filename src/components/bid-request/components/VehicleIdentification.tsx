@@ -114,15 +114,19 @@ const VehicleIdentification = ({
         >
           <SelectTrigger 
             id="trim"
-            className={`w-full bg-white ${errors.trim && showValidation ? "border-red-500" : ""}`}
+            className={`w-full bg-white hover:bg-gray-50 transition-colors ${errors.trim && showValidation ? "border-red-500" : ""}`}
           >
-            <SelectValue placeholder="Select trim level" />
+            <SelectValue placeholder="Select trim level" className="text-left" />
           </SelectTrigger>
           <SelectContent className="bg-white">
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
               formData.availableTrims.map((trim, index) => (
-                <SelectItem key={`${trim.name}-${index}`} value={trim.name}>
-                  <div>
+                <SelectItem 
+                  key={`${trim.name}-${index}`} 
+                  value={trim.name}
+                  className="hover:bg-blue-50 focus:bg-blue-50 transition-colors text-left"
+                >
+                  <div className="text-left">
                     <div className="font-medium">{trim.name}</div>
                     {trim.description && (
                       <div className="text-sm text-gray-500">{trim.description}</div>
