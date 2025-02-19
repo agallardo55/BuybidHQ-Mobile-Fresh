@@ -1,5 +1,5 @@
 
-import { CarApiTrim } from "./types.ts";
+import { CarApiTrim } from "../types.ts";
 
 export function cleanTrimValue(trim: string): string {
   if (!trim) return "";
