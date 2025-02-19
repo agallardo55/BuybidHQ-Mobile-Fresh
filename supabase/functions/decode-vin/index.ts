@@ -58,7 +58,22 @@ Deno.serve(async (req) => {
       turbo: vehicleData.specs?.turbo || false
     };
 
-    const availableTrims = vehicleData.trims?.map((trim) => {
+    // Deduplicate trims based on name and description
+    const uniqueTrims = vehicleData.trims?.reduce((acc: any[], trim) => {
+      const exists = acc.some(t => 
+        t.name === trim.name && 
+        t.description === trim.description
+      );
+      
+      if (!exists) {
+        acc.push(trim);
+      }
+      return acc;
+    }, []);
+
+    console.log('Deduplicated trims:', uniqueTrims);
+
+    const availableTrims = uniqueTrims?.map((trim) => {
       // First try to extract engine info from trim description
       const engineMatch = trim.description?.match(/\(([\d.]+L\s+\d+cyl(?:\s+Turbo)?)[^)]*\)/i);
       
