@@ -124,7 +124,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[400px] max-w-[95vw]">
         <DialogHeader>
           <DialogTitle>Add New Buyer</DialogTitle>
         </DialogHeader>
@@ -141,3 +141,4 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
 };
 
 export default AddBuyerDialog;
+
