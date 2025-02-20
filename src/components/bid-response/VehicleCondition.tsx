@@ -12,39 +12,39 @@ const VehicleCondition = ({ vehicle }: Props) => {
       <CardHeader>
         <CardTitle>Vehicle Condition</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            <p className="text-base text-gray-500 min-w-[180px]">Windshield:</p>
-            <p className="text-base font-medium">{vehicle.windshield}</p>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm font-medium text-gray-500">Windshield</p>
+            <p className="text-sm">{vehicle.windshield}</p>
           </div>
-          <div className="flex gap-2">
-            <p className="text-base text-gray-500 min-w-[180px]">Engine Lights:</p>
-            <p className="text-base font-medium">{vehicle.engineLights}</p>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Engine Lights</p>
+            <p className="text-sm">{vehicle.engineLights}</p>
           </div>
-          <div className="flex gap-2">
-            <p className="text-base text-gray-500 min-w-[180px]">Brakes:</p>
-            <p className="text-base font-medium">{vehicle.brakes}</p>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Brakes</p>
+            <p className="text-sm">{vehicle.brakes}</p>
           </div>
-          <div className="flex gap-2">
-            <p className="text-base text-gray-500 min-w-[180px]">Tires:</p>
-            <p className="text-base font-medium">{vehicle.tire}</p>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Tires</p>
+            <p className="text-sm">{vehicle.tire}</p>
           </div>
-          <div className="flex gap-2">
-            <p className="text-base text-gray-500 min-w-[180px]">Maintenance:</p>
-            <p className="text-base font-medium">{vehicle.maintenance}</p>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Maintenance</p>
+            <p className="text-sm">{vehicle.maintenance}</p>
           </div>
-          <div className="flex gap-2">
-            <p className="text-base text-gray-500 min-w-[180px]">Recon Estimate:</p>
-            <p className="text-base font-medium">${vehicle.reconEstimate}</p>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Recon Estimate</p>
+            <p className="text-sm">${parseFloat(vehicle.reconEstimate).toLocaleString()}</p>
           </div>
-          {vehicle.reconDetails && (
-            <div className="flex gap-2">
-              <p className="text-base text-gray-500 min-w-[180px]">Recon Details:</p>
-              <p className="text-base font-medium">{vehicle.reconDetails}</p>
-            </div>
-          )}
         </div>
+        {vehicle.reconDetails && (
+          <div>
+            <p className="text-sm font-medium text-gray-500">Recon Details</p>
+            <p className="text-sm whitespace-pre-wrap">{vehicle.reconDetails}</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
