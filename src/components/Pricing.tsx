@@ -1,4 +1,3 @@
-
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
@@ -37,7 +36,7 @@ const Pricing = () => {
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Basic bidding features</span>
+                  <span>10 Buybids per mo</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
@@ -45,7 +44,7 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Basic bid dashboard</span>
+                  <span>Buybid dashboard</span>
                 </li>
               </ul>
             </CardContent>
@@ -79,11 +78,11 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Unlimited dealer connections</span>
+                  <span>Unlimited buyer connections</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Advanced analytics</span>
+                  <span>Buybid dashboard</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
