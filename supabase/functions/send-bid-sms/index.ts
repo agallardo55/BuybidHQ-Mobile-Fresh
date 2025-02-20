@@ -62,7 +62,7 @@ serve(async (req) => {
     // Get Twilio credentials from environment variables
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')
-    const fromNumber = Deno.env.get('TWILIO_PHONE_NUMBER') // New environment variable for sender number
+    const fromNumber = Deno.env.get('TWILIO_PHONE_NUMBER')
 
     // Add more detailed error logging
     if (!accountSid || !authToken || !fromNumber) {
@@ -93,24 +93,47 @@ serve(async (req) => {
 
     console.log('Sending SMS with message:', message);
 
-    // Send the message using direct phone number instead of messaging service
+    // Send the message using direct phone number
     const twilioResponse = await client.messages.create({
       body: message,
       to: formattedRecipientNumber,
       from: fromNumber
     })
 
-    console.log('Twilio response:', {
+    // Enhanced logging for Twilio response
+    console.log('Detailed Twilio response:', {
       sid: twilioResponse.sid,
       status: twilioResponse.status,
+      errorCode: twilioResponse.errorCode,
       errorMessage: twilioResponse.errorMessage,
+      direction: twilioResponse.direction,
+      from: twilioResponse.from,
+      to: twilioResponse.to,
+      dateCreated: twilioResponse.dateCreated,
+      dateUpdated: twilioResponse.dateUpdated,
+      numSegments: twilioResponse.numSegments,
+      numMedia: twilioResponse.numMedia,
+      price: twilioResponse.price,
+      priceUnit: twilioResponse.priceUnit,
     });
+
+    // Check if the message was actually sent successfully
+    if (twilioResponse.status === 'failed' || twilioResponse.errorCode) {
+      throw new Error(`Twilio Error: ${twilioResponse.errorMessage || 'Unknown error'} (Code: ${twilioResponse.errorCode || 'None'})`);
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true,
         messageId: twilioResponse.sid,
-        status: twilioResponse.status
+        status: twilioResponse.status,
+        details: {
+          from: twilioResponse.from,
+          to: twilioResponse.to,
+          dateCreated: twilioResponse.dateCreated,
+          errorCode: twilioResponse.errorCode,
+          errorMessage: twilioResponse.errorMessage
+        }
       }),
       { 
         headers: { 
@@ -122,15 +145,16 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in send-bid-sms function:', error);
     
-    // Determine if it's a phone number formatting error
+    // Enhanced error handling
     const errorMessage = error.message.includes('Invalid phone number') 
       ? error.message 
-      : 'Failed to send SMS. Please try again.';
+      : error.message || 'Failed to send SMS. Please try again.';
 
     return new Response(
       JSON.stringify({ 
         error: errorMessage,
-        details: error.message 
+        details: error.message,
+        timestamp: new Date().toISOString()
       }), 
       { 
         status: 400,
@@ -142,4 +166,3 @@ serve(async (req) => {
     )
   }
 })
-
