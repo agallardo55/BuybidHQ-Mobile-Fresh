@@ -78,7 +78,7 @@ const App = () => (
             }
           />
           <Route
-            path="/bid-response"
+            path="/bid-response/:id"
             element={<BidResponse />}
           />
           <Route
