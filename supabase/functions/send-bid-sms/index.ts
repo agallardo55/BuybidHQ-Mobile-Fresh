@@ -62,14 +62,14 @@ serve(async (req) => {
     // Get Twilio credentials from environment variables
     const accountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const authToken = Deno.env.get('TWILIO_AUTH_TOKEN')
-    const messagingServiceSid = Deno.env.get('TWILIO_MESSAGING_SERVICE_SID')
+    const fromNumber = Deno.env.get('TWILIO_PHONE_NUMBER') // New environment variable for sender number
 
     // Add more detailed error logging
-    if (!accountSid || !authToken || !messagingServiceSid) {
+    if (!accountSid || !authToken || !fromNumber) {
       console.error('Missing Twilio configuration:', {
         hasAccountSid: !!accountSid,
         hasAuthToken: !!authToken,
-        hasMessagingServiceSid: !!messagingServiceSid
+        hasFromNumber: !!fromNumber
       });
       throw new Error('Missing Twilio configuration. Please ensure all required environment variables are set.')
     }
@@ -93,11 +93,11 @@ serve(async (req) => {
 
     console.log('Sending SMS with message:', message);
 
-    // Send the message using messaging service instead of direct phone number
+    // Send the message using direct phone number instead of messaging service
     const twilioResponse = await client.messages.create({
       body: message,
       to: formattedRecipientNumber,
-      messagingServiceSid: messagingServiceSid
+      from: fromNumber
     })
 
     console.log('Twilio response:', {
@@ -142,3 +142,4 @@ serve(async (req) => {
     )
   }
 })
+
