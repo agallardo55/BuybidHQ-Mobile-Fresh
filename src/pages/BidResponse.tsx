@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import { BidResponseFormData } from "@/components/bid-response/types";
 import VehicleDetailsSection from "@/components/bid-response/VehicleDetailsSection";
 import BidForm from "@/components/bid-response/BidForm";
@@ -18,7 +18,7 @@ const BidResponse = () => {
   const [existingBidAmount, setExistingBidAmount] = useState<string | null>(null);
 
   const token = searchParams.get('token');
-  const requestId = searchParams.get('request');
+  const { id } = useParams(); // Get the ID from the URL params instead of search params
   
   const { data, isLoading, error } = useBidResponseDetails();
 
@@ -76,7 +76,7 @@ const BidResponse = () => {
   }, [token]);
 
   // Show error if no token is provided
-  if (!token) {
+  if (!token || !id) {
     return (
       <BidResponseLayout>
         <ErrorState message="Invalid bid submission link. Please check your email and try again." />
