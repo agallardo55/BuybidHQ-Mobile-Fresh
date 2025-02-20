@@ -1,5 +1,4 @@
-
-import { Check, Infinity } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
@@ -77,10 +76,7 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span className="flex items-center gap-2">
-                    Unlimited buybids
-                    <Infinity className="h-4 w-4 text-accent" />
-                  </span>
+                  <span>Unlimited buybids</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
