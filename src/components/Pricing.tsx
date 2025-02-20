@@ -1,4 +1,5 @@
-import { Check } from "lucide-react";
+
+import { Check, Infinity } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
@@ -57,9 +58,7 @@ const Pricing = () => {
           <Card className="flex flex-col relative border-accent">
             <div className="absolute -top-2 sm:-top-3 md:-top-4 left-1/2 -translate-x-1/2 px-2 sm:px-3 py-0.5 sm:py-1 bg-accent text-white text-xs sm:text-sm rounded-full whitespace-nowrap">Limited Time Offer</div>
             <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                Individual
-              </CardTitle>
+              <CardTitle className="text-2xl">Individual</CardTitle>
               <CardDescription>For individual dealers</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -75,6 +74,13 @@ const Pricing = () => {
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
                   <span>Advanced bidding tools</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span className="flex items-center gap-2">
+                    Unlimited buybids
+                    <Infinity className="h-4 w-4 text-accent" />
+                  </span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
