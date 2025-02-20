@@ -1,9 +1,7 @@
-
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
-
 const Pricing = () => {
   const navigate = useNavigate();
   const handleSignUp = () => {
@@ -17,12 +15,10 @@ const Pricing = () => {
       });
     }
   };
-
-  return (
-    <section id="pricing" className="py-24 bg-gray-50">
+  return <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Simple, Transparent Pricing</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Simple, Flexible Pricing</h2>
           <p className="mt-4 text-lg text-gray-600">Choose the plan that's right for your business</p>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8">
@@ -149,8 +145,6 @@ const Pricing = () => {
           </Card>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Pricing;
