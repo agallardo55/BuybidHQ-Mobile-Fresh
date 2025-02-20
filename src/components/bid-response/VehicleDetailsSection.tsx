@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { VehicleDetails } from "./types";
 import {
@@ -196,4 +195,3 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
 };
 
 export default VehicleDetailsSection;
-
