@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { BidResponseFormData } from "./types";
+import { toast } from "sonner";
 
 interface BidFormProps {
   onSubmit: (data: BidResponseFormData) => void;
@@ -20,19 +21,32 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
   const validateForm = () => {
     const newErrors: Partial<Record<keyof BidResponseFormData, string>> = {};
     
-    if (!formData.offerAmount) newErrors.offerAmount = "Offer amount is required";
+    if (!formData.offerAmount) {
+      newErrors.offerAmount = "Offer amount is required";
+    } else if (isNaN(parseFloat(formData.offerAmount))) {
+      newErrors.offerAmount = "Please enter a valid number";
+    } else if (parseFloat(formData.offerAmount) <= 0) {
+      newErrors.offerAmount = "Offer amount must be greater than 0";
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (existingBidAmount) {
-      return; // Prevent submission if there's an existing bid
+      toast.error("You have already submitted a bid");
+      return;
     }
+
     if (validateForm()) {
-      onSubmit(formData);
+      try {
+        await onSubmit(formData);
+      } catch (error) {
+        console.error('Error submitting bid:', error);
+        toast.error("Failed to submit bid. Please try again.");
+      }
     }
   };
 
@@ -106,4 +120,3 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
 };
 
 export default BidForm;
-
