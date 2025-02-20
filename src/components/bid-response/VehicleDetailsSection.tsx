@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { VehicleDetails } from "./types";
 import {
   Carousel,
@@ -8,34 +9,63 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
 }
 
 const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   return (
     <div className="space-y-4">
       {vehicle.images && vehicle.images.length > 0 && (
-        <div className="relative w-full max-w-2xl mx-auto">
-          <Carousel>
-            <CarouselContent>
-              {vehicle.images.map((image, index) => (
-                <CarouselItem key={index}>
-                  <div className="aspect-video w-full">
-                    <img
-                      src={image}
-                      alt={`Vehicle image ${index + 1}`}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        </div>
+        <>
+          <div className="relative w-full max-w-2xl mx-auto">
+            <Carousel>
+              <CarouselContent>
+                {vehicle.images.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <div 
+                      className="aspect-video w-full cursor-pointer" 
+                      onClick={() => setSelectedImage(image)}
+                    >
+                      <img
+                        src={image}
+                        alt={`Vehicle image ${index + 1}`}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
+
+          <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+            <DialogContent className="sm:max-w-3xl p-0 bg-black border-black">
+              <div className="relative w-full h-[80vh]">
+                {selectedImage && (
+                  <img 
+                    src={selectedImage} 
+                    alt="Selected vehicle" 
+                    className="w-full h-full object-contain"
+                  />
+                )}
+                <button
+                  className="absolute right-4 top-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
       )}
 
       <div className="space-y-4">
