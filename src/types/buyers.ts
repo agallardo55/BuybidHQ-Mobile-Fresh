@@ -8,6 +8,10 @@ export interface Buyer {
   mobileNumber: string;
   businessNumber: string;
   location: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
   acceptedBids: number;
   pendingBids: number;
   declinedBids: number;
@@ -47,4 +51,3 @@ export type CarrierType =
   | 'Virgin Mobile'
   | 'Landline'
   | 'VoIP';
-

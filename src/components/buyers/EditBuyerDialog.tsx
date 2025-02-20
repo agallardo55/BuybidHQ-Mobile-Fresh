@@ -33,12 +33,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
 
   useEffect(() => {
     if (buyer) {
-      // Extract city, state, and address from location if it exists
-      const locationParts = buyer.location?.split(", ") || [];
-      const city = locationParts[0] || "";
-      const state = locationParts[1] || "";
-      
-      // Transform buyer data to form data format
+      // Transform buyer data to form data format using direct fields
       setFormData({
         fullName: buyer.name || "",
         email: buyer.email || "",
@@ -46,10 +41,10 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         businessNumber: buyer.businessNumber || "",
         dealershipName: buyer.dealership || "",
         licenseNumber: "", // Keeping this empty as it's not in the Buyer type
-        dealershipAddress: locationParts[2] || "", // Using the third part of location as address if available
-        city,
-        state,
-        zipCode: locationParts[3] || "", // Using the fourth part of location as zipcode if available
+        dealershipAddress: buyer.address || "",
+        city: buyer.city || "",
+        state: buyer.state || "",
+        zipCode: buyer.zipCode || "",
         phoneCarrier: buyer.phoneCarrier || "",
       });
 

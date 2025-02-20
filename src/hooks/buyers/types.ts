@@ -12,6 +12,7 @@ export interface BuyerResponse {
   city: string;
   state: string;
   zip_code: string;
+  address: string;
   accepted_bids: number;
   pending_bids: number;
   declined_bids: number;
@@ -28,6 +29,10 @@ export interface MappedBuyer {
   mobileNumber: string;
   businessNumber: string;
   location: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
   acceptedBids: number;
   pendingBids: number;
   declinedBids: number;

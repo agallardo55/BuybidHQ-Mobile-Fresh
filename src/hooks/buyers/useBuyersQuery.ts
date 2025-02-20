@@ -23,7 +23,6 @@ export const useBuyersQuery = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Using the new access cache for efficient querying
         const { data, error } = await supabase
           .from('buyers')
           .select(`
@@ -37,6 +36,7 @@ export const useBuyersQuery = () => {
             city,
             state,
             zip_code,
+            address,
             accepted_bids,
             pending_bids,
             declined_bids,
@@ -64,7 +64,11 @@ export const useBuyersQuery = () => {
         const typedData = data as unknown as BuyerResponse[];
         const mappedBuyers: MappedBuyer[] = typedData.map(buyer => {
           console.log("Mapping buyer data:", buyer);
-          console.log("Phone carrier:", buyer.phone_carrier);
+          
+          // Create location string for backward compatibility
+          const location = [buyer.city, buyer.state]
+            .filter(Boolean)
+            .join(', ');
           
           return {
             id: buyer.id,
@@ -74,7 +78,11 @@ export const useBuyersQuery = () => {
             dealership: buyer.dealer_name || '',
             mobileNumber: buyer.buyer_mobile || '',
             businessNumber: buyer.buyer_phone || '',
-            location: `${buyer.city || ''}, ${buyer.state || ''}`.replace(/, $/, ''),
+            location: location,
+            address: buyer.address || '',
+            city: buyer.city || '',
+            state: buyer.state || '',
+            zipCode: buyer.zip_code || '',
             acceptedBids: buyer.accepted_bids || 0,
             pendingBids: buyer.pending_bids || 0,
             declinedBids: buyer.declined_bids || 0,
@@ -83,7 +91,7 @@ export const useBuyersQuery = () => {
           };
         });
 
-        console.log("Mapped buyers with carriers:", mappedBuyers);
+        console.log("Mapped buyers:", mappedBuyers);
         return mappedBuyers;
       } catch (error: any) {
         console.error("Error in buyers query:", error);
