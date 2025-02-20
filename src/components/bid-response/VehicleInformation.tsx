@@ -31,20 +31,20 @@ const VehicleInformation = ({ vehicle }: Props) => {
             <p className="text-sm">{vehicle.trim}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500">VIN</p>
-            <p className="text-sm">{vehicle.vin}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Mileage</p>
-            <p className="text-sm">{vehicle.mileage?.toLocaleString()}</p>
-          </div>
-          <div>
             <p className="text-sm font-medium text-gray-500">Exterior Color</p>
             <p className="text-sm">{vehicle.exteriorColor}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Interior Color</p>
             <p className="text-sm">{vehicle.interiorColor}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500">VIN</p>
+            <p className="text-sm">{vehicle.vin}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500">Mileage</p>
+            <p className="text-sm">{vehicle.mileage?.toLocaleString()}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-500">Transmission</p>
