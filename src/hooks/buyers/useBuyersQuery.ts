@@ -31,6 +31,7 @@ export const useBuyersQuery = () => {
             buyer_name,
             email,
             dealer_name,
+            dealer_id,
             buyer_mobile,
             buyer_phone,
             city,
@@ -65,7 +66,6 @@ export const useBuyersQuery = () => {
         const mappedBuyers: MappedBuyer[] = typedData.map(buyer => {
           console.log("Mapping buyer data:", buyer);
           
-          // Create location string for backward compatibility
           const location = [buyer.city, buyer.state]
             .filter(Boolean)
             .join(', ');
@@ -76,6 +76,7 @@ export const useBuyersQuery = () => {
             name: buyer.buyer_name || '',
             email: buyer.email || '',
             dealership: buyer.dealer_name || '',
+            dealerId: buyer.dealer_id || '',
             mobileNumber: buyer.buyer_mobile || '',
             businessNumber: buyer.buyer_phone || '',
             location: location,

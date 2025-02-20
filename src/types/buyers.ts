@@ -5,6 +5,7 @@ export interface Buyer {
   name: string;
   email: string;
   dealership: string;
+  dealerId: string;
   mobileNumber: string;
   businessNumber: string;
   location: string;

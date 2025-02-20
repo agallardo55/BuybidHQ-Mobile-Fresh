@@ -394,6 +394,7 @@ export type Database = {
           buyer_phone: string | null
           city: string | null
           created_at: string
+          dealer_id: string | null
           dealer_name: string | null
           declined_bids: number | null
           email: string
@@ -418,6 +419,7 @@ export type Database = {
           buyer_phone?: string | null
           city?: string | null
           created_at?: string
+          dealer_id?: string | null
           dealer_name?: string | null
           declined_bids?: number | null
           email: string
@@ -442,6 +444,7 @@ export type Database = {
           buyer_phone?: string | null
           city?: string | null
           created_at?: string
+          dealer_id?: string | null
           dealer_name?: string | null
           declined_bids?: number | null
           email?: string

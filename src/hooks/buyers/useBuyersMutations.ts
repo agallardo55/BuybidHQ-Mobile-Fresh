@@ -36,6 +36,7 @@ export const useBuyersMutations = () => {
             buyer_mobile: buyerData.mobileNumber,
             buyer_phone: buyerData.businessNumber,
             dealer_name: buyerData.dealershipName,
+            dealer_id: buyerData.licenseNumber,
             address: buyerData.dealershipAddress,
             city: buyerData.city,
             state: buyerData.state,
@@ -77,7 +78,6 @@ export const useBuyersMutations = () => {
 
       console.log("Updating buyer:", buyerId, "with data:", buyerData);
 
-      // Ensure phone carrier is one of the valid values or null
       const phoneCarrier = buyerData.phoneCarrier === 'N/A' ? null : buyerData.phoneCarrier || null;
 
       const { error } = await supabase
@@ -88,6 +88,7 @@ export const useBuyersMutations = () => {
           buyer_mobile: buyerData.mobileNumber,
           buyer_phone: buyerData.businessNumber,
           dealer_name: buyerData.dealershipName,
+          dealer_id: buyerData.licenseNumber,
           address: buyerData.dealershipAddress,
           city: buyerData.city,
           state: buyerData.state,

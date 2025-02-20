@@ -7,6 +7,7 @@ export interface BuyerResponse {
   buyer_name: string;
   email: string;
   dealer_name: string;
+  dealer_id: string | null;
   buyer_mobile: string;
   buyer_phone: string;
   city: string;
@@ -26,6 +27,7 @@ export interface MappedBuyer {
   name: string;
   email: string;
   dealership: string;
+  dealerId: string;
   mobileNumber: string;
   businessNumber: string;
   location: string;
