@@ -60,7 +60,10 @@ const Pricing = () => {
               Popular
             </div>
             <CardHeader>
-              <CardTitle className="text-2xl">Individual</CardTitle>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                Individual
+                <span className="text-sm text-gray-500 font-normal">Limited time only</span>
+              </CardTitle>
               <CardDescription>For individual dealers</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
