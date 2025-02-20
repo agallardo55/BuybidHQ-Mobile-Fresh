@@ -18,7 +18,7 @@ const BidResponse = () => {
   const [existingBidAmount, setExistingBidAmount] = useState<string | null>(null);
 
   const token = searchParams.get('token');
-  const { id } = useParams(); // Get the ID from the URL params instead of search params
+  const { id } = useParams();
   
   const { data, isLoading, error } = useBidResponseDetails();
 
@@ -99,11 +99,14 @@ const BidResponse = () => {
         />
       ) : data ? (
         <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
-          <VehicleDetailsSection vehicle={{
-            ...data.vehicle,
-            year: String(data.vehicle.year),
-            mileage: String(data.vehicle.mileage)
-          }} />
+          <VehicleDetailsSection 
+            vehicle={{
+              ...data.vehicle,
+              year: String(data.vehicle.year),
+              mileage: String(data.vehicle.mileage)
+            }}
+            buyer={data.buyer}
+          />
           <BidForm 
             onSubmit={handleSubmit} 
             isSubmitting={isSubmitting}
@@ -117,3 +120,4 @@ const BidResponse = () => {
 };
 
 export default BidResponse;
+

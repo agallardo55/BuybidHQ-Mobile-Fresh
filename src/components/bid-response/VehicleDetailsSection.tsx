@@ -15,13 +15,40 @@ import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
+  buyer: {
+    name: string;
+    dealership: string;
+    mobileNumber: string;
+  };
 }
 
-const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
+const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   return (
     <div className="space-y-4">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-2xl">From</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-2">
+            <div className="grid grid-cols-5 gap-2 py-1">
+              <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Name</p>
+              <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.name}</p>
+            </div>
+            <div className="grid grid-cols-5 gap-2 py-1">
+              <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Dealership</p>
+              <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.dealership}</p>
+            </div>
+            <div className="grid grid-cols-5 gap-2 py-1">
+              <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Mobile Number</p>
+              <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.mobileNumber}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {vehicle.images && vehicle.images.length > 0 && (
         <>
           <div className="relative w-full max-w-2xl mx-auto">
@@ -78,25 +105,25 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">VIN</p>
-                <p className="text-base lg:text-base text-lg font-normal">{vehicle.vin}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">VIN</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.vin}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Mileage</p>
-                <p className="text-base lg:text-base text-lg font-normal">{vehicle.mileage?.toLocaleString()}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Mileage</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.mileage?.toLocaleString()}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Engine</p>
-                <p className="text-base lg:text-base text-lg font-normal">{vehicle.engineCylinders}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Engine</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.engineCylinders}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Transmission</p>
-                <p className="text-base lg:text-base text-lg font-normal">{vehicle.transmission}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Transmission</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.transmission}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Drivetrain</p>
-                <p className="text-base lg:text-base text-lg font-normal">{vehicle.drivetrain}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Drivetrain</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.drivetrain}</p>
               </div>
             </div>
           </CardContent>
@@ -108,17 +135,17 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Exterior Color</p>
-                <p className="text-base lg:text-base text-lg font-normal">{vehicle.exteriorColor}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Exterior Color</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.exteriorColor}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Interior Color</p>
-                <p className="text-base lg:text-base text-lg font-normal">{vehicle.interiorColor}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Interior Color</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.interiorColor}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Accessories</p>
-                <p className="text-base lg:text-base text-lg font-normal">{vehicle.accessories || 'None'}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Accessories</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.accessories || 'None'}</p>
               </div>
             </div>
           </CardContent>
@@ -130,34 +157,34 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Windshield</p>
-                <p className="text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.windshield, 'windshield')}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Windshield</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.windshield, 'windshield')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Engine Lights</p>
-                <p className="text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Engine Lights</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Brakes</p>
-                <p className="text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.brakes, 'brakesTires')}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Brakes</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.brakes, 'brakesTires')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Tires</p>
-                <p className="text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.tire, 'brakesTires')}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Tires</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.tire, 'brakesTires')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Maintenance</p>
-                <p className="text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.maintenance, 'maintenance')}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Maintenance</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.maintenance, 'maintenance')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1">
-                <p className="text-base lg:text-base text-lg font-bold text-black">Reconditioning Estimate</p>
-                <p className="text-base lg:text-base text-lg font-normal">${parseFloat(vehicle.reconEstimate).toLocaleString()}</p>
+              <div className="grid grid-cols-5 gap-2 py-1">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Reconditioning Estimate</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">${parseFloat(vehicle.reconEstimate).toLocaleString()}</p>
               </div>
               {vehicle.reconDetails && (
-                <div className="grid grid-cols-2 gap-2 py-1">
-                  <p className="text-base lg:text-base text-lg font-bold text-black">Reconditioning Details</p>
-                  <p className="text-base lg:text-base text-lg font-normal">{vehicle.reconDetails}</p>
+                <div className="grid grid-cols-5 gap-2 py-1">
+                  <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Reconditioning Details</p>
+                  <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.reconDetails}</p>
                 </div>
               )}
             </div>
