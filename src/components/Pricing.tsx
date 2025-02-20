@@ -109,8 +109,8 @@ const Pricing = () => {
           {/* Dealership Plan */}
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle className="text-2xl">Dealership</CardTitle>
-              <CardDescription>For larger operations</CardDescription>
+              <CardTitle className="text-2xl">Enterprise</CardTitle>
+              <CardDescription>For multi-store groups</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
@@ -128,11 +128,11 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>24/7 dedicated support</span>
+                  <span>Buybid dashboard</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Custom integrations</span>
+                  <span>Buybid Analytics</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
