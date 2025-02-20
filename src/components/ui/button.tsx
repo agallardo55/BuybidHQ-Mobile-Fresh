@@ -22,10 +22,10 @@ const buttonVariants = cva(
         "custom-blue": "bg-custom-blue text-white hover:bg-custom-blue/90",
       },
       size: {
-        default: "h-12 px-6 py-3 text-base",
+        default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
-        lg: "h-14 rounded-md px-8",
-        icon: "h-12 w-12",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {

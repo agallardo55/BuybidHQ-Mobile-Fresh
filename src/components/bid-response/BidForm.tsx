@@ -79,7 +79,7 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
             placeholder="Enter amount"
             value={formData.offerAmount}
             onChange={handleChange}
-            className={`pl-7 ${errors.offerAmount ? "border-red-500" : ""}`}
+            className={`h-12 px-4 py-3 text-base pl-7 ${errors.offerAmount ? "border-red-500" : ""}`}
             disabled={!!existingBidAmount}
             readOnly={!!existingBidAmount}
           />
@@ -96,7 +96,7 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
 
       <Button
         type="submit"
-        className="w-full bg-custom-blue hover:bg-custom-blue/90"
+        className="w-full h-12 text-base bg-custom-blue hover:bg-custom-blue/90"
         disabled={isSubmitting || !!existingBidAmount}
       >
         {existingBidAmount ? "Offer Already Submitted" : isSubmitting ? "Submitting..." : "Submit Bid"}
@@ -106,3 +106,4 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
 };
 
 export default BidForm;
+
