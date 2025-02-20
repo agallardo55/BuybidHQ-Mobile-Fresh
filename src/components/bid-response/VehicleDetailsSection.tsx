@@ -78,23 +78,23 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">VIN</p>
                 <p className="text-base font-normal">{vehicle.vin}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Mileage</p>
                 <p className="text-base font-normal">{vehicle.mileage?.toLocaleString()}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Engine</p>
                 <p className="text-base font-normal">{vehicle.engineCylinders}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Transmission</p>
                 <p className="text-base font-normal">{vehicle.transmission}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Drivetrain</p>
                 <p className="text-base font-normal">{vehicle.drivetrain}</p>
               </div>
@@ -108,15 +108,15 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Exterior Color</p>
                 <p className="text-base font-normal">{vehicle.exteriorColor}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Interior Color</p>
                 <p className="text-base font-normal">{vehicle.interiorColor}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Accessories</p>
                 <p className="text-base font-normal">{vehicle.accessories || 'None'}</p>
               </div>
@@ -130,32 +130,32 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Windshield</p>
                 <p className="text-base font-normal">{getConditionDisplay(vehicle.windshield, 'windshield')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Engine Lights</p>
                 <p className="text-base font-normal">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Brakes</p>
                 <p className="text-base font-normal">{getConditionDisplay(vehicle.brakes, 'brakesTires')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Tires</p>
                 <p className="text-base font-normal">{getConditionDisplay(vehicle.tire, 'brakesTires')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Maintenance</p>
                 <p className="text-base font-normal">{getConditionDisplay(vehicle.maintenance, 'maintenance')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 py-1.5">
+              <div className="grid grid-cols-2 gap-2 py-1">
                 <p className="text-base font-bold text-black">Reconditioning Estimate</p>
                 <p className="text-base font-normal">${parseFloat(vehicle.reconEstimate).toLocaleString()}</p>
               </div>
               {vehicle.reconDetails && (
-                <div className="grid grid-cols-2 gap-2 py-1.5">
+                <div className="grid grid-cols-2 gap-2 py-1">
                   <p className="text-base font-bold text-black">Reconditioning Details</p>
                   <p className="text-base font-normal">{vehicle.reconDetails}</p>
                 </div>
