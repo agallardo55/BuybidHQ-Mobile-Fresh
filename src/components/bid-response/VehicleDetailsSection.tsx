@@ -32,16 +32,16 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
           <CardTitle className="text-2xl">From</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-2">
-            <div className="grid grid-cols-5 gap-2 py-1">
+          <div className="grid gap-1.5">
+            <div className="grid grid-cols-5 gap-1.5 py-0.5">
               <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Name</p>
               <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.name}</p>
             </div>
-            <div className="grid grid-cols-5 gap-2 py-1">
+            <div className="grid grid-cols-5 gap-1.5 py-0.5">
               <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Dealership</p>
               <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.dealership}</p>
             </div>
-            <div className="grid grid-cols-5 gap-2 py-1">
+            <div className="grid grid-cols-5 gap-1.5 py-0.5">
               <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Mobile Number</p>
               <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.mobileNumber}</p>
             </div>
@@ -104,24 +104,24 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-2">
-              <div className="grid grid-cols-5 gap-2 py-1">
+            <div className="grid gap-1.5">
+              <div className="grid grid-cols-5 gap-1.5 py-0.5">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">VIN</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.vin}</p>
               </div>
-              <div className="grid grid-cols-5 gap-2 py-1">
+              <div className="grid grid-cols-5 gap-1.5 py-0.5">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Mileage</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.mileage?.toLocaleString()}</p>
               </div>
-              <div className="grid grid-cols-5 gap-2 py-1">
+              <div className="grid grid-cols-5 gap-1.5 py-0.5">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Engine</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.engineCylinders}</p>
               </div>
-              <div className="grid grid-cols-5 gap-2 py-1">
+              <div className="grid grid-cols-5 gap-1.5 py-0.5">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Transmission</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.transmission}</p>
               </div>
-              <div className="grid grid-cols-5 gap-2 py-1">
+              <div className="grid grid-cols-5 gap-1.5 py-0.5">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Drivetrain</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.drivetrain}</p>
               </div>

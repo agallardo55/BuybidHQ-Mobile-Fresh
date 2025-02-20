@@ -63,11 +63,11 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm p-4 animate-fade-in">
+    <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg shadow-sm p-4 animate-fade-in">
       <h2 className="text-xl font-semibold text-gray-900">Submit Your Bid</h2>
       
       <div>
-        <label htmlFor="offerAmount" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="offerAmount" className="block text-sm font-medium text-gray-700 mb-0.5">
           Your Offer <span className="text-red-500">*</span>
         </label>
         <div className="relative">
