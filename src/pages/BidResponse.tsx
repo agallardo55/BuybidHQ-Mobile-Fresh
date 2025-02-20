@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useParams } from "react-router-dom";
-import { BidResponseFormData } from "@/components/bid-response/types";
 import VehicleDetailsSection from "@/components/bid-response/VehicleDetailsSection";
 import BidForm from "@/components/bid-response/BidForm";
 import BidResponseLayout from "@/components/bid-response/BidResponseLayout";
@@ -9,80 +8,25 @@ import { ErrorState, LoadingState, SubmittedState } from "@/components/bid-respo
 import BidResponseMarketing from "@/components/bid-response/BidResponseMarketing";
 import { useBidResponseDetails } from "@/hooks/useBidResponseDetails";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import { CheckCircle, XCircle, Info } from "lucide-react";
-
-interface AlertState {
-  open: boolean;
-  title: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-}
+import { useAlertDialog } from "@/hooks/useAlertDialog";
+import { AlertDialogCustom } from "@/components/bid-response/AlertDialogCustom";
+import { useBidSubmission } from "@/hooks/useBidSubmission";
 
 const BidResponse = () => {
   const [searchParams] = useSearchParams();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [existingBidAmount, setExistingBidAmount] = useState<string | null>(null);
-  const [alert, setAlert] = useState<AlertState>({
-    open: false,
-    title: "",
-    message: "",
-    type: 'info'
-  });
 
   const token = searchParams.get('token');
   const { id } = useParams();
   
   const { data, isLoading, error } = useBidResponseDetails();
-
-  const showAlert = (title: string, message: string, type: AlertState['type']) => {
-    setAlert({
-      open: true,
-      title,
-      message,
-      type
-    });
-  };
-
-  const handleSubmit = async (formData: BidResponseFormData) => {
-    if (!token) {
-      showAlert("Invalid Token", "Invalid submission token", "error");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const { error: submitError } = await supabase.functions.invoke('submit-public-bid', {
-        body: {
-          token,
-          offerAmount: parseFloat(formData.offerAmount)
-        }
-      });
-
-      if (submitError) throw submitError;
-
-      showAlert("Success", "Your bid has been submitted successfully!", "success");
-      setSubmitted(true);
-    } catch (error) {
-      console.error('Error submitting bid:', error);
-      showAlert(
-        "Submission Error",
-        "Failed to submit bid. Please try again or contact support if the issue persists.",
-        "error"
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const { alert, showAlert, setAlert } = useAlertDialog();
+  const { isSubmitting, handleSubmit } = useBidSubmission({
+    token,
+    showAlert,
+    setSubmitted
+  });
 
   // Check for existing bid when component mounts
   useEffect(() => {
@@ -117,19 +61,7 @@ const BidResponse = () => {
     };
 
     checkExistingBid();
-  }, [token]);
-
-  const AlertIcon = () => {
-    const className = "w-6 h-6 mb-2";
-    switch (alert.type) {
-      case 'success':
-        return <CheckCircle className={`${className} text-green-500`} />;
-      case 'error':
-        return <XCircle className={`${className} text-red-500`} />;
-      default:
-        return <Info className={`${className} text-blue-500`} />;
-    }
-  };
+  }, [token, showAlert]);
 
   // Show error if no token is provided
   if (!token || !id) {
@@ -142,29 +74,13 @@ const BidResponse = () => {
 
   return (
     <BidResponseLayout>
-      <AlertDialog open={alert.open} onOpenChange={(open) => setAlert(prev => ({ ...prev, open }))}>
-        <AlertDialogContent className="text-center">
-          <AlertDialogHeader>
-            <div className="flex flex-col items-center">
-              <AlertIcon />
-              <AlertDialogTitle className="text-xl">{alert.title}</AlertDialogTitle>
-              <AlertDialogDescription className="mt-2">
-                {alert.message}
-              </AlertDialogDescription>
-            </div>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex justify-center">
-            <AlertDialogAction 
-              className={`px-4 py-2 rounded-md ${
-                alert.type === 'success' ? 'bg-green-500' :
-                alert.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-              } text-white hover:opacity-90`}
-            >
-              OK
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <AlertDialogCustom
+        open={alert.open}
+        onOpenChange={(open) => setAlert(prev => ({ ...prev, open }))}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+      />
 
       {error ? (
         <ErrorState message={error.message} />
@@ -200,4 +116,3 @@ const BidResponse = () => {
 };
 
 export default BidResponse;
-
