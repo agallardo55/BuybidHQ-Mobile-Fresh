@@ -75,7 +75,7 @@ export const useBidRequestSubmission = () => {
         // Get buyer details
         const { data: buyerData, error: buyerError } = await supabase
           .from('buyers')
-          .select('name, email')
+          .select('buyer_name, email')
           .eq('id', buyerId)
           .single();
 
@@ -92,7 +92,7 @@ export const useBidRequestSubmission = () => {
           body: {
             type: 'bid_request',
             email: buyerData.email,
-            buyerName: buyerData.name,
+            buyerName: buyerData.buyer_name,
             vehicleDetails: {
               year: formData.year,
               make: formData.make,
@@ -104,7 +104,7 @@ export const useBidRequestSubmission = () => {
 
         if (emailError) {
           console.error('Error sending email to buyer:', buyerData.email, emailError);
-          toast.error(`Failed to send email to ${buyerData.name}`);
+          toast.error(`Failed to send email to ${buyerData.buyer_name}`);
         } else {
           console.log('Email sent successfully to:', buyerData.email);
         }
