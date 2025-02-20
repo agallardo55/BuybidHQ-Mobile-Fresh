@@ -40,7 +40,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         mobileNumber: buyer.mobileNumber || "",
         businessNumber: buyer.businessNumber || "",
         dealershipName: buyer.dealership || "",
-        licenseNumber: "", // Keeping this empty as it's not in the Buyer type
+        licenseNumber: buyer.dealerId || "", // Add this line to populate dealer ID
         dealershipAddress: buyer.address || "",
         city: buyer.city || "",
         state: buyer.state || "",
