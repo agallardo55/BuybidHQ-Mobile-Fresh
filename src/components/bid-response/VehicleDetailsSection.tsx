@@ -1,5 +1,5 @@
 
-import { Vehicle } from "./types";
+import { VehicleDetails } from "./types";
 import {
   Carousel,
   CarouselContent,
@@ -7,9 +7,10 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface VehicleDetailsSectionProps {
-  vehicle: Vehicle;
+  vehicle: VehicleDetails;
 }
 
 const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
@@ -37,56 +38,100 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-          {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">Vehicle Details</h3>
-            <dl className="mt-2 space-y-2">
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">
+              {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4">
               <div>
-                <dt className="text-sm font-medium text-gray-500">VIN</dt>
-                <dd className="text-sm text-gray-900">{vehicle.vin}</dd>
+                <p className="text-sm font-medium text-gray-500">VIN</p>
+                <p className="text-sm">{vehicle.vin}</p>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Mileage</dt>
-                <dd className="text-sm text-gray-900">{vehicle.mileage}</dd>
+                <p className="text-sm font-medium text-gray-500">Mileage</p>
+                <p className="text-sm">{vehicle.mileage?.toLocaleString()}</p>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Engine</dt>
-                <dd className="text-sm text-gray-900">{vehicle.engineCylinders}</dd>
+                <p className="text-sm font-medium text-gray-500">Engine</p>
+                <p className="text-sm">{vehicle.engineCylinders}</p>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Transmission</dt>
-                <dd className="text-sm text-gray-900">{vehicle.transmission}</dd>
+                <p className="text-sm font-medium text-gray-500">Transmission</p>
+                <p className="text-sm">{vehicle.transmission}</p>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Drivetrain</dt>
-                <dd className="text-sm text-gray-900">{vehicle.drivetrain}</dd>
+                <p className="text-sm font-medium text-gray-500">Drivetrain</p>
+                <p className="text-sm">{vehicle.drivetrain}</p>
               </div>
-            </dl>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">Colors & Features</h3>
-            <dl className="mt-2 space-y-2">
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Colors & Features</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Exterior Color</dt>
-                <dd className="text-sm text-gray-900">{vehicle.exteriorColor}</dd>
+                <p className="text-sm font-medium text-gray-500">Exterior Color</p>
+                <p className="text-sm">{vehicle.exteriorColor}</p>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Interior Color</dt>
-                <dd className="text-sm text-gray-900">{vehicle.interiorColor}</dd>
+                <p className="text-sm font-medium text-gray-500">Interior Color</p>
+                <p className="text-sm">{vehicle.interiorColor}</p>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Accessories</dt>
-                <dd className="text-sm text-gray-900">{vehicle.accessories || 'None'}</dd>
+                <p className="text-sm font-medium text-gray-500">Accessories</p>
+                <p className="text-sm">{vehicle.accessories || 'None'}</p>
               </div>
-            </dl>
-          </div>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Vehicle Condition</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Windshield</p>
+                <p className="text-sm">{vehicle.windshield}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Engine Lights</p>
+                <p className="text-sm">{vehicle.engineLights}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Brakes</p>
+                <p className="text-sm">{vehicle.brakes}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Tires</p>
+                <p className="text-sm">{vehicle.tire}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Maintenance</p>
+                <p className="text-sm">{vehicle.maintenance}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Reconditioning Estimate</p>
+                <p className="text-sm">{vehicle.reconEstimate}</p>
+              </div>
+              {vehicle.reconDetails && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Reconditioning Details</p>
+                  <p className="text-sm">{vehicle.reconDetails}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
