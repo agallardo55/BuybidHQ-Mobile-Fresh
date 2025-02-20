@@ -1,13 +1,16 @@
+
 import { Button } from "@/components/ui/button";
 import { BuyerFormData } from "@/types/buyers";
 import PersonalInfoSection from "./form-sections/PersonalInfoSection";
 import DealershipSection from "./form-sections/DealershipSection";
 import AddressSection from "./form-sections/AddressSection";
+
 interface AddBuyerFormProps {
   onSubmit: (e: React.FormEvent) => void;
   formData: BuyerFormData;
   onFormDataChange: (data: Partial<BuyerFormData>) => void;
 }
+
 const AddBuyerForm = ({
   onSubmit,
   formData,
@@ -29,13 +32,32 @@ const AddBuyerForm = ({
     }
     return phoneNumber;
   };
-  return <form onSubmit={onSubmit} className="space-y-4 mt-4">
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-4 mt-4">
       <div className="space-y-4">
-        <PersonalInfoSection formData={formData} onFormDataChange={onFormDataChange} formatPhoneNumber={formatPhoneNumber} />
-        <DealershipSection formData={formData} onFormDataChange={onFormDataChange} />
-        <AddressSection formData={formData} onFormDataChange={onFormDataChange} />
-        <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">Update</Button>
+        <PersonalInfoSection 
+          formData={formData} 
+          onFormDataChange={onFormDataChange} 
+          formatPhoneNumber={formatPhoneNumber} 
+        />
+        <DealershipSection 
+          formData={formData} 
+          onFormDataChange={onFormDataChange} 
+        />
+        <AddressSection 
+          formData={formData} 
+          onFormDataChange={onFormDataChange} 
+        />
+        <Button 
+          type="submit" 
+          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+        >
+          {formData.fullName ? 'Update' : 'Add Buyer'}
+        </Button>
       </div>
-    </form>;
+    </form>
+  );
 };
+
 export default AddBuyerForm;
