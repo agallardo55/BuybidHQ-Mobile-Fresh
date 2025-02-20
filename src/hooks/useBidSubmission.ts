@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { BidResponseFormData } from "@/components/bid-response/types";
 import { AlertType } from './useAlertDialog';
+import { toast } from "sonner";
 
 interface UseBidSubmissionProps {
   token: string | null;
@@ -15,7 +16,8 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
 
   const handleSubmit = async (formData: BidResponseFormData) => {
     if (!token) {
-      showAlert("Invalid Token", "Invalid submission token", "error");
+      showAlert("Invalid Token", "No valid submission token found", "error");
+      toast.error("Invalid submission token");
       return;
     }
 
@@ -28,15 +30,20 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
         }
       });
 
-      if (submitError) throw submitError;
+      if (submitError) {
+        throw submitError;
+      }
 
+      toast.success("Bid submitted successfully!");
       showAlert("Success", "Your bid has been submitted successfully!", "success");
       setSubmitted(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting bid:', error);
+      const errorMessage = error.message || "Failed to submit bid. Please try again or contact support.";
+      toast.error(errorMessage);
       showAlert(
         "Submission Error",
-        "Failed to submit bid. Please try again or contact support if the issue persists.",
+        errorMessage,
         "error"
       );
     } finally {

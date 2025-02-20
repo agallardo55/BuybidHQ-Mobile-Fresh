@@ -28,20 +28,27 @@ const DealershipSection = ({ formData, onFormDataChange }: DealershipSectionProp
           required
           value={formData.dealershipName}
           onChange={handleChange}
+          placeholder="Enter dealership name"
         />
       </div>
       <div>
         <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
-          Dealer ID (Optional)
+          Dealer License ID
         </label>
         <Input
           id="licenseNumber"
           name="licenseNumber"
           type="text"
-          placeholder="(Optional)"
           value={formData.licenseNumber}
           onChange={handleChange}
+          placeholder="Enter dealer license ID"
+          className="font-mono"
         />
+        {formData.licenseNumber && (
+          <p className="text-xs text-gray-500 mt-1">
+            This ID will be used to identify the dealership in the system
+          </p>
+        )}
       </div>
     </div>
   );
