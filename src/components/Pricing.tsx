@@ -26,7 +26,7 @@ const Pricing = () => {
           <Card className="flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl">Basic Trial</CardTitle>
-              <CardDescription>Perfect for getting started</CardDescription>
+              <CardDescription>Perfect for the curious</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
