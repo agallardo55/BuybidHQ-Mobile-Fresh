@@ -56,7 +56,7 @@ const Pricing = () => {
 
           {/* Individual Plan */}
           <Card className="flex flex-col relative border-accent">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-accent text-white text-sm rounded-full">Limited Time Offer</div>
+            <div className="absolute -top-2 sm:-top-3 md:-top-4 left-1/2 -translate-x-1/2 px-2 sm:px-3 py-0.5 sm:py-1 bg-accent text-white text-xs sm:text-sm rounded-full whitespace-nowrap">Limited Time Offer</div>
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
                 Individual
