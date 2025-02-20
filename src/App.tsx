@@ -20,112 +20,115 @@ import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import SmsTest from "./pages/SmsTest";
+import { StrictMode } from "react";
 
 const App = () => (
-  <BrowserRouter>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner position="top-center" />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route 
-            path="/signin" 
-            element={
-              <AuthRoute>
-                <SignIn />
-              </AuthRoute>
-            } 
-          />
-          <Route 
-            path="/signup" 
-            element={
-              <AuthRoute>
-                <SignUp />
-              </AuthRoute>
-            } 
-          />
-          <Route 
-            path="/forgot-password" 
-            element={
-              <AuthRoute>
-                <ForgotPassword />
-              </AuthRoute>
-            } 
-          />
-          <Route 
-            path="/reset-password" 
-            element={
-              <PasswordResetRoute>
-                <ResetPassword />
-              </PasswordResetRoute>
-            } 
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <BidRequestDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/create-bid-request"
-            element={
-              <ProtectedRoute>
-                <CreateBidRequest />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bid-response/:id"
-            element={<BidResponse />}
-          />
-          <Route
-            path="/buyers"
-            element={
-              <ProtectedRoute>
-                <Buyers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dealerships"
-            element={
-              <ProtectedRoute>
-                <Dealerships />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute>
-                <Users />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/account"
-            element={
-              <ProtectedRoute>
-                <Account />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/sms-test"
-            element={
-              <ProtectedRoute>
-                <SmsTest />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
-    </AuthProvider>
-  </BrowserRouter>
+  <StrictMode>
+    <TooltipProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Toaster />
+          <Sonner position="top-center" />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route 
+              path="/signin" 
+              element={
+                <AuthRoute>
+                  <SignIn />
+                </AuthRoute>
+              } 
+            />
+            <Route 
+              path="/signup" 
+              element={
+                <AuthRoute>
+                  <SignUp />
+                </AuthRoute>
+              } 
+            />
+            <Route 
+              path="/forgot-password" 
+              element={
+                <AuthRoute>
+                  <ForgotPassword />
+                </AuthRoute>
+              } 
+            />
+            <Route 
+              path="/reset-password" 
+              element={
+                <PasswordResetRoute>
+                  <ResetPassword />
+                </PasswordResetRoute>
+              } 
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <BidRequestDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/create-bid-request"
+              element={
+                <ProtectedRoute>
+                  <CreateBidRequest />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bid-response/:id"
+              element={<BidResponse />}
+            />
+            <Route
+              path="/buyers"
+              element={
+                <ProtectedRoute>
+                  <Buyers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dealerships"
+              element={
+                <ProtectedRoute>
+                  <Dealerships />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/account"
+              element={
+                <ProtectedRoute>
+                  <Account />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sms-test"
+              element={
+                <ProtectedRoute>
+                  <SmsTest />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </StrictMode>
 );
 
 export default App;

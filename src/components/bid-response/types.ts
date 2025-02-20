@@ -15,6 +15,16 @@ export interface Vehicle {
   images?: string[];
 }
 
+export interface VehicleDetails extends Vehicle {
+  windshield: string;
+  engineLights: string;
+  brakes: string;
+  tire: string;
+  maintenance: string;
+  reconEstimate: string;
+  reconDetails?: string;
+}
+
 export interface BidResponseFormData {
   offerAmount: string;
 }
