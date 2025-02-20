@@ -1,7 +1,6 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import Footer from "@/components/Footer";
 
 interface BidResponseLayoutProps {
   children: React.ReactNode;
@@ -21,9 +20,9 @@ const BidResponseLayout = ({ children }: BidResponseLayoutProps) => {
         </div>
       </header>
       {children}
-      <Footer />
     </div>
   );
 };
 
 export default BidResponseLayout;
+
