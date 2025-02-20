@@ -1,3 +1,4 @@
+
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
@@ -63,9 +64,12 @@ const Pricing = () => {
               <CardDescription>For individual dealers</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-              <div className="mt-2 flex items-baseline">
-                <span className="text-3xl font-bold">$49</span>
-                <span className="ml-1 text-gray-500">/month</span>
+              <div className="mt-2 flex flex-col">
+                <div className="text-gray-500 line-through text-lg">$98/month</div>
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold">$49</span>
+                  <span className="ml-1 text-gray-500">/month</span>
+                </div>
               </div>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
