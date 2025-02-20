@@ -33,26 +33,19 @@ serve(async (req) => {
     })
 
     // Validate the token and get bid request details
-    const { data: validationData, error: validationError } = await supabase
+    const { data: tokenData, error: tokenError } = await supabase
       .rpc('validate_bid_submission_token', { p_token: token })
       .single()
 
-    if (validationError || !validationData) {
-      console.error('Token validation error:', validationError)
+    if (tokenError || !tokenData?.is_valid) {
+      console.error('Token validation error:', tokenError)
       return new Response(
         JSON.stringify({ error: 'Invalid or expired submission token' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const { is_valid, bid_request_id, buyer_id } = validationData
-
-    if (!is_valid) {
-      return new Response(
-        JSON.stringify({ error: 'Token has expired or has already been used' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+    const { bid_request_id, buyer_id } = tokenData
 
     // Insert the bid response
     const { data: bidResponse, error: insertError } = await supabase

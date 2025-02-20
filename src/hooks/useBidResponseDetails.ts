@@ -29,6 +29,7 @@ interface BidResponseDetailsType {
   recon_details: string;
   dealership: string | null;
   mobile_number: string | null;
+  images: string[];
 }
 
 export const useBidResponseDetails = () => {
@@ -39,21 +40,33 @@ export const useBidResponseDetails = () => {
     queryFn: async () => {
       if (!id) throw new Error('No bid response ID provided');
 
-      const { data, error } = await supabase
+      // First get the bid request details
+      const { data: requestDetails, error: requestError } = await supabase
         .rpc('get_bid_request_details', {
           p_request_id: id
         });
 
-      if (error) {
-        console.error('Error fetching bid response details:', error);
-        throw error;
+      if (requestError) {
+        console.error('Error fetching bid response details:', requestError);
+        throw requestError;
       }
 
-      if (!data || data.length === 0) {
+      if (!requestDetails || requestDetails.length === 0) {
         throw new Error('No bid response found');
       }
 
-      const details = data[0] as BidResponseDetailsType;
+      // Then get the images for this bid request
+      const { data: imageData, error: imageError } = await supabase
+        .from('images')
+        .select('image_url')
+        .eq('bid_request_id', id);
+
+      if (imageError) {
+        console.error('Error fetching images:', imageError);
+      }
+
+      const details = requestDetails[0] as BidResponseDetailsType;
+      const images = imageData?.map(img => img.image_url) || [];
 
       return {
         requestId: details.request_id,
@@ -78,7 +91,8 @@ export const useBidResponseDetails = () => {
           tire: details.tire,
           maintenance: details.maintenance,
           reconEstimate: details.recon_estimate,
-          reconDetails: details.recon_details
+          reconDetails: details.recon_details,
+          images: images
         },
         buyer: {
           name: details.user_full_name,

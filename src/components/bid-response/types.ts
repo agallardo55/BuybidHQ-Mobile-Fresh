@@ -1,5 +1,5 @@
 
-export interface VehicleDetails {
+export interface Vehicle {
   year: string;
   make: string;
   model: string;
@@ -12,19 +12,9 @@ export interface VehicleDetails {
   exteriorColor: string;
   interiorColor: string;
   accessories: string;
-  windshield: string;
-  engineLights: string;
-  brakes: string;
-  tire: string;
-  maintenance: string;
-  reconEstimate: string;
-  reconDetails: string;
-  userFullName?: string;
-  dealership?: string;
-  mobileNumber?: string;
+  images?: string[];
 }
 
 export interface BidResponseFormData {
   offerAmount: string;
-  notes?: string;
 }
