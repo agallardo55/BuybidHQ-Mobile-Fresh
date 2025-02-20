@@ -67,11 +67,11 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
       <h2 className="text-xl font-semibold text-gray-900">Submit Your Bid</h2>
       
       <div>
-        <label htmlFor="offerAmount" className="block text-sm font-medium text-gray-700 mb-0.5">
+        <label htmlFor="offerAmount" className="block text-lg font-bold text-black mb-0.5">
           Your Offer <span className="text-red-500">*</span>
         </label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">$</span>
           <Input
             id="offerAmount"
             name="offerAmount"
@@ -79,7 +79,7 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
             placeholder="Enter amount"
             value={formData.offerAmount}
             onChange={handleChange}
-            className={`h-12 px-4 py-3 text-base pl-7 ${errors.offerAmount ? "border-red-500" : ""}`}
+            className={`h-12 px-4 py-3 text-lg pl-7 ${errors.offerAmount ? "border-red-500" : ""}`}
             disabled={!!existingBidAmount}
             readOnly={!!existingBidAmount}
           />
@@ -96,7 +96,7 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
 
       <Button
         type="submit"
-        className="w-full h-12 text-base bg-custom-blue hover:bg-custom-blue/90"
+        className="w-full h-12 text-lg bg-custom-blue hover:bg-custom-blue/90"
         disabled={isSubmitting || !!existingBidAmount}
       >
         {existingBidAmount ? "Offer Already Submitted" : isSubmitting ? "Submitting..." : "Submit Bid"}
