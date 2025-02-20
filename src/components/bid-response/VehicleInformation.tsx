@@ -1,6 +1,7 @@
 
 import { VehicleDetails } from "./types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 
 interface Props {
   vehicle: VehicleDetails;
@@ -41,7 +42,7 @@ const VehicleInformation = ({ vehicle }: Props) => {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-2xl">Colors & Features</CardTitle>
+          <CardTitle className="text-2xl">Colors & Accessories</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-2">
@@ -69,27 +70,27 @@ const VehicleInformation = ({ vehicle }: Props) => {
           <div className="grid gap-2">
             <div className="grid grid-cols-2 gap-2 py-1.5">
               <p className="text-base font-bold text-gray-500">Windshield</p>
-              <p className="text-base font-normal">{vehicle.windshield}</p>
+              <p className="text-base font-normal">{getConditionDisplay(vehicle.windshield, 'windshield')}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 py-1.5">
               <p className="text-base font-bold text-gray-500">Engine Lights</p>
-              <p className="text-base font-normal">{vehicle.engineLights}</p>
+              <p className="text-base font-normal">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 py-1.5">
               <p className="text-base font-bold text-gray-500">Brakes</p>
-              <p className="text-base font-normal">{vehicle.brakes}</p>
+              <p className="text-base font-normal">{getConditionDisplay(vehicle.brakes, 'brakesTires')}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 py-1.5">
               <p className="text-base font-bold text-gray-500">Tires</p>
-              <p className="text-base font-normal">{vehicle.tire}</p>
+              <p className="text-base font-normal">{getConditionDisplay(vehicle.tire, 'brakesTires')}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 py-1.5">
               <p className="text-base font-bold text-gray-500">Maintenance</p>
-              <p className="text-base font-normal">{vehicle.maintenance}</p>
+              <p className="text-base font-normal">{getConditionDisplay(vehicle.maintenance, 'maintenance')}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 py-1.5">
               <p className="text-base font-bold text-gray-500">Reconditioning Estimate</p>
-              <p className="text-base font-normal">{vehicle.reconEstimate}</p>
+              <p className="text-base font-normal">${vehicle.reconEstimate}</p>
             </div>
             {vehicle.reconDetails && (
               <div className="grid grid-cols-2 gap-2 py-1.5">

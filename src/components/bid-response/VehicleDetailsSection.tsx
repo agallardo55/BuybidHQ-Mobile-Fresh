@@ -11,6 +11,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
+import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -103,7 +104,7 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-2xl">Colors & Features</CardTitle>
+            <CardTitle className="text-2xl">Colors & Accessories</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
@@ -131,27 +132,27 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
             <div className="grid gap-2">
               <div className="grid grid-cols-2 gap-2 py-1.5">
                 <p className="text-base font-bold text-black">Windshield</p>
-                <p className="text-base font-normal">{vehicle.windshield}</p>
+                <p className="text-base font-normal">{getConditionDisplay(vehicle.windshield, 'windshield')}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 py-1.5">
                 <p className="text-base font-bold text-black">Engine Lights</p>
-                <p className="text-base font-normal">{vehicle.engineLights}</p>
+                <p className="text-base font-normal">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 py-1.5">
                 <p className="text-base font-bold text-black">Brakes</p>
-                <p className="text-base font-normal">{vehicle.brakes}</p>
+                <p className="text-base font-normal">{getConditionDisplay(vehicle.brakes, 'brakesTires')}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 py-1.5">
                 <p className="text-base font-bold text-black">Tires</p>
-                <p className="text-base font-normal">{vehicle.tire}</p>
+                <p className="text-base font-normal">{getConditionDisplay(vehicle.tire, 'brakesTires')}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 py-1.5">
                 <p className="text-base font-bold text-black">Maintenance</p>
-                <p className="text-base font-normal">{vehicle.maintenance}</p>
+                <p className="text-base font-normal">{getConditionDisplay(vehicle.maintenance, 'maintenance')}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 py-1.5">
                 <p className="text-base font-bold text-black">Reconditioning Estimate</p>
-                <p className="text-base font-normal">{vehicle.reconEstimate}</p>
+                <p className="text-base font-normal">${parseFloat(vehicle.reconEstimate).toLocaleString()}</p>
               </div>
               {vehicle.reconDetails && (
                 <div className="grid grid-cols-2 gap-2 py-1.5">
