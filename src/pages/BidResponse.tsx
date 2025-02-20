@@ -96,12 +96,13 @@ const BidResponse = () => {
 
         if (error) throw error;
         
-        if (data?.has_existing_bid) {
-          setExistingBidAmount(data.existing_bid_amount.toString());
+        const tokenInfo = data?.[0];
+        if (tokenInfo?.has_existing_bid) {
+          setExistingBidAmount(tokenInfo.existing_bid_amount.toString());
           setSubmitted(true);
           showAlert(
             "Existing Bid",
-            `You have already submitted an offer of $${data.existing_bid_amount}`,
+            `You have already submitted an offer of $${tokenInfo.existing_bid_amount}`,
             "info"
           );
         }
