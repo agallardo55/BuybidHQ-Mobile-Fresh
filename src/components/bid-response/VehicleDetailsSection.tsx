@@ -41,53 +41,31 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">
+            <CardTitle className="text-2xl">
               {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4">
-              <div>
-                <p className="text-sm font-bold text-gray-500">VIN</p>
-                <p className="text-sm font-normal">{vehicle.vin}</p>
+            <div className="grid gap-6">
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">VIN</p>
+                <p className="text-base font-normal">{vehicle.vin}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Mileage</p>
-                <p className="text-sm font-normal">{vehicle.mileage?.toLocaleString()}</p>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Mileage</p>
+                <p className="text-base font-normal">{vehicle.mileage?.toLocaleString()}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Engine</p>
-                <p className="text-sm font-normal">{vehicle.engineCylinders}</p>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Engine</p>
+                <p className="text-base font-normal">{vehicle.engineCylinders}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Transmission</p>
-                <p className="text-sm font-normal">{vehicle.transmission}</p>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Transmission</p>
+                <p className="text-base font-normal">{vehicle.transmission}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Drivetrain</p>
-                <p className="text-sm font-normal">{vehicle.drivetrain}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Colors & Features</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4">
-              <div>
-                <p className="text-sm font-bold text-gray-500">Exterior Color</p>
-                <p className="text-sm font-normal">{vehicle.exteriorColor}</p>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Interior Color</p>
-                <p className="text-sm font-normal">{vehicle.interiorColor}</p>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Accessories</p>
-                <p className="text-sm font-normal">{vehicle.accessories || 'None'}</p>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Drivetrain</p>
+                <p className="text-base font-normal">{vehicle.drivetrain}</p>
               </div>
             </div>
           </CardContent>
@@ -95,38 +73,60 @@ const VehicleDetailsSection = ({ vehicle }: VehicleDetailsSectionProps) => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">Vehicle Condition</CardTitle>
+            <CardTitle className="text-2xl">Colors & Features</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4">
-              <div>
-                <p className="text-sm font-bold text-gray-500">Windshield</p>
-                <p className="text-sm font-normal">{vehicle.windshield}</p>
+            <div className="grid gap-6">
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Exterior Color</p>
+                <p className="text-base font-normal">{vehicle.exteriorColor}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Engine Lights</p>
-                <p className="text-sm font-normal">{vehicle.engineLights}</p>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Interior Color</p>
+                <p className="text-base font-normal">{vehicle.interiorColor}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Brakes</p>
-                <p className="text-sm font-normal">{vehicle.brakes}</p>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Accessories</p>
+                <p className="text-base font-normal">{vehicle.accessories || 'None'}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Tires</p>
-                <p className="text-sm font-normal">{vehicle.tire}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Vehicle Condition</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-6">
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Windshield</p>
+                <p className="text-base font-normal">{vehicle.windshield}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Maintenance</p>
-                <p className="text-sm font-normal">{vehicle.maintenance}</p>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Engine Lights</p>
+                <p className="text-base font-normal">{vehicle.engineLights}</p>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500">Reconditioning Estimate</p>
-                <p className="text-sm font-normal">{vehicle.reconEstimate}</p>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Brakes</p>
+                <p className="text-base font-normal">{vehicle.brakes}</p>
+              </div>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Tires</p>
+                <p className="text-base font-normal">{vehicle.tire}</p>
+              </div>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Maintenance</p>
+                <p className="text-base font-normal">{vehicle.maintenance}</p>
+              </div>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <p className="text-base font-bold text-gray-500">Reconditioning Estimate</p>
+                <p className="text-base font-normal">{vehicle.reconEstimate}</p>
               </div>
               {vehicle.reconDetails && (
-                <div>
-                  <p className="text-sm font-bold text-gray-500">Reconditioning Details</p>
-                  <p className="text-sm font-normal">{vehicle.reconDetails}</p>
+                <div className="grid grid-cols-2 items-center gap-4">
+                  <p className="text-base font-bold text-gray-500">Reconditioning Details</p>
+                  <p className="text-base font-normal">{vehicle.reconDetails}</p>
                 </div>
               )}
             </div>
