@@ -1,3 +1,4 @@
+
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
@@ -61,7 +62,6 @@ const Pricing = () => {
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
                 Individual
-                
               </CardTitle>
               <CardDescription>For individual dealers</CardDescription>
             </CardHeader>
@@ -74,6 +74,10 @@ const Pricing = () => {
                 </div>
               </div>
               <ul className="mt-6 space-y-4">
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span className="text-accent font-medium">Limited time pricing</span>
+                </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
                   <span>Advanced bidding tools</span>
