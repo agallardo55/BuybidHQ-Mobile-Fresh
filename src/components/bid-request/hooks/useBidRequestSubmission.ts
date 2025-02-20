@@ -84,7 +84,8 @@ export const useBidRequestSubmission = () => {
           continue;
         }
 
-        // Generate unique bid submission URL
+        // Generate unique bid submission URL with the correct request ID
+        // The RPC returns the request ID directly
         const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(buyerId)}`;
 
         // Send email notification
