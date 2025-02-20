@@ -65,7 +65,7 @@ const Pricing = () => {
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex flex-col">
-                <div className="text-gray-500 line-through text-lg -mb-1">$98/month</div>
+                <div className="text-gray-500 line-through text-lg -mb-2">$98/month</div>
                 <div className="flex items-baseline">
                   <span className="text-3xl font-bold">$49</span>
                   <span className="ml-1 text-gray-500">/month</span>
