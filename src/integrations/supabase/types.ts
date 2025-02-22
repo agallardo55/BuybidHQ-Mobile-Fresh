@@ -1266,6 +1266,33 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string | null
+          source: string | null
+          status: Database["public"]["Enums"]["waitlist_status"] | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          name?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["waitlist_status"] | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["waitlist_status"] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       buyers_user_roles_view: {
@@ -1666,6 +1693,7 @@ export type Database = {
       phone_validation_status: "pending" | "valid" | "invalid"
       user_role: "basic" | "individual" | "dealer" | "associate" | "admin"
       user_role_old: "admin" | "dealer" | "associate"
+      waitlist_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       user_profile_type: {
