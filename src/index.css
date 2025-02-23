@@ -5,6 +5,7 @@
 
 @layer base {
   :root {
+    --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -90,7 +91,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
 
   /* Custom focus styles for form elements */
@@ -105,3 +106,4 @@
     @apply outline-none ring-2 ring-accent ring-offset-2;
   }
 }
+
