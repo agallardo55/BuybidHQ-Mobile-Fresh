@@ -7,7 +7,7 @@ const FooterContact = () => {
         <li>
       </li>
         <li>Email: team@buybidhq.com</li>
-        <li>Phone: (555) 123-4567</li>
+        
       </ul>
     </div>;
 };
