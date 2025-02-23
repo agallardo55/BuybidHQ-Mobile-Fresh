@@ -19,4 +19,30 @@ export interface CarApiTrim {
   name: string;
   description: string;
   year: number;
+  specs?: {
+    engine?: string;
+    transmission?: string;
+    drivetrain?: string;
+  };
+}
+
+export interface VehicleData {
+  year: string;
+  make: string;
+  model: string;
+  trim: string;
+  engineCylinders: string;
+  transmission: string;
+  drivetrain: string;
+  availableTrims?: TrimOption[];
+}
+
+export interface TrimOption {
+  name: string;
+  description: string;
+  specs?: {
+    engine?: string;
+    transmission?: string;
+    drivetrain?: string;
+  };
 }
