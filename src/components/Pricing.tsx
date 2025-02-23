@@ -79,7 +79,7 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Basic features</span>
+                  <span>All Basic features</span>
                 </li>
               </ul>
             </CardContent>
