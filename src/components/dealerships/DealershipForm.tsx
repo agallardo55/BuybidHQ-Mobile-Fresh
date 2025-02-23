@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { DealershipFormData } from "@/types/dealerships";
 import BasicInfoSection from "./form-sections/BasicInfoSection";
 import AddressSection from "./form-sections/AddressSection";
-import AdditionalInfoSection from "./form-sections/AdditionalInfoSection";
 
 interface DealershipFormProps {
   initialData?: Partial<DealershipFormData>;
@@ -57,13 +56,6 @@ const DealershipForm = ({
         city={formData.city}
         state={formData.state}
         zipCode={formData.zipCode}
-        onChange={handleChange}
-      />
-
-      <AdditionalInfoSection
-        licenseNumber={formData.licenseNumber}
-        website={formData.website}
-        notes={formData.notes}
         onChange={handleChange}
       />
 
