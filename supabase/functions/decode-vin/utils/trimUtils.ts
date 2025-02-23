@@ -1,28 +1,17 @@
-
 import { CarApiTrim } from "../types.ts";
 
 export function cleanTrimValue(trim: string): string {
   if (!trim) return "";
   
-  // Extract trim with its numeric designation (like P360 or P400)
-  const trimMatch = trim.match(/([A-Za-z]+\d+(?:\s+[A-Za-z]+)?)/);
-  const baseTrim = trimMatch ? trimMatch[1] : trim.split(/[\(\[]/, 1)[0].trim();
-  
-  // Clean up the base trim
-  let cleaned = baseTrim
+  // Keep the full trim designation, including model variants
+  const cleanedTrim = trim
     .replace(/^(trim:|series:|style:)/i, '')
-    .replace(/\s+/g, ' ')
+    .replace(/\.{2,}/g, '')  // Remove ellipsis
+    .replace(/\.$/, '')      // Remove trailing dot
     .trim();
-
-  // Remove all instances of ellipsis and trailing dots
-  cleaned = cleaned.replace(/\.{2,}/g, '').trim();
-  cleaned = cleaned.replace(/\.$/, '').trim();
   
-  // Remove special characters except alphanumeric, spaces, and hyphens
-  cleaned = cleaned.replace(/[^\w\s-]/g, '').trim();
-
-  console.log(`Cleaned trim value: "${trim}" -> "${cleaned}"`);
-  return cleaned;
+  console.log(`Cleaned trim value: "${trim}" -> "${cleanedTrim}"`);
+  return cleanedTrim;
 }
 
 export function findBestTrimMatch(
@@ -43,30 +32,22 @@ export function findBestTrimMatch(
     specs,
     availableTrims: trims.map(t => ({ name: t.name, description: t.description, year: t.year }))
   });
+
+  // Deduplicate trims based on unique combinations of name and description
+  const uniqueTrims = deduplicateTrims(trims);
+  console.log('Deduplicated trims:', uniqueTrims);
   
   // First try to find an exact year match
-  const yearMatches = trims.filter(trim => trim.year === Number(year));
+  const yearMatches = uniqueTrims.filter(trim => trim.year === Number(year));
   console.log(`Found ${yearMatches.length} trims matching year ${year}`);
   
-  const trimsToCheck = yearMatches.length > 0 ? yearMatches : trims;
+  const trimsToCheck = yearMatches.length > 0 ? yearMatches : uniqueTrims;
 
-  // For performance models (like EVO)
-  const performanceMatch = trimsToCheck.find(trim => {
-    const isPerfModel = trim.name.includes('EVO') || trim.name.includes('Performance');
-    const matchesEngine = matchesEngineSpecs(trim.description, specs);
-    
-    console.log(`Checking trim "${trim.name}" (${trim.description}):`, {
-      isPerfModel,
-      matchesEngine,
-      engineSpecs: specs
-    });
-
-    return isPerfModel && matchesEngine;
-  });
-
+  // For performance models (like Turbo variants)
+  const performanceMatch = findPerformanceMatch(trimsToCheck, specs);
   if (performanceMatch) {
     console.log('Found matching performance trim:', performanceMatch);
-    return cleanTrimValue(performanceMatch.name);
+    return performanceMatch.name;
   }
 
   // If no performance match found, try to find any trim matching engine specs
@@ -76,24 +57,80 @@ export function findBestTrimMatch(
 
   if (engineMatch) {
     console.log('Found engine spec match:', engineMatch);
-    return cleanTrimValue(engineMatch.name);
+    return getFullTrimName(engineMatch);
   }
 
   // Default to first available trim if no matches found
   console.log('No specific matches found, using first available trim');
-  return cleanTrimValue(trimsToCheck[0].name);
+  return getFullTrimName(trimsToCheck[0]);
+}
+
+function deduplicateTrims(trims: CarApiTrim[]): CarApiTrim[] {
+  const seen = new Set<string>();
+  return trims.filter(trim => {
+    // Create a unique key combining name and relevant description parts
+    const key = `${trim.name}|${extractTrimVariant(trim.description)}`;
+    if (seen.has(key)) {
+      console.log(`Removing duplicate trim: ${key}`);
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function findPerformanceMatch(trims: CarApiTrim[], specs?: any): CarApiTrim | null {
+  return trims.find(trim => {
+    const isPerformance = isPerformanceModel(trim);
+    const matchesEngine = matchesEngineSpecs(trim.description, specs);
+    
+    console.log(`Checking performance trim "${trim.name}":`, {
+      isPerformance,
+      matchesEngine,
+      specs
+    });
+
+    return isPerformance && matchesEngine;
+  }) || null;
+}
+
+function isPerformanceModel(trim: CarApiTrim): boolean {
+  const name = trim.name.toLowerCase();
+  const desc = trim.description?.toLowerCase() || '';
+  return (
+    name.includes('turbo') ||
+    name.includes('gt') ||
+    desc.includes('turbo') ||
+    desc.includes('gt')
+  );
+}
+
+function extractTrimVariant(description: string | undefined): string {
+  if (!description) return '';
+  
+  // Extract specific trim variant from description
+  const variants = description.match(/^([^(]+?)(?:\s*\(|$)/);
+  return variants ? variants[1].trim() : '';
+}
+
+function getFullTrimName(trim: CarApiTrim): string {
+  const variant = extractTrimVariant(trim.description);
+  if (variant && variant !== trim.name) {
+    return variant;
+  }
+  return trim.name;
 }
 
 function matchesEngineSpecs(
-  description: string,
+  description: string | undefined,
   specs?: {
     displacement_l?: string;
     engine_number_of_cylinders?: string;
   }
 ): boolean {
-  if (!specs) return false;
+  if (!specs || !description) return false;
 
-  const desc = description?.toLowerCase() || '';
+  const desc = description.toLowerCase();
   console.log('Matching engine specs for description:', desc);
 
   let matches = true;

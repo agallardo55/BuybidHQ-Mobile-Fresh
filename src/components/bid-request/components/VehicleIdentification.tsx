@@ -3,6 +3,8 @@ import FormField from "./FormField";
 import VinSection from "../VinSection";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrimOption } from "../types";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface VehicleIdentificationProps {
   formData: {
@@ -44,11 +46,6 @@ const VehicleIdentification = ({
   showValidation
 }: VehicleIdentificationProps) => {
   console.log('VehicleIdentification rendered with formData:', formData);
-
-  const cleanText = (text: string) => {
-    // Pass through the trim value without cleaning
-    return text || "";
-  };
 
   const handleTrimChange = (value: string) => {
     console.log('Trim selected:', value);
@@ -135,7 +132,17 @@ const VehicleIdentification = ({
                   <div className="w-full whitespace-normal break-words">
                     <div className="font-medium text-gray-900">
                       {trim.name}
+                      {trim.description && (
+                        <Tooltip content={trim.description}>
+                          <Info className="inline-block w-4 h-4 ml-2 text-gray-400" />
+                        </Tooltip>
+                      )}
                     </div>
+                    {trim.specs?.engine && (
+                      <div className="text-sm text-gray-500">
+                        {trim.specs.engine}
+                      </div>
+                    )}
                   </div>
                 </SelectItem>
               ))
