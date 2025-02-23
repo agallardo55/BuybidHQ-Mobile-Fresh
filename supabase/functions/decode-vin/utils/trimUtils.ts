@@ -33,8 +33,8 @@ export function findBestTrimMatch(
     availableTrims: trims.map(t => ({ name: t.name, description: t.description, year: t.year }))
   });
 
-  // Deduplicate trims based on unique combinations of name and description
-  const uniqueTrims = deduplicateTrims(trims);
+  // Deduplicate trims based on exact name match
+  const uniqueTrims = Array.from(new Map(trims.map(trim => [trim.name, trim])).values());
   console.log('Deduplicated trims:', uniqueTrims);
   
   // First try to find an exact year match
@@ -43,116 +43,24 @@ export function findBestTrimMatch(
   
   const trimsToCheck = yearMatches.length > 0 ? yearMatches : uniqueTrims;
 
-  // For performance models (like Turbo variants)
-  const performanceMatch = findPerformanceMatch(trimsToCheck, specs);
+  // Look for GT2 RS or other specific performance trims first
+  const performanceMatch = trimsToCheck.find(trim => 
+    trim.name.toLowerCase().includes('gt2') || 
+    trim.name.toLowerCase().includes('gt3') ||
+    trim.name.toLowerCase().includes('rs')
+  );
+
   if (performanceMatch) {
-    console.log('Found matching performance trim:', performanceMatch);
+    console.log('Found performance trim match:', performanceMatch);
     return performanceMatch.name;
   }
 
-  // If no performance match found, try to find any trim matching engine specs
-  const engineMatch = trimsToCheck.find(trim => 
-    matchesEngineSpecs(trim.description, specs)
-  );
-
-  if (engineMatch) {
-    console.log('Found engine spec match:', engineMatch);
-    return getFullTrimName(engineMatch);
-  }
-
-  // Default to first available trim if no matches found
-  console.log('No specific matches found, using first available trim');
-  return getFullTrimName(trimsToCheck[0]);
+  // If no specific match found, return the first trim
+  console.log('No specific match found, using first trim:', trimsToCheck[0]);
+  return trimsToCheck[0]?.name || null;
 }
 
-function deduplicateTrims(trims: CarApiTrim[]): CarApiTrim[] {
-  const seen = new Set<string>();
-  return trims.filter(trim => {
-    // Create a unique key combining name and relevant description parts
-    const key = `${trim.name}|${extractTrimVariant(trim.description)}`;
-    if (seen.has(key)) {
-      console.log(`Removing duplicate trim: ${key}`);
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-}
-
-function findPerformanceMatch(trims: CarApiTrim[], specs?: any): CarApiTrim | null {
-  return trims.find(trim => {
-    const isPerformance = isPerformanceModel(trim);
-    const matchesEngine = matchesEngineSpecs(trim.description, specs);
-    
-    console.log(`Checking performance trim "${trim.name}":`, {
-      isPerformance,
-      matchesEngine,
-      specs
-    });
-
-    return isPerformance && matchesEngine;
-  }) || null;
-}
-
-function isPerformanceModel(trim: CarApiTrim): boolean {
-  const name = trim.name.toLowerCase();
-  const desc = trim.description?.toLowerCase() || '';
-  return (
-    name.includes('turbo') ||
-    name.includes('gt') ||
-    desc.includes('turbo') ||
-    desc.includes('gt')
-  );
-}
-
-function extractTrimVariant(description: string | undefined): string {
-  if (!description) return '';
-  
-  // Extract specific trim variant from description
-  const variants = description.match(/^([^(]+?)(?:\s*\(|$)/);
-  return variants ? variants[1].trim() : '';
-}
-
-function getFullTrimName(trim: CarApiTrim): string {
-  const variant = extractTrimVariant(trim.description);
-  if (variant && variant !== trim.name) {
-    return variant;
-  }
-  return trim.name;
-}
-
-function matchesEngineSpecs(
-  description: string | undefined,
-  specs?: {
-    displacement_l?: string;
-    engine_number_of_cylinders?: string;
-  }
-): boolean {
-  if (!specs || !description) return false;
-
-  const desc = description.toLowerCase();
-  console.log('Matching engine specs for description:', desc);
-
-  let matches = true;
-
-  if (specs.displacement_l) {
-    const displacementMatch = desc.includes(specs.displacement_l.toLowerCase() + 'l') ||
-                             desc.includes(specs.displacement_l.toLowerCase() + ' l');
-    console.log(`Displacement match (${specs.displacement_l}L):`, displacementMatch);
-    matches = matches && displacementMatch;
-  }
-
-  if (specs.engine_number_of_cylinders) {
-    const cylinderMatch = desc.includes(specs.engine_number_of_cylinders + ' cyl') ||
-                         desc.includes(specs.engine_number_of_cylinders + '-cyl');
-    console.log(`Cylinder match (${specs.engine_number_of_cylinders} cyl):`, cylinderMatch);
-    matches = matches && cylinderMatch;
-  }
-
-  return matches;
-}
-
-export function cleanEngineDescription(engine: string): string {
+function cleanEngineDescription(engine: string): string {
   if (!engine) return "";
   
   // Remove transmission speed references and clean up the format
@@ -170,3 +78,6 @@ export function cleanEngineDescription(engine: string): string {
 
   return cleaned;
 }
+
+// Export for use in other modules
+export { cleanEngineDescription };
