@@ -3,6 +3,13 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 interface PersonalInfoFormProps {
@@ -12,14 +19,28 @@ interface PersonalInfoFormProps {
     password: string;
     confirmPassword: string;
     mobileNumber: string;
+    carrier?: string;
     smsConsent?: boolean;
   };
   onNext: () => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBack: () => void;
+  onCarrierChange?: (value: string) => void;
 }
 
-const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFormProps) => {
+const PersonalInfoForm = ({ formData, onNext, onChange, onBack, onCarrierChange }: PersonalInfoFormProps) => {
+  const carriers = [
+    "Verizon Wireless",
+    "AT&T",
+    "T-Mobile",
+    "Sprint",
+    "US Cellular",
+    "Metro PCS",
+    "Boost Mobile",
+    "Cricket",
+    "Virgin Mobile"
+  ];
+
   const handleSmsConsentChange = (checked: boolean) => {
     onChange({
       target: {
@@ -97,6 +118,23 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           placeholder="(123) 456-7890"
           maxLength={14}
         />
+      </div>
+      <div>
+        <label htmlFor="carrier" className="block text-sm font-medium text-gray-700">
+          Mobile Carrier
+        </label>
+        <Select onValueChange={onCarrierChange} value={formData.carrier}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select One" />
+          </SelectTrigger>
+          <SelectContent>
+            {carriers.map((carrier) => (
+              <SelectItem key={carrier} value={carrier}>
+                {carrier}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex items-center space-x-2">
         <Checkbox 
