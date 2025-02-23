@@ -37,7 +37,7 @@ export default {
           foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "#325AE7",
+          DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
@@ -84,3 +84,4 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config
+
