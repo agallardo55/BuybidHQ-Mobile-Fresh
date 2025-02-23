@@ -51,7 +51,7 @@ const VehicleIdentification = ({
     
     // Find the selected trim to auto-populate related fields
     const selectedTrim = formData.availableTrims.find(trim => 
-      trim.name === value
+      trim.description === value || trim.name === value
     );
     console.log('Selected trim details:', selectedTrim);
     
@@ -123,13 +123,13 @@ const VehicleIdentification = ({
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
               formData.availableTrims.map((trim, index) => (
                 <SelectItem 
-                  key={`${trim.name}-${index}`} 
-                  value={trim.name}
+                  key={`${trim.description}-${index}`} 
+                  value={trim.description || trim.name}
                   className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
                 >
                   <div className="w-full whitespace-normal break-words">
                     <div className="font-medium text-gray-900">
-                      {trim.name}
+                      {trim.description || trim.name}
                     </div>
                   </div>
                 </SelectItem>
