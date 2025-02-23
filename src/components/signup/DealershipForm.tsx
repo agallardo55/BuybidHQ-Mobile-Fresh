@@ -45,7 +45,6 @@ const DealershipForm = ({
             id="dealershipName"
             name="dealershipName"
             type="text"
-            required
             value={formData.dealershipName}
             onChange={onChange}
           />
@@ -58,7 +57,6 @@ const DealershipForm = ({
             id="licenseNumber"
             name="licenseNumber"
             type="text"
-            required
             value={formData.licenseNumber}
             onChange={onChange}
           />
@@ -71,7 +69,6 @@ const DealershipForm = ({
             id="businessNumber"
             name="businessNumber"
             type="tel"
-            required
             value={formData.businessNumber}
             onChange={onChange}
             placeholder="(123) 456-7890"
@@ -86,7 +83,6 @@ const DealershipForm = ({
             id="dealershipAddress"
             name="dealershipAddress"
             type="text"
-            required
             value={formData.dealershipAddress}
             onChange={onChange}
           />
@@ -99,7 +95,6 @@ const DealershipForm = ({
             id="city"
             name="city"
             type="text"
-            required
             value={formData.city}
             onChange={onChange}
           />
@@ -129,7 +124,6 @@ const DealershipForm = ({
             id="zipCode"
             name="zipCode"
             type="text"
-            required
             value={formData.zipCode}
             onChange={onChange}
             pattern="[0-9]{5}"
@@ -149,7 +143,7 @@ const DealershipForm = ({
         </Button>
         <Button
           type="submit"
-          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+          className="w-full bg-custom-blue text-white hover:bg-custom-blue/90"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Creating Account..." : "Sign up"}
