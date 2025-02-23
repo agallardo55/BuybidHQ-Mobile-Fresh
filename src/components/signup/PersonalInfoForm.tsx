@@ -20,9 +20,6 @@ interface PersonalInfoFormProps {
 }
 
 const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFormProps) => {
-  const passwordsMatch = formData.password === formData.confirmPassword;
-  const showMismatchError = formData.confirmPassword.length > 0 && !passwordsMatch;
-
   const handleSmsConsentChange = (checked: boolean) => {
     onChange({
       target: {
@@ -42,7 +39,6 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           id="fullName"
           name="fullName"
           type="text"
-          required
           value={formData.fullName}
           onChange={onChange}
         />
@@ -55,7 +51,6 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           id="email"
           name="email"
           type="email"
-          required
           value={formData.email}
           onChange={onChange}
         />
@@ -67,10 +62,8 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         <PasswordInput
           id="password"
           name="password"
-          required
           value={formData.password}
           onChange={onChange}
-          minLength={6}
         />
         <p className="mt-1 text-sm text-gray-500">
           Password must be at least 6 characters long
@@ -83,19 +76,9 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          required
           value={formData.confirmPassword}
           onChange={onChange}
-          className={cn(
-            showMismatchError && "border-red-500 focus:ring-red-500 focus-visible:ring-red-500"
-          )}
-          minLength={6}
         />
-        {showMismatchError && (
-          <p className="mt-1 text-sm text-red-500">
-            Passwords do not match
-          </p>
-        )}
       </div>
       <div>
         <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
@@ -105,7 +88,6 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           id="mobileNumber"
           name="mobileNumber"
           type="tel"
-          required
           value={formData.mobileNumber}
           onChange={onChange}
           placeholder="(123) 456-7890"
@@ -117,7 +99,6 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           id="smsConsent"
           checked={formData.smsConsent}
           onCheckedChange={handleSmsConsentChange}
-          required
         />
         <label 
           htmlFor="smsConsent" 
@@ -138,7 +119,6 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           type="button"
           onClick={onNext}
           className="w-full bg-custom-blue text-white hover:bg-custom-blue/90"
-          disabled={showMismatchError}
         >
           Next Step
         </Button>
