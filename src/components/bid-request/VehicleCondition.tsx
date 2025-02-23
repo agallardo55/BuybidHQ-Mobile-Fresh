@@ -103,7 +103,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             <SelectItem value="none">None</SelectItem>
             <SelectItem value="engine">Engine Light</SelectItem>
             <SelectItem value="maintenance">Maintenance Required</SelectItem>
-            <SelectItem value="mobile">Mobile Device</SelectItem>
+            <SelectItem value="multiple">Multiple</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -193,4 +193,3 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
 };
 
 export default VehicleCondition;
-

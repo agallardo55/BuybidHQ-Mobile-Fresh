@@ -12,7 +12,7 @@ const displayMaps = {
     none: "None",
     engine: "Engine Light",
     maintenance: "Maintenance Required",
-    mobile: "Mobile Device"
+    multiple: "Multiple"
   },
   brakesTires: {
     acceptable: "Acceptable",
