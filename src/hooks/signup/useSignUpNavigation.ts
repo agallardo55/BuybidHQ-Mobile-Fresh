@@ -1,5 +1,4 @@
 
-import { toast } from "sonner";
 import { SignUpFormData, SignUpStep } from "./types";
 
 interface UseSignUpNavigationProps {
@@ -9,24 +8,20 @@ interface UseSignUpNavigationProps {
 }
 
 export const useSignUpNavigation = ({
-  formData,
   currentStep,
   setCurrentStep,
 }: UseSignUpNavigationProps) => {
   const handleNext = () => {
-    if (formData.fullName && formData.email && formData.password && formData.confirmPassword && 
-        formData.mobileNumber && formData.password === formData.confirmPassword) {
+    if (currentStep === 'personal') {
       setCurrentStep('dealership');
-    } else {
-      toast.error("Please fill in all required fields and ensure passwords match");
     }
   };
 
   const handleBack = () => {
-    if (currentStep === 'personal') {
-      setCurrentStep('plan');
-    } else if (currentStep === 'dealership') {
+    if (currentStep === 'dealership') {
       setCurrentStep('personal');
+    } else if (currentStep === 'personal') {
+      setCurrentStep('plan');
     }
   };
 
