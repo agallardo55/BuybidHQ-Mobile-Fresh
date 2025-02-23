@@ -1,9 +1,7 @@
-
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
-
 const Pricing = () => {
   const navigate = useNavigate();
   const handleSignUp = () => {
@@ -17,7 +15,6 @@ const Pricing = () => {
       });
     }
   };
-
   return <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
         <div className="mb-12 text-center">
@@ -39,11 +36,11 @@ const Pricing = () => {
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>10 Buybids per mo</span>
+                  <span>Unlimited buybids</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Connect with 5 dealers</span>
+                  <span>Unlimited buyer connections</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
@@ -64,7 +61,7 @@ const Pricing = () => {
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
-                <span className="text-3xl font-bold">$10</span>
+                <span className="text-3xl font-bold">$5</span>
                 <span className="ml-1 text-gray-500">/buybid</span>
               </div>
               <ul className="mt-6 space-y-4">
@@ -191,5 +188,4 @@ const Pricing = () => {
       </div>
     </section>;
 };
-
 export default Pricing;
