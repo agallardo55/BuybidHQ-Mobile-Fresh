@@ -47,6 +47,7 @@ const DealershipForm = ({
             type="text"
             value={formData.dealershipName}
             onChange={onChange}
+            placeholder="ABC Motors Inc."
           />
         </div>
         <div className="sm:col-span-2">
@@ -59,6 +60,7 @@ const DealershipForm = ({
             type="text"
             value={formData.licenseNumber}
             onChange={onChange}
+            placeholder="WA12345 (Optional)"
           />
         </div>
         <div className="sm:col-span-2">
@@ -85,6 +87,7 @@ const DealershipForm = ({
             type="text"
             value={formData.dealershipAddress}
             onChange={onChange}
+            placeholder="1234 Main Street"
           />
         </div>
         <div className="sm:col-span-2">
@@ -97,6 +100,7 @@ const DealershipForm = ({
             type="text"
             value={formData.city}
             onChange={onChange}
+            placeholder="Anytown"
           />
         </div>
         <div>

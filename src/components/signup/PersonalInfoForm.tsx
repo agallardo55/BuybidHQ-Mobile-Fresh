@@ -41,6 +41,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           type="text"
           value={formData.fullName}
           onChange={onChange}
+          placeholder="John Smith"
         />
       </div>
       <div>
@@ -53,6 +54,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           type="email"
           value={formData.email}
           onChange={onChange}
+          placeholder="fullname@mail.com"
         />
       </div>
       <div>
@@ -64,6 +66,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           name="password"
           value={formData.password}
           onChange={onChange}
+          placeholder="Enter password"
         />
         <p className="mt-1 text-sm text-gray-500">
           Password must be at least 6 characters long
@@ -78,6 +81,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={onChange}
+          placeholder="Enter password"
         />
       </div>
       <div>
