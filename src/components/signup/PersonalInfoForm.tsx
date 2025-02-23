@@ -137,7 +137,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         <Button
           type="button"
           onClick={onNext}
-          className="w-full bg-white text-primary hover:bg-gray-100"
+          className="w-full bg-custom-blue text-white hover:bg-custom-blue/90"
           disabled={showMismatchError}
         >
           Next Step
