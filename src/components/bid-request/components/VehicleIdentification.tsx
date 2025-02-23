@@ -45,6 +45,11 @@ const VehicleIdentification = ({
 }: VehicleIdentificationProps) => {
   console.log('VehicleIdentification rendered with formData:', formData);
 
+  const cleanTrimDescription = (description: string): string => {
+    // Remove content within parentheses
+    return description.replace(/\s*\([^)]*\)/g, '').trim();
+  };
+
   const handleTrimChange = (value: string) => {
     console.log('Trim selected:', value);
     onSelectChange(value, 'trim');
@@ -121,19 +126,23 @@ const VehicleIdentification = ({
           </SelectTrigger>
           <SelectContent className="bg-white">
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
-              formData.availableTrims.map((trim, index) => (
-                <SelectItem 
-                  key={`${trim.description}-${index}`} 
-                  value={trim.description || trim.name}
-                  className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
-                >
-                  <div className="w-full whitespace-normal break-words">
-                    <div className="font-medium text-gray-900">
-                      {trim.description || trim.name}
+              formData.availableTrims.map((trim, index) => {
+                const displayValue = trim.description || trim.name;
+                const cleanedDisplay = cleanTrimDescription(displayValue);
+                return (
+                  <SelectItem 
+                    key={`${displayValue}-${index}`} 
+                    value={displayValue}
+                    className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
+                  >
+                    <div className="w-full whitespace-normal break-words">
+                      <div className="font-medium text-gray-900">
+                        {cleanedDisplay}
+                      </div>
                     </div>
-                  </div>
-                </SelectItem>
-              ))
+                  </SelectItem>
+                );
+              })
             ) : (
               <SelectItem value="default" disabled>No trim levels available</SelectItem>
             )}
