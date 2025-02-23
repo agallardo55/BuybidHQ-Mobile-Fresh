@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
