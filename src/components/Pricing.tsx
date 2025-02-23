@@ -1,7 +1,9 @@
+
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
+
 const Pricing = () => {
   const navigate = useNavigate();
   const handleSignUp = () => {
@@ -15,13 +17,14 @@ const Pricing = () => {
       });
     }
   };
+
   return <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Simple, Flexible Pricing</h2>
           <p className="mt-4 text-lg text-gray-600">Choose the plan that's right for your business</p>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-4 lg:gap-8">
           {/* Basic Trial Plan */}
           <Card className="flex flex-col">
             <CardHeader>
@@ -50,6 +53,41 @@ const Pricing = () => {
             </CardContent>
             <CardFooter>
               <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">Start Free Trial</Button>
+            </CardFooter>
+          </Card>
+
+          {/* Pay per Buybid Plan */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-2xl">Pay per Buybid</CardTitle>
+              <CardDescription>For occasional users</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <div className="mt-2 flex items-baseline">
+                <span className="text-3xl font-bold">$10</span>
+                <span className="ml-1 text-gray-500">/buybid</span>
+              </div>
+              <ul className="mt-6 space-y-4">
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>Pay as you go</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>No monthly commitment</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>Buybid dashboard</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>Basic features</span>
+                </li>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">Get Started</Button>
             </CardFooter>
           </Card>
 
@@ -153,4 +191,5 @@ const Pricing = () => {
       </div>
     </section>;
 };
+
 export default Pricing;
