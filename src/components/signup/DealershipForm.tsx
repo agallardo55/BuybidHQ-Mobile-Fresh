@@ -87,7 +87,7 @@ const DealershipForm = ({
             onChange={onChange}
           />
         </div>
-        <div>
+        <div className="sm:col-span-2">
           <label htmlFor="city" className="block text-sm font-medium text-gray-700">
             City
           </label>
