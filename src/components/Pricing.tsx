@@ -1,9 +1,7 @@
-
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
-
 const Pricing = () => {
   const navigate = useNavigate();
   const handleSignUp = () => {
@@ -17,7 +15,6 @@ const Pricing = () => {
       });
     }
   };
-
   return <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
         <div className="mb-12 text-center">
@@ -28,13 +25,13 @@ const Pricing = () => {
           {/* Basic Trial Plan */}
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle className="text-2xl">Basic Trial</CardTitle>
+              <CardTitle className="text-2xl">Beta Trial</CardTitle>
               <CardDescription>Perfect for the curious members</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
                 <span className="text-3xl font-bold">Free</span>
-                <span className="ml-1 text-gray-500">/14 days</span>
+                <span className="ml-1 text-gray-500">/while in beta</span>
               </div>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
@@ -195,5 +192,4 @@ const Pricing = () => {
       </div>
     </section>;
 };
-
 export default Pricing;
