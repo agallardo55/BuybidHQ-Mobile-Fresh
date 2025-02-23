@@ -25,7 +25,7 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
           />
         </div>
         <Link to="/create-bid-request" className="w-full sm:w-auto">
-          <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
+          <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-white w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Bid Request
           </Button>
