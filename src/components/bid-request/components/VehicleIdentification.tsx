@@ -3,7 +3,7 @@ import FormField from "./FormField";
 import VinSection from "../VinSection";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrimOption } from "../types";
-import { Tooltip } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
 
 interface VehicleIdentificationProps {
@@ -133,9 +133,16 @@ const VehicleIdentification = ({
                     <div className="font-medium text-gray-900">
                       {trim.name}
                       {trim.description && (
-                        <Tooltip content={trim.description}>
-                          <Info className="inline-block w-4 h-4 ml-2 text-gray-400" />
-                        </Tooltip>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="inline-block w-4 h-4 ml-2 text-gray-400 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{trim.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       )}
                     </div>
                     {trim.specs?.engine && (
