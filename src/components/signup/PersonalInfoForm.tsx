@@ -137,7 +137,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         <Button
           type="button"
           onClick={onNext}
-          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+          className="w-full bg-white text-primary hover:bg-gray-100"
           disabled={showMismatchError}
         >
           Next Step
@@ -148,4 +148,3 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
 };
 
 export default PersonalInfoForm;
-
