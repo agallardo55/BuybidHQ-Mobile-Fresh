@@ -5,6 +5,14 @@ import { toast } from "sonner";
 import { BidRequest } from "@/components/bid-request/types";
 import { mapResponsesToOffers, transformBidRequest } from "./utils";
 
+type BidStatus = "Pending" | "Approved" | "Declined";
+
+const validateStatus = (status: string): BidStatus => {
+  return ["Pending", "Approved", "Declined"].includes(status) 
+    ? (status as BidStatus) 
+    : "Pending";
+};
+
 export const useBidRequestQuery = (enabled: boolean) => {
   return useQuery({
     queryKey: ['bidRequests'],
@@ -45,7 +53,7 @@ export const useBidRequestQuery = (enabled: boolean) => {
           return {
             ...data?.[0],
             created_at: request.created_at,
-            status: request.status
+            status: validateStatus(request.status)
           };
         });
 
@@ -76,8 +84,14 @@ export const useBidRequestQuery = (enabled: boolean) => {
 
         console.log('Fetched responses:', responses);
 
+        // Transform responses to ensure status is of correct type
+        const typedResponses = responses?.map(response => ({
+          ...response,
+          status: validateStatus(response.status)
+        }));
+
         // Map responses to their requests
-        const responsesMap = mapResponsesToOffers(responses);
+        const responsesMap = mapResponsesToOffers(typedResponses);
 
         // Transform to final format
         const transformedRequests = details.map((item) => {
