@@ -30,15 +30,21 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
         throw new Error("Invalid offer amount");
       }
 
-      const { error: submitError } = await supabase.functions.invoke('submit-public-bid', {
+      const { data, error } = await supabase.functions.invoke('submit-public-bid', {
         body: {
           token,
           offerAmount: cleanAmount
         }
       });
 
-      if (submitError) {
-        throw submitError;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || "Failed to submit bid");
+      }
+
+      if (!data?.success) {
+        console.error('Bid submission failed:', data);
+        throw new Error(data?.error || "Failed to submit bid");
       }
 
       toast.success("Bid submitted successfully!");
