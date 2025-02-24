@@ -18,15 +18,22 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
 
   const [errors, setErrors] = useState<Partial<Record<keyof BidResponseFormData, string>>>({});
 
+  const MAX_AMOUNT = 999999999; // 999 million
+
   const validateForm = () => {
     const newErrors: Partial<Record<keyof BidResponseFormData, string>> = {};
     
     if (!formData.offerAmount) {
       newErrors.offerAmount = "Offer amount is required";
-    } else if (isNaN(parseFloat(formData.offerAmount))) {
-      newErrors.offerAmount = "Please enter a valid number";
-    } else if (parseFloat(formData.offerAmount) <= 0) {
-      newErrors.offerAmount = "Offer amount must be greater than 0";
+    } else {
+      const numericAmount = parseFloat(formData.offerAmount.replace(/,/g, ''));
+      if (isNaN(numericAmount)) {
+        newErrors.offerAmount = "Please enter a valid number";
+      } else if (numericAmount <= 0) {
+        newErrors.offerAmount = "Offer amount must be greater than 0";
+      } else if (numericAmount > MAX_AMOUNT) {
+        newErrors.offerAmount = "Offer amount cannot exceed $999,999,999";
+      }
     }
     
     setErrors(newErrors);
@@ -50,19 +57,40 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
     }
   };
 
+  const formatNumber = (value: string): string => {
+    // Remove all non-numeric characters except decimal point
+    let cleaned = value.replace(/[^0-9.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = cleaned.split('.');
+    if (parts.length > 2) {
+      cleaned = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    // Limit to 2 decimal places
+    if (parts.length === 2) {
+      cleaned = parts[0] + '.' + parts[1].slice(0, 2);
+    }
+
+    // Parse the number and check if it exceeds maximum
+    const numValue = parseFloat(cleaned);
+    if (!isNaN(numValue) && numValue > MAX_AMOUNT) {
+      cleaned = MAX_AMOUNT.toString();
+    }
+
+    // Format with commas for thousands
+    const [integerPart, decimalPart] = cleaned.split('.');
+    let formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    
+    return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (existingBidAmount) return; // Prevent changes if there's an existing bid
 
     const { name, value } = e.target;
-    // Remove any non-numeric characters except decimal point
-    const numericValue = value.replace(/[^0-9.]/g, '');
+    const formattedValue = formatNumber(value);
     
-    // Ensure only one decimal point and max 2 decimal places
-    const parts = numericValue.split('.');
-    const formattedValue = parts.length > 1 
-      ? `${parts[0]}.${parts[1].slice(0, 2)}`
-      : numericValue;
-
     setFormData(prev => ({
       ...prev,
       [name]: formattedValue
@@ -90,6 +118,8 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
             id="offerAmount"
             name="offerAmount"
             type="text"
+            inputMode="numeric"
+            pattern="[0-9,]*\.?[0-9]*"
             placeholder="Enter amount"
             value={formData.offerAmount}
             onChange={handleChange}
