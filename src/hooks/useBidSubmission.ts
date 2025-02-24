@@ -23,10 +23,17 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
 
     setIsSubmitting(true);
     try {
+      // Remove commas and convert to number
+      const cleanAmount = parseFloat(formData.offerAmount.replace(/,/g, ''));
+      
+      if (isNaN(cleanAmount)) {
+        throw new Error("Invalid offer amount");
+      }
+
       const { error: submitError } = await supabase.functions.invoke('submit-public-bid', {
         body: {
           token,
-          offerAmount: parseFloat(formData.offerAmount)
+          offerAmount: cleanAmount
         }
       });
 
