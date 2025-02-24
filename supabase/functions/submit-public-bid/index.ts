@@ -27,6 +27,19 @@ serve(async (req) => {
     const requestData = await req.json() as PublicBidSubmission
     const { token, offerAmount } = requestData
 
+    if (!token || typeof offerAmount !== 'number' || isNaN(offerAmount)) {
+      console.error('Invalid request data:', { token: !!token, offerAmount });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid request data. Token and valid offer amount are required.' 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
     console.log('Processing public bid submission:', {
       token: token.substring(0, 8) + '...',
       offerAmount
@@ -35,17 +48,30 @@ serve(async (req) => {
     // Validate the token and get bid request details
     const { data: tokenData, error: tokenError } = await supabase
       .rpc('validate_bid_submission_token', { p_token: token })
-      .single()
 
-    if (tokenError || !tokenData?.is_valid) {
+    if (tokenError) {
       console.error('Token validation error:', tokenError)
       return new Response(
-        JSON.stringify({ error: 'Invalid or expired submission token' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Token validation failed', details: tokenError.message }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       )
     }
 
-    const { bid_request_id, buyer_id } = tokenData
+    if (!tokenData?.[0]?.is_valid) {
+      console.error('Invalid or expired token')
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired submission token' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+
+    const { bid_request_id, buyer_id } = tokenData[0]
 
     // Insert the bid response
     const { data: bidResponse, error: insertError } = await supabase
@@ -61,7 +87,13 @@ serve(async (req) => {
 
     if (insertError) {
       console.error('Error inserting bid response:', insertError)
-      throw insertError
+      return new Response(
+        JSON.stringify({ error: 'Failed to submit bid', details: insertError.message }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
 
     // Mark the token as used
@@ -98,7 +130,7 @@ serve(async (req) => {
         details: error.message 
       }), 
       { 
-        status: 400,
+        status: 500,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'
