@@ -51,11 +51,11 @@ export const BidRequestScenario = ({ phoneNumber, isLoading, setIsLoading }: Bid
         throw new Error(data.error);
       }
 
-      toast.success("Bid request SMS sent successfully!");
+      toast.success("Test message sent successfully!");
       console.log("SMS Response:", data);
     } catch (error: any) {
       console.error("Error sending SMS:", error);
-      toast.error(error.message || "Failed to send bid request SMS");
+      toast.error(error.message || "Failed to send test message");
     } finally {
       setIsLoading(false);
     }
@@ -64,16 +64,16 @@ export const BidRequestScenario = ({ phoneNumber, isLoading, setIsLoading }: Bid
   return (
     <div className="p-4 bg-gray-50 rounded-lg space-y-4">
       <div>
-        <h3 className="font-medium text-gray-900 mb-2">Scenario 1: Bid Request Notification</h3>
+        <h3 className="font-medium text-gray-900 mb-2">Scenario 1: Test SMS Notification</h3>
         <p className="text-sm text-gray-600 mb-3">
-          Tests sending a new bid request notification SMS for a 2024 Toyota Camry
+          Tests sending a basic test SMS notification
         </p>
         <Button
           onClick={testBidRequest}
           disabled={isLoading || phoneNumber.length !== 10}
           variant="custom-blue"
         >
-          Test Bid Request SMS
+          Send Test SMS
         </Button>
       </div>
     </div>

@@ -59,17 +59,21 @@ serve(async (req) => {
 
     // Log full configuration before making the request
     console.log(`[${requestId}] Knock configuration:`, {
-      workflow: 'workflow-bid-request-notification',
+      workflow: 'bid-request-test',
       recipientId,
       data: workflowData
     });
     
     try {
-      // Use the correct workflow key format with hyphens instead of underscores
-      const result = await knock.workflows.trigger('workflow-bid-request-notification', {
+      // Use a simpler test workflow first
+      const result = await knock.workflows.trigger('bid-request-test', {
         recipients: [recipientId],
         actor: "system",
-        data: workflowData
+        data: {
+          message: "This is a test bid request notification",
+          recipient_phone: formattedRecipientNumber,
+          ...workflowData
+        }
       });
 
       console.log(`[${requestId}] Notification triggered successfully:`, {
