@@ -6,11 +6,7 @@ export async function verifyKnockConfiguration(knock: Knock, workflowId: string)
   try {
     console.log('Attempting to verify Knock workflow:', workflowId);
     
-    // First try to list workflows to check API connectivity
-    const workflows = await knock.workflows.list();
-    console.log('Successfully connected to Knock API, found workflows:', workflows.length);
-    
-    // Then try to get the specific workflow
+    // Just attempt to get the specific workflow instead of listing all
     const workflow = await knock.workflows.get(workflowId);
     console.log('Successfully found workflow:', {
       id: workflow.id,
@@ -20,7 +16,10 @@ export async function verifyKnockConfiguration(knock: Knock, workflowId: string)
     
     return true;
   } catch (error) {
-    console.error('Knock configuration verification failed:', error);
+    console.error('Knock configuration verification failed:', {
+      message: error.message,
+      workflowId
+    });
     throw new Error(`Knock API Error: ${error.message}`);
   }
 }

@@ -7,6 +7,7 @@ import { verifyKnockConfiguration, prepareWorkflowData } from "./knockService.ts
 
 serve(async (req) => {
   const requestId = crypto.randomUUID();
+  console.log(`[${requestId}] Starting request processing`);
 
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -53,21 +54,35 @@ serve(async (req) => {
     }
 
     // Format phone number
+    console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
     const formattedRecipientNumber = formatPhoneNumber(phoneNumber);
 
-    // Initialize Knock and verify configuration
+    // Initialize Knock
+    console.log(`[${requestId}] Initializing Knock client with workflow:`, knockWorkflowId);
     const knock = new Knock(knockApiKey);
+    
+    // Verify Knock configuration
     await verifyKnockConfiguration(knock, knockWorkflowId);
     
     // Prepare workflow data
     const recipientId = `phone:${formattedRecipientNumber}`;
     const workflowData = prepareWorkflowData(requestData, formattedRecipientNumber);
+    
+    console.log(`[${requestId}] Triggering workflow with data:`, {
+      workflowId: knockWorkflowId,
+      recipientId,
+      ...workflowData
+    });
 
     // Trigger workflow
     const result = await knock.workflows.trigger(knockWorkflowId, {
       recipients: [recipientId],
       data: workflowData,
       actor: "system"
+    });
+
+    console.log(`[${requestId}] Workflow triggered successfully:`, {
+      runId: result.workflow_runs[0].id
     });
 
     return new Response(
@@ -85,7 +100,10 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error(`[${requestId}] Error:`, error);
+    console.error(`[${requestId}] Error:`, {
+      message: error.message,
+      stack: error.stack
+    });
     
     return new Response(
       JSON.stringify({
@@ -94,7 +112,7 @@ serve(async (req) => {
         timestamp: new Date().toISOString()
       }),
       {
-        status: 200, // Changed to 200 to prevent CORS issues
+        status: 200, // Keep 200 to prevent CORS issues
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'
