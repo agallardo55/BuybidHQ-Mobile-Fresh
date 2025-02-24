@@ -61,10 +61,10 @@ serve(async (req) => {
     let workflowKey;
     switch (type) {
       case 'bid_request':
-        workflowKey = 'sms-test';  // Using sms-test workflow for initial testing
+        workflowKey = 'bid-request-notification';
         break;
       case 'bid_response':
-        workflowKey = 'sms-test'; 
+        workflowKey = 'bid-response-notification';
         break;
       default:
         workflowKey = 'sms-test';
