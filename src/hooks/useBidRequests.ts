@@ -73,7 +73,6 @@ export const useBidRequests = () => {
             return null;
           }
 
-          // Combine the request status with the details
           return {
             ...data?.[0],
             created_at: request.created_at,
@@ -83,12 +82,18 @@ export const useBidRequests = () => {
 
         const details = (await Promise.all(detailsPromises)).filter(Boolean) as BidRequestDetails[];
 
-        // Get bid responses
+        // Get bid responses with buyer information
         const requestIds = details.map(item => item.request_id);
         const { data: responses, error: responsesError } = await supabase
           .from('bid_responses')
-          .select('bid_request_id, offer_amount')
-          .in('bid_request_id', requestIds);
+          .select(`
+            bid_request_id,
+            offer_amount,
+            created_at,
+            buyers!inner(buyer_name)
+          `)
+          .in('bid_request_id', requestIds)
+          .order('offer_amount', { ascending: false });
 
         if (responsesError) {
           console.error("Error fetching bid responses:", responsesError);
@@ -99,14 +104,18 @@ export const useBidRequests = () => {
         const responsesMap = new Map();
         responses?.forEach(response => {
           const offers = responsesMap.get(response.bid_request_id) || [];
-          offers.push(response.offer_amount);
+          offers.push({
+            amount: response.offer_amount,
+            buyerName: response.buyers?.buyer_name,
+            createdAt: response.created_at
+          });
           responsesMap.set(response.bid_request_id, offers);
         });
 
         // Transform to final format
         return details.map((item): BidRequest => {
-          const responses = responsesMap.get(item.request_id) || [];
-          const highestOffer = responses.length > 0 ? Math.max(...responses) : null;
+          const offers = responsesMap.get(item.request_id) || [];
+          const highestOffer = offers.length > 0 ? Math.max(...offers.map(o => o.amount)) : null;
 
           const status = ["Pending", "Approved", "Declined"].includes(item.status) 
             ? item.status as "Pending" | "Approved" | "Declined"
