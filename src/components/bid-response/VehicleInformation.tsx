@@ -1,6 +1,7 @@
 
 import { VehicleDetails } from "./types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 
 interface Props {
@@ -14,6 +15,7 @@ const VehicleInformation = ({ vehicle }: Props) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl">Vehicle Details</CardTitle>
         </CardHeader>
+        <Separator className="mb-4" />
         <CardContent>
           <div className="grid gap-2">
             <div className="grid grid-cols-2 gap-2 py-1">
@@ -44,6 +46,7 @@ const VehicleInformation = ({ vehicle }: Props) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl">Colors & Accessories</CardTitle>
         </CardHeader>
+        <Separator className="mb-4" />
         <CardContent>
           <div className="grid gap-2">
             <div className="grid grid-cols-2 gap-2 py-1">
@@ -66,6 +69,7 @@ const VehicleInformation = ({ vehicle }: Props) => {
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl">Vehicle Condition</CardTitle>
         </CardHeader>
+        <Separator className="mb-4" />
         <CardContent>
           <div className="grid gap-2">
             <div className="grid grid-cols-2 gap-2 py-1">
@@ -106,4 +110,3 @@ const VehicleInformation = ({ vehicle }: Props) => {
 };
 
 export default VehicleInformation;
-
