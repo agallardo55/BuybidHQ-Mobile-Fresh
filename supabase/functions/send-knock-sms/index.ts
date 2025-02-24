@@ -59,14 +59,14 @@ serve(async (req) => {
 
     // Log full configuration before making the request
     console.log(`[${requestId}] Knock configuration:`, {
-      workflow: 'workflow_bid-request-notification',
+      workflow: 'workflow-bid-request-notification',
       recipientId,
       data: workflowData
     });
     
     try {
-      // Use the correct workflow key format
-      const result = await knock.workflows.trigger('workflow_bid-request-notification', {
+      // Use the correct workflow key format with hyphens instead of underscores
+      const result = await knock.workflows.trigger('workflow-bid-request-notification', {
         recipients: [recipientId],
         actor: "system",
         data: workflowData
