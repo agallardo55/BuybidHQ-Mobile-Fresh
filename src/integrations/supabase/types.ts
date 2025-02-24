@@ -1412,6 +1412,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_bid_notification_details: {
+        Args: {
+          p_bid_response_id: string
+        }
+        Returns: {
+          creator_phone: string
+          buyer_name: string
+          vehicle_year: string
+          vehicle_make: string
+          vehicle_model: string
+          offer_amount: number
+        }[]
+      }
       get_bid_request_details: {
         Args: {
           p_request_id: string
