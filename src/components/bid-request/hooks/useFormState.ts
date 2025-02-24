@@ -32,6 +32,7 @@ export const useFormState = (): FormState & FormStateActions => {
     errors: {},
     selectedBuyers: [],
     uploadedImageUrls: [],
+    selectedFileUrls: [],
     isSubmitting: false,
     searchTerm: "",
     showValidation: false,
@@ -61,6 +62,10 @@ export const useFormState = (): FormState & FormStateActions => {
 
   const setUploadedImageUrls = (urls: string[]) => {
     setState(prev => ({ ...prev, uploadedImageUrls: urls }));
+  };
+
+  const setSelectedFileUrls = (urls: string[]) => {
+    setState(prev => ({ ...prev, selectedFileUrls: urls }));
   };
 
   const setIsSubmitting = (isSubmitting: boolean) => {
@@ -140,7 +145,11 @@ export const useFormState = (): FormState & FormStateActions => {
   };
 
   const handleImagesUploaded = (urls: string[]) => {
-    setUploadedImageUrls([...state.uploadedImageUrls, ...urls]);
+    setState(prev => ({
+      ...prev,
+      uploadedImageUrls: [...prev.uploadedImageUrls, ...urls],
+      selectedFileUrls: [] // Clear selected files after upload
+    }));
   };
 
   const toggleBuyer = (buyerId: string) => {
@@ -161,6 +170,7 @@ export const useFormState = (): FormState & FormStateActions => {
     setErrors,
     setSelectedBuyers,
     setUploadedImageUrls,
+    setSelectedFileUrls,
     setIsSubmitting,
     setSearchTerm,
     setShowValidation,
@@ -171,4 +181,3 @@ export const useFormState = (): FormState & FormStateActions => {
     handleBatchChanges,
   };
 };
-

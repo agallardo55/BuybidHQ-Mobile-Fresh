@@ -1,3 +1,4 @@
+
 import { ImagePlus } from "lucide-react";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +19,9 @@ interface ColorsAndAccessoriesProps {
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onImagesUploaded?: (urls: string[]) => void;
+  uploadedImageUrls?: string[];
+  selectedFileUrls?: string[];
+  setSelectedFileUrls?: (urls: string[]) => void;
 }
 
 const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
@@ -33,11 +37,12 @@ const compressionOptions = {
 const ColorsAndAccessories = ({
   formData,
   onChange,
-  onImagesUploaded
+  onImagesUploaded,
+  uploadedImageUrls = [],
+  selectedFileUrls = [],
+  setSelectedFileUrls
 }: ColorsAndAccessoriesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [selectedFileUrls, setSelectedFileUrls] = useState<string[]>([]);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -50,7 +55,7 @@ const ColorsAndAccessories = ({
 
       // Create URLs for preview
       const newUrls = filesArray.map(file => URL.createObjectURL(file));
-      setSelectedFileUrls(prev => [...prev, ...newUrls]);
+      setSelectedFileUrls?.(prev => [...(prev || []), ...newUrls]);
     }
   };
 
@@ -118,17 +123,15 @@ const ColorsAndAccessories = ({
       if (uploadedUrls.length > 0) {
         console.log('Successfully uploaded files:', uploadedUrls);
 
-        // Update uploaded images state and call the callback
-        const newUploadedImages = [...uploadedImages, ...uploadedUrls];
-        setUploadedImages(newUploadedImages);
+        // Clear selected files and their preview URLs
+        setSelectedFiles([]);
+        selectedFileUrls.forEach(url => URL.revokeObjectURL(url));
+        setSelectedFileUrls?.([]);
+        
+        // Call the callback with new URLs
         onImagesUploaded?.(uploadedUrls);
         
         toast.success(`Successfully uploaded ${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''}`);
-
-        // Clear selected files for next upload
-        setSelectedFiles([]);
-        selectedFileUrls.forEach(url => URL.revokeObjectURL(url));
-        setSelectedFileUrls([]);
         
         // Close the upload dialog
         setIsUploadDialogOpen(false);
@@ -169,12 +172,12 @@ const ColorsAndAccessories = ({
             return;
           }
 
-          setUploadedImages(prev => prev.filter(img => img !== url));
+          onImagesUploaded?.(uploadedImageUrls.filter(img => img !== url));
           toast.success('Image deleted successfully');
         }
       } else {
         // For preview images, just remove from state
-        setSelectedFileUrls(prev => prev.filter(img => img !== url));
+        setSelectedFileUrls?.(prev => prev?.filter(img => img !== url) || []);
         setSelectedFiles(prev => {
           const index = selectedFileUrls.indexOf(url);
           return prev.filter((_, i) => i !== index);
@@ -238,7 +241,7 @@ const ColorsAndAccessories = ({
       />
 
       <ImageCarousel
-        uploadedImages={uploadedImages}
+        uploadedImages={uploadedImageUrls}
         selectedFileUrls={selectedFileUrls}
         onImageClick={setPreviewImage}
         onDeleteImage={handleDeleteImage}

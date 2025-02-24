@@ -41,7 +41,7 @@ export interface BidRequestFormData {
   make: string;
   model: string;
   trim: string;
-  displayTrim: string; // Added for dropdown display
+  displayTrim: string;
   availableTrims: TrimOption[];
   vin: string;
   mileage: string;
@@ -75,6 +75,7 @@ export interface FormState {
   errors: FormErrors;
   selectedBuyers: string[];
   uploadedImageUrls: string[];
+  selectedFileUrls: string[];
   isSubmitting: boolean;
   searchTerm: string;
   showValidation: boolean;
@@ -85,6 +86,7 @@ export interface FormStateActions {
   setErrors: (errors: FormErrors) => void;
   setSelectedBuyers: (buyers: string[]) => void;
   setUploadedImageUrls: (urls: string[]) => void;
+  setSelectedFileUrls: (urls: string[]) => void;
   setIsSubmitting: (isSubmitting: boolean) => void;
   setSearchTerm: (term: string) => void;
   setShowValidation: (show: boolean) => void;
