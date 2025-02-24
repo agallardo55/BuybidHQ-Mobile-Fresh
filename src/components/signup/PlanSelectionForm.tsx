@@ -22,7 +22,7 @@ const PlanSelectionForm = ({
             </li>
             <li className="flex items-center">
               <Check className="w-4 h-4 mr-2 text-accent" />
-              <span className="text-sm">Connect with 5 dealers</span>
+              <span className="text-sm">Unlimited buyer connections</span>
             </li>
           </ul>
         </Card>
