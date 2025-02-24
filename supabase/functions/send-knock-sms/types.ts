@@ -2,17 +2,11 @@
 export interface BaseSMSRequest {
   type: 'bid_request' | 'bid_response' | 'test'
   phoneNumber: string
-  vehicleDetails?: {
-    year: string
-    make: string
-    model: string
-    mileage?: string
-    recon?: string
-  }
 }
 
 export interface BidRequestSMS extends BaseSMSRequest {
   type: 'bid_request'
+  senderName: string
   bidRequestUrl: string
 }
 

@@ -24,18 +24,15 @@ export async function verifyKnockConfiguration(knockApiKey: string, workflowId: 
 
 export function prepareWorkflowData(requestData: SMSRequest, formattedRecipientNumber: string) {
   if (requestData.type === 'bid_request') {
-    const { bidRequestUrl, vehicleDetails } = requestData as BidRequestSMS;
+    const { bidRequestUrl, senderName } = requestData as BidRequestSMS;
     return {
-      vehicle: vehicleDetails,
+      sender_name: senderName,
       bid_request_url: bidRequestUrl,
-      recipient_phone: formattedRecipientNumber,
-      mileage: vehicleDetails.mileage,
-      recon: vehicleDetails.recon
+      recipient_phone: formattedRecipientNumber
     };
   } else if (requestData.type === 'bid_response') {
-    const { offerAmount, buyerName, vehicleDetails } = requestData as BidResponseSMS;
+    const { offerAmount, buyerName } = requestData as BidResponseSMS;
     return {
-      vehicle: vehicleDetails,
       offer_amount: offerAmount,
       buyer_name: buyerName,
       recipient_phone: formattedRecipientNumber

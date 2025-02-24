@@ -13,11 +13,25 @@ export const useBidRequestSubmission = () => {
   const navigate = useNavigate();
 
   const submitBidRequest = async ({ formState, userId }: BidRequestSubmissionProps) => {
-    const { formData, selectedBuyers, uploadedImageUrls } = formState;
+    const { selectedBuyers, uploadedImageUrls, formData } = formState;
     const requestId = crypto.randomUUID();
 
     try {
-      console.log(`[${requestId}] Starting bid request submission:`, { formData, selectedBuyers, uploadedImageUrls });
+      console.log(`[${requestId}] Starting bid request submission`);
+
+      // Get sender's name
+      const { data: userData, error: userError } = await supabase
+        .from('buybidhq_users')
+        .select('full_name')
+        .eq('id', userId)
+        .single();
+
+      if (userError) {
+        console.error(`[${requestId}] Error fetching sender details:`, userError);
+        throw userError;
+      }
+
+      const senderName = userData.full_name || 'BuyBidHQ User';
 
       // Prepare vehicle data matching database schema
       const vehicleData = {
@@ -45,14 +59,6 @@ export const useBidRequestSubmission = () => {
         recon_estimate: formData.reconEstimate || '0',
         recon_details: formData.reconDetails || 'No additional details'
       };
-
-      console.log(`[${requestId}] Calling RPC with formatted data:`, {
-        vehicle_data: vehicleData,
-        recon_data: reconData,
-        image_urls: uploadedImageUrls,
-        buyer_ids: selectedBuyers,
-        creator_id: userId
-      });
 
       // Create the bid request
       const { data: bidRequestData, error: bidRequestError } = await supabase.rpc('create_complete_bid_request', {
@@ -90,14 +96,6 @@ export const useBidRequestSubmission = () => {
         // Generate unique bid submission URL
         const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(buyerId)}`;
 
-        // Calculate reconditioning cost for message
-        const reconCost = formData.reconEstimate ? 
-          `Est. recon: $${parseInt(formData.reconEstimate).toLocaleString()}` : 
-          'No recon needed';
-
-        // Prepare mileage for message
-        const mileage = parseInt(formData.mileage).toLocaleString();
-
         console.log(`[${requestId}] Sending SMS notification to buyer:`, {
           buyerId,
           name: buyerData.buyer_name,
@@ -109,13 +107,7 @@ export const useBidRequestSubmission = () => {
           body: {
             type: 'bid_request',
             phoneNumber: buyerData.buyer_mobile,
-            vehicleDetails: {
-              year: formData.year,
-              make: formData.make,
-              model: formData.model,
-              mileage: mileage,
-              recon: reconCost
-            },
+            senderName: senderName,
             bidRequestUrl
           }
         });
