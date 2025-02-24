@@ -56,9 +56,11 @@ export const useBidRequestQuery = (enabled: boolean) => {
         const { data: responses, error: responsesError } = await supabase
           .from('bid_responses')
           .select(`
+            id,
             bid_request_id,
             offer_amount,
             created_at,
+            status,
             buyers!inner(
               buyer_name,
               dealer_name

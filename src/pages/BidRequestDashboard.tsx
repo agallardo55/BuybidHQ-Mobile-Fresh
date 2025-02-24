@@ -26,10 +26,6 @@ const BidRequestDashboard = () => {
     setCurrentPage(1);
   };
 
-  const updateStatus = async (id: string, newStatus: "Pending" | "Approved" | "Declined") => {
-    updateBidRequest({ id, status: newStatus });
-  };
-
   const handleSort = (field: keyof BidRequest) => {
     setSortConfig((currentConfig) => {
       if (currentConfig.field === field) {
@@ -129,7 +125,6 @@ const BidRequestDashboard = () => {
               <>
                 <BidRequestTable 
                   requests={paginatedRequests}
-                  onStatusUpdate={updateStatus}
                   sortConfig={sortConfig}
                   onSort={handleSort}
                 />
