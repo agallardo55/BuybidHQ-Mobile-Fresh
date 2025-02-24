@@ -36,21 +36,6 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
     setIsDialogOpen(true);
   };
 
-  const renderOffers = (request: BidRequest) => {
-    if (!request.offers?.length) {
-      return <span className="text-gray-500">No offers yet</span>;
-    }
-    return (
-      <div className="space-y-1">
-        {request.offers.map((offer, index) => (
-          <div key={index}>
-            ${offer.amount.toLocaleString()}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   const SortIcon = ({ field }: { field: keyof BidRequest }) => {
     if (sortConfig.field !== field) {
       return <ArrowUpDown className="h-4 w-4 ml-1" />;
@@ -93,65 +78,125 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 <TableHead className="text-sm">VIN</TableHead>
                 <SortableHeader field="mileage">Mileage</SortableHeader>
                 <TableHead className="text-sm">Buyer</TableHead>
-                <TableHead className="text-sm">Offers</TableHead>
+                <TableHead className="text-sm">Offer</TableHead>
                 <SortableHeader field="status">Status</SortableHeader>
               </TableRow>
             </TableHeader>
             <TableBody>
               {requests && requests.length > 0 ? (
-                requests.map((request) => (
-                  <TableRow 
-                    key={request.id} 
-                    className="text-sm hover:bg-muted/50 cursor-pointer"
-                    onClick={() => handleRowClick(request)}
-                  >
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {formatDate(request.createdAt)}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {request.year}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {request.make}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {request.model}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {request.vin}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {request.mileage.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {request.offers?.[0]?.buyerName?.split('(')?.[0]?.trim() || 'No buyer'}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px]">
-                      {renderOffers(request)}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                      <Select
-                        value={request.status}
-                        onValueChange={(value: "Pending" | "Approved" | "Declined") => 
-                          onStatusUpdate(request.id, value)
-                        }
+                requests.flatMap((request) => {
+                  // If there are no offers, return a single row
+                  if (!request.offers?.length) {
+                    return [(
+                      <TableRow 
+                        key={request.id} 
+                        className="text-sm hover:bg-muted/50 cursor-pointer"
+                        onClick={() => handleRowClick(request)}
                       >
-                        <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
-                          ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                          ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                          ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
-                        `}>
-                          <SelectValue>{request.status}</SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="Approved">Approved</SelectItem>
-                          <SelectItem value="Declined">Declined</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                ))
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          {formatDate(request.createdAt)}
+                        </TableCell>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          {request.year}
+                        </TableCell>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          {request.make}
+                        </TableCell>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          {request.model}
+                        </TableCell>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          {request.vin}
+                        </TableCell>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          {request.mileage.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          <span className="text-gray-500">No buyer</span>
+                        </TableCell>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          <span className="text-gray-500">No offers yet</span>
+                        </TableCell>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                          <Select
+                            value={request.status}
+                            onValueChange={(value: "Pending" | "Approved" | "Declined") => 
+                              onStatusUpdate(request.id, value)
+                            }
+                          >
+                            <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
+                              ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                              ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                              ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+                            `}>
+                              <SelectValue>{request.status}</SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Pending">Pending</SelectItem>
+                              <SelectItem value="Approved">Approved</SelectItem>
+                              <SelectItem value="Declined">Declined</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                      </TableRow>
+                    )];
+                  }
+
+                  // Create a row for each offer
+                  return request.offers.map((offer, index) => (
+                    <TableRow 
+                      key={`${request.id}-${index}`}
+                      className="text-sm hover:bg-muted/50 cursor-pointer"
+                      onClick={() => handleRowClick(request)}
+                    >
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                        {formatDate(request.createdAt)}
+                      </TableCell>
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                        {request.year}
+                      </TableCell>
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                        {request.make}
+                      </TableCell>
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                        {request.model}
+                      </TableCell>
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                        {request.vin}
+                      </TableCell>
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                        {request.mileage.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                        {offer.buyerName.split('(')?.[0]?.trim()}
+                      </TableCell>
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                        ${offer.amount.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        <Select
+                          value={request.status}
+                          onValueChange={(value: "Pending" | "Approved" | "Declined") => 
+                            onStatusUpdate(request.id, value)
+                          }
+                        >
+                          <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
+                            ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                            ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                            ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+                          `}>
+                            <SelectValue>{request.status}</SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Pending">Pending</SelectItem>
+                            <SelectItem value="Approved">Approved</SelectItem>
+                            <SelectItem value="Declined">Declined</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                  ));
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-4">
