@@ -70,12 +70,12 @@ export const useBidRequestSubmission = () => {
 
       console.log('Bid request created successfully:', bidRequestData);
 
-      // Send emails to selected buyers
+      // Send SMS notifications to selected buyers using Knock
       for (const buyerId of selectedBuyers) {
         // Get buyer details
         const { data: buyerData, error: buyerError } = await supabase
           .from('buyers')
-          .select('buyer_name, email')
+          .select('buyer_name, mobile_number')
           .eq('id', buyerId)
           .single();
 
@@ -84,16 +84,14 @@ export const useBidRequestSubmission = () => {
           continue;
         }
 
-        // Generate unique bid submission URL with the correct request ID
-        // The RPC returns the request ID directly
+        // Generate unique bid submission URL
         const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(buyerId)}`;
 
-        // Send email notification
-        const { error: emailError } = await supabase.functions.invoke('send-bid-email', {
+        // Send SMS notification via Knock
+        const { error: smsError } = await supabase.functions.invoke('send-knock-sms', {
           body: {
             type: 'bid_request',
-            email: buyerData.email,
-            buyerName: buyerData.buyer_name,
+            phoneNumber: buyerData.mobile_number,
             vehicleDetails: {
               year: formData.year,
               make: formData.make,
@@ -103,11 +101,11 @@ export const useBidRequestSubmission = () => {
           }
         });
 
-        if (emailError) {
-          console.error('Error sending email to buyer:', buyerData.email, emailError);
-          toast.error(`Failed to send email to ${buyerData.buyer_name}`);
+        if (smsError) {
+          console.error('Error sending SMS to buyer:', buyerData.mobile_number, smsError);
+          toast.error(`Failed to send SMS to ${buyerData.buyer_name}`);
         } else {
-          console.log('Email sent successfully to:', buyerData.email);
+          console.log('SMS sent successfully to:', buyerData.mobile_number);
         }
       }
 
