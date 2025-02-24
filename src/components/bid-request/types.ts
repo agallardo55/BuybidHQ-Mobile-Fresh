@@ -10,9 +10,11 @@ export interface BidRequest {
   mileage: number;
   buyer: string;
   offers: {
+    id: string;
     amount: number;
     buyerName: string;
     createdAt: string;
+    status: "Pending" | "Approved" | "Declined";
   }[];
   status: "Pending" | "Approved" | "Declined";
   engineCylinders: string;

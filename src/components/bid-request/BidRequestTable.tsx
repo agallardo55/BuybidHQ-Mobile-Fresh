@@ -1,5 +1,12 @@
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
 import { BidRequest } from "./types";
@@ -7,6 +14,7 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import BidRequestDialog from "./BidRequestDialog";
+import { useBidResponseMutation } from "@/hooks/bid-requests/useBidResponseMutation";
 
 interface BidRequestTableProps {
   requests: BidRequest[];
@@ -18,9 +26,10 @@ interface BidRequestTableProps {
   onSort: (field: keyof BidRequest) => void;
 }
 
-const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRequestTableProps) => {
+const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps) => {
   const [selectedRequest, setSelectedRequest] = useState<BidRequest | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { mutate: updateBidResponseStatus } = useBidResponseMutation();
 
   const formatDate = (dateString: string) => {
     try {
@@ -34,6 +43,10 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
   const handleRowClick = (request: BidRequest) => {
     setSelectedRequest(request);
     setIsDialogOpen(true);
+  };
+
+  const handleStatusUpdate = (responseId: string, status: "Pending" | "Approved" | "Declined") => {
+    updateBidResponseStatus({ responseId, status });
   };
 
   const SortIcon = ({ field }: { field: keyof BidRequest }) => {
@@ -62,8 +75,6 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
     </TableHead>
   );
 
-  console.log('Rendering BidRequestTable with requests:', requests);
-
   return (
     <>
       <div className="overflow-x-auto -mx-4 sm:-mx-6 scrollbar-thin scrollbar-thumb-gray-300">
@@ -79,7 +90,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 <SortableHeader field="mileage">Mileage</SortableHeader>
                 <TableHead className="text-sm">Buyer</TableHead>
                 <TableHead className="text-sm">Offer</TableHead>
-                <SortableHeader field="status">Status</SortableHeader>
+                <TableHead className="text-sm">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -117,26 +128,8 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                         <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                           <span className="text-gray-500">No offers yet</span>
                         </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                          <Select
-                            value={request.status}
-                            onValueChange={(value: "Pending" | "Approved" | "Declined") => 
-                              onStatusUpdate(request.id, value)
-                            }
-                          >
-                            <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
-                              ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                              ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                              ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
-                            `}>
-                              <SelectValue>{request.status}</SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Pending">Pending</SelectItem>
-                              <SelectItem value="Approved">Approved</SelectItem>
-                              <SelectItem value="Declined">Declined</SelectItem>
-                            </SelectContent>
-                          </Select>
+                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                          <span>Pending</span>
                         </TableCell>
                       </TableRow>
                     )];
@@ -175,17 +168,17 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                       </TableCell>
                       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <Select
-                          value={request.status}
+                          value={offer.status || 'Pending'}
                           onValueChange={(value: "Pending" | "Approved" | "Declined") => 
-                            onStatusUpdate(request.id, value)
+                            handleStatusUpdate(offer.id, value)
                           }
                         >
                           <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
-                            ${request.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                            ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                            ${request.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+                            ${offer.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                            ${offer.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                            ${offer.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
                           `}>
-                            <SelectValue>{request.status}</SelectValue>
+                            <SelectValue>{offer.status || 'Pending'}</SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Pending">Pending</SelectItem>
