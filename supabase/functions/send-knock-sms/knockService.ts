@@ -28,7 +28,9 @@ export function prepareWorkflowData(requestData: SMSRequest, formattedRecipientN
     return {
       vehicle: vehicleDetails,
       bid_request_url: bidRequestUrl,
-      recipient_phone: formattedRecipientNumber
+      recipient_phone: formattedRecipientNumber,
+      mileage: vehicleDetails.mileage,
+      recon: vehicleDetails.recon
     };
   } else if (requestData.type === 'bid_response') {
     const { offerAmount, buyerName, vehicleDetails } = requestData as BidResponseSMS;

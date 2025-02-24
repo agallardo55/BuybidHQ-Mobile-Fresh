@@ -6,6 +6,8 @@ export interface BaseSMSRequest {
     year: string
     make: string
     model: string
+    mileage?: string
+    recon?: string
   }
 }
 

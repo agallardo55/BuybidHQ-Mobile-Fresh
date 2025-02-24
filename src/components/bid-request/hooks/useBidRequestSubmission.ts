@@ -54,7 +54,7 @@ export const useBidRequestSubmission = () => {
         creator_id: userId
       });
 
-      const startTime = performance.now();
+      // Create the bid request
       const { data: bidRequestData, error: bidRequestError } = await supabase.rpc('create_complete_bid_request', {
         vehicle_data: vehicleData,
         recon_data: reconData,
@@ -62,7 +62,6 @@ export const useBidRequestSubmission = () => {
         buyer_ids: selectedBuyers,
         creator_id: userId
       });
-      const endTime = performance.now();
 
       if (bidRequestError) {
         console.error(`[${requestId}] Error creating bid request:`, bidRequestError);
@@ -70,13 +69,13 @@ export const useBidRequestSubmission = () => {
         throw bidRequestError;
       }
 
-      console.log(`[${requestId}] Bid request created successfully in ${(endTime - startTime).toFixed(2)}ms:`, bidRequestData);
+      console.log(`[${requestId}] Bid request created successfully:`, bidRequestData);
 
       // Send SMS notifications to selected buyers using Knock
       for (const buyerId of selectedBuyers) {
         console.log(`[${requestId}] Fetching buyer details for ID:`, buyerId);
         
-        // Get buyer details - using correct column names from database
+        // Get buyer details
         const { data: buyerData, error: buyerError } = await supabase
           .from('buyers')
           .select('buyer_name, buyer_mobile')
@@ -90,6 +89,14 @@ export const useBidRequestSubmission = () => {
 
         // Generate unique bid submission URL
         const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(buyerId)}`;
+
+        // Calculate reconditioning cost for message
+        const reconCost = formData.reconEstimate ? 
+          `Est. recon: $${parseInt(formData.reconEstimate).toLocaleString()}` : 
+          'No recon needed';
+
+        // Prepare mileage for message
+        const mileage = parseInt(formData.mileage).toLocaleString();
 
         console.log(`[${requestId}] Sending SMS notification to buyer:`, {
           buyerId,
@@ -105,7 +112,9 @@ export const useBidRequestSubmission = () => {
             vehicleDetails: {
               year: formData.year,
               make: formData.make,
-              model: formData.model
+              model: formData.model,
+              mileage: mileage,
+              recon: reconCost
             },
             bidRequestUrl
           }
