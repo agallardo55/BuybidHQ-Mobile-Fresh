@@ -28,9 +28,30 @@ serve(async (req) => {
     try {
       requestData = await req.json();
       console.log(`[${requestId}] Request data:`, JSON.stringify(requestData, null, 2));
+
+      // Additional validation for bid request URLs
+      if (requestData.type === 'bid_request') {
+        const { bidRequestUrl } = requestData;
+        if (!bidRequestUrl) {
+          throw new Error('Bid request URL is required');
+        }
+        try {
+          const url = new URL(bidRequestUrl);
+          const token = url.searchParams.get('token');
+          if (!token) {
+            throw new Error('Token parameter is missing from bid request URL');
+          }
+          console.log(`[${requestId}] Bid request URL validation passed:`, {
+            url: url.toString(),
+            token: `${token.substring(0, 8)}...`
+          });
+        } catch (urlError) {
+          throw new Error(`Invalid bid request URL: ${urlError.message}`);
+        }
+      }
     } catch (error) {
-      console.error(`[${requestId}] JSON parse error:`, error);
-      throw new Error('Invalid request format');
+      console.error(`[${requestId}] JSON parse or validation error:`, error);
+      throw new Error('Invalid request format or missing required data');
     }
 
     const { type, phoneNumber } = requestData;
@@ -104,7 +125,9 @@ serve(async (req) => {
 
       console.log(`[${requestId}] Notification triggered successfully:`, {
         runId: result.id,
-        recipientNumber: formattedRecipientNumber
+        recipientNumber: formattedRecipientNumber,
+        workflowKey,
+        data: workflowData
       });
 
       return new Response(
@@ -156,3 +179,4 @@ serve(async (req) => {
     );
   }
 });
+
