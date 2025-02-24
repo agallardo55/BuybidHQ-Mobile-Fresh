@@ -43,11 +43,8 @@ serve(async (req) => {
       throw new Error('KNOCK_API_KEY is not set');
     }
 
-    // Get Knock workspace key from environment
-    const workspaceKey = Deno.env.get('KNOCK_WORKSPACE_KEY') || 'buybid';
-    
-    // Define workflow ID with workspace key
-    const knockWorkflowId = `${workspaceKey}/sms-test`; // Include workspace key in workflow ID
+    // Define workflow ID based on type
+    const knockWorkflowId = 'sms-test'; // Use the workflow key directly without workspace prefix
 
     // Format phone number
     console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
@@ -68,7 +65,7 @@ serve(async (req) => {
     });
 
     try {
-      // Trigger notification with workspace-prefixed workflow ID
+      // Trigger notification using the workflow key directly
       const result = await knock.notify(knockWorkflowId, {
         actor: "system",
         recipients: [recipientId],
