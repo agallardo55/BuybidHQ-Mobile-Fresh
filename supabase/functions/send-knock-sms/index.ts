@@ -43,32 +43,29 @@ serve(async (req) => {
       throw new Error('KNOCK_API_KEY is not set');
     }
 
-    // Define workflow ID based on type
-    const knockWorkflowId = 'sms-test'; // Use the workflow key directly without workspace prefix
-
     // Format phone number
     console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
     const formattedRecipientNumber = formatPhoneNumber(phoneNumber);
 
     // Initialize Knock client
-    console.log(`[${requestId}] Initializing Knock client with workflow:`, knockWorkflowId);
     const knock = new Knock(knockApiKey);
     
     // Prepare workflow data
-    const recipientId = `phone:${formattedRecipientNumber}`;
+    const recipientId = formattedRecipientNumber; // Remove phone: prefix
     const workflowData = prepareWorkflowData(requestData, formattedRecipientNumber);
-    
-    console.log(`[${requestId}] Attempting to trigger notification with data:`, {
-      workflowId: knockWorkflowId,
+
+    // Log full configuration before making the request
+    console.log(`[${requestId}] Knock configuration:`, {
+      apiKey: knockApiKey ? '***' : 'undefined',
       recipientId,
       data: workflowData
     });
-
+    
     try {
-      // Trigger notification using the workflow key directly
-      const result = await knock.notify(knockWorkflowId, {
-        actor: "system",
+      // Trigger workflow without specifying workflow ID directly
+      const result = await knock.workflows.trigger('sms-test', {
         recipients: [recipientId],
+        actor: "system",
         data: workflowData
       });
 
