@@ -79,7 +79,7 @@ export const useBidRequestSubmission = () => {
 
       // Send SMS notifications to selected buyers using Knock
       for (const buyerId of selectedBuyers) {
-        console.log(`[${requestId}] Fetching buyer details for ID:`, buyerId);
+        console.log(`[${requestId}] Processing buyer ID:`, buyerId);
         
         // Get buyer details
         const { data: buyerData, error: buyerError } = await supabase
@@ -93,13 +93,27 @@ export const useBidRequestSubmission = () => {
           continue;
         }
 
-        // Generate unique bid submission URL
-        const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(buyerId)}`;
+        // Generate bid submission token
+        const { data: tokenData, error: tokenError } = await supabase
+          .rpc('generate_bid_submission_token', {
+            p_bid_request_id: bidRequestData,
+            p_buyer_id: buyerId
+          });
+
+        if (tokenError) {
+          console.error(`[${requestId}] Error generating token:`, tokenError);
+          toast.error(`Failed to generate secure link for ${buyerData.buyer_name}`);
+          continue;
+        }
+
+        // Generate bid submission URL with secure token
+        const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenData)}`;
 
         console.log(`[${requestId}] Sending SMS notification to buyer:`, {
           buyerId,
           name: buyerData.buyer_name,
-          phone: buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*')
+          phone: buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*'),
+          token: tokenData.substring(0, 8) + '...'
         });
 
         // Send SMS notification via Knock
@@ -108,7 +122,12 @@ export const useBidRequestSubmission = () => {
             type: 'bid_request',
             phoneNumber: buyerData.buyer_mobile,
             senderName: senderName,
-            bidRequestUrl
+            bidRequestUrl,
+            vehicleDetails: {
+              year: formData.year,
+              make: formData.make,
+              model: formData.model
+            }
           }
         });
 
@@ -135,3 +154,4 @@ export const useBidRequestSubmission = () => {
 
   return { submitBidRequest };
 };
+

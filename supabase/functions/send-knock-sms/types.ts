@@ -1,24 +1,33 @@
 
-export interface BaseSMSRequest {
-  type: 'bid_request' | 'bid_response' | 'test'
-  phoneNumber: string
+export type SMSRequest = BidRequestSMS | BidResponseSMS | TestSMS;
+
+export interface BidRequestSMS {
+  type: 'bid_request';
+  phoneNumber: string;
+  senderName: string;
+  bidRequestUrl: string;
+  vehicleDetails: {
+    year: string;
+    make: string;
+    model: string;
+  };
 }
 
-export interface BidRequestSMS extends BaseSMSRequest {
-  type: 'bid_request'
-  senderName: string
-  bidRequestUrl: string
+export interface BidResponseSMS {
+  type: 'bid_response';
+  phoneNumber: string;
+  offerAmount: string;
+  buyerName: string;
+  vehicleDetails: {
+    year: string;
+    make: string;
+    model: string;
+  };
 }
 
-export interface BidResponseSMS extends BaseSMSRequest {
-  type: 'bid_response'
-  offerAmount: string
-  buyerName: string
+export interface TestSMS {
+  type: 'test';
+  phoneNumber: string;
+  message?: string;
 }
 
-export interface TestSMS extends BaseSMSRequest {
-  type: 'test'
-  message?: string
-}
-
-export type SMSRequest = BidRequestSMS | BidResponseSMS | TestSMS
