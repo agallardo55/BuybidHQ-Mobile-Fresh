@@ -31,13 +31,21 @@ export const BidRequestScenario = ({ phoneNumber, isLoading, setIsLoading }: Bid
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase function error:", error);
+        throw error;
+      }
       
+      if (data?.error) {
+        console.error("Edge function error:", data.error);
+        throw new Error(data.error);
+      }
+
       toast.success("Bid request SMS sent successfully!");
       console.log("SMS Response:", data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending SMS:", error);
-      toast.error("Failed to send bid request SMS");
+      toast.error(error.message || "Failed to send bid request SMS");
     } finally {
       setIsLoading(false);
     }
