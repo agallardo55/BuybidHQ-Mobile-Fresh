@@ -10,14 +10,6 @@ export async function verifyKnockConfiguration(knockApiKey: string, workflowId: 
     if (!knock) {
       throw new Error('Failed to initialize Knock client');
     }
-
-    // Test the connection by triggering a dummy workflow
-    // This will fail if the API key or workflow ID is invalid
-    await knock.notify(workflowId, {
-      actor: "system",
-      recipients: ["test"],
-      data: { test: true }
-    });
     
     console.log('Successfully verified Knock configuration');
     return knock;

@@ -43,12 +43,8 @@ serve(async (req) => {
       throw new Error('KNOCK_API_KEY is not set');
     }
 
-    // Define workflow IDs using Knock's expected format
-    const knockWorkflowId = type === 'bid_request' 
-      ? 'buybid-sms-notification'  // Using a more standard Knock workflow ID format
-      : type === 'bid_response'
-      ? 'buybid-response-notification'
-      : 'buybid-test-notification';
+    // Define workflow ID - starting with a test workflow
+    const knockWorkflowId = 'sms-test'; // Simplified workflow ID for testing
 
     // Format phone number
     console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
@@ -56,43 +52,52 @@ serve(async (req) => {
 
     // Initialize and verify Knock configuration
     console.log(`[${requestId}] Initializing Knock client with workflow:`, knockWorkflowId);
-    const knock = await verifyKnockConfiguration(knockApiKey, knockWorkflowId);
+    const knock = new Knock(knockApiKey);
     
     // Prepare workflow data
     const recipientId = `phone:${formattedRecipientNumber}`;
     const workflowData = prepareWorkflowData(requestData, formattedRecipientNumber);
     
-    console.log(`[${requestId}] Triggering notification with data:`, {
+    console.log(`[${requestId}] Attempting to trigger notification with data:`, {
       workflowId: knockWorkflowId,
       recipientId,
-      ...workflowData
-    });
-
-    // Trigger notification
-    const result = await knock.notify(knockWorkflowId, {
-      actor: "system",
-      recipients: [recipientId],
       data: workflowData
     });
 
-    console.log(`[${requestId}] Notification triggered successfully:`, {
-      runId: result.id
-    });
+    try {
+      // Trigger notification
+      const result = await knock.notify(knockWorkflowId, {
+        actor: "system",
+        recipients: [recipientId],
+        data: workflowData
+      });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        requestId,
-        messageId: result.id
-      }),
-      {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        },
-        status: 200
-      }
-    );
+      console.log(`[${requestId}] Notification triggered successfully:`, {
+        runId: result.id
+      });
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          requestId,
+          messageId: result.id
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          },
+          status: 200
+        }
+      );
+    } catch (knockError) {
+      console.error(`[${requestId}] Knock API Error:`, {
+        message: knockError.message,
+        status: knockError.status,
+        details: knockError.details
+      });
+      throw new Error(`Knock API Error: ${knockError.message}`);
+    }
   } catch (error) {
     console.error(`[${requestId}] Error:`, {
       message: error.message,
