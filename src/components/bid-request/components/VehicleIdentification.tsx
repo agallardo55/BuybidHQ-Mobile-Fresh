@@ -10,6 +10,7 @@ interface VehicleIdentificationProps {
     make: string;
     model: string;
     trim: string;
+    displayTrim: string;
     vin: string;
     availableTrims: TrimOption[];
   };
@@ -60,9 +61,10 @@ const VehicleIdentification = ({
     console.log('Selected trim details:', selectedTrim);
 
     if (selectedTrim) {
-      // Save the cleaned trim value (without parentheses)
+      // Store both the full display value and the cleaned value
       const cleanedTrimValue = cleanTrimDescription(value);
-      onSelectChange(cleanedTrimValue, 'trim');
+      onSelectChange(cleanedTrimValue, 'trim'); // For database
+      onSelectChange(value, 'displayTrim'); // For dropdown display
       
       // Update engine and other specs if available
       if (selectedTrim.specs) {
@@ -121,7 +123,7 @@ const VehicleIdentification = ({
           Trim <span className="text-red-500">*</span>
         </label>
         <Select
-          value={formData.trim}
+          value={formData.displayTrim || ''} // Use displayTrim for the dropdown value
           onValueChange={handleTrimChange}
         >
           <SelectTrigger 
@@ -134,7 +136,6 @@ const VehicleIdentification = ({
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
               formData.availableTrims.map((trim, index) => {
                 const displayValue = trim.description || trim.name;
-                // Use the full display value for showing in the dropdown
                 return (
                   <SelectItem 
                     key={`${displayValue}-${index}`} 
@@ -163,4 +164,3 @@ const VehicleIdentification = ({
 };
 
 export default VehicleIdentification;
-

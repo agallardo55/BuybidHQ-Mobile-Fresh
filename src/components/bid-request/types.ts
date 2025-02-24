@@ -41,6 +41,7 @@ export interface BidRequestFormData {
   make: string;
   model: string;
   trim: string;
+  displayTrim: string; // Added for dropdown display
   availableTrims: TrimOption[];
   vin: string;
   mileage: string;

@@ -7,6 +7,7 @@ const initialFormData: BidRequestFormData = {
   make: "",
   model: "",
   trim: "",
+  displayTrim: "", // Added for dropdown display
   availableTrims: [],
   vin: "",
   mileage: "",
