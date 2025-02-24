@@ -13,7 +13,7 @@ interface BidFormProps {
 
 const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) => {
   const [formData, setFormData] = useState<BidResponseFormData>({
-    offerAmount: existingBidAmount || "",
+    offerAmount: existingBidAmount ? formatNumber(existingBidAmount) : "",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof BidResponseFormData, string>>>({});
@@ -123,7 +123,9 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
             placeholder="Enter amount"
             value={formData.offerAmount}
             onChange={handleChange}
-            className={`h-12 px-4 py-3 text-lg pl-7 ${errors.offerAmount ? "border-red-500" : ""}`}
+            className={`h-12 px-4 py-3 text-lg pl-7 ${errors.offerAmount ? "border-red-500" : ""} ${
+              existingBidAmount ? "bg-gray-50 text-gray-600" : ""
+            }`}
             disabled={!!existingBidAmount}
             readOnly={!!existingBidAmount}
           />
