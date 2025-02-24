@@ -52,19 +52,17 @@ const BidResponse = () => {
         }
       } catch (error) {
         console.error('Error checking existing bid:', error);
-        showAlert(
-          "Validation Error",
-          "Error validating your bid token. Please try again.",
-          "error"
-        );
       }
     };
 
-    checkExistingBid();
+    // Only check for existing bid if token is provided
+    if (token) {
+      checkExistingBid();
+    }
   }, [token, showAlert]);
 
-  // Show error if no token is provided
-  if (!token || !id) {
+  // Show error if no id is provided
+  if (!id) {
     return (
       <BidResponseLayout>
         <ErrorState message="Invalid bid submission link. Please check your email and try again." />

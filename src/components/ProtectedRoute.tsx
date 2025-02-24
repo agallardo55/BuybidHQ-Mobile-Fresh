@@ -7,6 +7,11 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, isLoading } = useAuth();
   const location = useLocation();
 
+  // Allow bid response routes to be public
+  if (location.pathname.startsWith('/bid-response/')) {
+    return <>{children}</>;
+  }
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
