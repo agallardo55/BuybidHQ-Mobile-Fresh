@@ -9,7 +9,7 @@ export function WaitlistOverlay() {
   return (
     <div className="fixed inset-0 z-50 bg-gradient-radial from-[#325AE7] via-[#2348C4] to-[#1A337A] animate-fade-in">
       <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="max-w-2xl text-center space-y-8 relative">
+        <div className="max-w-2xl text-center space-y-8 relative animate-scale-in">
           <button
             onClick={() => setShowWaitlist(false)}
             className="absolute -top-4 right-0 text-white/60 hover:text-white transition-colors"
