@@ -13,6 +13,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, Share2 } from "lucide-react";
 import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
 interface VehicleDetailsSectionProps {
@@ -44,8 +45,6 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
     }
   };
 
-  // Images are already in the correct order from the useBidResponseDetails hook
-  // which fetches them ordered by created_at ASC
   const images = vehicle.images || [];
 
   return (
@@ -63,6 +62,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
             <span className="text-sm text-gray-700">Share</span>
           </Button>
         </CardHeader>
+        <Separator className="mb-6" />
         <CardContent>
           <div className="grid gap-1.5">
             <div className="grid grid-cols-5 gap-1.5 py-0.5">
@@ -135,6 +135,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
               {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
             </CardTitle>
           </CardHeader>
+          <Separator className="mb-6" />
           <CardContent>
             <div className="grid gap-1.5">
               <div className="grid grid-cols-5 gap-1.5 py-0.5">
@@ -165,6 +166,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl">Colors & Accessories</CardTitle>
           </CardHeader>
+          <Separator className="mb-6" />
           <CardContent>
             <div className="grid gap-1.5">
               <div className="grid grid-cols-5 gap-1.5 py-0.5">
@@ -187,6 +189,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl">Vehicle Condition</CardTitle>
           </CardHeader>
+          <Separator className="mb-6" />
           <CardContent>
             <div className="grid gap-1.5">
               <div className="grid grid-cols-5 gap-1.5 py-0.5">
