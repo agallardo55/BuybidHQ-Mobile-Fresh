@@ -1,14 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
-
 interface PlanSelectionFormProps {
   onSelect: (plan: 'beta-access' | 'individual' | 'pay-per-bid') => void;
   onBack: () => void;
 }
-
 const PlanSelectionForm = ({
   onSelect,
   onBack
@@ -70,7 +67,7 @@ const PlanSelectionForm = ({
             </div>
           </div>
           <h3 className="text-lg font-semibold mt-4">Individual</h3>
-          <p className="text-sm text-gray-600">For individual members</p>
+          
           <div className="space-y-1">
             <div className="text-lg line-through text-gray-400">$99/month</div>
             <div className="text-3xl font-bold">$49<span className="text-sm font-normal">/month</span></div>
@@ -109,5 +106,4 @@ const PlanSelectionForm = ({
       </div>
     </div>;
 };
-
 export default PlanSelectionForm;
