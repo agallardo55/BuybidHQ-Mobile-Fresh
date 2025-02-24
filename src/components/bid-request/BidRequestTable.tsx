@@ -26,7 +26,7 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
     setIsDialogOpen(true);
   };
 
-  const handleStatusUpdate = (responseId: string, status: "Pending" | "Approved" | "Declined") => {
+  const handleStatusUpdate = (responseId: string, status: "pending" | "accepted" | "declined") => {
     updateBidResponseStatus({ responseId, status });
   };
 
@@ -72,7 +72,7 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                     mileage: 0,
                     buyer: "",
                     offers: [],
-                    status: "Pending",
+                    status: "pending",
                     engineCylinders: "",
                     transmission: "",
                     drivetrain: "",

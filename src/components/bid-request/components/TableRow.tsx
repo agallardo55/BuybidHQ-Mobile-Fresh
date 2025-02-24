@@ -8,7 +8,7 @@ interface TableRowProps {
   request: BidRequest;
   offer?: BidRequest['offers'][0];
   onClick: () => void;
-  onStatusUpdate?: (responseId: string, status: "Pending" | "Approved" | "Declined") => void;
+  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
 export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: TableRowProps) => {
@@ -53,26 +53,26 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
         {offer && onStatusUpdate ? (
           <Select
-            value={offer.status || 'Pending'}
-            onValueChange={(value: "Pending" | "Approved" | "Declined") => 
+            value={offer.status}
+            onValueChange={(value: "pending" | "accepted" | "declined") => 
               onStatusUpdate(offer.id, value)
             }
           >
             <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
-              ${offer.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-              ${offer.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-              ${offer.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+              ${offer.status === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+              ${offer.status === 'pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+              ${offer.status === 'declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
             `}>
-              <SelectValue>{offer.status || 'Pending'}</SelectValue>
+              <SelectValue>{offer.status}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="Approved">Approved</SelectItem>
-              <SelectItem value="Declined">Declined</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="accepted">Accepted</SelectItem>
+              <SelectItem value="declined">Declined</SelectItem>
             </SelectContent>
           </Select>
         ) : (
-          <span>Pending</span>
+          <span>pending</span>
         )}
       </TableCell>
     </UITableRow>

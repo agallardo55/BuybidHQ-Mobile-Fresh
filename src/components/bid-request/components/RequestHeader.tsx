@@ -28,9 +28,9 @@ const RequestHeader = ({ request }: RequestHeaderProps) => {
       <div className="flex items-center justify-between">
         <DialogTitle className="text-2xl">Vehicle Details</DialogTitle>
         <span className={`px-3 py-1.5 rounded-full text-sm font-medium
-          ${request.status === 'Approved' ? 'bg-green-100 text-green-800' : ''}
-          ${request.status === 'Pending' ? 'bg-blue-100 text-blue-800' : ''}
-          ${request.status === 'Declined' ? 'bg-red-100 text-red-800' : ''}
+          ${request.status === 'accepted' ? 'bg-green-100 text-green-800' : ''}
+          ${request.status === 'pending' ? 'bg-blue-100 text-blue-800' : ''}
+          ${request.status === 'declined' ? 'bg-red-100 text-red-800' : ''}
         `}>
           {request.status}
         </span>
