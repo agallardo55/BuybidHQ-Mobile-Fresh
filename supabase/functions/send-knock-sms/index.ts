@@ -48,10 +48,8 @@ serve(async (req) => {
 
     // Format phone number with country code if not present
     console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
-    let formattedRecipientNumber = formatPhoneNumber(phoneNumber);
-    if (!formattedRecipientNumber.startsWith('+')) {
-      formattedRecipientNumber = '+1' + formattedRecipientNumber;
-    }
+    const cleanNumber = formatPhoneNumber(phoneNumber);
+    const formattedRecipientNumber = '+1' + cleanNumber;
 
     // Initialize Knock client
     const knock = new Knock(knockApiKey);
