@@ -1,12 +1,14 @@
+
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
+import { useWaitlist } from "./waitlist/WaitlistContext";
+
 const Pricing = () => {
   const navigate = useNavigate();
-  const handleSignUp = () => {
-    navigate('/signup');
-  };
+  const { setShowWaitlist } = useWaitlist();
+  
   const scrollToContact = () => {
     const contactSection = document.getElementById('contact');
     if (contactSection) {
@@ -15,6 +17,7 @@ const Pricing = () => {
       });
     }
   };
+  
   return <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
         <div className="mb-12 text-center">
@@ -22,7 +25,7 @@ const Pricing = () => {
           <p className="mt-4 text-lg text-gray-600">Choose the plan that's right for your business</p>
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-4 lg:gap-8">
-          {/* Basic Trial Plan */}
+          {/* Beta Trial Plan */}
           <Card className="flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl">Beta Trial</CardTitle>
@@ -49,7 +52,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">Start Free Trial</Button>
+              <Button onClick={() => setShowWaitlist(true)} className="w-full bg-accent hover:bg-accent/90">Start Free Trial</Button>
             </CardFooter>
           </Card>
 
@@ -88,7 +91,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">Get Started</Button>
+              <Button onClick={() => setShowWaitlist(true)} className="w-full bg-accent hover:bg-accent/90">Get Started</Button>
             </CardFooter>
           </Card>
 
@@ -139,7 +142,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleSignUp} className="w-full bg-accent hover:bg-accent/90">
+              <Button onClick={() => setShowWaitlist(true)} className="w-full bg-accent hover:bg-accent/90">
                 Get Started
               </Button>
             </CardFooter>
@@ -192,4 +195,5 @@ const Pricing = () => {
       </div>
     </section>;
 };
+
 export default Pricing;

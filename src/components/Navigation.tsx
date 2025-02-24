@@ -4,12 +4,14 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useWaitlist } from "./waitlist/WaitlistContext";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { setShowWaitlist } = useWaitlist();
 
   const handleScroll = (id: string) => {
     const element = document.getElementById(id);
@@ -32,6 +34,14 @@ const Navigation = () => {
       }
     }
   }, [location]);
+
+  const handleSignIn = () => {
+    if (location.pathname === '/') {
+      setShowWaitlist(true);
+    } else {
+      navigate('/signin');
+    }
+  };
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -76,7 +86,7 @@ const Navigation = () => {
               <Button 
                 variant="default" 
                 className="bg-accent hover:bg-accent/90"
-                onClick={() => navigate('/signin')}
+                onClick={handleSignIn}
               >
                 Sign In
               </Button>
@@ -117,7 +127,7 @@ const Navigation = () => {
                 variant="default" 
                 className="w-full bg-accent hover:bg-accent/90 mt-4"
                 onClick={() => {
-                  navigate('/signin');
+                  handleSignIn();
                   setIsOpen(false);
                 }}
               >

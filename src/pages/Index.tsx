@@ -9,6 +9,7 @@ import AppDownload from "@/components/AppDownload";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import { WaitlistOverlay } from "@/components/waitlist/WaitlistOverlay";
+import { WaitlistProvider } from "@/components/waitlist/WaitlistContext";
 
 // Check if the app is in waitlist mode
 const WAITLIST_MODE = import.meta.env.VITE_WAITLIST_MODE === "true"
@@ -19,17 +20,19 @@ const Index = () => {
   }
 
   return (
-    <div className="relative w-full bg-black">
-      <Navigation />
-      <Hero />
-      <HowItWorks />
-      <Features />
-      <Pricing />
-      <ContactUs />
-      <AppDownload />
-      <Footer />
-      <CookieConsent />
-    </div>
+    <WaitlistProvider>
+      <div className="relative w-full bg-black">
+        <Navigation />
+        <Hero />
+        <HowItWorks />
+        <Features />
+        <Pricing />
+        <ContactUs />
+        <AppDownload />
+        <Footer />
+        <CookieConsent />
+      </div>
+    </WaitlistProvider>
   );
 };
 

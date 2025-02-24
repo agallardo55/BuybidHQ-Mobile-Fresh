@@ -1,14 +1,10 @@
 
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useWaitlist } from "./waitlist/WaitlistContext";
 
 const Hero = () => {
-  const scrollToPricing = () => {
-    const pricingSection = document.getElementById('pricing');
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const { setShowWaitlist } = useWaitlist();
 
   const scrollToHowItWorks = () => {
     const howItWorksSection = document.getElementById('howitworks');
@@ -64,7 +60,7 @@ const Hero = () => {
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6 animate-slide-in" style={{ animationDelay: "0.4s" }}>
                 <Button 
                   className="bg-[#325AE7] hover:bg-[#325AE7]/70 text-lg px-8 py-6 w-full sm:w-auto shadow-lg transition-colors duration-200"
-                  onClick={scrollToPricing}
+                  onClick={() => setShowWaitlist(true)}
                 >
                   Get Started
                   <ArrowRight className="ml-2 h-5 w-5" />
