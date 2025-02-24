@@ -21,22 +21,15 @@ export const BidRequestScenario = ({ phoneNumber, isLoading, setIsLoading }: Bid
       console.log("Sending request with data:", {
         type: "bid_request",
         phoneNumber,
-        vehicleDetails: {
-          year: "2024",
-          make: "Toyota",
-          model: "Camry"
-        }
+        senderName: "John Smith",
+        bidRequestUrl: "https://buybidhq.com/bid/test123"
       });
 
       const { data, error } = await supabase.functions.invoke('send-knock-sms', {
         body: {
           type: "bid_request",
           phoneNumber,
-          vehicleDetails: {
-            year: "2024",
-            make: "Toyota",
-            model: "Camry"
-          },
+          senderName: "John Smith",
           bidRequestUrl: "https://buybidhq.com/bid/test123"
         }
       });
@@ -66,7 +59,7 @@ export const BidRequestScenario = ({ phoneNumber, isLoading, setIsLoading }: Bid
       <div>
         <h3 className="font-medium text-gray-900 mb-2">Scenario 1: Bid Request Notification</h3>
         <p className="text-sm text-gray-600 mb-3">
-          Tests sending a new bid request notification SMS for a 2024 Toyota Camry
+          Tests sending a new bid request notification SMS from John Smith
         </p>
         <Button
           onClick={testBidRequest}
