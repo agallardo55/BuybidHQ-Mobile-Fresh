@@ -97,7 +97,9 @@ const BidResponse = () => {
             vehicle={{
               ...data.vehicle,
               year: String(data.vehicle.year),
-              mileage: String(data.vehicle.mileage)
+              mileage: String(data.vehicle.mileage),
+              // Ensure images are in the correct order (first uploaded first)
+              images: data.vehicle.images ? [...data.vehicle.images].reverse() : []
             }}
             buyer={data.buyer}
           />
