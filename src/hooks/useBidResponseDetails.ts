@@ -60,7 +60,7 @@ export const useBidResponseDetails = () => {
         .from('images')
         .select('image_url')
         .eq('bid_request_id', id)
-        .order('sequence_order', { ascending: true, nullsLast: true })
+        .order('sequence_order', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: true });
 
       if (imageError) {
