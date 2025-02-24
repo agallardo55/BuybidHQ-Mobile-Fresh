@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 interface UseBidSubmissionProps {
   token: string | null;
-  showAlert: (title: string, message: string, type: AlertType) => void;
+  showAlert: (title: string, message: string | { amount: string; description: string }, type: AlertType) => void;
   setSubmitted: (value: boolean) => void;
 }
 
@@ -51,8 +51,17 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
         throw new Error(data?.error || "Failed to submit bid");
       }
 
-      toast.success("Bid submitted successfully!");
-      showAlert("Success", "Your bid has been submitted successfully!", "success");
+      const formattedAmount = cleanAmount.toLocaleString();
+      
+      showAlert(
+        "Thank you!", 
+        {
+          amount: `Your offer of $${formattedAmount} has been submitted`,
+          description: "We'll notify you once the seller reviews your offer."
+        },
+        "success"
+      );
+      
       setSubmitted(true);
     } catch (error: any) {
       console.error('Error submitting bid:', error);

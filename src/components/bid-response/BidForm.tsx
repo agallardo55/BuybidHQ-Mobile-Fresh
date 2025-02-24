@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -124,7 +123,7 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
             value={formData.offerAmount}
             onChange={handleChange}
             className={`h-12 px-4 py-3 text-lg pl-7 ${errors.offerAmount ? "border-red-500" : ""} ${
-              existingBidAmount ? "bg-gray-50 text-gray-600" : ""
+              existingBidAmount ? "bg-gray-100 text-gray-600" : ""
             }`}
             disabled={!!existingBidAmount}
             readOnly={!!existingBidAmount}
@@ -133,16 +132,11 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
         {errors.offerAmount && (
           <p className="text-red-500 text-sm mt-1">{errors.offerAmount}</p>
         )}
-        {existingBidAmount && (
-          <p className="text-amber-600 text-sm mt-1">
-            You have already submitted an offer for this vehicle.
-          </p>
-        )}
       </div>
 
       <Button
         type="submit"
-        className="w-full h-12 text-lg bg-custom-blue hover:bg-custom-blue/90"
+        className="w-full h-12 text-lg bg-custom-blue hover:bg-custom-blue/90 disabled:opacity-50"
         disabled={isSubmitting || !!existingBidAmount}
       >
         {existingBidAmount ? "Offer Already Submitted" : isSubmitting ? "Submitting..." : "Submit Bid"}
