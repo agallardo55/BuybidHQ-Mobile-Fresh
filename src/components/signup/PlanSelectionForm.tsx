@@ -90,10 +90,7 @@ const PlanSelectionForm = ({
               <Check className="w-4 h-4 mr-2 text-accent" />
               <span className="text-sm">Buybid dashboard</span>
             </li>
-            <li className="flex items-center">
-              <Check className="w-4 h-4 mr-2 text-accent" />
-              <span className="text-sm">14-day free trial</span>
-            </li>
+            
             <li className="flex items-center">
               <Check className="w-4 h-4 mr-2 text-accent" />
               <div className="flex items-center gap-2">
