@@ -44,7 +44,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
       <div className="space-y-1">
         {request.offers.map((offer, index) => (
           <div key={index}>
-            ${offer.amount.toLocaleString()} - {offer.buyerName}
+            ${offer.amount.toLocaleString()}
           </div>
         ))}
       </div>
@@ -92,6 +92,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 <SortableHeader field="model">Model</SortableHeader>
                 <TableHead className="text-sm">VIN</TableHead>
                 <SortableHeader field="mileage">Mileage</SortableHeader>
+                <TableHead className="text-sm">Buyer</TableHead>
                 <TableHead className="text-sm">Offers</TableHead>
                 <SortableHeader field="status">Status</SortableHeader>
               </TableRow>
@@ -122,6 +123,9 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                     <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {request.mileage.toLocaleString()}
                     </TableCell>
+                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                      {request.offers?.[0]?.buyerName?.split('(')?.[0]?.trim() || 'No buyer'}
+                    </TableCell>
                     <TableCell className="py-2 px-4 h-[44px]">
                       {renderOffers(request)}
                     </TableCell>
@@ -150,7 +154,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-4">
+                  <TableCell colSpan={9} className="text-center py-4">
                     No bid requests found
                   </TableCell>
                 </TableRow>
