@@ -43,7 +43,7 @@ const VehicleSpecifications = ({
         value={formData.engineCylinders}
         onChange={onChange}
         error={errors.engineCylinders}
-        placeholder="Example: 2.0L 4-Cylinder Turbo"
+        placeholder="2.0L 4-Cylinder Turbo"
         required={false}
         showValidation={showValidation}
       />
@@ -53,7 +53,7 @@ const VehicleSpecifications = ({
         value={formData.transmission}
         onChange={onChange}
         error={errors.transmission}
-        placeholder="Example: 8-Speed Automatic"
+        placeholder="8-Speed Automatic"
         required={false}
         showValidation={showValidation}
       />
@@ -63,7 +63,7 @@ const VehicleSpecifications = ({
         value={formData.drivetrain}
         onChange={onChange}
         error={errors.drivetrain}
-        placeholder="Example: AWD, FWD, RWD"
+        placeholder="AWD, FWD, RWD"
         required={false}
         showValidation={showValidation}
       />
