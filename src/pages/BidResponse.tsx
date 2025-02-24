@@ -16,6 +16,7 @@ const BidResponse = () => {
   const [searchParams] = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
   const [existingBidAmount, setExistingBidAmount] = useState<string | null>(null);
+  const [tokenError, setTokenError] = useState<string | null>(null);
 
   const token = searchParams.get('token');
   const { id } = useParams();
@@ -31,34 +32,52 @@ const BidResponse = () => {
   // Check for existing bid when component mounts
   useEffect(() => {
     const checkExistingBid = async () => {
-      if (!token) return;
+      if (!token) {
+        setTokenError("No submission token provided");
+        return;
+      }
 
       try {
         const { data, error } = await supabase.rpc('validate_bid_submission_token', {
           p_token: token
         });
 
-        if (error) throw error;
+        if (error) {
+          setTokenError(error.message);
+          showAlert(
+            "Token Error",
+            error.message,
+            "error"
+          );
+          return;
+        }
         
         const tokenInfo = data?.[0];
-        if (tokenInfo?.has_existing_bid) {
-          setExistingBidAmount(tokenInfo.existing_bid_amount.toString());
-          setSubmitted(true);
-          showAlert(
-            "Existing Bid",
-            `You have already submitted an offer of $${tokenInfo.existing_bid_amount}`,
-            "info"
-          );
+        if (!tokenInfo?.is_valid) {
+          if (tokenInfo?.has_existing_bid) {
+            setExistingBidAmount(tokenInfo.existing_bid_amount.toString());
+            setSubmitted(true);
+            showAlert(
+              "Existing Bid",
+              `You have already submitted an offer of $${tokenInfo.existing_bid_amount.toLocaleString()}`,
+              "info"
+            );
+          } else {
+            setTokenError("Invalid or expired submission token");
+            showAlert(
+              "Invalid Token",
+              "This submission link has expired or is invalid. Please request a new one.",
+              "error"
+            );
+          }
         }
       } catch (error) {
         console.error('Error checking existing bid:', error);
+        setTokenError("Error validating submission token");
       }
     };
 
-    // Only check for existing bid if token is provided
-    if (token) {
-      checkExistingBid();
-    }
+    checkExistingBid();
   }, [token, showAlert]);
 
   // Show error if no id is provided
@@ -66,6 +85,15 @@ const BidResponse = () => {
     return (
       <BidResponseLayout>
         <ErrorState message="Invalid bid submission link. Please check your email and try again." />
+      </BidResponseLayout>
+    );
+  }
+
+  // Show error if token is invalid
+  if (tokenError) {
+    return (
+      <BidResponseLayout>
+        <ErrorState message={tokenError} />
       </BidResponseLayout>
     );
   }
@@ -87,7 +115,7 @@ const BidResponse = () => {
       ) : submitted ? (
         <SubmittedState 
           message={existingBidAmount 
-            ? `You have already submitted an offer of $${existingBidAmount}` 
+            ? `You have already submitted an offer of $${parseInt(existingBidAmount).toLocaleString()}` 
             : "Thank you! Your offer has been submitted successfully."
           } 
         />

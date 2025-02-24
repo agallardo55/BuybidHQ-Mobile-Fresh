@@ -27,23 +27,18 @@ serve(async (req) => {
     const requestData = await req.json() as PublicBidSubmission
     const { token, offerAmount } = requestData
 
-    if (!token || typeof offerAmount !== 'number' || isNaN(offerAmount)) {
-      console.error('Invalid request data:', { token: !!token, offerAmount });
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid request data. Token and valid offer amount are required.' 
-        }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
+    console.log('Starting bid submission process:', {
+      token: token ? `${token.substring(0, 8)}...` : 'missing',
+      offerAmount: offerAmount || 'missing'
+    });
 
-    console.log('Processing public bid submission:', {
-      token: token.substring(0, 8) + '...',
-      offerAmount
-    })
+    // Input validation
+    if (!token) {
+      throw new Error('Submission token is required');
+    }
+    if (typeof offerAmount !== 'number' || isNaN(offerAmount) || offerAmount <= 0) {
+      throw new Error('Valid offer amount is required');
+    }
 
     // Validate the token and get bid request details
     const { data: tokenData, error: tokenError } = await supabase
@@ -51,27 +46,28 @@ serve(async (req) => {
 
     if (tokenError) {
       console.error('Token validation error:', tokenError)
-      return new Response(
-        JSON.stringify({ error: 'Token validation failed', details: tokenError.message }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      throw new Error(tokenError.message || 'Token validation failed');
     }
 
-    if (!tokenData?.[0]?.is_valid) {
-      console.error('Invalid or expired token')
-      return new Response(
-        JSON.stringify({ error: 'Invalid or expired submission token' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+    if (!tokenData?.[0]) {
+      throw new Error('Invalid token data returned');
     }
 
-    const { bid_request_id, buyer_id } = tokenData[0]
+    const validationResult = tokenData[0];
+    console.log('Token validation result:', {
+      isValid: validationResult.is_valid,
+      hasExistingBid: validationResult.has_existing_bid
+    });
+
+    if (!validationResult.is_valid) {
+      throw new Error(
+        validationResult.has_existing_bid 
+          ? `You have already submitted a bid of $${validationResult.existing_bid_amount}`
+          : 'Invalid or expired submission token'
+      );
+    }
+
+    const { bid_request_id, buyer_id } = validationResult;
 
     // Insert the bid response
     const { data: bidResponse, error: insertError } = await supabase
@@ -87,14 +83,10 @@ serve(async (req) => {
 
     if (insertError) {
       console.error('Error inserting bid response:', insertError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to submit bid', details: insertError.message }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      throw new Error(insertError.message || 'Failed to submit bid');
     }
+
+    console.log('Successfully created bid response:', bidResponse.id);
 
     // Mark the token as used
     const { error: updateError } = await supabase
@@ -138,8 +130,6 @@ serve(async (req) => {
         console.error('Error sending SMS notification:', smsError);
         // Don't fail the request if SMS fails
       }
-    } else {
-      console.error('Error getting notification details:', detailsError);
     }
 
     return new Response(
@@ -158,11 +148,11 @@ serve(async (req) => {
     console.error('Error in submit-public-bid function:', error)
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to submit bid',
+        error: error.message || 'Failed to submit bid',
         details: error.message 
       }), 
       { 
-        status: 500,
+        status: 400,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'

@@ -30,6 +30,10 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
         throw new Error("Invalid offer amount");
       }
 
+      if (cleanAmount <= 0) {
+        throw new Error("Offer amount must be greater than 0");
+      }
+
       const { data, error } = await supabase.functions.invoke('submit-public-bid', {
         body: {
           token,
@@ -53,12 +57,30 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
     } catch (error: any) {
       console.error('Error submitting bid:', error);
       const errorMessage = error.message || "Failed to submit bid. Please try again or contact support.";
-      toast.error(errorMessage);
-      showAlert(
-        "Submission Error",
-        errorMessage,
-        "error"
-      );
+      
+      // Check for specific error cases
+      if (errorMessage.includes("already submitted")) {
+        toast.error("You have already submitted a bid for this vehicle");
+        showAlert(
+          "Duplicate Bid",
+          errorMessage,
+          "error"
+        );
+      } else if (errorMessage.includes("expired")) {
+        toast.error("This submission link has expired");
+        showAlert(
+          "Expired Link",
+          "This submission link has expired. Please request a new one.",
+          "error"
+        );
+      } else {
+        toast.error(errorMessage);
+        showAlert(
+          "Submission Error",
+          errorMessage,
+          "error"
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
