@@ -55,12 +55,12 @@ export const useBidResponseDetails = () => {
         throw new Error('No bid response found');
       }
 
-      // Then get the images for this bid request, ordered by created_at DESC
+      // Then get the images for this bid request, ordered by created_at ASC to maintain original upload order
       const { data: imageData, error: imageError } = await supabase
         .from('images')
         .select('image_url')
         .eq('bid_request_id', id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: true });
 
       if (imageError) {
         console.error('Error fetching images:', imageError);
