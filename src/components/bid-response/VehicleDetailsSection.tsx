@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { VehicleDetails } from "./types";
 import {
@@ -50,7 +49,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="pb-2 flex flex-row items-center justify-between">
+        <CardHeader className="pb-4 flex flex-row items-center justify-between">
           <CardTitle className="text-2xl">New Bid Request</CardTitle>
           <Button 
             variant="outline"
@@ -130,7 +129,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
 
       <div className="space-y-4">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-4">
             <CardTitle className="text-2xl">
               {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
             </CardTitle>
@@ -163,7 +162,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-4">
             <CardTitle className="text-2xl">Colors & Accessories</CardTitle>
           </CardHeader>
           <Separator className="mb-6" />
@@ -186,7 +185,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-4">
             <CardTitle className="text-2xl">Vehicle Condition</CardTitle>
           </CardHeader>
           <Separator className="mb-6" />
