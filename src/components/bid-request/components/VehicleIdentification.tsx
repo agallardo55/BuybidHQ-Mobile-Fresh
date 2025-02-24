@@ -46,29 +46,35 @@ const VehicleIdentification = ({
   console.log('VehicleIdentification rendered with formData:', formData);
 
   const cleanTrimDescription = (description: string): string => {
-    // Remove content within parentheses
+    // Remove content within parentheses and trim whitespace
     return description.replace(/\s*\([^)]*\)/g, '').trim();
   };
 
   const handleTrimChange = (value: string) => {
     console.log('Trim selected:', value);
-    onSelectChange(value, 'trim');
     
     // Find the selected trim to auto-populate related fields
     const selectedTrim = formData.availableTrims.find(trim => 
       trim.description === value || trim.name === value
     );
     console.log('Selected trim details:', selectedTrim);
-    
-    if (selectedTrim?.specs) {
-      if (selectedTrim.specs.engine) {
-        onSelectChange(selectedTrim.specs.engine, 'engineCylinders');
-      }
-      if (selectedTrim.specs.transmission) {
-        onSelectChange(selectedTrim.specs.transmission, 'transmission');
-      }
-      if (selectedTrim.specs.drivetrain) {
-        onSelectChange(selectedTrim.specs.drivetrain, 'drivetrain');
+
+    if (selectedTrim) {
+      // Save the cleaned trim value (without parentheses)
+      const cleanedTrimValue = cleanTrimDescription(value);
+      onSelectChange(cleanedTrimValue, 'trim');
+      
+      // Update engine and other specs if available
+      if (selectedTrim.specs) {
+        if (selectedTrim.specs.engine) {
+          onSelectChange(selectedTrim.specs.engine, 'engineCylinders');
+        }
+        if (selectedTrim.specs.transmission) {
+          onSelectChange(selectedTrim.specs.transmission, 'transmission');
+        }
+        if (selectedTrim.specs.drivetrain) {
+          onSelectChange(selectedTrim.specs.drivetrain, 'drivetrain');
+        }
       }
     }
   };
@@ -128,7 +134,7 @@ const VehicleIdentification = ({
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
               formData.availableTrims.map((trim, index) => {
                 const displayValue = trim.description || trim.name;
-                const cleanedDisplay = cleanTrimDescription(displayValue);
+                // Use the full display value for showing in the dropdown
                 return (
                   <SelectItem 
                     key={`${displayValue}-${index}`} 
@@ -137,7 +143,7 @@ const VehicleIdentification = ({
                   >
                     <div className="w-full whitespace-normal break-words">
                       <div className="font-medium text-gray-900">
-                        {cleanedDisplay}
+                        {displayValue}
                       </div>
                     </div>
                   </SelectItem>
@@ -157,3 +163,4 @@ const VehicleIdentification = ({
 };
 
 export default VehicleIdentification;
+
