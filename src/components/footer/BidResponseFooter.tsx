@@ -9,12 +9,12 @@ const BidResponseFooter = () => {
           <Link to="/" className="flex items-center">
             <img 
               src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-              alt="BuyBidHQ Logo" 
+              alt="BuybidHQ Logo" 
               className="h-9 w-auto brightness-0 invert"
             />
           </Link>
           <p className="text-sm text-gray-400 mt-4 sm:mt-0">
-            © {new Date().getFullYear()} BuyBidHQ™. All rights reserved.
+            © {new Date().getFullYear()} BuybidHQ™. All rights reserved.
           </p>
         </div>
       </div>
