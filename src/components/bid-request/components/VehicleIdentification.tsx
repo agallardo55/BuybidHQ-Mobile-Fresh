@@ -1,4 +1,3 @@
-
 import FormField from "./FormField";
 import VinSection from "../VinSection";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -47,17 +46,43 @@ const VehicleIdentification = ({
   console.log('VehicleIdentification rendered with formData:', formData);
 
   const cleanTrimDescription = (description: string): string => {
-    // Remove content within parentheses and engine info
-    return description
-      .replace(/\s*\([^)]*\)/g, '') // Remove parentheses and their contents
-      .replace(/\s*\d+\.?\d*L.*$/i, '') // Remove engine displacement and following text
-      .replace(/\s+$/, ''); // Remove trailing spaces
+    if (!description) return '';
+
+    // First remove the engine specs within parentheses
+    let cleaned = description.replace(/\s*\([^)]*\)/g, '');
+
+    // If the description starts with the trim name, keep it
+    // Otherwise use the entire cleaned description
+    const parts = cleaned.split(' ');
+    if (parts.length > 1) {
+      // Keep everything except engine displacement at the end
+      cleaned = parts
+        .filter(part => !part.match(/^\d+\.?\d*L$/)) // Remove engine displacement
+        .join(' ')
+        .trim();
+    }
+
+    console.log(`Cleaned trim description: "${description}" -> "${cleaned}"`);
+    return cleaned;
   };
 
   const getDisplayValue = (trim: TrimOption): string => {
-    // Use name for clean display, fallback to description if name is not available
-    const baseValue = trim.name || trim.description;
-    return cleanTrimDescription(baseValue);
+    // If we have both name and description, combine them appropriately
+    if (trim.name && trim.description) {
+      // If the description already starts with the name, just clean the description
+      if (trim.description.startsWith(trim.name)) {
+        return cleanTrimDescription(trim.description);
+      }
+      // Otherwise, combine name with cleaned description
+      const cleanedDesc = cleanTrimDescription(trim.description);
+      // Avoid duplication if the name is already part of the cleaned description
+      if (!cleanedDesc.includes(trim.name)) {
+        return `${trim.name} ${cleanedDesc}`;
+      }
+      return cleanedDesc;
+    }
+    // Fallback to whatever we have
+    return cleanTrimDescription(trim.name || trim.description || '');
   };
 
   const handleTrimChange = (value: string) => {
