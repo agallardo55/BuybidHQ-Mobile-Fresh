@@ -12,13 +12,41 @@ interface BidFormProps {
 }
 
 const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) => {
+  const MAX_AMOUNT = 999999999; // 999 million
+
+  const formatNumber = (value: string): string => {
+    // Remove all non-numeric characters except decimal point
+    let cleaned = value.replace(/[^0-9.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = cleaned.split('.');
+    if (parts.length > 2) {
+      cleaned = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    // Limit to 2 decimal places
+    if (parts.length === 2) {
+      cleaned = parts[0] + '.' + parts[1].slice(0, 2);
+    }
+
+    // Parse the number and check if it exceeds maximum
+    const numValue = parseFloat(cleaned);
+    if (!isNaN(numValue) && numValue > MAX_AMOUNT) {
+      cleaned = MAX_AMOUNT.toString();
+    }
+
+    // Format with commas for thousands
+    const [integerPart, decimalPart] = cleaned.split('.');
+    let formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    
+    return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+  };
+
   const [formData, setFormData] = useState<BidResponseFormData>({
     offerAmount: existingBidAmount ? formatNumber(existingBidAmount) : "",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof BidResponseFormData, string>>>({});
-
-  const MAX_AMOUNT = 999999999; // 999 million
 
   const validateForm = () => {
     const newErrors: Partial<Record<keyof BidResponseFormData, string>> = {};
@@ -55,34 +83,6 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
         toast.error("Failed to submit bid. Please try again.");
       }
     }
-  };
-
-  const formatNumber = (value: string): string => {
-    // Remove all non-numeric characters except decimal point
-    let cleaned = value.replace(/[^0-9.]/g, '');
-    
-    // Ensure only one decimal point
-    const parts = cleaned.split('.');
-    if (parts.length > 2) {
-      cleaned = parts[0] + '.' + parts.slice(1).join('');
-    }
-    
-    // Limit to 2 decimal places
-    if (parts.length === 2) {
-      cleaned = parts[0] + '.' + parts[1].slice(0, 2);
-    }
-
-    // Parse the number and check if it exceeds maximum
-    const numValue = parseFloat(cleaned);
-    if (!isNaN(numValue) && numValue > MAX_AMOUNT) {
-      cleaned = MAX_AMOUNT.toString();
-    }
-
-    // Format with commas for thousands
-    const [integerPart, decimalPart] = cleaned.split('.');
-    let formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    
-    return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
