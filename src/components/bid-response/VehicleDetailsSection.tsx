@@ -54,12 +54,13 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
         <CardHeader className="pb-2 flex flex-row items-center justify-between">
           <CardTitle className="text-2xl">New Bid Request</CardTitle>
           <Button 
-            variant="ghost" 
-            size="icon"
+            variant="outline"
+            size="sm"
             onClick={handleShare}
-            className="hover:bg-gray-100"
+            className="bg-white hover:bg-gray-50 shadow-sm rounded-lg"
           >
-            <Share2 className="h-5 w-5 text-gray-600" />
+            <Share2 className="h-4 w-4 text-gray-700 mr-1" />
+            <span className="text-sm text-gray-700">Share</span>
           </Button>
         </CardHeader>
         <CardContent>
