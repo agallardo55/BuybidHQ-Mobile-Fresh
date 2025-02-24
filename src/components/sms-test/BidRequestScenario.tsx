@@ -11,13 +11,23 @@ interface BidRequestScenarioProps {
 
 export const BidRequestScenario = ({ phoneNumber, isLoading, setIsLoading }: BidRequestScenarioProps) => {
   const testBidRequest = async () => {
-    if (phoneNumber.length !== 10) {
+    if (!phoneNumber || phoneNumber.length !== 10) {
       toast.error("Please enter a valid 10-digit phone number");
       return;
     }
 
     setIsLoading(true);
     try {
+      console.log("Sending request with data:", {
+        type: "bid_request",
+        phoneNumber,
+        vehicleDetails: {
+          year: "2024",
+          make: "Toyota",
+          model: "Camry"
+        }
+      });
+
       const { data, error } = await supabase.functions.invoke('send-knock-sms', {
         body: {
           type: "bid_request",
@@ -32,10 +42,10 @@ export const BidRequestScenario = ({ phoneNumber, isLoading, setIsLoading }: Bid
       });
 
       if (error) {
-        console.error("Supabase function error:", error);
+        console.error("Function invocation error:", error);
         throw error;
       }
-      
+
       if (data?.error) {
         console.error("Edge function error:", data.error);
         throw new Error(data.error);
