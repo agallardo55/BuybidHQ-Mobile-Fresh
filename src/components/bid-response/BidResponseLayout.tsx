@@ -25,4 +25,3 @@ const BidResponseLayout = ({ children }: BidResponseLayoutProps) => {
 };
 
 export default BidResponseLayout;
-
