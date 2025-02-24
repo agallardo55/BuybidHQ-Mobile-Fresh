@@ -50,14 +50,20 @@ export const mapResponsesToOffers = (
 
   responses.forEach(response => {
     const offers = responsesMap.get(response.bid_request_id) || [];
-    if (response.offer_amount && response.buyers) {
+    if (response.offer_amount && response.buyers?.buyer_name) {
+      const buyerName = response.buyers.dealer_name 
+        ? `${response.buyers.buyer_name} (${response.buyers.dealer_name})`
+        : response.buyers.buyer_name;
+      
       offers.push({
         amount: response.offer_amount,
-        buyerName: response.buyers.buyer_name || 'Unknown Buyer',
+        buyerName: buyerName,
         createdAt: response.created_at
       });
     }
-    responsesMap.set(response.bid_request_id, offers);
+    if (offers.length > 0) {
+      responsesMap.set(response.bid_request_id, offers);
+    }
   });
 
   return responsesMap;
