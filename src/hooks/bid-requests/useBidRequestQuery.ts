@@ -51,7 +51,7 @@ export const useBidRequestQuery = (enabled: boolean) => {
 
         const details = (await Promise.all(detailsPromises)).filter(Boolean);
 
-        // Get bid responses with buyer information using an inner join
+        // Get bid responses with buyer information
         const requestIds = details.map(item => item.request_id);
         const { data: responses, error: responsesError } = await supabase
           .from('bid_responses')
@@ -65,14 +65,14 @@ export const useBidRequestQuery = (enabled: boolean) => {
             )
           `)
           .in('bid_request_id', requestIds)
-          .order('offer_amount', { ascending: false }); // Order by highest offers first
+          .order('offer_amount', { ascending: false });
 
         if (responsesError) {
           console.error("Error fetching bid responses:", responsesError);
           throw responsesError;
         }
 
-        console.log('Fetched responses:', responses); // Debug log
+        console.log('Fetched responses:', responses);
 
         // Map responses to their requests
         const responsesMap = mapResponsesToOffers(responses);
@@ -83,7 +83,7 @@ export const useBidRequestQuery = (enabled: boolean) => {
           return transformBidRequest(item, offers);
         });
 
-        console.log('Transformed requests:', transformedRequests); // Debug log
+        console.log('Transformed requests:', transformedRequests);
 
         return transformedRequests;
       } catch (error) {
