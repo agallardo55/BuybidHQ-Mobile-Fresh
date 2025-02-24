@@ -57,6 +57,9 @@ serve(async (req) => {
     const recipientId = formattedRecipientNumber;
     const workflowData = prepareWorkflowData(requestData, formattedRecipientNumber);
 
+    // Generate a unique actor ID for the system
+    const actorId = `system-${requestId}`;
+
     // Determine which workflow to use based on the request type
     let workflowKey;
     switch (type) {
@@ -74,13 +77,21 @@ serve(async (req) => {
     console.log(`[${requestId}] Knock configuration:`, {
       workflow: workflowKey,
       recipientId,
+      actorId,
       data: workflowData
     });
     
     try {
+      // Create the actor first
+      await knock.users.identify(actorId, {
+        name: "BuyBidHQ System",
+        email: "system@buybidhq.com"
+      });
+
+      // Then trigger the workflow with the actor
       const result = await knock.workflows.trigger(workflowKey, {
         recipients: [recipientId],
-        actor: "system",
+        actor: actorId,
         data: workflowData
       });
 
