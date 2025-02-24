@@ -31,7 +31,7 @@ const SmsTest = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-bid-sms', {
+      const { data, error } = await supabase.functions.invoke('send-knock-sms', {
         body: {
           type: "bid_request",
           phoneNumber: cleanedPhone,
@@ -65,7 +65,7 @@ const SmsTest = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-bid-sms', {
+      const { data, error } = await supabase.functions.invoke('send-knock-sms', {
         body: {
           type: "bid_response",
           phoneNumber: cleanedPhone,
@@ -94,7 +94,7 @@ const SmsTest = () => {
   const testInvalidNumber = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-bid-sms', {
+      const { data, error } = await supabase.functions.invoke('send-knock-sms', {
         body: {
           type: "bid_request",
           phoneNumber: "5005550001", // Twilio test number for failure
@@ -120,7 +120,7 @@ const SmsTest = () => {
   const testUnroutableNumber = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-bid-sms', {
+      const { data, error } = await supabase.functions.invoke('send-knock-sms', {
         body: {
           type: "bid_request",
           phoneNumber: "5005550009", // Twilio test number for unroutable
@@ -249,4 +249,3 @@ const SmsTest = () => {
 };
 
 export default SmsTest;
-

@@ -14,9 +14,10 @@ export const useBidRequestSubmission = () => {
 
   const submitBidRequest = async ({ formState, userId }: BidRequestSubmissionProps) => {
     const { formData, selectedBuyers, uploadedImageUrls } = formState;
+    const requestId = crypto.randomUUID();
 
     try {
-      console.log('Submitting bid request with data:', { formData, selectedBuyers, uploadedImageUrls });
+      console.log(`[${requestId}] Starting bid request submission:`, { formData, selectedBuyers, uploadedImageUrls });
 
       // Prepare vehicle data matching database schema
       const vehicleData = {
@@ -45,16 +46,7 @@ export const useBidRequestSubmission = () => {
         recon_details: formData.reconDetails || 'No additional details'
       };
 
-      console.log('Calling RPC with formatted data:', {
-        vehicle_data: vehicleData,
-        recon_data: reconData,
-        image_urls: uploadedImageUrls,
-        buyer_ids: selectedBuyers,
-        creator_id: userId,
-        reconEstimate: formData.reconEstimate
-      });
-
-      const { data: bidRequestData, error: bidRequestError } = await supabase.rpc('create_complete_bid_request', {
+      console.log(`[${requestId}] Calling RPC with formatted data:`, {
         vehicle_data: vehicleData,
         recon_data: reconData,
         image_urls: uploadedImageUrls,
@@ -62,16 +54,28 @@ export const useBidRequestSubmission = () => {
         creator_id: userId
       });
 
+      const startTime = performance.now();
+      const { data: bidRequestData, error: bidRequestError } = await supabase.rpc('create_complete_bid_request', {
+        vehicle_data: vehicleData,
+        recon_data: reconData,
+        image_urls: uploadedImageUrls,
+        buyer_ids: selectedBuyers,
+        creator_id: userId
+      });
+      const endTime = performance.now();
+
       if (bidRequestError) {
-        console.error('Error creating bid request:', bidRequestError);
+        console.error(`[${requestId}] Error creating bid request:`, bidRequestError);
         toast.error('Failed to create bid request: ' + bidRequestError.message);
         throw bidRequestError;
       }
 
-      console.log('Bid request created successfully:', bidRequestData);
+      console.log(`[${requestId}] Bid request created successfully in ${(endTime - startTime).toFixed(2)}ms:`, bidRequestData);
 
       // Send SMS notifications to selected buyers using Knock
       for (const buyerId of selectedBuyers) {
+        console.log(`[${requestId}] Fetching buyer details for ID:`, buyerId);
+        
         // Get buyer details - using correct column names from database
         const { data: buyerData, error: buyerError } = await supabase
           .from('buyers')
@@ -80,12 +84,18 @@ export const useBidRequestSubmission = () => {
           .single();
 
         if (buyerError) {
-          console.error('Error fetching buyer details:', buyerError);
+          console.error(`[${requestId}] Error fetching buyer details:`, buyerError);
           continue;
         }
 
         // Generate unique bid submission URL
         const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(buyerId)}`;
+
+        console.log(`[${requestId}] Sending SMS notification to buyer:`, {
+          buyerId,
+          name: buyerData.buyer_name,
+          phone: buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*')
+        });
 
         // Send SMS notification via Knock
         const { error: smsError } = await supabase.functions.invoke('send-knock-sms', {
@@ -102,10 +112,13 @@ export const useBidRequestSubmission = () => {
         });
 
         if (smsError) {
-          console.error('Error sending SMS to buyer:', buyerData.buyer_mobile, smsError);
+          console.error(`[${requestId}] Error sending SMS to buyer:`, {
+            phone: buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*'),
+            error: smsError
+          });
           toast.error(`Failed to send SMS to ${buyerData.buyer_name}`);
         } else {
-          console.log('SMS sent successfully to:', buyerData.buyer_mobile);
+          console.log(`[${requestId}] SMS sent successfully to:`, buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*'));
         }
       }
 
@@ -113,7 +126,7 @@ export const useBidRequestSubmission = () => {
       navigate('/dashboard');
 
     } catch (error) {
-      console.error('Error in submitBidRequest:', error);
+      console.error(`[${requestId}] Error in submitBidRequest:`, error);
       toast.error('Failed to create bid request. Please try again.');
       throw error;
     }

@@ -8,9 +8,9 @@ const corsHeaders = {
 }
 
 interface BaseSMSRequest {
-  type: 'bid_request' | 'bid_response'
+  type: 'bid_request' | 'bid_response' | 'test'
   phoneNumber: string
-  vehicleDetails: {
+  vehicleDetails?: {
     year: string
     make: string
     model: string
@@ -28,7 +28,12 @@ interface BidResponseSMS extends BaseSMSRequest {
   buyerName: string
 }
 
-type SMSRequest = BidRequestSMS | BidResponseSMS
+interface TestSMS extends BaseSMSRequest {
+  type: 'test'
+  message?: string
+}
+
+type SMSRequest = BidRequestSMS | BidResponseSMS | TestSMS
 
 function formatPhoneNumber(phoneNumber: string): string {
   // Remove all non-digit characters
@@ -43,30 +48,52 @@ function formatPhoneNumber(phoneNumber: string): string {
   return `+1${cleaned}`;
 }
 
+async function verifyKnockConfiguration(knock: Knock, workflowId: string) {
+  try {
+    console.log('Verifying Knock configuration...');
+    const workflow = await knock.workflows.get(workflowId);
+    console.log('Workflow verification successful:', {
+      id: workflow.id,
+      name: workflow.name,
+      active: workflow.active
+    });
+    return true;
+  } catch (error) {
+    console.error('Knock configuration verification failed:', error);
+    return false;
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  try {
-    const requestData = await req.json() as SMSRequest
-    const { type, phoneNumber, vehicleDetails } = requestData
+  const requestId = crypto.randomUUID();
+  console.log(`[${requestId}] Processing new request`);
 
-    console.log('Processing Knock SMS request:', {
+  try {
+    const startTime = performance.now();
+    const requestData = await req.json() as SMSRequest;
+    const { type, phoneNumber } = requestData;
+
+    console.log(`[${requestId}] Processing ${type} SMS request:`, {
       type,
-      phoneNumber,
-      vehicleDetails
+      phoneNumber: phoneNumber.slice(-4).padStart(phoneNumber.length, '*'),
+      requestData
     });
 
-    // Get Knock API key from environment variables
+    // Get Knock API key and workflow ID from environment variables
     const knockApiKey = Deno.env.get('KNOCK_API_KEY')
     const knockWorkflowId = type === 'bid_request' 
-      ? Deno.env.get('KNOCK_BID_REQUEST_WORKFLOW') 
-      : Deno.env.get('KNOCK_BID_RESPONSE_WORKFLOW')
+      ? Deno.env.get('KNOCK_BID_REQUEST_WORKFLOW')
+      : type === 'bid_response'
+      ? Deno.env.get('KNOCK_BID_RESPONSE_WORKFLOW')
+      : Deno.env.get('KNOCK_TEST_WORKFLOW')
 
     if (!knockApiKey || !knockWorkflowId) {
-      console.error('Missing Knock configuration:', {
+      console.error(`[${requestId}] Missing Knock configuration:`, {
         hasApiKey: !!knockApiKey,
         hasWorkflowId: !!knockWorkflowId
       });
@@ -75,10 +102,16 @@ serve(async (req) => {
 
     // Format the recipient's phone number
     const formattedRecipientNumber = formatPhoneNumber(phoneNumber);
-    console.log('Formatted recipient number:', formattedRecipientNumber);
+    console.log(`[${requestId}] Formatted recipient number:`, formattedRecipientNumber);
 
     // Initialize Knock client
     const knock = new Knock(knockApiKey);
+    
+    // Verify Knock configuration
+    const isConfigValid = await verifyKnockConfiguration(knock, knockWorkflowId);
+    if (!isConfigValid) {
+      throw new Error('Knock configuration verification failed');
+    }
     
     // Prepare recipient data
     const recipientId = `phone:${formattedRecipientNumber}`; // Use phone number as recipient ID
@@ -87,23 +120,29 @@ serve(async (req) => {
     let workflowData: Record<string, any>;
     
     if (type === 'bid_request') {
-      const { bidRequestUrl } = requestData as BidRequestSMS;
+      const { bidRequestUrl, vehicleDetails } = requestData as BidRequestSMS;
       workflowData = {
         vehicle: vehicleDetails,
         bid_request_url: bidRequestUrl,
         recipient_phone: formattedRecipientNumber
       };
-    } else {
-      const { offerAmount, buyerName } = requestData as BidResponseSMS;
+    } else if (type === 'bid_response') {
+      const { offerAmount, buyerName, vehicleDetails } = requestData as BidResponseSMS;
       workflowData = {
         vehicle: vehicleDetails,
         offer_amount: offerAmount,
         buyer_name: buyerName,
         recipient_phone: formattedRecipientNumber
       };
+    } else {
+      // Test SMS
+      workflowData = {
+        message: (requestData as TestSMS).message || 'Test message from BuyBidHQ',
+        recipient_phone: formattedRecipientNumber
+      };
     }
 
-    console.log('Triggering Knock workflow:', {
+    console.log(`[${requestId}] Triggering Knock workflow:`, {
       workflowId: knockWorkflowId,
       recipientId,
       data: workflowData
@@ -116,12 +155,18 @@ serve(async (req) => {
       actor: "system"
     });
 
-    console.log('Knock workflow triggered successfully:', result);
+    const endTime = performance.now();
+    console.log(`[${requestId}] Knock workflow triggered successfully:`, {
+      result,
+      duration: `${(endTime - startTime).toFixed(2)}ms`
+    });
 
     return new Response(
       JSON.stringify({ 
         success: true,
+        requestId,
         messageId: result.workflow_runs[0].id,
+        duration: `${(endTime - startTime).toFixed(2)}ms`,
         details: {
           recipients: result.workflow_runs[0].recipients,
           workflow: result.workflow_runs[0].workflow_key
@@ -135,7 +180,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error in send-knock-sms function:', error);
+    console.error(`[${requestId}] Error in send-knock-sms function:`, error);
     
     // Enhanced error handling
     const errorMessage = error.message.includes('Invalid phone number') 
@@ -145,6 +190,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: errorMessage,
+        requestId,
         details: error.message,
         timestamp: new Date().toISOString()
       }), 
