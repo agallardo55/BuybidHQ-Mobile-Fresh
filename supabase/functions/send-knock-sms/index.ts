@@ -43,19 +43,19 @@ serve(async (req) => {
       throw new Error('KNOCK_API_KEY is not set');
     }
 
-    // Define workflow IDs directly
+    // Define workflow IDs using Knock's expected format
     const knockWorkflowId = type === 'bid_request' 
-      ? 'bid-request-sms'
+      ? 'buybid-sms-notification'  // Using a more standard Knock workflow ID format
       : type === 'bid_response'
-      ? 'bid-response-sms'
-      : 'test-sms';
+      ? 'buybid-response-notification'
+      : 'buybid-test-notification';
 
     // Format phone number
     console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
     const formattedRecipientNumber = formatPhoneNumber(phoneNumber);
 
     // Initialize and verify Knock configuration
-    console.log(`[${requestId}] Initializing Knock client`);
+    console.log(`[${requestId}] Initializing Knock client with workflow:`, knockWorkflowId);
     const knock = await verifyKnockConfiguration(knockApiKey, knockWorkflowId);
     
     // Prepare workflow data
