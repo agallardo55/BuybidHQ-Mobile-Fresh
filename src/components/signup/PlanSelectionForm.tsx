@@ -15,7 +15,7 @@ const PlanSelectionForm = ({
         <Card className="p-6 space-y-4 cursor-pointer hover:border-accent" onClick={() => onSelect('beta-access')}>
           <h3 className="text-lg font-semibold">Basic Trial</h3>
           <div className="text-2xl font-bold">Free</div>
-          <p className="text-sm text-gray-600">14-day trial access</p>
+          <p className="text-sm text-gray-600">Free while in beta</p>
           <ul className="space-y-2">
             <li className="flex items-center">
               <Check className="w-4 h-4 mr-2 text-accent" />
