@@ -12,7 +12,7 @@ export const useBidResponseMutation = () => {
       status 
     }: { 
       responseId: string; 
-      status: "Pending" | "Approved" | "Declined" 
+      status: "pending" | "accepted" | "declined"
     }) => {
       const { error } = await supabase
         .from('bid_responses')

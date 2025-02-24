@@ -1,4 +1,3 @@
-
 export interface BidRequest {
   id: string;
   createdAt: string;
@@ -14,9 +13,9 @@ export interface BidRequest {
     amount: number;
     buyerName: string;
     createdAt: string;
-    status: "Pending" | "Approved" | "Declined";
+    status: "pending" | "accepted" | "declined";
   }[];
-  status: "Pending" | "Approved" | "Declined";
+  status: "pending" | "accepted" | "declined";
   engineCylinders: string;
   transmission: string;
   drivetrain: string;

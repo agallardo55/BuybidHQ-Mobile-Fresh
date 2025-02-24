@@ -5,12 +5,12 @@ import { toast } from "sonner";
 import { BidRequest } from "@/components/bid-request/types";
 import { mapResponsesToOffers, transformBidRequest } from "./utils";
 
-type BidStatus = "Pending" | "Approved" | "Declined";
+type BidStatus = "pending" | "accepted" | "declined";
 
 const validateStatus = (status: string): BidStatus => {
-  return ["Pending", "Approved", "Declined"].includes(status) 
-    ? (status as BidStatus) 
-    : "Pending";
+  const validStatuses: BidStatus[] = ["pending", "accepted", "declined"];
+  const normalizedStatus = status.toLowerCase() as BidStatus;
+  return validStatuses.includes(normalizedStatus) ? normalizedStatus : "pending";
 };
 
 export const useBidRequestQuery = (enabled: boolean) => {

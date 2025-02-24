@@ -32,7 +32,7 @@ interface BidOffer {
   amount: number;
   buyerName: string;
   createdAt: string;
-  status: "Pending" | "Approved" | "Declined";
+  status: "pending" | "accepted" | "declined";
 }
 
 export const mapResponsesToOffers = (
@@ -41,7 +41,7 @@ export const mapResponsesToOffers = (
     bid_request_id: string;
     offer_amount: number;
     created_at: string;
-    status: "Pending" | "Approved" | "Declined";
+    status: "pending" | "accepted" | "declined";
     buyers: {
       buyer_name: string | null;
       dealer_name: string | null;
@@ -79,9 +79,9 @@ export const transformBidRequest = (
   item: BidRequestDetails,
   offers: BidOffer[]
 ): BidRequest => {
-  const status = ["Pending", "Approved", "Declined"].includes(item.status) 
-    ? item.status as "Pending" | "Approved" | "Declined"
-    : "Pending";
+  const status = ["pending", "accepted", "declined"].includes(item.status.toLowerCase()) 
+    ? item.status.toLowerCase() as "pending" | "accepted" | "declined"
+    : "pending";
 
   return {
     id: item.request_id,
