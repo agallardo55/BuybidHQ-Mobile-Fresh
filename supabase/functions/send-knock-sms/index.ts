@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { Knock } from "npm:@knocklabs/node@0.4.5"
+import { Knock } from "npm:@knocklabs/node@0.8.0"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -50,55 +50,59 @@ function formatPhoneNumber(phoneNumber: string): string {
 
 async function verifyKnockConfiguration(knock: Knock, workflowId: string) {
   try {
-    console.log('Verifying Knock configuration with workflow ID:', workflowId);
+    console.log('Attempting to verify Knock workflow:', workflowId);
+    
+    // First try to list workflows to check API connectivity
+    const workflows = await knock.workflows.list();
+    console.log('Successfully connected to Knock API, found workflows:', workflows.length);
+    
+    // Then try to get the specific workflow
     const workflow = await knock.workflows.get(workflowId);
-    console.log('Workflow verification successful:', {
+    console.log('Successfully found workflow:', {
       id: workflow.id,
-      key: workflow.key,
       name: workflow.name,
       active: workflow.active
     });
+    
     return true;
   } catch (error) {
     console.error('Knock configuration verification failed:', {
       error,
       workflowId,
       errorMessage: error.message,
+      errorName: error.name,
       stack: error.stack
     });
-    return false;
+    throw new Error(`Knock API Error: ${error.message}`);
   }
 }
 
 serve(async (req) => {
   const requestId = crypto.randomUUID();
-  console.log(`[${requestId}] Starting new request processing`);
+  console.log(`[${requestId}] Beginning request processing`);
 
   try {
-    // Handle CORS preflight requests
+    // Handle CORS preflight
     if (req.method === 'OPTIONS') {
-      console.log(`[${requestId}] Handling CORS preflight request`);
-      return new Response('ok', { headers: corsHeaders })
+      return new Response('ok', { headers: corsHeaders });
     }
 
-    const startTime = performance.now();
-
-    // Parse request data with error handling
+    // Parse and validate request data
     let requestData: SMSRequest;
     try {
       requestData = await req.json();
-      console.log(`[${requestId}] Request data parsed successfully:`, {
+      console.log(`[${requestId}] Received request:`, {
         type: requestData.type,
         phoneNumber: requestData.phoneNumber.slice(-4).padStart(requestData.phoneNumber.length, '*')
       });
     } catch (error) {
-      console.error(`[${requestId}] Failed to parse request body:`, error);
+      console.error(`[${requestId}] Request parsing failed:`, error);
       throw new Error('Invalid request format');
     }
 
     const { type, phoneNumber } = requestData;
 
-    // Get Knock configuration
+    // Validate environment variables
     const knockApiKey = Deno.env.get('KNOCK_API_KEY');
     const knockWorkflowId = type === 'bid_request' 
       ? Deno.env.get('KNOCK_BID_REQUEST_WORKFLOW')
@@ -106,41 +110,34 @@ serve(async (req) => {
       ? Deno.env.get('KNOCK_BID_RESPONSE_WORKFLOW')
       : Deno.env.get('KNOCK_TEST_WORKFLOW');
 
-    console.log(`[${requestId}] Knock configuration:`, {
-      hasApiKey: !!knockApiKey,
-      workflowId: knockWorkflowId,
-      type
-    });
-
-    if (!knockApiKey || !knockWorkflowId) {
-      console.error(`[${requestId}] Missing Knock configuration`);
-      throw new Error('Missing Knock configuration. Please ensure all required environment variables are set.')
+    if (!knockApiKey) {
+      throw new Error('KNOCK_API_KEY is not set');
     }
+
+    if (!knockWorkflowId) {
+      throw new Error(`Missing workflow ID for type: ${type}`);
+    }
+
+    console.log(`[${requestId}] Using workflow:`, knockWorkflowId);
 
     // Format phone number
     let formattedRecipientNumber: string;
     try {
       formattedRecipientNumber = formatPhoneNumber(phoneNumber);
-      console.log(`[${requestId}] Phone number formatted:`, formattedRecipientNumber.slice(-4).padStart(formattedRecipientNumber.length, '*'));
+      console.log(`[${requestId}] Formatted phone:`, formattedRecipientNumber.slice(-4).padStart(formattedRecipientNumber.length, '*'));
     } catch (error) {
-      console.error(`[${requestId}] Phone number formatting failed:`, error);
-      throw error;
+      throw new Error(`Phone number validation failed: ${error.message}`);
     }
 
-    // Initialize Knock client
+    // Initialize Knock
     console.log(`[${requestId}] Initializing Knock client`);
     const knock = new Knock(knockApiKey);
-    
+
     // Verify Knock configuration
-    const isConfigValid = await verifyKnockConfiguration(knock, knockWorkflowId);
-    if (!isConfigValid) {
-      throw new Error('Knock configuration verification failed. Please check the workflow ID and API key.');
-    }
+    await verifyKnockConfiguration(knock, knockWorkflowId);
     
-    // Prepare recipient data
-    const recipientId = `phone:${formattedRecipientNumber}`; // Use phone number as recipient ID
-    
-    // Prepare workflow data based on notification type
+    // Prepare workflow data
+    const recipientId = `phone:${formattedRecipientNumber}`;
     let workflowData: Record<string, any>;
     
     if (type === 'bid_request') {
@@ -165,35 +162,25 @@ serve(async (req) => {
       };
     }
 
-    console.log(`[${requestId}] Triggering Knock workflow:`, {
-      workflowId: knockWorkflowId,
-      recipientId,
-      data: workflowData
-    });
+    console.log(`[${requestId}] Triggering workflow with data:`, workflowData);
 
-    // Trigger the Knock workflow
+    // Trigger workflow
     const result = await knock.workflows.trigger(knockWorkflowId, {
       recipients: [recipientId],
       data: workflowData,
       actor: "system"
     });
 
-    const endTime = performance.now();
-    console.log(`[${requestId}] Knock workflow triggered successfully:`, {
-      result,
-      duration: `${(endTime - startTime).toFixed(2)}ms`
+    console.log(`[${requestId}] Workflow triggered successfully:`, {
+      runId: result.workflow_runs[0].id,
+      status: result.workflow_runs[0].status
     });
 
     return new Response(
       JSON.stringify({ 
         success: true,
         requestId,
-        messageId: result.workflow_runs[0].id,
-        duration: `${(endTime - startTime).toFixed(2)}ms`,
-        details: {
-          recipients: result.workflow_runs[0].recipients,
-          workflow: result.workflow_runs[0].workflow_key
-        }
+        messageId: result.workflow_runs[0].id
       }),
       { 
         headers: { 
@@ -201,33 +188,27 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         }
       }
-    )
+    );
   } catch (error) {
-    console.error(`[${requestId}] Error in send-knock-sms function:`, {
-      error,
+    console.error(`[${requestId}] Function error:`, {
+      name: error.name,
       message: error.message,
       stack: error.stack
     });
-    
-    // Enhanced error handling
-    const errorMessage = error.message.includes('Invalid phone number') 
-      ? error.message 
-      : error.message || 'Failed to send SMS. Please try again.';
 
     return new Response(
-      JSON.stringify({ 
-        error: errorMessage,
+      JSON.stringify({
+        error: error.message,
         requestId,
-        details: error.message,
         timestamp: new Date().toISOString()
-      }), 
-      { 
+      }),
+      {
         status: 400,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'
         }
       }
-    )
+    );
   }
-})
+});
