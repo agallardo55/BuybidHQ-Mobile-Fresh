@@ -1,4 +1,3 @@
-
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
 import MultiStepForm from "@/components/bid-request/MultiStepForm";
@@ -6,10 +5,13 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
 import { useState } from "react";
-
 const CreateBidRequest = () => {
-  const { currentUser } = useCurrentUser();
-  const { buyers } = useBuyers();
+  const {
+    currentUser
+  } = useCurrentUser();
+  const {
+    buyers
+  } = useBuyers();
   const {
     formData,
     errors,
@@ -25,67 +27,35 @@ const CreateBidRequest = () => {
     setErrors,
     handleBatchChanges // Add this from useCreateBidRequest
   } = useCreateBidRequest();
-
   const [showValidation, setShowValidation] = useState(false);
-
   const mappedBuyers = buyers?.map(buyer => ({
     id: buyer.id,
     name: buyer.name,
     dealership: buyer.dealership,
     mobile: buyer.mobileNumber
   })) || [];
-
-  const filteredBuyers = mappedBuyers.filter(buyer => 
-    buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    buyer.dealership?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const filteredBuyers = mappedBuyers.filter(buyer => buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) || buyer.dealership?.toLowerCase().includes(searchTerm.toLowerCase()));
   const onSubmit = () => {
     if (!currentUser?.id) {
       return;
     }
     handleSubmit(currentUser.id);
   };
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+  return <div className="min-h-screen bg-gray-50 flex flex-col">
       <DashboardNavigation />
       <div className="pt-20 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <h1 className="text-lg font-bold text-gray-900 mb-6">Create Bid Request</h1>
-            <MultiStepForm
-              formData={formData}
-              errors={errors}
-              onChange={handleChange}
-              onSelectChange={handleSelectChange}
-              selectedBuyers={selectedBuyers}
-              toggleBuyer={toggleBuyer}
-              buyers={filteredBuyers}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              onSubmit={onSubmit}
-              isSubmitting={isSubmitting}
-              onImagesUploaded={handleImagesUploaded}
-              showValidation={showValidation}
-              setShowValidation={setShowValidation}
-              setErrors={setErrors}
-              onBatchChange={handleBatchChanges} // Add this prop
-            />
+            <MultiStepForm formData={formData} errors={errors} onChange={handleChange} onSelectChange={handleSelectChange} selectedBuyers={selectedBuyers} toggleBuyer={toggleBuyer} buyers={filteredBuyers} searchTerm={searchTerm} setSearchTerm={setSearchTerm} onSubmit={onSubmit} isSubmitting={isSubmitting} onImagesUploaded={handleImagesUploaded} showValidation={showValidation} setShowValidation={setShowValidation} setErrors={setErrors} onBatchChange={handleBatchChanges} // Add this prop
+          />
             <div className="mt-6 pt-4 border-t border-gray-200 bg-white">
-              <p className="text-sm text-gray-500 text-center">
-                Need help? Contact our support team at{" "}
-                <a href="mailto:support@buybidhq.com" className="text-custom-blue hover:underline">
-                  support@buybidhq.com
-                </a>
-              </p>
+              
             </div>
           </div>
         </div>
       </div>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default CreateBidRequest;
