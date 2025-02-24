@@ -110,6 +110,38 @@ serve(async (req) => {
       // Don't throw here as the bid was already submitted successfully
     }
 
+    // Get notification details for SMS
+    const { data: notificationDetails, error: detailsError } = await supabase
+      .rpc('get_bid_notification_details', { 
+        p_bid_response_id: bidResponse.id 
+      })
+
+    if (!detailsError && notificationDetails?.[0]) {
+      const details = notificationDetails[0];
+
+      // Send SMS notification
+      try {
+        await supabase.functions.invoke('send-bid-sms', {
+          body: {
+            type: 'bid_response',
+            phoneNumber: details.creator_phone,
+            vehicleDetails: {
+              year: details.vehicle_year,
+              make: details.vehicle_make,
+              model: details.vehicle_model
+            },
+            buyerName: details.buyer_name,
+            offerAmount: details.offer_amount.toLocaleString()
+          }
+        });
+      } catch (smsError) {
+        console.error('Error sending SMS notification:', smsError);
+        // Don't fail the request if SMS fails
+      }
+    } else {
+      console.error('Error getting notification details:', detailsError);
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true,
