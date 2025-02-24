@@ -55,18 +55,19 @@ export const useBidResponseDetails = () => {
         throw new Error('No bid response found');
       }
 
-      // Then get the images for this bid request
+      // Then get the images for this bid request, ordered by created_at DESC
       const { data: imageData, error: imageError } = await supabase
         .from('images')
         .select('image_url')
-        .eq('bid_request_id', id);
+        .eq('bid_request_id', id)
+        .order('created_at', { ascending: false });
 
       if (imageError) {
         console.error('Error fetching images:', imageError);
       }
 
       const details = requestDetails[0] as BidResponseDetailsType;
-      const images = imageData?.map(img => img.image_url) || [];
+      const images = imageData?.map(img => img.image_url).filter((url): url is string => url !== null);
 
       return {
         requestId: details.request_id,
@@ -92,7 +93,7 @@ export const useBidResponseDetails = () => {
           maintenance: details.maintenance,
           reconEstimate: details.recon_estimate,
           reconDetails: details.recon_details,
-          images: images
+          images: images || []
         },
         buyer: {
           name: details.user_full_name,

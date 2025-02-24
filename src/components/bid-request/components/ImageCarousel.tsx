@@ -15,13 +15,17 @@ const ImageCarousel = ({
   onImageClick,
   onDeleteImage 
 }: ImageCarouselProps) => {
-  if (uploadedImages.length === 0 && selectedFileUrls.length === 0) return null;
+  // Sort both arrays in reverse chronological order
+  // Note: selectedFileUrls are already in reverse order since they're newest first when selected
+  const sortedUploadedImages = [...uploadedImages].reverse();
+
+  if (sortedUploadedImages.length === 0 && selectedFileUrls.length === 0) return null;
 
   return (
     <div className="mt-4">
       <div className="w-full max-w-[95%] mx-auto overflow-x-auto">
         <div className="flex gap-4 pb-4">
-          {uploadedImages.map((url, index) => (
+          {sortedUploadedImages.map((url, index) => (
             <div key={`uploaded-${index}`} className="flex-none relative">
               <div className="h-32 relative rounded-lg overflow-hidden">
                 <img 
