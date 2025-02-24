@@ -13,7 +13,7 @@ export interface SignUpFormData {
   city: string;
   state: string;
   zipCode: string;
-  planType: 'beta-access' | 'individual' | undefined;
+  planType: 'beta-access' | 'individual' | 'pay-per-bid' | undefined;
   smsConsent: boolean;
 }
 
