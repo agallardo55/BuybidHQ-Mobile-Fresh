@@ -88,7 +88,7 @@ export const useBidRequests = () => {
 
         const details = (await Promise.all(detailsPromises)).filter(Boolean) as BidRequestDetails[];
 
-        // Get bid responses with buyer information using LEFT JOIN
+        // Get bid responses with buyer information
         const requestIds = details.map(item => item.request_id);
         const { data: responses, error: responsesError } = await supabase
           .from('bid_responses')
@@ -137,10 +137,6 @@ export const useBidRequests = () => {
         // Transform to final format
         return details.map((item): BidRequest => {
           const offers = responsesMap.get(item.request_id) || [];
-          const highestOffer = offers.length > 0 ? 
-            Math.max(...offers.map(o => o.amount)) : 
-            null;
-
           const status = ["Pending", "Approved", "Declined"].includes(item.status) 
             ? item.status as "Pending" | "Approved" | "Declined"
             : "Pending";
@@ -155,7 +151,7 @@ export const useBidRequests = () => {
             vin: item.vin,
             mileage: parseInt(item.mileage),
             buyer: item.user_full_name || 'Unknown',
-            highestOffer,
+            offers,
             status,
             engineCylinders: item.engine_cylinders,
             transmission: item.transmission,

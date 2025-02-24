@@ -36,11 +36,19 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
     setIsDialogOpen(true);
   };
 
-  const renderHighestOffer = (request: BidRequest) => {
-    if (request.highestOffer === null) {
+  const renderOffers = (request: BidRequest) => {
+    if (!request.offers?.length) {
       return <span className="text-gray-500">No offers yet</span>;
     }
-    return `$${request.highestOffer.toLocaleString()}`;
+    return (
+      <div className="space-y-1">
+        {request.offers.map((offer, index) => (
+          <div key={index}>
+            ${offer.amount.toLocaleString()} - {offer.buyerName}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const SortIcon = ({ field }: { field: keyof BidRequest }) => {
@@ -69,7 +77,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
     </TableHead>
   );
 
-  console.log('Rendering BidRequestTable with requests:', requests); // Debug log
+  console.log('Rendering BidRequestTable with requests:', requests);
 
   return (
     <>
@@ -84,8 +92,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 <SortableHeader field="model">Model</SortableHeader>
                 <TableHead className="text-sm">VIN</TableHead>
                 <SortableHeader field="mileage">Mileage</SortableHeader>
-                <SortableHeader field="buyer">Buyer</SortableHeader>
-                <SortableHeader field="highestOffer">Highest Offer</SortableHeader>
+                <TableHead className="text-sm">Offers</TableHead>
                 <SortableHeader field="status">Status</SortableHeader>
               </TableRow>
             </TableHeader>
@@ -115,11 +122,8 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                     <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                       {request.mileage.toLocaleString()}
                     </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {request.buyer}
-                    </TableCell>
-                    <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                      {renderHighestOffer(request)}
+                    <TableCell className="py-2 px-4 h-[44px]">
+                      {renderOffers(request)}
                     </TableCell>
                     <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                       <Select
@@ -146,7 +150,7 @@ const BidRequestTable = ({ requests, onStatusUpdate, sortConfig, onSort }: BidRe
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-4">
+                  <TableCell colSpan={8} className="text-center py-4">
                     No bid requests found
                   </TableCell>
                 </TableRow>
