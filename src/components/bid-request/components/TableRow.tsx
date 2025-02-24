@@ -1,0 +1,80 @@
+
+import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { format, parseISO } from "date-fns";
+import { BidRequest } from "../types";
+
+interface TableRowProps {
+  request: BidRequest;
+  offer?: BidRequest['offers'][0];
+  onClick: () => void;
+  onStatusUpdate?: (responseId: string, status: "Pending" | "Approved" | "Declined") => void;
+}
+
+export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: TableRowProps) => {
+  const formatDate = (dateString: string) => {
+    try {
+      return format(parseISO(dateString), 'MM/dd/yyyy');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date';
+    }
+  };
+
+  return (
+    <UITableRow 
+      className="text-sm hover:bg-muted/50 cursor-pointer"
+      onClick={onClick}
+    >
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        {formatDate(request.createdAt)}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        {request.year}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        {request.make}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        {request.model}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        {request.vin}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        {request.mileage.toLocaleString()}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        {offer ? offer.buyerName.split('(')?.[0]?.trim() : <span className="text-gray-500">No buyer</span>}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        {offer ? `$${offer.amount.toLocaleString()}` : <span className="text-gray-500">No offers yet</span>}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+        {offer && onStatusUpdate ? (
+          <Select
+            value={offer.status || 'Pending'}
+            onValueChange={(value: "Pending" | "Approved" | "Declined") => 
+              onStatusUpdate(offer.id, value)
+            }
+          >
+            <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
+              ${offer.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+              ${offer.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+              ${offer.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+            `}>
+              <SelectValue>{offer.status || 'Pending'}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Approved">Approved</SelectItem>
+              <SelectItem value="Declined">Declined</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          <span>Pending</span>
+        )}
+      </TableCell>
+    </UITableRow>
+  );
+};

@@ -1,24 +1,14 @@
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format, parseISO } from "date-fns";
+import { Table, TableBody } from "@/components/ui/table";
 import { BidRequest } from "./types";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
 import BidRequestDialog from "./BidRequestDialog";
 import { useBidResponseMutation } from "@/hooks/bid-requests/useBidResponseMutation";
+import { TableHeaders } from "./components/TableHeaders";
+import { TableRowComponent } from "./components/TableRow";
 
 interface BidRequestTableProps {
   requests: BidRequest[];
-  onStatusUpdate: (id: string, status: "Pending" | "Approved" | "Declined") => void;
   sortConfig: {
     field: keyof BidRequest | null;
     direction: 'asc' | 'desc' | null;
@@ -31,15 +21,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { mutate: updateBidResponseStatus } = useBidResponseMutation();
 
-  const formatDate = (dateString: string) => {
-    try {
-      return format(parseISO(dateString), 'MM/dd/yyyy');
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid Date';
-    }
-  };
-
   const handleRowClick = (request: BidRequest) => {
     setSelectedRequest(request);
     setIsDialogOpen(true);
@@ -49,153 +30,65 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
     updateBidResponseStatus({ responseId, status });
   };
 
-  const SortIcon = ({ field }: { field: keyof BidRequest }) => {
-    if (sortConfig.field !== field) {
-      return <ArrowUpDown className="h-4 w-4 ml-1" />;
-    }
-    return sortConfig.direction === 'asc' ? (
-      <ArrowUp className="h-4 w-4 ml-1" />
-    ) : (
-      <ArrowDown className="h-4 w-4 ml-1" />
-    );
-  };
-
-  const SortableHeader = ({ field, children }: { field: keyof BidRequest; children: React.ReactNode }) => (
-    <TableHead 
-      className={cn(
-        "text-sm cursor-pointer select-none",
-        sortConfig.field === field && "text-primary"
-      )}
-      onClick={() => onSort(field)}
-    >
-      <div className="flex items-center">
-        {children}
-        <SortIcon field={field} />
-      </div>
-    </TableHead>
-  );
-
   return (
     <>
       <div className="overflow-x-auto -mx-4 sm:-mx-6 scrollbar-thin scrollbar-thumb-gray-300">
         <div className="inline-block min-w-full align-middle px-4 sm:px-6">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <SortableHeader field="createdAt">Date</SortableHeader>
-                <SortableHeader field="year">Year</SortableHeader>
-                <SortableHeader field="make">Make</SortableHeader>
-                <SortableHeader field="model">Model</SortableHeader>
-                <TableHead className="text-sm">VIN</TableHead>
-                <SortableHeader field="mileage">Mileage</SortableHeader>
-                <TableHead className="text-sm">Buyer</TableHead>
-                <TableHead className="text-sm">Offer</TableHead>
-                <TableHead className="text-sm">Status</TableHead>
-              </TableRow>
-            </TableHeader>
+            <TableHeaders sortConfig={sortConfig} onSort={onSort} />
             <TableBody>
               {requests && requests.length > 0 ? (
                 requests.flatMap((request) => {
-                  // If there are no offers, return a single row
                   if (!request.offers?.length) {
                     return [(
-                      <TableRow 
-                        key={request.id} 
-                        className="text-sm hover:bg-muted/50 cursor-pointer"
+                      <TableRowComponent
+                        key={request.id}
+                        request={request}
                         onClick={() => handleRowClick(request)}
-                      >
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          {formatDate(request.createdAt)}
-                        </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          {request.year}
-                        </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          {request.make}
-                        </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          {request.model}
-                        </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          {request.vin}
-                        </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          {request.mileage.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          <span className="text-gray-500">No buyer</span>
-                        </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          <span className="text-gray-500">No offers yet</span>
-                        </TableCell>
-                        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                          <span>Pending</span>
-                        </TableCell>
-                      </TableRow>
+                      />
                     )];
                   }
 
-                  // Create a row for each offer
                   return request.offers.map((offer, index) => (
-                    <TableRow 
+                    <TableRowComponent
                       key={`${request.id}-${index}`}
-                      className="text-sm hover:bg-muted/50 cursor-pointer"
+                      request={request}
+                      offer={offer}
                       onClick={() => handleRowClick(request)}
-                    >
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                        {formatDate(request.createdAt)}
-                      </TableCell>
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                        {request.year}
-                      </TableCell>
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                        {request.make}
-                      </TableCell>
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                        {request.model}
-                      </TableCell>
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                        {request.vin}
-                      </TableCell>
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                        {request.mileage.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                        {offer.buyerName.split('(')?.[0]?.trim()}
-                      </TableCell>
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                        ${offer.amount.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                        <Select
-                          value={offer.status || 'Pending'}
-                          onValueChange={(value: "Pending" | "Approved" | "Declined") => 
-                            handleStatusUpdate(offer.id, value)
-                          }
-                        >
-                          <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
-                            ${offer.status === 'Approved' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                            ${offer.status === 'Pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                            ${offer.status === 'Declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
-                          `}>
-                            <SelectValue>{offer.status || 'Pending'}</SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Pending">Pending</SelectItem>
-                            <SelectItem value="Approved">Approved</SelectItem>
-                            <SelectItem value="Declined">Declined</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                    </TableRow>
+                      onStatusUpdate={handleStatusUpdate}
+                    />
                   ));
                 })
               ) : (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center py-4">
-                    No bid requests found
-                  </TableCell>
-                </TableRow>
+                <TableRowComponent
+                  request={{
+                    id: "empty",
+                    createdAt: new Date().toISOString(),
+                    year: 0,
+                    make: "",
+                    model: "",
+                    trim: "",
+                    vin: "",
+                    mileage: 0,
+                    buyer: "",
+                    offers: [],
+                    status: "Pending",
+                    engineCylinders: "",
+                    transmission: "",
+                    drivetrain: "",
+                    exteriorColor: "",
+                    interiorColor: "",
+                    accessories: "",
+                    windshield: "",
+                    engineLights: "",
+                    brakes: "",
+                    tire: "",
+                    maintenance: "",
+                    reconEstimate: "",
+                    reconDetails: ""
+                  }}
+                  onClick={() => {}}
+                />
               )}
             </TableBody>
           </Table>

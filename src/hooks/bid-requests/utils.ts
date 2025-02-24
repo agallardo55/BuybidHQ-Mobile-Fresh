@@ -28,16 +28,20 @@ interface BidRequestDetails {
 }
 
 interface BidOffer {
+  id: string;
   amount: number;
   buyerName: string;
   createdAt: string;
+  status: "Pending" | "Approved" | "Declined";
 }
 
 export const mapResponsesToOffers = (
   responses: Array<{
+    id: string;
     bid_request_id: string;
     offer_amount: number;
     created_at: string;
+    status: "Pending" | "Approved" | "Declined";
     buyers: {
       buyer_name: string | null;
       dealer_name: string | null;
@@ -56,9 +60,11 @@ export const mapResponsesToOffers = (
         : response.buyers.buyer_name;
       
       offers.push({
+        id: response.id,
         amount: response.offer_amount,
         buyerName: buyerName,
-        createdAt: response.created_at
+        createdAt: response.created_at,
+        status: response.status
       });
     }
     if (offers.length > 0) {
