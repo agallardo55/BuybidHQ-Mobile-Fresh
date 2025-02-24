@@ -42,13 +42,8 @@ serve(async (req) => {
 
     // Validate environment variables
     const knockApiKey = Deno.env.get('KNOCK_API_KEY');
-    const workflowKey = Deno.env.get('KNOCK_BID_REQUEST_WORKFLOW');
-    
     if (!knockApiKey) {
       throw new Error('KNOCK_API_KEY is not set');
-    }
-    if (!workflowKey) {
-      throw new Error('KNOCK_BID_REQUEST_WORKFLOW is not set');
     }
 
     // Format phone number
@@ -64,14 +59,14 @@ serve(async (req) => {
 
     // Log full configuration before making the request
     console.log(`[${requestId}] Knock configuration:`, {
-      workflowKey,
+      workflow: 'workflow_bid-request-notification',
       recipientId,
       data: workflowData
     });
     
     try {
-      // Use the workflow key from environment variables
-      const result = await knock.workflows.trigger(workflowKey, {
+      // Use the correct workflow key format
+      const result = await knock.workflows.trigger('workflow_bid-request-notification', {
         recipients: [recipientId],
         actor: "system",
         data: workflowData
