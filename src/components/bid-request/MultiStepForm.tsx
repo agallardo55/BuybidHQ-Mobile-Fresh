@@ -34,6 +34,8 @@ interface MultiStepFormProps {
   setShowValidation: (show: boolean) => void;
   showValidation: boolean;
   setErrors: (errors: FormErrors) => void;
+  uploadedImageUrls?: string[];
+  selectedFileUrls?: string[];
 }
 
 const MultiStepForm = ({
@@ -52,7 +54,9 @@ const MultiStepForm = ({
   onBatchChange,
   setShowValidation,
   showValidation,
-  setErrors
+  setErrors,
+  uploadedImageUrls = [],
+  selectedFileUrls = []
 }: MultiStepFormProps) => {
   const {
     currentStep,
@@ -114,6 +118,8 @@ const MultiStepForm = ({
             formData={formData}
             onChange={onChange}
             onImagesUploaded={onImagesUploaded}
+            uploadedImageUrls={uploadedImageUrls}
+            selectedFileUrls={selectedFileUrls}
           />
           <StepNavigation 
             onBack={handleBack}
