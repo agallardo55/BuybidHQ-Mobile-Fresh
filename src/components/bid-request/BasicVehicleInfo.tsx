@@ -8,6 +8,7 @@ interface BasicVehicleInfoProps {
     make: string;
     model: string;
     trim: string;
+    displayTrim: string; // Added to match VehicleIdentification props
     mileage: string;
     engineCylinders: string;
     transmission: string;
