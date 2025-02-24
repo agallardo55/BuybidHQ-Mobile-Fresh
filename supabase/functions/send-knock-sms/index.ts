@@ -57,23 +57,31 @@ serve(async (req) => {
     const recipientId = formattedRecipientNumber;
     const workflowData = prepareWorkflowData(requestData, formattedRecipientNumber);
 
+    // Determine which workflow to use based on the request type
+    let workflowKey;
+    switch (type) {
+      case 'bid_request':
+        workflowKey = 'bid-request';
+        break;
+      case 'bid_response':
+        workflowKey = 'bid-response';
+        break;
+      default:
+        workflowKey = 'sms-test';
+    }
+
     // Log full configuration before making the request
     console.log(`[${requestId}] Knock configuration:`, {
-      workflow: 'bid-request-test',
+      workflow: workflowKey,
       recipientId,
       data: workflowData
     });
     
     try {
-      // Use a simpler test workflow first
-      const result = await knock.workflows.trigger('bid-request-test', {
+      const result = await knock.workflows.trigger(workflowKey, {
         recipients: [recipientId],
         actor: "system",
-        data: {
-          message: "This is a test bid request notification",
-          recipient_phone: formattedRecipientNumber,
-          ...workflowData
-        }
+        data: workflowData
       });
 
       console.log(`[${requestId}] Notification triggered successfully:`, {
