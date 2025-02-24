@@ -42,8 +42,13 @@ serve(async (req) => {
 
     // Validate environment variables
     const knockApiKey = Deno.env.get('KNOCK_API_KEY');
+    const workflowKey = Deno.env.get('KNOCK_BID_REQUEST_WORKFLOW');
+    
     if (!knockApiKey) {
       throw new Error('KNOCK_API_KEY is not set');
+    }
+    if (!workflowKey) {
+      throw new Error('KNOCK_BID_REQUEST_WORKFLOW is not set');
     }
 
     // Format phone number
@@ -59,14 +64,14 @@ serve(async (req) => {
 
     // Log full configuration before making the request
     console.log(`[${requestId}] Knock configuration:`, {
-      apiKey: knockApiKey ? '***' : 'undefined',
+      workflowKey,
       recipientId,
       data: workflowData
     });
     
     try {
-      // Trigger workflow
-      const result = await knock.workflows.trigger('sms-test', {
+      // Use the workflow key from environment variables
+      const result = await knock.workflows.trigger(workflowKey, {
         recipients: [recipientId],
         actor: "system",
         data: workflowData
