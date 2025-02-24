@@ -46,9 +46,12 @@ serve(async (req) => {
       throw new Error('KNOCK_API_KEY is not set');
     }
 
-    // Format phone number
+    // Format phone number with country code if not present
     console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
-    const formattedRecipientNumber = formatPhoneNumber(phoneNumber);
+    let formattedRecipientNumber = formatPhoneNumber(phoneNumber);
+    if (!formattedRecipientNumber.startsWith('+')) {
+      formattedRecipientNumber = '+1' + formattedRecipientNumber;
+    }
 
     // Initialize Knock client
     const knock = new Knock(knockApiKey);
@@ -88,6 +91,12 @@ serve(async (req) => {
         email: "system@buybidhq.com"
       });
 
+      // Identify the recipient
+      await knock.users.identify(recipientId, {
+        name: "SMS Recipient",
+        phone_number: formattedRecipientNumber,
+      });
+
       // Then trigger the workflow with the actor
       const result = await knock.workflows.trigger(workflowKey, {
         recipients: [recipientId],
@@ -96,14 +105,16 @@ serve(async (req) => {
       });
 
       console.log(`[${requestId}] Notification triggered successfully:`, {
-        runId: result.id
+        runId: result.id,
+        recipientNumber: formattedRecipientNumber
       });
 
       return new Response(
         JSON.stringify({
           success: true,
           requestId,
-          messageId: result.id
+          messageId: result.id,
+          recipientNumber: formattedRecipientNumber
         }),
         {
           headers: {
