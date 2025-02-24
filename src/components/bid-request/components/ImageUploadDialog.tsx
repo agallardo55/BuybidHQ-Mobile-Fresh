@@ -16,6 +16,23 @@ const formatFileSize = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
+// Helper function to smart truncate filename
+const smartTruncateFileName = (filename: string, maxLength: number = 25) => {
+  const lastDotIndex = filename.lastIndexOf('.');
+  if (lastDotIndex === -1) return filename; // No extension
+
+  const extension = filename.slice(lastDotIndex);
+  const baseName = filename.slice(0, lastDotIndex);
+  
+  if (baseName.length <= maxLength) return filename;
+  
+  const halfLength = Math.floor((maxLength - 3) / 2); // -3 for the ellipsis
+  const start = baseName.slice(0, halfLength);
+  const end = baseName.slice(-halfLength);
+  
+  return `${start}...${end}${extension}`;
+};
+
 interface ImageUploadDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -88,9 +105,11 @@ const ImageUploadDialog = ({
                       key={index} 
                       className="text-xs sm:text-sm text-gray-600 flex items-center justify-between p-2 bg-gray-50 rounded-md"
                     >
-                      <div className="flex items-center gap-2 truncate pr-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1 pr-2">
                         <ImagePlus className="h-4 w-4 flex-shrink-0" />
-                        <span className="truncate">{file.name}</span>
+                        <span className="block min-w-0" title={file.name}>
+                          {smartTruncateFileName(file.name)}
+                        </span>
                       </div>
                       <span className="text-xs text-gray-400 flex-shrink-0">{formatFileSize(file.size)}</span>
                     </div>
