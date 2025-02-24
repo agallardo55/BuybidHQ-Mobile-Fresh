@@ -43,15 +43,12 @@ serve(async (req) => {
       throw new Error('KNOCK_API_KEY is not set');
     }
 
+    // Define workflow IDs directly
     const knockWorkflowId = type === 'bid_request' 
-      ? Deno.env.get('KNOCK_BID_REQUEST_WORKFLOW')
+      ? 'bid-request-sms'
       : type === 'bid_response'
-      ? Deno.env.get('KNOCK_BID_RESPONSE_WORKFLOW')
-      : Deno.env.get('KNOCK_TEST_WORKFLOW');
-
-    if (!knockWorkflowId) {
-      throw new Error(`Missing workflow ID for type: ${type}`);
-    }
+      ? 'bid-response-sms'
+      : 'test-sms';
 
     // Format phone number
     console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
