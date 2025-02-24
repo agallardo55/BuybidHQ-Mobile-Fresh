@@ -16,6 +16,13 @@ const RequestHeader = ({ request }: RequestHeaderProps) => {
     }
   };
 
+  const getHighestOffer = (offers: BidRequest['offers']) => {
+    if (!offers || offers.length === 0) return null;
+    return Math.max(...offers.map(offer => offer.amount));
+  };
+
+  const highestOffer = getHighestOffer(request.offers);
+
   return (
     <DialogHeader className="border-b pb-4">
       <div className="flex items-center justify-between">
@@ -40,10 +47,10 @@ const RequestHeader = ({ request }: RequestHeaderProps) => {
         <div>
           <span className="text-gray-500">Highest Offer:</span>
           <p className="font-medium">
-            {request.highestOffer === null ? (
+            {highestOffer === null ? (
               <span className="text-gray-500">No offers yet</span>
             ) : (
-              `$${request.highestOffer.toLocaleString()}`
+              `$${highestOffer.toLocaleString()}`
             )}
           </p>
         </div>
