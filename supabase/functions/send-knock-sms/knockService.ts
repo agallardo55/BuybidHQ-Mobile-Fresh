@@ -2,19 +2,25 @@
 import { Knock } from "npm:@knocklabs/node@0.4.1"
 import { SMSRequest, BidRequestSMS, BidResponseSMS, TestSMS } from "./types.ts"
 
-export async function verifyKnockConfiguration(knock: Knock, workflowId: string) {
+export async function verifyKnockConfiguration(knockApiKey: string, workflowId: string) {
   try {
-    console.log('Attempting to verify Knock workflow:', workflowId);
+    console.log('Verifying Knock configuration for workflow:', workflowId);
     
-    // Just attempt to get the specific workflow instead of listing all
-    const workflow = await knock.workflows.get(workflowId);
-    console.log('Successfully found workflow:', {
-      id: workflow.id,
-      name: workflow.name,
-      active: workflow.active
+    const knock = new Knock(knockApiKey);
+    if (!knock) {
+      throw new Error('Failed to initialize Knock client');
+    }
+
+    // Test the connection by triggering a dummy workflow
+    // This will fail if the API key or workflow ID is invalid
+    await knock.notify(workflowId, {
+      actor: "system",
+      recipients: ["test"],
+      data: { test: true }
     });
     
-    return true;
+    console.log('Successfully verified Knock configuration');
+    return knock;
   } catch (error) {
     console.error('Knock configuration verification failed:', {
       message: error.message,

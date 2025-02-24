@@ -57,39 +57,36 @@ serve(async (req) => {
     console.log(`[${requestId}] Formatting phone number:`, phoneNumber);
     const formattedRecipientNumber = formatPhoneNumber(phoneNumber);
 
-    // Initialize Knock
-    console.log(`[${requestId}] Initializing Knock client with workflow:`, knockWorkflowId);
-    const knock = new Knock(knockApiKey);
-    
-    // Verify Knock configuration
-    await verifyKnockConfiguration(knock, knockWorkflowId);
+    // Initialize and verify Knock configuration
+    console.log(`[${requestId}] Initializing Knock client`);
+    const knock = await verifyKnockConfiguration(knockApiKey, knockWorkflowId);
     
     // Prepare workflow data
     const recipientId = `phone:${formattedRecipientNumber}`;
     const workflowData = prepareWorkflowData(requestData, formattedRecipientNumber);
     
-    console.log(`[${requestId}] Triggering workflow with data:`, {
+    console.log(`[${requestId}] Triggering notification with data:`, {
       workflowId: knockWorkflowId,
       recipientId,
       ...workflowData
     });
 
-    // Trigger workflow
-    const result = await knock.workflows.trigger(knockWorkflowId, {
+    // Trigger notification
+    const result = await knock.notify(knockWorkflowId, {
+      actor: "system",
       recipients: [recipientId],
-      data: workflowData,
-      actor: "system"
+      data: workflowData
     });
 
-    console.log(`[${requestId}] Workflow triggered successfully:`, {
-      runId: result.workflow_runs[0].id
+    console.log(`[${requestId}] Notification triggered successfully:`, {
+      runId: result.id
     });
 
     return new Response(
       JSON.stringify({
         success: true,
         requestId,
-        messageId: result.workflow_runs[0].id
+        messageId: result.id
       }),
       {
         headers: {
