@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { VehicleDetails } from "./types";
 import {
@@ -24,6 +25,10 @@ interface VehicleDetailsSectionProps {
 const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // Images are already in the correct order from the useBidResponseDetails hook
+  // which fetches them ordered by created_at ASC
+  const images = vehicle.images || [];
+
   return (
     <div className="space-y-4">
       <Card>
@@ -48,12 +53,12 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
         </CardContent>
       </Card>
 
-      {vehicle.images && vehicle.images.length > 0 && (
+      {images.length > 0 && (
         <>
           <div className="relative w-full max-w-2xl mx-auto">
-            <Carousel>
+            <Carousel opts={{ startIndex: 0 }}>
               <CarouselContent>
-                {vehicle.images.map((image, index) => (
+                {images.map((image, index) => (
                   <CarouselItem key={index}>
                     <div 
                       className="aspect-video w-full cursor-pointer" 
