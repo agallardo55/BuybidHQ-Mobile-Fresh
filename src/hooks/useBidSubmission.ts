@@ -23,7 +23,6 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
 
     setIsSubmitting(true);
     try {
-      // Remove commas and convert to number
       const cleanAmount = parseFloat(formData.offerAmount.replace(/,/g, ''));
       
       if (isNaN(cleanAmount)) {
@@ -53,6 +52,9 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
 
       const formattedAmount = cleanAmount.toLocaleString();
       
+      // Set submitted first to prevent validation check from showing existing bid message
+      setSubmitted(true);
+      
       showAlert(
         "Thank you!", 
         {
@@ -62,12 +64,10 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
         "success"
       );
       
-      setSubmitted(true);
     } catch (error: any) {
       console.error('Error submitting bid:', error);
       const errorMessage = error.message || "Failed to submit bid. Please try again or contact support.";
       
-      // Check for specific error cases
       if (errorMessage.includes("already submitted")) {
         toast.error("You have already submitted a bid for this vehicle");
         showAlert(

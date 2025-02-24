@@ -17,6 +17,7 @@ const BidResponse = () => {
   const [submitted, setSubmitted] = useState(false);
   const [existingBidAmount, setExistingBidAmount] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<string | null>(null);
+  const [initialValidationDone, setInitialValidationDone] = useState(false);
 
   const token = searchParams.get('token');
   const { id } = useParams();
@@ -29,7 +30,7 @@ const BidResponse = () => {
     setSubmitted
   });
 
-  // Check for existing bid when component mounts
+  // Check for existing bid only on initial load
   useEffect(() => {
     const checkExistingBid = async () => {
       if (!token) {
@@ -44,11 +45,13 @@ const BidResponse = () => {
 
         if (error) {
           setTokenError(error.message);
-          showAlert(
-            "Token Error",
-            error.message,
-            "error"
-          );
+          if (!submitted) { // Only show error if not just submitted
+            showAlert(
+              "Token Error",
+              error.message,
+              "error"
+            );
+          }
           return;
         }
         
@@ -57,28 +60,35 @@ const BidResponse = () => {
           if (tokenInfo?.has_existing_bid) {
             setExistingBidAmount(tokenInfo.existing_bid_amount.toString());
             setSubmitted(true);
-            showAlert(
-              "Existing Bid",
-              `You have already submitted an offer of $${tokenInfo.existing_bid_amount.toLocaleString()}`,
-              "info"
-            );
+            if (!submitted) { // Only show existing bid alert on initial load
+              showAlert(
+                "Existing Bid",
+                `You have already submitted an offer of $${tokenInfo.existing_bid_amount.toLocaleString()}`,
+                "info"
+              );
+            }
           } else {
             setTokenError("Invalid or expired submission token");
-            showAlert(
-              "Invalid Token",
-              "This submission link has expired or is invalid. Please request a new one.",
-              "error"
-            );
+            if (!submitted) { // Only show error if not just submitted
+              showAlert(
+                "Invalid Token",
+                "This submission link has expired or is invalid. Please request a new one.",
+                "error"
+              );
+            }
           }
         }
       } catch (error) {
         console.error('Error checking existing bid:', error);
         setTokenError("Error validating submission token");
       }
+      setInitialValidationDone(true);
     };
 
-    checkExistingBid();
-  }, [token, showAlert]);
+    if (!initialValidationDone && !submitted) {
+      checkExistingBid();
+    }
+  }, [token, showAlert, initialValidationDone, submitted]);
 
   // Show error if no id is provided
   if (!id) {
@@ -90,7 +100,7 @@ const BidResponse = () => {
   }
 
   // Show error if token is invalid
-  if (tokenError) {
+  if (tokenError && !submitted) {
     return (
       <BidResponseLayout>
         <ErrorState message={tokenError} />
@@ -126,7 +136,6 @@ const BidResponse = () => {
               ...data.vehicle,
               year: String(data.vehicle.year),
               mileage: String(data.vehicle.mileage),
-              // Ensure images are in the correct order (first uploaded first)
               images: data.vehicle.images ? [...data.vehicle.images].reverse() : []
             }}
             buyer={data.buyer}
