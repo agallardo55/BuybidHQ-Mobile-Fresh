@@ -1,6 +1,5 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { Knock } from "npm:@knocklabs/node@0.8.0"
+import { Knock } from "npm:@knocklabs/node@0.4.1"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
