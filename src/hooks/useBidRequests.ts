@@ -31,6 +31,12 @@ interface BidRequestDetails {
   recon_details: string;
 }
 
+interface BidOffer {
+  amount: number;
+  buyerName: string;
+  createdAt: string;
+}
+
 export const useBidRequests = () => {
   const queryClient = useQueryClient();
   const { currentUser } = useCurrentUser();
@@ -82,7 +88,7 @@ export const useBidRequests = () => {
 
         const details = (await Promise.all(detailsPromises)).filter(Boolean) as BidRequestDetails[];
 
-        // Get bid responses with buyer information
+        // Get bid responses with buyer information using LEFT JOIN
         const requestIds = details.map(item => item.request_id);
         const { data: responses, error: responsesError } = await supabase
           .from('bid_responses')
@@ -90,32 +96,50 @@ export const useBidRequests = () => {
             bid_request_id,
             offer_amount,
             created_at,
-            buyers!inner(buyer_name)
+            buyers:buyers(
+              buyer_name,
+              dealer_name
+            )
           `)
           .in('bid_request_id', requestIds)
-          .order('offer_amount', { ascending: false });
+          .order('created_at', { ascending: false });
 
         if (responsesError) {
           console.error("Error fetching bid responses:", responsesError);
           throw responsesError;
         }
 
-        // Map responses
-        const responsesMap = new Map();
+        console.log("Fetched responses:", responses);
+
+        // Map responses to their requests
+        const responsesMap = new Map<string, BidOffer[]>();
+        
+        // Initialize all requests with empty arrays
+        details.forEach(detail => {
+          responsesMap.set(detail.request_id, []);
+        });
+
+        // Add offers where they exist
         responses?.forEach(response => {
           const offers = responsesMap.get(response.bid_request_id) || [];
-          offers.push({
-            amount: response.offer_amount,
-            buyerName: response.buyers?.buyer_name,
-            createdAt: response.created_at
-          });
+          if (response.offer_amount && response.buyers) {
+            offers.push({
+              amount: response.offer_amount,
+              buyerName: response.buyers.buyer_name || 'Unknown Buyer',
+              createdAt: response.created_at
+            });
+          }
           responsesMap.set(response.bid_request_id, offers);
         });
+
+        console.log("Mapped responses:", Object.fromEntries(responsesMap));
 
         // Transform to final format
         return details.map((item): BidRequest => {
           const offers = responsesMap.get(item.request_id) || [];
-          const highestOffer = offers.length > 0 ? Math.max(...offers.map(o => o.amount)) : null;
+          const highestOffer = offers.length > 0 ? 
+            Math.max(...offers.map(o => o.amount)) : 
+            null;
 
           const status = ["Pending", "Approved", "Declined"].includes(item.status) 
             ? item.status as "Pending" | "Approved" | "Declined"
