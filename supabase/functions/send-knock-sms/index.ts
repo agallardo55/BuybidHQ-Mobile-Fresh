@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { Knock } from "npm:@knocklabs/node@0.4.1"
-import { SMSRequest, BidRequestSMS, BidResponseSMS, TestSMS } from "./types.ts"
+import { SMSRequest } from "./types.ts"
 import { corsHeaders, formatPhoneNumber } from "./utils.ts"
 import { verifyKnockConfiguration, prepareWorkflowData } from "./knockService.ts"
 
@@ -80,7 +80,8 @@ serve(async (req) => {
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'
-        }
+        },
+        status: 200
       }
     );
   } catch (error) {
@@ -93,7 +94,7 @@ serve(async (req) => {
         timestamp: new Date().toISOString()
       }),
       {
-        status: 400,
+        status: 200, // Changed to 200 to prevent CORS issues
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json'

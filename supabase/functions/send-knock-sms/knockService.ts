@@ -20,13 +20,7 @@ export async function verifyKnockConfiguration(knock: Knock, workflowId: string)
     
     return true;
   } catch (error) {
-    console.error('Knock configuration verification failed:', {
-      error,
-      workflowId,
-      errorMessage: error.message,
-      errorName: error.name,
-      stack: error.stack
-    });
+    console.error('Knock configuration verification failed:', error);
     throw new Error(`Knock API Error: ${error.message}`);
   }
 }
