@@ -1,16 +1,15 @@
-
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
-
 interface PlanSelectionFormProps {
   onSelect: (plan: 'beta-access' | 'individual' | 'pay-per-bid') => void;
   onBack: () => void;
 }
-
-const PlanSelectionForm = ({ onSelect, onBack }: PlanSelectionFormProps) => {
-  return (
-    <div className="space-y-6">
+const PlanSelectionForm = ({
+  onSelect,
+  onBack
+}: PlanSelectionFormProps) => {
+  return <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6 space-y-4 cursor-pointer hover:border-accent" onClick={() => onSelect('beta-access')}>
           <h3 className="text-lg font-semibold">Basic Trial</h3>
@@ -27,7 +26,7 @@ const PlanSelectionForm = ({ onSelect, onBack }: PlanSelectionFormProps) => {
             </li>
             <li className="flex items-center">
               <Check className="w-4 h-4 mr-2 text-accent" />
-              <span className="text-sm">14-day full platform access</span>
+              <span className="text-sm">Buybid dashboard</span>
             </li>
           </ul>
         </Card>
@@ -83,8 +82,6 @@ const PlanSelectionForm = ({ onSelect, onBack }: PlanSelectionFormProps) => {
           </ul>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default PlanSelectionForm;
