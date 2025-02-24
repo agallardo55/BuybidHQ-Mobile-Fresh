@@ -68,7 +68,7 @@ export function WaitlistForm() {
             <FormItem>
               <FormControl>
                 <Input
-                  placeholder="Your name (optional)"
+                  placeholder="Your full name"
                   className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60"
                   {...field}
                 />
