@@ -14,8 +14,11 @@ serve(async (req) => {
     return new Response('ok', { 
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/json'
-      }
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+        'Content-Type': 'application/json',
+      },
+      status: 200
     });
   }
 
@@ -51,7 +54,7 @@ serve(async (req) => {
     const knock = new Knock(knockApiKey);
     
     // Prepare workflow data
-    const recipientId = formattedRecipientNumber; // Remove phone: prefix
+    const recipientId = formattedRecipientNumber;
     const workflowData = prepareWorkflowData(requestData, formattedRecipientNumber);
 
     // Log full configuration before making the request
@@ -62,7 +65,7 @@ serve(async (req) => {
     });
     
     try {
-      // Trigger workflow without specifying workflow ID directly
+      // Trigger workflow
       const result = await knock.workflows.trigger('sms-test', {
         recipients: [recipientId],
         actor: "system",
@@ -82,6 +85,8 @@ serve(async (req) => {
         {
           headers: {
             ...corsHeaders,
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
             'Content-Type': 'application/json'
           },
           status: 200
@@ -108,11 +113,13 @@ serve(async (req) => {
         timestamp: new Date().toISOString()
       }),
       {
-        status: 200, // Keep 200 to prevent CORS issues
         headers: {
           ...corsHeaders,
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
           'Content-Type': 'application/json'
-        }
+        },
+        status: 200 // Keep 200 to prevent CORS issues
       }
     );
   }
