@@ -1,4 +1,3 @@
-
 import { ImagePlus } from "lucide-react";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,7 +20,7 @@ interface ColorsAndAccessoriesProps {
   onImagesUploaded?: (urls: string[]) => void;
   uploadedImageUrls?: string[];
   selectedFileUrls?: string[];
-  setSelectedFileUrls?: (urls: string[]) => void;
+  setSelectedFileUrls?: (urls: string[] | ((prev: string[]) => string[])) => void;
 }
 
 const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
@@ -55,7 +54,7 @@ const ColorsAndAccessories = ({
 
       // Create URLs for preview
       const newUrls = filesArray.map(file => URL.createObjectURL(file));
-      setSelectedFileUrls?.(prev => [...(prev || []), ...newUrls]);
+      setSelectedFileUrls?.(prev => [...prev, ...newUrls]);
     }
   };
 
@@ -177,7 +176,7 @@ const ColorsAndAccessories = ({
         }
       } else {
         // For preview images, just remove from state
-        setSelectedFileUrls?.(prev => prev?.filter(img => img !== url) || []);
+        setSelectedFileUrls?.(prev => prev.filter(img => img !== url));
         setSelectedFiles(prev => {
           const index = selectedFileUrls.indexOf(url);
           return prev.filter((_, i) => i !== index);
