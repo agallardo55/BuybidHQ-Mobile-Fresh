@@ -94,26 +94,29 @@ export const useBidRequestSubmission = () => {
         }
 
         // Generate bid submission token
-        const { data: tokenData, error: tokenError } = await supabase
+        const { data: tokenResponse, error: tokenError } = await supabase
           .rpc('generate_bid_submission_token', {
             p_bid_request_id: bidRequestData,
             p_buyer_id: buyerId
           });
 
-        if (tokenError) {
+        if (tokenError || !tokenResponse) {
           console.error(`[${requestId}] Error generating token:`, tokenError);
           toast.error(`Failed to generate secure link for ${buyerData.buyer_name}`);
           continue;
         }
 
+        // Extract token from response (the function returns the token string directly)
+        const token = tokenResponse;
+
         // Generate bid submission URL with secure token
-        const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenData)}`;
+        const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(token)}`;
 
         console.log(`[${requestId}] Sending SMS notification to buyer:`, {
           buyerId,
           name: buyerData.buyer_name,
           phone: buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*'),
-          token: tokenData.substring(0, 8) + '...'
+          token: token.substring(0, 8) + '...'
         });
 
         // Send SMS notification via Knock
@@ -154,4 +157,3 @@ export const useBidRequestSubmission = () => {
 
   return { submitBidRequest };
 };
-
