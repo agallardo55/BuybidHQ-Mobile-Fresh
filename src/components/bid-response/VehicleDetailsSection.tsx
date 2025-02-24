@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { X, Share2 } from "lucide-react";
 import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -25,6 +27,23 @@ interface VehicleDetailsSectionProps {
 const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'BuyBid Vehicle Bid Request',
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      toast.error('Failed to share');
+    }
+  };
+
   // Images are already in the correct order from the useBidResponseDetails hook
   // which fetches them ordered by created_at ASC
   const images = vehicle.images || [];
@@ -32,8 +51,16 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 flex flex-row items-center justify-between">
           <CardTitle className="text-2xl">New Bid Request</CardTitle>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={handleShare}
+            className="hover:bg-gray-100"
+          >
+            <Share2 className="h-5 w-5 text-gray-600" />
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="grid gap-1.5">
