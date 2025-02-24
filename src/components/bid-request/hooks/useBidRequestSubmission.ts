@@ -72,10 +72,10 @@ export const useBidRequestSubmission = () => {
 
       // Send SMS notifications to selected buyers using Knock
       for (const buyerId of selectedBuyers) {
-        // Get buyer details
+        // Get buyer details - using correct column names from database
         const { data: buyerData, error: buyerError } = await supabase
           .from('buyers')
-          .select('buyer_name, mobile_number')
+          .select('buyer_name, buyer_mobile')
           .eq('id', buyerId)
           .single();
 
@@ -91,7 +91,7 @@ export const useBidRequestSubmission = () => {
         const { error: smsError } = await supabase.functions.invoke('send-knock-sms', {
           body: {
             type: 'bid_request',
-            phoneNumber: buyerData.mobile_number,
+            phoneNumber: buyerData.buyer_mobile,
             vehicleDetails: {
               year: formData.year,
               make: formData.make,
@@ -102,10 +102,10 @@ export const useBidRequestSubmission = () => {
         });
 
         if (smsError) {
-          console.error('Error sending SMS to buyer:', buyerData.mobile_number, smsError);
+          console.error('Error sending SMS to buyer:', buyerData.buyer_mobile, smsError);
           toast.error(`Failed to send SMS to ${buyerData.buyer_name}`);
         } else {
-          console.log('SMS sent successfully to:', buyerData.mobile_number);
+          console.log('SMS sent successfully to:', buyerData.buyer_mobile);
         }
       }
 
