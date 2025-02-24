@@ -28,7 +28,7 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-[672px] w-full space-y-6 bg-white p-4 sm:p-8 rounded-lg shadow-md">
+      <div className="max-w-[896px] w-full space-y-6 bg-white p-6 sm:p-8 rounded-lg shadow-md">
         <div className="text-center">
           <img 
             src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
