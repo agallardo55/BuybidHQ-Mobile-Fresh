@@ -47,8 +47,17 @@ const VehicleIdentification = ({
   console.log('VehicleIdentification rendered with formData:', formData);
 
   const cleanTrimDescription = (description: string): string => {
-    // Remove content within parentheses and trim whitespace
-    return description.replace(/\s*\([^)]*\)/g, '').trim();
+    // Remove content within parentheses and engine info
+    return description
+      .replace(/\s*\([^)]*\)/g, '') // Remove parentheses and their contents
+      .replace(/\s*\d+\.?\d*L.*$/i, '') // Remove engine displacement and following text
+      .replace(/\s+$/, ''); // Remove trailing spaces
+  };
+
+  const getDisplayValue = (trim: TrimOption): string => {
+    // Use name for clean display, fallback to description if name is not available
+    const baseValue = trim.name || trim.description;
+    return cleanTrimDescription(baseValue);
   };
 
   const handleTrimChange = (value: string) => {
@@ -56,15 +65,16 @@ const VehicleIdentification = ({
     
     // Find the selected trim to auto-populate related fields
     const selectedTrim = formData.availableTrims.find(trim => 
-      trim.description === value || trim.name === value
+      getDisplayValue(trim) === value
     );
+    
     console.log('Selected trim details:', selectedTrim);
 
     if (selectedTrim) {
-      // Store both the full display value and the cleaned value
-      const cleanedTrimValue = cleanTrimDescription(value);
+      // Store both display and database values
+      const cleanedTrimValue = getDisplayValue(selectedTrim);
       onSelectChange(cleanedTrimValue, 'trim'); // For database
-      onSelectChange(value, 'displayTrim'); // For dropdown display
+      onSelectChange(cleanedTrimValue, 'displayTrim'); // For dropdown display
       
       // Update engine and other specs if available
       if (selectedTrim.specs) {
@@ -123,7 +133,7 @@ const VehicleIdentification = ({
           Trim <span className="text-red-500">*</span>
         </label>
         <Select
-          value={formData.displayTrim || ''} // Use displayTrim for the dropdown value
+          value={formData.displayTrim || ''} 
           onValueChange={handleTrimChange}
         >
           <SelectTrigger 
@@ -135,7 +145,7 @@ const VehicleIdentification = ({
           <SelectContent className="bg-white">
             {formData.availableTrims && formData.availableTrims.length > 0 ? (
               formData.availableTrims.map((trim, index) => {
-                const displayValue = trim.description || trim.name;
+                const displayValue = getDisplayValue(trim);
                 return (
                   <SelectItem 
                     key={`${displayValue}-${index}`} 
