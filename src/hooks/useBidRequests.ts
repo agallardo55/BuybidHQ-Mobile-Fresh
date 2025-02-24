@@ -4,38 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BidRequest } from "@/components/bid-request/types";
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
-
-interface BidRequestDetails {
-  request_id: string;
-  created_at: string;
-  status: string;
-  year: string;
-  make: string;
-  model: string;
-  trim_level: string;
-  vin: string;
-  mileage: string;
-  user_full_name: string;
-  engine_cylinders: string;
-  transmission: string;
-  drivetrain: string;
-  exterior_color: string;
-  interior_color: string;
-  accessories: string;
-  windshield: string;
-  engine_lights: string;
-  brakes: string;
-  tire: string;
-  maintenance: string;
-  recon_estimate: string;
-  recon_details: string;
-}
-
-interface BidOffer {
-  amount: number;
-  buyerName: string;
-  createdAt: string;
-}
+import { mapResponsesToOffers, transformBidRequest } from "./bid-requests/utils";
 
 export const useBidRequests = () => {
   const queryClient = useQueryClient();
@@ -86,7 +55,7 @@ export const useBidRequests = () => {
           };
         });
 
-        const details = (await Promise.all(detailsPromises)).filter(Boolean) as BidRequestDetails[];
+        const details = (await Promise.all(detailsPromises)).filter(Boolean);
 
         // Get bid responses with buyer information
         const requestIds = details.map(item => item.request_id);
@@ -109,64 +78,13 @@ export const useBidRequests = () => {
           throw responsesError;
         }
 
-        console.log("Fetched responses:", responses);
-
         // Map responses to their requests
-        const responsesMap = new Map<string, BidOffer[]>();
-        
-        // Initialize all requests with empty arrays
-        details.forEach(detail => {
-          responsesMap.set(detail.request_id, []);
-        });
-
-        // Add offers where they exist
-        responses?.forEach(response => {
-          const offers = responsesMap.get(response.bid_request_id) || [];
-          if (response.offer_amount && response.buyers) {
-            offers.push({
-              amount: response.offer_amount,
-              buyerName: response.buyers.buyer_name || 'Unknown Buyer',
-              createdAt: response.created_at
-            });
-          }
-          responsesMap.set(response.bid_request_id, offers);
-        });
-
-        console.log("Mapped responses:", Object.fromEntries(responsesMap));
+        const responsesMap = mapResponsesToOffers(responses);
 
         // Transform to final format
-        return details.map((item): BidRequest => {
+        return details.map((item) => {
           const offers = responsesMap.get(item.request_id) || [];
-          const status = ["Pending", "Approved", "Declined"].includes(item.status) 
-            ? item.status as "Pending" | "Approved" | "Declined"
-            : "Pending";
-
-          return {
-            id: item.request_id,
-            createdAt: item.created_at,
-            year: parseInt(item.year) || 0,
-            make: item.make,
-            model: item.model,
-            trim: item.trim_level,
-            vin: item.vin,
-            mileage: parseInt(item.mileage),
-            buyer: item.user_full_name || 'Unknown',
-            offers,
-            status,
-            engineCylinders: item.engine_cylinders,
-            transmission: item.transmission,
-            drivetrain: item.drivetrain,
-            exteriorColor: item.exterior_color,
-            interiorColor: item.interior_color,
-            accessories: item.accessories,
-            windshield: item.windshield,
-            engineLights: item.engine_lights,
-            brakes: item.brakes,
-            tire: item.tire,
-            maintenance: item.maintenance,
-            reconEstimate: item.recon_estimate,
-            reconDetails: item.recon_details
-          };
+          return transformBidRequest(item, offers);
         });
 
       } catch (error) {
