@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { Knock } from "npm:@knocklabs/node@0.4.1"
-import { SMSRequest } from "./types.ts"
+import { SMSRequest, BidRequestSMS, BidResponseSMS, TestSMS } from "./types.ts"
 import { corsHeaders, formatPhoneNumber } from "./utils.ts"
 import { verifyKnockConfiguration, prepareWorkflowData } from "./knockService.ts"
 
