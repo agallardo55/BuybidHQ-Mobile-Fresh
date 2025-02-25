@@ -1,3 +1,4 @@
+
 export interface BidRequest {
   id: string;
   createdAt: string;
@@ -100,4 +101,5 @@ export interface FormStateActions {
   handleImagesUploaded: (urls: string[]) => void;
   toggleBuyer: (buyerId: string) => void;
   handleBatchChanges: (changes: Array<{ name: string; value: string }>) => void;
+  removeUploadedImage: (url: string) => void; // Add the new function type
 }
