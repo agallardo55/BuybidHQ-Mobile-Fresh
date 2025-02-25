@@ -26,6 +26,7 @@ export const useSignUpSubmission = ({
     }
 
     try {
+      // Step 1: Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -44,6 +45,10 @@ export const useSignUpSubmission = ({
         throw new Error('No user data returned');
       }
 
+      // Step 2: Wait briefly for the trigger to create the initial user record
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Step 3: Create dealership record
       const { data: dealershipData, error: dealershipError } = await supabase
         .from('dealerships')
         .insert([
@@ -69,9 +74,11 @@ export const useSignUpSubmission = ({
         throw dealershipError;
       }
 
+      // Step 4: Upsert the user record instead of update
       const { error: userError } = await supabase
         .from('buybidhq_users')
-        .update({
+        .upsert({
+          id: authData.user.id,
           full_name: formData.fullName,
           mobile_number: formData.mobileNumber,
           email: formData.email,
@@ -84,13 +91,13 @@ export const useSignUpSubmission = ({
           is_active: true,
           status: 'active',
           sms_consent: formData.smsConsent
-        })
-        .eq('id', authData.user.id);
+        });
 
       if (userError) {
         throw userError;
       }
 
+      // Step 5: Create subscription record
       const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert([
