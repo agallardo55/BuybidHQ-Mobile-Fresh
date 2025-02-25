@@ -41,17 +41,40 @@ function formatTrimDisplay(name: string, config: TrimConfiguration): string {
 }
 
 function findMatchingPorscheTrim(trims: CarApiTrim[], engineSpecs: { displacement?: string; cylinders?: string }): CarApiTrim | null {
-  // For Porsche Macan GTS, look for:
-  // - 3.0L engine
-  // - 6 cylinders
-  // - GTS trim name
+  console.log('Finding Porsche trim with specs:', engineSpecs);
+  console.log('Available trims:', trims);
+
+  // For GT models, look for GT designation first
+  const gtMatch = trims.find(trim => {
+    const isGTModel = trim.name?.includes('GT') || trim.description?.includes('GT');
+    if (isGTModel) {
+      console.log('Found GT model:', trim);
+    }
+    return isGTModel;
+  });
+
+  if (gtMatch) {
+    // For GT3 RS specifically
+    if (gtMatch.name?.includes('GT3') && gtMatch.name?.includes('RS')) {
+      console.log('Found GT3 RS match:', gtMatch);
+      return gtMatch;
+    }
+    // For other GT models
+    return gtMatch;
+  }
+
+  // If no GT model found, fallback to engine matching
   return trims.find(trim => {
     const engineInfo = trim.description?.match(/\((\d\.\d)L (\d)cyl/);
     if (engineInfo) {
       const [, displacement, cylinders] = engineInfo;
-      return trim.name === "GTS" && 
+      const match = trim.name === "GTS" && 
              displacement === engineSpecs.displacement && 
              cylinders === engineSpecs.cylinders;
+      if (match) {
+        console.log('Found engine spec match:', trim);
+      }
+      return match;
     }
     return false;
   }) || null;
@@ -70,6 +93,21 @@ export function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number,
   if (yearMatches.length === 0) {
     console.log('No trims match the vehicle year, using all trims');
     yearMatches = trims;
+  }
+
+  // For Porsche vehicles, prioritize GT and RS models
+  if (specs?.make?.toLowerCase() === 'porsche') {
+    const engineSpecs = {
+      displacement: specs.displacement_l,
+      cylinders: specs.engine_number_of_cylinders
+    };
+    console.log('Matching Porsche trim with specs:', engineSpecs);
+    
+    const matchingTrim = findMatchingPorscheTrim(yearMatches, engineSpecs);
+    if (matchingTrim) {
+      console.log('Found matching Porsche trim:', matchingTrim);
+      return matchingTrim.name;
+    }
   }
 
   // Create a map to deduplicate trims based on full configuration
@@ -93,21 +131,6 @@ export function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number,
   // Convert back to array
   const processedTrims = Array.from(uniqueTrims.values());
   console.log('Processed unique trims:', processedTrims);
-
-  // For Porsche vehicles, use specific matching logic
-  if (specs) {
-    const engineSpecs = {
-      displacement: specs.displacement_l,
-      cylinders: specs.engine_number_of_cylinders
-    };
-    console.log('Matching Porsche trim with engine specs:', engineSpecs);
-    
-    const matchingTrim = findMatchingPorscheTrim(processedTrims, engineSpecs);
-    if (matchingTrim) {
-      console.log('Found matching Porsche trim:', matchingTrim);
-      return matchingTrim.name;
-    }
-  }
 
   // If no specific match found, return the first trim
   const bestMatch = processedTrims[0];
