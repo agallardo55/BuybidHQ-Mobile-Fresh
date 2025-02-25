@@ -40,39 +40,35 @@ function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number, specs?
     return 'GT3 RS';
   }
 
+  // Get all unique trim names and ensure GT3 RS is first if present
+  let uniqueTrims = Array.from(new Set(trims.map(trim => trim.name)))
+    .filter(Boolean)
+    .sort((a, b) => {
+      // Always put GT3 RS first
+      if (a === 'GT3 RS') return -1;
+      if (b === 'GT3 RS') return 1;
+      // Then GT3 models
+      if (a.includes('GT3') && !b.includes('GT3')) return -1;
+      if (!a.includes('GT3') && b.includes('GT3')) return 1;
+      // Then alphabetically
+      return a.localeCompare(b);
+    });
+
   // Look for GT3 RS in available trims
-  const gt3rsMatch = trims.find(trim => {
+  const hasGT3RS = trims.some(trim => {
     const name = trim.name?.toUpperCase() || '';
     const desc = trim.description?.toUpperCase() || '';
     return (name.includes('GT3') && name.includes('RS')) || 
            (desc.includes('GT3') && desc.includes('RS'));
   });
 
-  if (gt3rsMatch) {
-    console.log('Found GT3 RS in trim list:', gt3rsMatch);
-    return 'GT3 RS';
+  // If GT3 RS is detected but not in the list, add it at the beginning
+  if (hasGT3RS && !uniqueTrims.includes('GT3 RS')) {
+    uniqueTrims = ['GT3 RS', ...uniqueTrims];
   }
 
-  // Look for GT3 models
-  const gt3Match = trims.find(trim => {
-    const name = trim.name?.toUpperCase() || '';
-    const desc = trim.description?.toUpperCase() || '';
-    return name.includes('GT3') || desc.includes('GT3');
-  });
+  console.log('Sorted unique trims:', uniqueTrims);
 
-  if (gt3Match) {
-    console.log('Found GT3 model:', gt3Match);
-    return gt3Match.name;
-  }
-
-  // Filter out any duplicates and sort by name
-  const uniqueTrims = Array.from(new Set(trims.map(trim => trim.name)))
-    .filter(Boolean)
-    .sort();
-
-  console.log('Unique available trims:', uniqueTrims);
-
-  // Return the most appropriate trim name
   return uniqueTrims[0] || '';
 }
 
