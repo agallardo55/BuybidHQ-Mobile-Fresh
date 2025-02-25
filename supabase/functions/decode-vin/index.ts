@@ -67,6 +67,27 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Special handling for Porsche vehicles
+    if (vehicleData.make?.toLowerCase() === 'porsche') {
+      // Check if this is likely a GT3 RS based on specs
+      const isGT3RS = vehicleData.specs?.displacement_l === "4" && 
+                     vehicleData.specs?.engine_number_of_cylinders === "6" &&
+                     vehicleData.specs?.body_class?.toLowerCase().includes('coupe') &&
+                     vehicleData.specs?.doors === "2";
+
+      if (isGT3RS) {
+        // Add GT3 RS to available trims if it matches specs
+        vehicleData.trims = [
+          {
+            name: 'GT3 RS',
+            description: 'GT3 RS 2dr Coupe (4.0L 6cyl 7AM)',
+            year: Number(vehicleData.year)
+          },
+          ...(vehicleData.trims || [])
+        ];
+      }
+    }
+
     // Deduplicate trims
     const seenTrims = new Set();
     const uniqueTrims = vehicleData.trims?.filter(trim => {
@@ -84,8 +105,11 @@ Deno.serve(async (req) => {
       uniqueTrims,
       vehicleData.year,
       {
+        make: vehicleData.make,
         displacement_l: vehicleData.specs?.displacement_l,
         engine_number_of_cylinders: vehicleData.specs?.engine_number_of_cylinders,
+        body_class: vehicleData.specs?.body_class,
+        doors: vehicleData.specs?.doors,
       },
     );
 
@@ -97,26 +121,18 @@ Deno.serve(async (req) => {
     };
 
     const availableTrims = uniqueTrims?.map((trim) => {
-      // Extract engine info from trim description
-      const engineMatch = trim.description?.match(/\(([\d.]+L\s+\d+cyl(?:\s+Turbo)?)[^)]*\)/i);
-      
-      // If no match in description, use the base engine info
-      const engineInfo = engineMatch ? engineMatch[1] : 
+      const engineDesc = trim.description?.match(/\(([\d.]+L\s+\d+cyl(?:\s+Turbo)?)[^)]*\)/i)?.[1] || 
         `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`;
 
-      // Format transmission for display
       const transmission = vehicleData.specs?.transmission_speeds ? 
         `${vehicleData.specs.transmission_speeds}-Speed ${vehicleData.specs.transmission_style}` :
         vehicleData.specs?.transmission_style || '7-Speed Automatic';
 
-      // Get the trim designation
-      const trimDesignation = trim.description?.split(' ')[0] || trim.name;
-
       return {
-        name: trimDesignation,
+        name: trim.name,
         description: trim.description?.replace(/\.{3,}|\.+$/g, '').trim() || '',
         specs: {
-          engine: engineInfo.trim(),
+          engine: engineDesc.trim(),
           transmission: transmission.trim(),
           drivetrain: vehicleData.specs?.drive_type || 'AWD',
         },
@@ -124,17 +140,14 @@ Deno.serve(async (req) => {
       };
     });
 
-    // Find the selected trim's specs
-    const selectedTrim = availableTrims?.find(t => t.name === bestTrim);
-
     const responseData = {
       year: vehicleData.year,
       make: vehicleData.make,
       model: vehicleData.model,
-      trim: bestTrim || "ML350",
-      engineCylinders: selectedTrim?.specs.engine || `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`,
-      transmission: selectedTrim?.specs.transmission || "7-Speed Automatic",
-      drivetrain: selectedTrim?.specs.drivetrain || "AWD",
+      trim: bestTrim,
+      engineCylinders: availableTrims?.[0]?.specs?.engine || `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`,
+      transmission: availableTrims?.[0]?.specs?.transmission || "7-Speed Automatic",
+      drivetrain: availableTrims?.[0]?.specs?.drivetrain || "AWD",
       availableTrims: availableTrims,
     };
 
