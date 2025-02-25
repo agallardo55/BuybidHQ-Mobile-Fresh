@@ -60,7 +60,6 @@ const AddBuyerForm = ({
         </div>
 
         <div>
-          <h3 className="text-lg font-medium mb-4">Address Information</h3>
           <AddressSection 
             formData={formData} 
             onFormDataChange={onFormDataChange} 
