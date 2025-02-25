@@ -1255,7 +1255,22 @@ export type Database = {
           is_admin?: boolean
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_role_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_role_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "buyers_user_roles_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vehicle_history: {
         Row: {
