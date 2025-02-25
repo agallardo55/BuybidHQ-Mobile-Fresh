@@ -1,9 +1,12 @@
+
 import { Input } from "@/components/ui/input";
 import { BuyerFormData } from "@/types/buyers";
+
 interface DealershipSectionProps {
   formData: Pick<BuyerFormData, 'dealershipName' | 'licenseNumber'>;
   onFormDataChange: (data: Partial<BuyerFormData>) => void;
 }
+
 const DealershipSection = ({
   formData,
   onFormDataChange
@@ -17,6 +20,7 @@ const DealershipSection = ({
       [name]: value
     });
   };
+
   return <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
@@ -27,8 +31,8 @@ const DealershipSection = ({
       <div>
         <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">Dealer ID</label>
         <Input id="licenseNumber" name="licenseNumber" type="text" value={formData.licenseNumber} onChange={handleChange} placeholder="Enter dealer license ID" className="font-mono" />
-        {formData.licenseNumber}
       </div>
     </div>;
 };
+
 export default DealershipSection;
