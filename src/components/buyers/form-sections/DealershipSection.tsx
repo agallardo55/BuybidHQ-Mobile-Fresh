@@ -30,7 +30,7 @@ const DealershipSection = ({
       </div>
       <div>
         <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">Dealer ID</label>
-        <Input id="licenseNumber" name="licenseNumber" type="text" value={formData.licenseNumber} onChange={handleChange} placeholder="Enter dealer license ID" className="font-mono" />
+        <Input id="licenseNumber" name="licenseNumber" type="text" value={formData.licenseNumber} onChange={handleChange} placeholder="Enter dealer license ID" />
       </div>
     </div>;
 };
