@@ -3,13 +3,30 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+// Define valid database status types
+type DatabaseStatus = "Approved" | "Pending" | "Declined";
+type UIStatus = "pending" | "accepted" | "declined";
+
+// Helper function to convert UI status to database status
+const convertToDbStatus = (status: UIStatus): DatabaseStatus => {
+  switch (status) {
+    case "accepted":
+      return "Approved";
+    case "pending":
+      return "Pending";
+    case "declined":
+      return "Declined";
+    default:
+      return "Pending"; // Default fallback
+  }
+};
+
 export const useBidRequestMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "pending" | "accepted" | "declined" }) => {
-      // Convert status to database format
-      const dbStatus = status === "accepted" ? "Approved" : status.charAt(0).toUpperCase() + status.slice(1);
+    mutationFn: async ({ id, status }: { id: string; status: UIStatus }) => {
+      const dbStatus = convertToDbStatus(status);
       
       const { error } = await supabase
         .from('bid_requests')
