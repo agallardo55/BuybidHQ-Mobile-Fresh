@@ -8,94 +8,147 @@ interface TrimConfiguration {
   engine?: string;
 }
 
-function extractTrimConfiguration(description: string): TrimConfiguration {
-  const config: TrimConfiguration = {};
-  
-  // Extract cab style
-  const cabMatch = description.match(/(SuperCrew|SuperCab|Regular Cab)/i);
-  if (cabMatch) config.cab = cabMatch[1];
-  
-  // Extract bed length
-  const bedMatch = description.match(/(\d+\.?\d*)\s*ft\.\s*(?:SB|LB)/i);
-  if (bedMatch) config.bedLength = `${bedMatch[1]}ft`;
-  
-  // Extract drivetrain
-  const drivetrainMatch = description.match(/(4WD|2WD|AWD|RWD)/i);
-  if (drivetrainMatch) config.drivetrain = drivetrainMatch[1];
-  
-  // Extract engine
-  const engineMatch = description.match(/\(([\d.]+L\s*\d*cyl[^)]*)\)/i);
-  if (engineMatch) config.engine = engineMatch[1];
-  
-  return config;
+interface GT3RSSpecs {
+  displacement?: string;
+  cylinders?: string;
+  bodyClass?: string;
+  doors?: string;
+  trim?: string;
 }
 
-function formatTrimDisplay(name: string, config: TrimConfiguration): string {
-  const parts = [name];
+function isGT3RSSpecMatch(specs: GT3RSSpecs): boolean {
+  // Check for GT3 RS specific criteria
+  const isCorrectDisplacement = specs.displacement === "4" || specs.displacement === "4.0";
+  const isCorrectCylinders = specs.cylinders === "6";
+  const isCoupe = specs.bodyClass?.toLowerCase().includes('coupe');
+  const isTwoDoor = specs.doors === "2";
+  const isRSTrim = specs.trim?.toUpperCase().includes('RS');
+
+  const match = isCorrectDisplacement && isCorrectCylinders && isCoupe && isTwoDoor && isRSTrim;
   
-  if (config.cab) parts.push(config.cab);
-  if (config.bedLength) parts.push(config.bedLength);
-  if (config.drivetrain) parts.push(config.drivetrain);
+  if (match) {
+    console.log('Found matching GT3 RS specs:', specs);
+  }
   
-  return parts.join(' ');
+  return match;
 }
 
-function isGT3Model(trim: CarApiTrim): boolean {
+function isGT3Model(trim: CarApiTrim, specs?: any): boolean {
+  // First check if it's explicitly marked as GT3
   const nameContainsGT3 = trim.name?.toUpperCase().includes('GT3');
   const descContainsGT3 = trim.description?.toUpperCase().includes('GT3');
-  
+
+  // For GT3 RS specific checks
+  if ((nameContainsGT3 || descContainsGT3) && specs) {
+    // Check displacement to differentiate between GT3 variants
+    const isGT3RS = isGT3RSSpecMatch({
+      displacement: specs.displacement_l,
+      cylinders: specs.engine_number_of_cylinders,
+      bodyClass: specs.body_class,
+      doors: specs.doors,
+      trim: trim.name
+    });
+
+    if (isGT3RS) {
+      console.log('Confirmed GT3 RS model:', { trim, specs });
+      return true;
+    }
+  }
+
+  // For regular GT3 detection
   if (nameContainsGT3 || descContainsGT3) {
     console.log('Found GT3 model:', trim);
     return true;
   }
+
   return false;
 }
 
-function findMatchingPorscheTrim(trims: CarApiTrim[], engineSpecs: { displacement?: string; cylinders?: string }): CarApiTrim | null {
-  console.log('Finding Porsche trim with specs:', engineSpecs);
+function isTurboModel(trim: CarApiTrim): boolean {
+  const name = trim.name?.toUpperCase() || '';
+  const desc = trim.description?.toUpperCase() || '';
+  return name.includes('TURBO') || desc.includes('TURBO');
+}
+
+function findMatchingPorscheTrim(trims: CarApiTrim[], specs: any): CarApiTrim | null {
+  console.log('Finding Porsche trim with specs:', specs);
   console.log('Available trims:', trims);
 
-  // First, look specifically for GT3 RS
-  const gt3RSMatch = trims.find(trim => {
-    const isGT3RS = (trim.name?.toUpperCase().includes('GT3') && trim.name?.toUpperCase().includes('RS')) ||
-                    (trim.description?.toUpperCase().includes('GT3') && trim.description?.toUpperCase().includes('RS'));
-    if (isGT3RS) {
+  // First, explicitly look for GT3 RS
+  for (const trim of trims) {
+    // Check if it's marked as RS and meets GT3 RS specifications
+    if (trim.name?.toUpperCase().includes('RS') && 
+        !isTurboModel(trim) && // Exclude Turbo models
+        isGT3RSSpecMatch({
+          displacement: specs.displacement_l,
+          cylinders: specs.engine_number_of_cylinders,
+          bodyClass: specs.body_class,
+          doors: specs.doors,
+          trim: trim.name
+        })) {
       console.log('Found GT3 RS match:', trim);
+      // Override the name if needed
+      trim.name = 'GT3 RS';
+      return trim;
     }
-    return isGT3RS;
-  });
-
-  if (gt3RSMatch) {
-    return gt3RSMatch;
   }
 
-  // Then look for any GT3 model
-  const gt3Match = trims.find(isGT3Model);
+  // Then look for explicitly labeled GT3 models
+  const gt3Match = trims.find(trim => isGT3Model(trim, specs));
   if (gt3Match) {
     return gt3Match;
   }
 
-  // Then look for other GT models
+  // Look for RS models that might be GT3 RS but not properly labeled
+  const rsMatch = trims.find(trim => {
+    const isRS = trim.name?.toUpperCase().includes('RS');
+    const isNotTurbo = !isTurboModel(trim);
+    const meetsSpecs = isGT3RSSpecMatch({
+      displacement: specs.displacement_l,
+      cylinders: specs.engine_number_of_cylinders,
+      bodyClass: specs.body_class,
+      doors: specs.doors,
+      trim: trim.name
+    });
+
+    if (isRS && isNotTurbo && meetsSpecs) {
+      console.log('Found potential GT3 RS (unlabeled):', trim);
+      return true;
+    }
+    return false;
+  });
+
+  if (rsMatch) {
+    // Override the name to GT3 RS since it meets all criteria
+    rsMatch.name = 'GT3 RS';
+    console.log('Reclassified as GT3 RS:', rsMatch);
+    return rsMatch;
+  }
+
+  // If no GT3/RS model found, look for other GT models
   const gtMatch = trims.find(trim => {
     const isGTModel = trim.name?.includes('GT') || trim.description?.includes('GT');
-    if (isGTModel && !isGT3Model(trim)) {
+    const isNotTurbo = !isTurboModel(trim);
+    if (isGTModel && isNotTurbo) {
       console.log('Found GT model:', trim);
+      return true;
     }
-    return isGTModel && !isGT3Model(trim);
+    return false;
   });
 
   if (gtMatch) {
     return gtMatch;
   }
 
-  // If no GT model found, fallback to engine matching for GTS models
+  // Finally, fallback to engine matching for GTS models
   return trims.find(trim => {
+    if (trim.name !== 'GTS') return false;
+    
     const engineInfo = trim.description?.match(/\((\d\.\d)L (\d)cyl/);
     if (engineInfo) {
       const [, displacement, cylinders] = engineInfo;
-      const match = trim.name === "GTS" && 
-             displacement === engineSpecs.displacement && 
-             cylinders === engineSpecs.cylinders;
+      const match = displacement === specs.displacement_l && 
+                   cylinders === specs.engine_number_of_cylinders;
       if (match) {
         console.log('Found engine spec match:', trim);
       }
@@ -122,13 +175,7 @@ export function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number,
 
   // For Porsche vehicles, prioritize GT and RS models
   if (specs?.make?.toLowerCase() === 'porsche') {
-    const engineSpecs = {
-      displacement: specs.displacement_l,
-      cylinders: specs.engine_number_of_cylinders
-    };
-    console.log('Matching Porsche trim with specs:', engineSpecs);
-    
-    const matchingTrim = findMatchingPorscheTrim(yearMatches, engineSpecs);
+    const matchingTrim = findMatchingPorscheTrim(yearMatches, specs);
     if (matchingTrim) {
       console.log('Found matching Porsche trim:', matchingTrim);
       return matchingTrim.name;
