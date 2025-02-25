@@ -67,28 +67,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Special handling for Porsche vehicles
-    if (vehicleData.make?.toLowerCase() === 'porsche') {
-      // Check if this is likely a GT3 RS based on specs
-      const isGT3RS = vehicleData.specs?.displacement_l === "4" && 
-                     vehicleData.specs?.engine_number_of_cylinders === "6" &&
-                     vehicleData.specs?.body_class?.toLowerCase().includes('coupe') &&
-                     vehicleData.specs?.doors === "2";
-
-      if (isGT3RS) {
-        // Add GT3 RS to available trims if it matches specs
-        vehicleData.trims = [
-          {
-            name: 'GT3 RS',
-            description: 'GT3 RS 2dr Coupe (4.0L 6cyl 7AM)',
-            year: Number(vehicleData.year)
-          },
-          ...(vehicleData.trims || [])
-        ];
-      }
-    }
-
-    // Deduplicate trims
+    // First deduplicate trims
     const seenTrims = new Set();
     const uniqueTrims = vehicleData.trims?.filter(trim => {
       const key = `${trim.name}|${trim.description}`;
@@ -97,12 +76,43 @@ Deno.serve(async (req) => {
       }
       seenTrims.add(key);
       return true;
-    });
+    }) || [];
 
-    console.log('Deduplicated trims:', uniqueTrims);
+    // Special handling for Porsche vehicles AFTER deduplication
+    let finalTrims = [...uniqueTrims];
+    if (vehicleData.make?.toLowerCase() === 'porsche') {
+      // Check if this is likely a GT3 RS based on specs
+      const isGT3RS = vehicleData.specs?.displacement_l === "4" && 
+                     vehicleData.specs?.engine_number_of_cylinders === "6" &&
+                     vehicleData.specs?.body_class?.toLowerCase().includes('coupe') &&
+                     vehicleData.specs?.doors === "2";
+
+      // Check if GT3 RS is already in the trims
+      const hasGT3RS = uniqueTrims.some(trim => 
+        trim.name?.toLowerCase().includes('gt3') && 
+        trim.name?.toLowerCase().includes('rs')
+      );
+
+      console.log('GT3 RS detection:', { isGT3RS, hasGT3RS, specs: vehicleData.specs });
+
+      if (isGT3RS && !hasGT3RS) {
+        // Add GT3 RS at the beginning of trims
+        finalTrims = [
+          {
+            name: 'GT3 RS',
+            description: 'GT3 RS 2dr Coupe (4.0L 6cyl 7AM)',
+            year: Number(vehicleData.year)
+          },
+          ...uniqueTrims
+        ];
+        console.log('Added GT3 RS trim');
+      }
+    }
+
+    console.log('Final trims after GT3 RS handling:', finalTrims);
 
     const bestTrim = findBestTrimMatch(
-      uniqueTrims,
+      finalTrims,
       vehicleData.year,
       {
         make: vehicleData.make,
@@ -120,7 +130,7 @@ Deno.serve(async (req) => {
       turbo: vehicleData.specs?.turbo || false
     };
 
-    const availableTrims = uniqueTrims?.map((trim) => {
+    const availableTrims = finalTrims.map((trim) => {
       const engineDesc = trim.description?.match(/\(([\d.]+L\s+\d+cyl(?:\s+Turbo)?)[^)]*\)/i)?.[1] || 
         `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`;
 
@@ -144,10 +154,10 @@ Deno.serve(async (req) => {
       year: vehicleData.year,
       make: vehicleData.make,
       model: vehicleData.model,
-      trim: bestTrim,
-      engineCylinders: availableTrims?.[0]?.specs?.engine || `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`,
-      transmission: availableTrims?.[0]?.specs?.transmission || "7-Speed Automatic",
-      drivetrain: availableTrims?.[0]?.specs?.drivetrain || "AWD",
+      trim: bestTrim || (finalTrims[0]?.name || ''),
+      engineCylinders: availableTrims[0]?.specs?.engine || `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`,
+      transmission: availableTrims[0]?.specs?.transmission || "7-Speed Automatic",
+      drivetrain: availableTrims[0]?.specs?.drivetrain || "AWD",
       availableTrims: availableTrims,
     };
 
