@@ -21,6 +21,14 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
     }
   };
 
+  const handleStatusUpdate = (value: "pending" | "accepted" | "declined") => {
+    if (onStatusUpdate) {
+      // If there's an offer, use its ID, otherwise use the request ID
+      const id = offer?.id || request.id;
+      onStatusUpdate(id, value);
+    }
+  };
+
   return (
     <UITableRow 
       className="text-sm hover:bg-muted/50 cursor-pointer"
@@ -51,29 +59,24 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
         {offer ? `$${offer.amount.toLocaleString()}` : <span className="text-gray-500">No offers yet</span>}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-        {offer && onStatusUpdate ? (
-          <Select
-            value={offer.status}
-            onValueChange={(value: "pending" | "accepted" | "declined") => 
-              onStatusUpdate(offer.id, value)
-            }
-          >
-            <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
-              ${offer.status === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-              ${offer.status === 'pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-              ${offer.status === 'declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
-            `}>
-              <SelectValue>{offer.status}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="accepted">Accepted</SelectItem>
-              <SelectItem value="declined">Declined</SelectItem>
-            </SelectContent>
-          </Select>
-        ) : (
-          <span>pending</span>
-        )}
+        <Select
+          value={offer?.status || request.status}
+          onValueChange={(value: "pending" | "accepted" | "declined") => handleStatusUpdate(value)}
+          disabled={!onStatusUpdate}
+        >
+          <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
+            ${(offer?.status || request.status) === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+            ${(offer?.status || request.status) === 'pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+            ${(offer?.status || request.status) === 'declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+          `}>
+            <SelectValue>{offer?.status || request.status}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="accepted">Accepted</SelectItem>
+            <SelectItem value="declined">Declined</SelectItem>
+          </SelectContent>
+        </Select>
       </TableCell>
     </UITableRow>
   );
