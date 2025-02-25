@@ -1,6 +1,6 @@
 
 import { ImagePlus } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ interface ColorsAndAccessoriesProps {
 }
 
 interface FileWithPreview {
+  id: string;
   file: File;
   previewUrl: string;
 }
@@ -52,11 +53,12 @@ const ColorsAndAccessories = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
       const filesArray = Array.from(files);
       const newFilesWithPreviews = filesArray.map(file => ({
+        id: crypto.randomUUID(),
         file,
         previewUrl: URL.createObjectURL(file)
       }));
@@ -64,7 +66,7 @@ const ColorsAndAccessories = ({
       setSelectedFilesWithPreviews(prev => [...prev, ...newFilesWithPreviews]);
       setSelectedFileUrls?.(prev => [...prev, ...newFilesWithPreviews.map(f => f.previewUrl)]);
     }
-  };
+  }, [setSelectedFileUrls]);
 
   const compressImage = async (file: File): Promise<File> => {
     try {
@@ -122,10 +124,12 @@ const ColorsAndAccessories = ({
       if (uploadedUrls.length > 0) {
         console.log('Successfully uploaded files:', uploadedUrls);
 
-        // Clean up preview URLs and reset state
+        // Clean up preview URLs
         selectedFilesWithPreviews.forEach(({ previewUrl }) => {
           URL.revokeObjectURL(previewUrl);
         });
+        
+        // Reset state
         setSelectedFilesWithPreviews([]);
         setSelectedFileUrls?.([]);
         
@@ -145,7 +149,7 @@ const ColorsAndAccessories = ({
     }
   };
 
-  const handleSelectChange = (value: string, name: string) => {
+  const handleSelectChange = useCallback((value: string, name: string) => {
     const syntheticEvent = {
       target: {
         name,
@@ -153,12 +157,11 @@ const ColorsAndAccessories = ({
       }
     } as React.ChangeEvent<HTMLInputElement>;
     onChange(syntheticEvent);
-  };
+  }, [onChange]);
 
-  const handleDeleteImage = async (url: string, isUploaded: boolean) => {
+  const handleDeleteImage = useCallback(async (url: string, isUploaded: boolean) => {
     try {
       if (isUploaded) {
-        // Extract the file path from the URL
         const filePath = url.split('/').pop();
         if (filePath) {
           const { error } = await supabase.storage
@@ -171,17 +174,23 @@ const ColorsAndAccessories = ({
             return;
           }
 
+          // Update uploaded images through callback
           onImagesUploaded?.(uploadedImageUrls.filter(img => img !== url));
           toast.success('Image deleted successfully');
         }
       } else {
-        // For preview images, find and remove the matching file and preview URL
+        // Find the file to delete using the preview URL
         const fileToDelete = selectedFilesWithPreviews.find(item => item.previewUrl === url);
         if (fileToDelete) {
+          // Clean up the preview URL
           URL.revokeObjectURL(fileToDelete.previewUrl);
+
+          // Update selected files state
           setSelectedFilesWithPreviews(prev => 
-            prev.filter(item => item.previewUrl !== url)
+            prev.filter(item => item.id !== fileToDelete.id)
           );
+
+          // Update selected file URLs
           setSelectedFileUrls?.(prev => prev.filter(previewUrl => previewUrl !== url));
         }
       }
@@ -189,7 +198,7 @@ const ColorsAndAccessories = ({
       console.error('Error handling image deletion:', error);
       toast.error('Failed to delete image');
     }
-  };
+  }, [uploadedImageUrls, selectedFilesWithPreviews, onImagesUploaded, setSelectedFileUrls]);
 
   return (
     <div className="space-y-4">
