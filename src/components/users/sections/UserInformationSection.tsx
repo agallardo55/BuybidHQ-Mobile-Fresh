@@ -54,6 +54,11 @@ const UserInformationSection = ({
     onFormDataChange({ mobileNumber: formattedNumber });
   };
 
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4">User Information</h3>
@@ -106,8 +111,8 @@ const UserInformationSection = ({
               </SelectTrigger>
               <SelectContent>
                 {['basic', 'individual', 'dealer', 'associate'].map(role => (
-                  <SelectItem key={role} value={role} className="capitalize">
-                    {role}
+                  <SelectItem key={role} value={role}>
+                    {capitalizeFirstLetter(role)}
                   </SelectItem>
                 ))}
               </SelectContent>
