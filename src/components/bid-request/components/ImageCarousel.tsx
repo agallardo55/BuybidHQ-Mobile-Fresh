@@ -15,8 +15,8 @@ const ImageCarousel = ({
   onImageClick,
   onDeleteImage 
 }: ImageCarouselProps) => {
-  // Sort both arrays in reverse chronological order
-  // Note: selectedFileUrls are already in reverse order since they're newest first when selected
+  // Since we're getting arrays as props, we don't need to maintain internal state
+  // Just use the arrays directly and let the parent component manage the state
   const sortedUploadedImages = [...uploadedImages].reverse();
 
   if (sortedUploadedImages.length === 0 && selectedFileUrls.length === 0) return null;
@@ -26,7 +26,7 @@ const ImageCarousel = ({
       <div className="w-full max-w-[95%] mx-auto overflow-x-auto">
         <div className="flex gap-4 pb-4">
           {sortedUploadedImages.map((url, index) => (
-            <div key={`uploaded-${index}`} className="flex-none relative">
+            <div key={`uploaded-${url}-${index}`} className="flex-none relative">
               <div className="h-32 relative rounded-lg overflow-hidden">
                 <img 
                   src={url} 
@@ -51,7 +51,7 @@ const ImageCarousel = ({
             </div>
           ))}
           {selectedFileUrls.map((url, index) => (
-            <div key={`preview-${index}`} className="flex-none relative">
+            <div key={`preview-${url}-${index}`} className="flex-none relative">
               <div className="h-32 relative rounded-lg overflow-hidden">
                 <img 
                   src={url} 
