@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { BuyerFormData } from "@/types/buyers";
 import PersonalInfoSection from "./form-sections/PersonalInfoSection";
 import DealershipSection from "./form-sections/DealershipSection";
@@ -34,21 +35,35 @@ const AddBuyerForm = ({
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 mt-4">
-      <div className="space-y-4">
-        <PersonalInfoSection 
-          formData={formData} 
-          onFormDataChange={onFormDataChange} 
-          formatPhoneNumber={formatPhoneNumber} 
-        />
-        <DealershipSection 
-          formData={formData} 
-          onFormDataChange={onFormDataChange} 
-        />
-        <AddressSection 
-          formData={formData} 
-          onFormDataChange={onFormDataChange} 
-        />
+    <form onSubmit={onSubmit} className="space-y-6 mt-4">
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-medium mb-4">Personal Information</h3>
+          <PersonalInfoSection 
+            formData={formData} 
+            onFormDataChange={onFormDataChange} 
+            formatPhoneNumber={formatPhoneNumber} 
+          />
+        </div>
+
+        <Separator className="my-6" />
+
+        <div>
+          <h3 className="text-lg font-medium mb-4">Dealership Information</h3>
+          <DealershipSection 
+            formData={formData} 
+            onFormDataChange={onFormDataChange} 
+          />
+        </div>
+
+        <div>
+          <h3 className="text-lg font-medium mb-4">Address Information</h3>
+          <AddressSection 
+            formData={formData} 
+            onFormDataChange={onFormDataChange} 
+          />
+        </div>
+
         <Button 
           type="submit" 
           className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
