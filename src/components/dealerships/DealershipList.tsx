@@ -18,6 +18,27 @@ interface DealershipListProps {
   onDelete: (dealership: Dealership) => void;
 }
 
+const ActionButton = ({ 
+  icon: Icon, 
+  onClick, 
+  variant = "ghost",
+  className = "",
+}: { 
+  icon: typeof Eye | typeof Pencil | typeof Trash2;
+  onClick: () => void;
+  variant?: "ghost";
+  className?: string;
+}) => (
+  <Button
+    variant={variant}
+    size="icon"
+    onClick={onClick}
+    className={`h-7 w-7 ${className}`}
+  >
+    <Icon className="h-4 w-4" />
+  </Button>
+);
+
 const DealershipList = ({ 
   dealerships,
   onView,
@@ -56,30 +77,19 @@ const DealershipList = ({
               </TableCell>
               <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
+                  <ActionButton
+                    icon={Eye}
                     onClick={() => onView(dealership)}
-                    className="h-7 w-7"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
+                  />
+                  <ActionButton
+                    icon={Pencil}
                     onClick={() => onEdit(dealership)}
-                    className="h-7 w-7"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
+                  />
+                  <ActionButton
+                    icon={Trash2}
                     onClick={() => onDelete(dealership)}
-                    className="h-7 w-7 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    className="text-destructive hover:text-destructive"
+                  />
                 </div>
               </TableCell>
             </TableRow>
