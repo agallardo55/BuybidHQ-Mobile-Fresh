@@ -25,9 +25,9 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
   ];
 
   return (
-    <>
+    <div className="space-y-6">
       <div>
-        <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-2">
           Dealership Address
         </label>
         <Input
@@ -37,11 +37,12 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
           required
           value={formData.dealershipAddress}
           onChange={handleChange}
+          className="mb-6"
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
             City
           </label>
           <Input
@@ -53,9 +54,9 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
             onChange={handleChange}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <div>
-            <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-2">
               State
             </label>
             <Select onValueChange={(value) => onFormDataChange({ state: value })} value={formData.state}>
@@ -72,7 +73,7 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
             </Select>
           </div>
           <div>
-            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-2">
               ZIP Code
             </label>
             <Input
@@ -89,7 +90,7 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
