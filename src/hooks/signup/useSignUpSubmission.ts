@@ -48,13 +48,13 @@ export const useSignUpSubmission = ({
       // Step 2: Wait briefly for the trigger to create the initial user record
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Step 3: Create dealership record
+      // Step 3: Create dealership record - note we now only set dealer_id if it's provided
       const { data: dealershipData, error: dealershipError } = await supabase
         .from('dealerships')
         .insert([
           {
             dealer_name: formData.dealershipName,
-            dealer_id: formData.licenseNumber,
+            ...(formData.licenseNumber ? { dealer_id: formData.licenseNumber } : {}),
             business_phone: formData.businessNumber,
             business_email: formData.email,
             address: formData.dealershipAddress,
@@ -71,10 +71,14 @@ export const useSignUpSubmission = ({
         .single();
 
       if (dealershipError) {
+        // If there's a unique constraint violation, provide a more user-friendly error
+        if (dealershipError.code === '23505' && dealershipError.message.includes('unique_dealer_id')) {
+          throw new Error('This Dealer ID is already registered. Please use a different Dealer ID or contact support.');
+        }
         throw dealershipError;
       }
 
-      // Step 4: Upsert the user record instead of update
+      // Step 4: Upsert the user record
       const { error: userError } = await supabase
         .from('buybidhq_users')
         .upsert({
