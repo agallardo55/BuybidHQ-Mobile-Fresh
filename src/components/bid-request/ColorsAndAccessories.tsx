@@ -22,6 +22,7 @@ interface ColorsAndAccessoriesProps {
   uploadedImageUrls?: string[];
   selectedFileUrls?: string[];
   setSelectedFileUrls?: (urls: string[] | ((prev: string[]) => string[])) => void;
+  removeUploadedImage?: (url: string) => void; // Add new prop
 }
 
 interface FileWithPreview {
@@ -46,7 +47,8 @@ const ColorsAndAccessories = ({
   onImagesUploaded,
   uploadedImageUrls = [],
   selectedFileUrls = [],
-  setSelectedFileUrls
+  setSelectedFileUrls,
+  removeUploadedImage
 }: ColorsAndAccessoriesProps) => {
   const [selectedFilesWithPreviews, setSelectedFilesWithPreviews] = useState<FileWithPreview[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -134,8 +136,7 @@ const ColorsAndAccessories = ({
         setSelectedFileUrls?.([]);
         
         // Update uploaded images through callback with new array
-        const newUploadedUrls = [...(uploadedImageUrls || []), ...uploadedUrls];
-        onImagesUploaded?.(newUploadedUrls);
+        onImagesUploaded?.(uploadedUrls);
         
         toast.success(`Successfully uploaded ${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''}`);
         setIsUploadDialogOpen(false);
@@ -161,7 +162,7 @@ const ColorsAndAccessories = ({
   }, [onChange]);
 
   const handleDeleteImage = useCallback(async (url: string, isUploaded: boolean) => {
-    if (isDeleting) return; // Prevent multiple deletion attempts
+    if (isDeleting) return;
     setIsDeleting(true);
 
     try {
@@ -181,9 +182,8 @@ const ColorsAndAccessories = ({
           throw error;
         }
 
-        // Update uploaded images through callback with new filtered array
-        const newUploadedUrls = (uploadedImageUrls || []).filter(img => img !== url);
-        onImagesUploaded?.(newUploadedUrls);
+        // Use the new removeUploadedImage function
+        removeUploadedImage?.(url);
         
         toast.success('Image deleted successfully');
       } else {
@@ -191,14 +191,12 @@ const ColorsAndAccessories = ({
         setSelectedFilesWithPreviews(prev => {
           const fileToDelete = prev.find(item => item.previewUrl === url);
           if (fileToDelete) {
-            // Clean up the preview URL
             URL.revokeObjectURL(fileToDelete.previewUrl);
             return prev.filter(item => item.id !== fileToDelete.id);
           }
           return prev;
         });
 
-        // Update selected file URLs using functional update
         setSelectedFileUrls?.(prev => prev.filter(previewUrl => previewUrl !== url));
       }
     } catch (error) {
@@ -207,7 +205,7 @@ const ColorsAndAccessories = ({
     } finally {
       setIsDeleting(false);
     }
-  }, [onImagesUploaded, setSelectedFileUrls, isDeleting, uploadedImageUrls]);
+  }, [isDeleting, removeUploadedImage, setSelectedFileUrls]);
 
   return (
     <div className="space-y-4">

@@ -44,7 +44,6 @@ export const useFormState = (): FormState & FormStateActions => {
       formData: { ...prev.formData, ...data }
     }));
     
-    // Log form data updates for debugging
     console.log('Form data updated:', { 
       previous: state.formData,
       updates: data,
@@ -60,8 +59,27 @@ export const useFormState = (): FormState & FormStateActions => {
     setState(prev => ({ ...prev, selectedBuyers: buyers }));
   };
 
+  // Updated to replace instead of append
   const setUploadedImageUrls = (urls: string[]) => {
     setState(prev => ({ ...prev, uploadedImageUrls: urls }));
+    console.log('Updated uploaded image URLs:', urls);
+  };
+
+  const addUploadedImages = (newUrls: string[]) => {
+    setState(prev => ({
+      ...prev,
+      uploadedImageUrls: [...prev.uploadedImageUrls, ...newUrls],
+      selectedFileUrls: [] // Clear selected files after upload
+    }));
+    console.log('Added new uploaded images:', newUrls);
+  };
+
+  const removeUploadedImage = (urlToRemove: string) => {
+    setState(prev => ({
+      ...prev,
+      uploadedImageUrls: prev.uploadedImageUrls.filter(url => url !== urlToRemove)
+    }));
+    console.log('Removed uploaded image:', urlToRemove);
   };
 
   const setSelectedFileUrls = (urls: string[]) => {
@@ -85,7 +103,6 @@ export const useFormState = (): FormState & FormStateActions => {
   ) => {
     const { name, value } = e.target;
     
-    // Special handling for reconEstimate to ensure it's stored as a raw number
     if (name === 'reconEstimate') {
       const numericValue = value.replace(/[^0-9]/g, '');
       setFormData({ [name]: numericValue });
@@ -145,11 +162,7 @@ export const useFormState = (): FormState & FormStateActions => {
   };
 
   const handleImagesUploaded = (urls: string[]) => {
-    setState(prev => ({
-      ...prev,
-      uploadedImageUrls: [...prev.uploadedImageUrls, ...urls],
-      selectedFileUrls: [] // Clear selected files after upload
-    }));
+    addUploadedImages(urls);
   };
 
   const toggleBuyer = (buyerId: string) => {
@@ -179,5 +192,6 @@ export const useFormState = (): FormState & FormStateActions => {
     handleImagesUploaded,
     toggleBuyer,
     handleBatchChanges,
+    removeUploadedImage, // Add new function to the return object
   };
 };
