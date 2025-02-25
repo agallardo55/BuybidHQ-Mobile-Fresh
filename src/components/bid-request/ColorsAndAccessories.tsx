@@ -1,3 +1,4 @@
+
 import { ImagePlus } from "lucide-react";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +24,11 @@ interface ColorsAndAccessoriesProps {
   setSelectedFileUrls?: (urls: string[] | ((prev: string[]) => string[])) => void;
 }
 
+interface FileWithPreview {
+  file: File;
+  previewUrl: string;
+}
+
 const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
 const interiorColors = ["Black", "Blue", "Brown", "Grey", "Red", "Tan", "White"];
 
@@ -41,7 +47,7 @@ const ColorsAndAccessories = ({
   selectedFileUrls = [],
   setSelectedFileUrls
 }: ColorsAndAccessoriesProps) => {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFilesWithPreviews, setSelectedFilesWithPreviews] = useState<FileWithPreview[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -50,11 +56,13 @@ const ColorsAndAccessories = ({
     const files = event.target.files;
     if (files) {
       const filesArray = Array.from(files);
-      setSelectedFiles(prev => [...prev, ...filesArray]);
+      const newFilesWithPreviews = filesArray.map(file => ({
+        file,
+        previewUrl: URL.createObjectURL(file)
+      }));
 
-      // Create URLs for preview
-      const newUrls = filesArray.map(file => URL.createObjectURL(file));
-      setSelectedFileUrls?.(prev => [...prev, ...newUrls]);
+      setSelectedFilesWithPreviews(prev => [...prev, ...newFilesWithPreviews]);
+      setSelectedFileUrls?.(prev => [...prev, ...newFilesWithPreviews.map(f => f.previewUrl)]);
     }
   };
 
@@ -71,18 +79,17 @@ const ColorsAndAccessories = ({
   };
 
   const handleUpload = async () => {
-    if (selectedFiles.length === 0) return;
+    if (selectedFilesWithPreviews.length === 0) return;
     setIsUploading(true);
     const uploadedUrls: string[] = [];
 
     try {
       console.log('Starting file upload process...');
       
-      for (const file of selectedFiles) {
+      for (const { file } of selectedFilesWithPreviews) {
         try {
           console.log(`Processing file: ${file.name}`);
           
-          // Compress the image before upload
           const compressedFile = await compressImage(file);
           
           const fileExt = file.name.split('.').pop();
@@ -90,28 +97,21 @@ const ColorsAndAccessories = ({
           
           console.log(`Generated file path: ${filePath}`);
           
-          const {
-            data: uploadData,
-            error: uploadError,
-          } = await supabase.storage.from('vehicle_images').upload(filePath, compressedFile, {
-            cacheControl: '3600',
-            upsert: false
-          });
+          const { error: uploadError } = await supabase.storage
+            .from('vehicle_images')
+            .upload(filePath, compressedFile);
           
           if (uploadError) {
             console.error('Upload error for file:', file.name, uploadError);
             toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
-            continue; // Skip to next file instead of failing completely
+            continue;
           }
           
-          console.log('File uploaded successfully:', uploadData);
-          
-          const {
-            data: { publicUrl }
-          } = supabase.storage.from('vehicle_images').getPublicUrl(filePath);
+          const { data: { publicUrl } } = supabase.storage
+            .from('vehicle_images')
+            .getPublicUrl(filePath);
           
           console.log('Generated public URL:', publicUrl);
-          
           uploadedUrls.push(publicUrl);
         } catch (fileError) {
           console.error(`Error processing file ${file.name}:`, fileError);
@@ -122,17 +122,17 @@ const ColorsAndAccessories = ({
       if (uploadedUrls.length > 0) {
         console.log('Successfully uploaded files:', uploadedUrls);
 
-        // Clear selected files and their preview URLs
-        setSelectedFiles([]);
-        selectedFileUrls.forEach(url => URL.revokeObjectURL(url));
+        // Clean up preview URLs and reset state
+        selectedFilesWithPreviews.forEach(({ previewUrl }) => {
+          URL.revokeObjectURL(previewUrl);
+        });
+        setSelectedFilesWithPreviews([]);
         setSelectedFileUrls?.([]);
         
         // Call the callback with new URLs
         onImagesUploaded?.(uploadedUrls);
         
         toast.success(`Successfully uploaded ${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''}`);
-        
-        // Close the upload dialog
         setIsUploadDialogOpen(false);
       } else {
         toast.error('No images were successfully uploaded. Please try again.');
@@ -175,13 +175,15 @@ const ColorsAndAccessories = ({
           toast.success('Image deleted successfully');
         }
       } else {
-        // For preview images, just remove from state
-        setSelectedFileUrls?.(prev => prev.filter(img => img !== url));
-        setSelectedFiles(prev => {
-          const index = selectedFileUrls.indexOf(url);
-          return prev.filter((_, i) => i !== index);
-        });
-        URL.revokeObjectURL(url);
+        // For preview images, find and remove the matching file and preview URL
+        const fileToDelete = selectedFilesWithPreviews.find(item => item.previewUrl === url);
+        if (fileToDelete) {
+          URL.revokeObjectURL(fileToDelete.previewUrl);
+          setSelectedFilesWithPreviews(prev => 
+            prev.filter(item => item.previewUrl !== url)
+          );
+          setSelectedFileUrls?.(prev => prev.filter(previewUrl => previewUrl !== url));
+        }
       }
     } catch (error) {
       console.error('Error handling image deletion:', error);
@@ -233,7 +235,7 @@ const ColorsAndAccessories = ({
       <ImageUploadDialog
         isOpen={isUploadDialogOpen}
         onOpenChange={setIsUploadDialogOpen}
-        selectedFiles={selectedFiles}
+        selectedFiles={selectedFilesWithPreviews.map(item => item.file)}
         isUploading={isUploading}
         onFileChange={handleFileChange}
         onUpload={handleUpload}
