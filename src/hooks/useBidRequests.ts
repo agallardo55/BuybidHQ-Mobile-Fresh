@@ -7,7 +7,11 @@ import { useBidRequestMutation } from "./bid-requests/useBidRequestMutation";
 export const useBidRequests = () => {
   const { currentUser } = useCurrentUser();
   const { data: bidRequests = [], isLoading } = useBidRequestQuery(!!currentUser);
-  const { mutate: updateBidRequest } = useBidRequestMutation();
+  const { mutate: updateBidRequestStatus } = useBidRequestMutation();
+
+  const updateBidRequest = (id: string, status: "pending" | "accepted" | "declined") => {
+    updateBidRequestStatus({ id, status });
+  };
 
   return {
     bidRequests,

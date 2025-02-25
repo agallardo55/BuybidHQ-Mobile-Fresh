@@ -23,11 +23,12 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
 
   const handleStatusUpdate = (value: "pending" | "accepted" | "declined") => {
     if (onStatusUpdate) {
-      // If there's an offer, use its ID, otherwise use the request ID
       const id = offer?.id || request.id;
       onStatusUpdate(id, value);
     }
   };
+
+  const currentStatus = offer?.status || request.status;
 
   return (
     <UITableRow 
@@ -60,16 +61,15 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
         <Select
-          value={offer?.status || request.status}
-          onValueChange={(value: "pending" | "accepted" | "declined") => handleStatusUpdate(value)}
-          disabled={!onStatusUpdate}
+          value={currentStatus.toLowerCase()}
+          onValueChange={handleStatusUpdate}
         >
           <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
-            ${(offer?.status || request.status) === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-            ${(offer?.status || request.status) === 'pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-            ${(offer?.status || request.status) === 'declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+            ${currentStatus.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+            ${currentStatus.toLowerCase() === 'pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+            ${currentStatus.toLowerCase() === 'declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
           `}>
-            <SelectValue>{offer?.status || request.status}</SelectValue>
+            <SelectValue>{currentStatus}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="pending">Pending</SelectItem>
