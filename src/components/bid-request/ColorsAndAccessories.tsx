@@ -133,8 +133,9 @@ const ColorsAndAccessories = ({
         setSelectedFilesWithPreviews([]);
         setSelectedFileUrls?.([]);
         
-        // Update uploaded images through callback
-        onImagesUploaded?.(prevUrls => [...(prevUrls || []), ...uploadedUrls]);
+        // Update uploaded images through callback with new array
+        const newUploadedUrls = [...(uploadedImageUrls || []), ...uploadedUrls];
+        onImagesUploaded?.(newUploadedUrls);
         
         toast.success(`Successfully uploaded ${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''}`);
         setIsUploadDialogOpen(false);
@@ -180,8 +181,10 @@ const ColorsAndAccessories = ({
           throw error;
         }
 
-        // Update uploaded images through callback using functional update
-        onImagesUploaded?.(prevUrls => prevUrls?.filter(img => img !== url) ?? []);
+        // Update uploaded images through callback with new filtered array
+        const newUploadedUrls = (uploadedImageUrls || []).filter(img => img !== url);
+        onImagesUploaded?.(newUploadedUrls);
+        
         toast.success('Image deleted successfully');
       } else {
         // Find and remove the preview file
@@ -204,7 +207,7 @@ const ColorsAndAccessories = ({
     } finally {
       setIsDeleting(false);
     }
-  }, [onImagesUploaded, setSelectedFileUrls, isDeleting]);
+  }, [onImagesUploaded, setSelectedFileUrls, isDeleting, uploadedImageUrls]);
 
   return (
     <div className="space-y-4">
@@ -274,4 +277,3 @@ const ColorsAndAccessories = ({
 };
 
 export default ColorsAndAccessories;
-
