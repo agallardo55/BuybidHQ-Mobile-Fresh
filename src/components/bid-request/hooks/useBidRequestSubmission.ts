@@ -77,7 +77,7 @@ export const useBidRequestSubmission = () => {
 
       console.log(`[${requestId}] Bid request created successfully:`, bidRequestData);
 
-      // Send SMS notifications to selected buyers using Knock
+      // Send notifications via Knock to selected buyers
       for (const buyerId of selectedBuyers) {
         console.log(`[${requestId}] Processing buyer ID:`, buyerId);
         
@@ -106,21 +106,11 @@ export const useBidRequestSubmission = () => {
           continue;
         }
 
-        // Extract token from response (the function returns the token string directly)
-        const token = tokenResponse;
-
         // Generate bid submission URL with secure token
-        const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(token)}`;
+        const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenResponse)}`;
 
-        console.log(`[${requestId}] Sending SMS notification to buyer:`, {
-          buyerId,
-          name: buyerData.buyer_name,
-          phone: buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*'),
-          token: token.substring(0, 8) + '...'
-        });
-
-        // Send SMS notification via Knock
-        const { error: smsError } = await supabase.functions.invoke('send-knock-sms', {
+        // Send notification via Knock
+        const { error: knockError } = await supabase.functions.invoke('send-knock-sms', {
           body: {
             type: 'bid_request',
             phoneNumber: buyerData.buyer_mobile,
@@ -134,14 +124,14 @@ export const useBidRequestSubmission = () => {
           }
         });
 
-        if (smsError) {
-          console.error(`[${requestId}] Error sending SMS to buyer:`, {
-            phone: buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*'),
-            error: smsError
+        if (knockError) {
+          console.error(`[${requestId}] Error sending notification to buyer:`, {
+            name: buyerData.buyer_name,
+            error: knockError
           });
-          toast.error(`Failed to send SMS to ${buyerData.buyer_name}`);
+          toast.error(`Failed to send notification to ${buyerData.buyer_name}`);
         } else {
-          console.log(`[${requestId}] SMS sent successfully to:`, buyerData.buyer_mobile.slice(-4).padStart(buyerData.buyer_mobile.length, '*'));
+          console.log(`[${requestId}] Notification sent successfully to:`, buyerData.buyer_name);
         }
       }
 
