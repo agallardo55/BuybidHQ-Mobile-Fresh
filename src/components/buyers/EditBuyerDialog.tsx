@@ -33,25 +33,18 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
 
   useEffect(() => {
     if (buyer) {
-      // Transform buyer data to form data format using direct fields
       setFormData({
         fullName: buyer.name || "",
         email: buyer.email || "",
         mobileNumber: buyer.mobileNumber || "",
         businessNumber: buyer.businessNumber || "",
         dealershipName: buyer.dealership || "",
-        licenseNumber: buyer.dealerId || "", // Add this line to populate dealer ID
+        licenseNumber: buyer.dealerId || "",
         dealershipAddress: buyer.address || "",
         city: buyer.city || "",
         state: buyer.state || "",
         zipCode: buyer.zipCode || "",
         phoneCarrier: buyer.phoneCarrier || "",
-      });
-
-      // Log the data being loaded for debugging
-      console.log("Loading buyer data:", {
-        original: buyer,
-        transformed: formData
       });
     }
   }, [buyer]);
@@ -59,15 +52,13 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (buyer) {
-      // Log the data being submitted for debugging
-      console.log("Submitting buyer update:", {
-        buyerId: buyer.id,
-        formData
-      });
-      
       onUpdate({ buyerId: buyer.id, buyerData: formData });
       onOpenChange(false);
     }
+  };
+
+  const handleCancel = () => {
+    onOpenChange(false);
   };
 
   return (
@@ -79,10 +70,8 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         <AddBuyerForm
           onSubmit={handleSubmit}
           formData={formData}
-          onFormDataChange={(data) => {
-            console.log("Form data changing:", data);
-            setFormData(prev => ({ ...prev, ...data }));
-          }}
+          onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+          onCancel={handleCancel}
         />
       </DialogContent>
     </Dialog>

@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { DialogFooter } from "@/components/ui/dialog";
 import { BuyerFormData } from "@/types/buyers";
 import PersonalInfoSection from "./form-sections/PersonalInfoSection";
 import DealershipSection from "./form-sections/DealershipSection";
@@ -10,12 +11,14 @@ interface AddBuyerFormProps {
   onSubmit: (e: React.FormEvent) => void;
   formData: BuyerFormData;
   onFormDataChange: (data: Partial<BuyerFormData>) => void;
+  onCancel?: () => void;
 }
 
 const AddBuyerForm = ({
   onSubmit,
   formData,
-  onFormDataChange
+  onFormDataChange,
+  onCancel
 }: AddBuyerFormProps) => {
   const formatPhoneNumber = (value: string) => {
     const phoneNumber = value.replace(/\D/g, '');
@@ -35,7 +38,7 @@ const AddBuyerForm = ({
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6 mt-4">
+    <form onSubmit={onSubmit} className="space-y-6">
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-medium mb-4">Personal Information</h3>
@@ -63,14 +66,25 @@ const AddBuyerForm = ({
             onFormDataChange={onFormDataChange} 
           />
         </div>
-
-        <Button 
-          type="submit" 
-          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-        >
-          {formData.fullName ? 'Update' : 'Add Buyer'}
-        </Button>
       </div>
+
+      <DialogFooter>
+        <div className="flex justify-end space-x-4 mt-6">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground"
+          >
+            {formData.fullName ? 'Update' : 'Add Buyer'}
+          </Button>
+        </div>
+      </DialogFooter>
     </form>
   );
 };
