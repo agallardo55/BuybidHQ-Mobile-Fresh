@@ -51,6 +51,7 @@ const ColorsAndAccessories = ({
   const [selectedFilesWithPreviews, setSelectedFilesWithPreviews] = useState<FileWithPreview[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,17 +125,16 @@ const ColorsAndAccessories = ({
       if (uploadedUrls.length > 0) {
         console.log('Successfully uploaded files:', uploadedUrls);
 
-        // Clean up preview URLs
+        // Clean up preview URLs and state
         selectedFilesWithPreviews.forEach(({ previewUrl }) => {
           URL.revokeObjectURL(previewUrl);
         });
         
-        // Reset state
         setSelectedFilesWithPreviews([]);
         setSelectedFileUrls?.([]);
         
-        // Call the callback with new URLs
-        onImagesUploaded?.(uploadedUrls);
+        // Update uploaded images through callback
+        onImagesUploaded?.(prevUrls => [...(prevUrls || []), ...uploadedUrls]);
         
         toast.success(`Successfully uploaded ${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''}`);
         setIsUploadDialogOpen(false);
@@ -160,45 +160,51 @@ const ColorsAndAccessories = ({
   }, [onChange]);
 
   const handleDeleteImage = useCallback(async (url: string, isUploaded: boolean) => {
+    if (isDeleting) return; // Prevent multiple deletion attempts
+    setIsDeleting(true);
+
     try {
       if (isUploaded) {
         const filePath = url.split('/').pop();
-        if (filePath) {
-          const { error } = await supabase.storage
-            .from('vehicle_images')
-            .remove([filePath]);
-
-          if (error) {
-            console.error('Error deleting file:', error);
-            toast.error('Failed to delete image');
-            return;
-          }
-
-          // Update uploaded images through callback
-          onImagesUploaded?.(uploadedImageUrls.filter(img => img !== url));
-          toast.success('Image deleted successfully');
+        if (!filePath) {
+          throw new Error('Invalid file path');
         }
+
+        console.log('Deleting uploaded image:', filePath);
+        const { error } = await supabase.storage
+          .from('vehicle_images')
+          .remove([filePath]);
+
+        if (error) {
+          console.error('Error deleting file:', error);
+          throw error;
+        }
+
+        // Update uploaded images through callback using functional update
+        onImagesUploaded?.(prevUrls => prevUrls?.filter(img => img !== url) ?? []);
+        toast.success('Image deleted successfully');
       } else {
-        // Find the file to delete using the preview URL
-        const fileToDelete = selectedFilesWithPreviews.find(item => item.previewUrl === url);
-        if (fileToDelete) {
-          // Clean up the preview URL
-          URL.revokeObjectURL(fileToDelete.previewUrl);
+        // Find and remove the preview file
+        setSelectedFilesWithPreviews(prev => {
+          const fileToDelete = prev.find(item => item.previewUrl === url);
+          if (fileToDelete) {
+            // Clean up the preview URL
+            URL.revokeObjectURL(fileToDelete.previewUrl);
+            return prev.filter(item => item.id !== fileToDelete.id);
+          }
+          return prev;
+        });
 
-          // Update selected files state
-          setSelectedFilesWithPreviews(prev => 
-            prev.filter(item => item.id !== fileToDelete.id)
-          );
-
-          // Update selected file URLs
-          setSelectedFileUrls?.(prev => prev.filter(previewUrl => previewUrl !== url));
-        }
+        // Update selected file URLs using functional update
+        setSelectedFileUrls?.(prev => prev.filter(previewUrl => previewUrl !== url));
       }
     } catch (error) {
       console.error('Error handling image deletion:', error);
       toast.error('Failed to delete image');
+    } finally {
+      setIsDeleting(false);
     }
-  }, [uploadedImageUrls, selectedFilesWithPreviews, onImagesUploaded, setSelectedFileUrls]);
+  }, [onImagesUploaded, setSelectedFileUrls, isDeleting]);
 
   return (
     <div className="space-y-4">
@@ -236,6 +242,7 @@ const ColorsAndAccessories = ({
         variant="outline" 
         className="w-full flex items-center gap-2"
         onClick={() => setIsUploadDialogOpen(true)}
+        disabled={isUploading || isDeleting}
       >
         <ImagePlus className="h-4 w-4" />
         Add Photo
@@ -255,6 +262,7 @@ const ColorsAndAccessories = ({
         selectedFileUrls={selectedFileUrls}
         onImageClick={setPreviewImage}
         onDeleteImage={handleDeleteImage}
+        isDeleting={isDeleting}
       />
 
       <ImagePreviewDialog
@@ -266,3 +274,4 @@ const ColorsAndAccessories = ({
 };
 
 export default ColorsAndAccessories;
+

@@ -7,16 +7,16 @@ interface ImageCarouselProps {
   selectedFileUrls: string[];
   onImageClick: (url: string) => void;
   onDeleteImage?: (url: string, isUploaded: boolean) => void;
+  isDeleting?: boolean;
 }
 
 const ImageCarousel = ({ 
   uploadedImages, 
   selectedFileUrls, 
   onImageClick,
-  onDeleteImage 
+  onDeleteImage,
+  isDeleting 
 }: ImageCarouselProps) => {
-  // Since we're getting arrays as props, we don't need to maintain internal state
-  // Just use the arrays directly and let the parent component manage the state
   const sortedUploadedImages = [...uploadedImages].reverse();
 
   if (sortedUploadedImages.length === 0 && selectedFileUrls.length === 0) return null;
@@ -41,8 +41,11 @@ const ImageCarousel = ({
                     className="absolute top-1 right-1 h-6 w-6 bg-white/80 hover:bg-white"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDeleteImage(url, true);
+                      if (!isDeleting) {
+                        onDeleteImage(url, true);
+                      }
                     }}
+                    disabled={isDeleting}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -66,8 +69,11 @@ const ImageCarousel = ({
                     className="absolute top-1 right-1 h-6 w-6 bg-white/80 hover:bg-white"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDeleteImage(url, false);
+                      if (!isDeleting) {
+                        onDeleteImage(url, false);
+                      }
                     }}
+                    disabled={isDeleting}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -82,3 +88,4 @@ const ImageCarousel = ({
 };
 
 export default ImageCarousel;
+
