@@ -595,6 +595,7 @@ export type Database = {
           created_at: string
           dealer_id: string | null
           dealer_name: string
+          dealer_type: Database["public"]["Enums"]["dealer_type"]
           id: string
           is_active: boolean | null
           last_updated_at: string | null
@@ -618,6 +619,7 @@ export type Database = {
           created_at?: string
           dealer_id?: string | null
           dealer_name: string
+          dealer_type?: Database["public"]["Enums"]["dealer_type"]
           id?: string
           is_active?: boolean | null
           last_updated_at?: string | null
@@ -641,6 +643,7 @@ export type Database = {
           created_at?: string
           dealer_id?: string | null
           dealer_name?: string
+          dealer_type?: Database["public"]["Enums"]["dealer_type"]
           id?: string
           is_active?: boolean | null
           last_updated_at?: string | null
@@ -797,6 +800,80 @@ export type Database = {
             columns: ["bid_request_id"]
             isOneToOne: false
             referencedRelation: "bid_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      individual_dealers: {
+        Row: {
+          address: string | null
+          business_email: string
+          business_name: string
+          business_phone: string | null
+          city: string | null
+          created_at: string | null
+          id: string
+          license_number: string | null
+          state: string | null
+          updated_at: string | null
+          user_id: string
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_email: string
+          business_name: string
+          business_phone?: string | null
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          license_number?: string | null
+          state?: string | null
+          updated_at?: string | null
+          user_id: string
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_email?: string
+          business_name?: string
+          business_phone?: string | null
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          license_number?: string | null
+          state?: string | null
+          updated_at?: string | null
+          user_id?: string
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_user"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "buyers_user_roles_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "individual_dealers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "individual_dealers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "buyers_user_roles_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1310,6 +1387,22 @@ export type Database = {
         }
         Relationships: []
       }
+      unified_dealer_info: {
+        Row: {
+          address: string | null
+          business_email: string | null
+          business_name: string | null
+          business_phone: string | null
+          city: string | null
+          dealer_type: Database["public"]["Enums"]["dealer_type"] | null
+          id: string | null
+          license_number: string | null
+          state: string | null
+          user_id: string | null
+          zip_code: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       batch_process_carrier_detection: {
@@ -1612,6 +1705,10 @@ export type Database = {
         }
         Returns: string[]
       }
+      migrate_individual_dealers: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       process_carrier_detection_batch: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1690,6 +1787,7 @@ export type Database = {
         | "valid"
         | "invalid"
         | "processing"
+      dealer_type: "individual" | "multi_user"
       mfa_method: "email" | "sms"
       mfa_status: "enabled" | "disabled" | "pending"
       notification_type:
