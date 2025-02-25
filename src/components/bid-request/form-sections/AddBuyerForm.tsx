@@ -2,17 +2,15 @@
 import { Button } from "@/components/ui/button";
 import { CarrierType } from "@/types/buyers";
 import BuyerInfoSection from "./BuyerInfoSection";
-import ContactInfoSection, { CARRIER_OPTIONS } from "./ContactInfoSection";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useBuyers } from "@/hooks/useBuyers";
-import { useState } from "react";
-import { toast } from "sonner";
+import ContactInfoSection from "./ContactInfoSection";
+import { Input } from "@/components/ui/input";
 
 interface AddBuyerFormProps {
   formData: {
     name: string;
     dealership: string;
     mobile: string;
+    email: string;
     carrier: CarrierType | "";
   };
   isValidating: boolean;
@@ -35,7 +33,18 @@ const AddBuyerForm = ({
         dealership={formData.dealership}
         onChange={onChange}
       />
-      <div className="space-y-2">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Email</label>
+          <Input
+            placeholder="Enter buyer email"
+            name="email"
+            type="email"
+            required
+            value={formData.email}
+            onChange={onChange}
+          />
+        </div>
         <ContactInfoSection
           mobile={formData.mobile}
           carrier={formData.carrier}
@@ -48,11 +57,10 @@ const AddBuyerForm = ({
         className="w-full bg-custom-blue hover:bg-custom-blue/90 text-white"
         disabled={isValidating}
       >
-        {isValidating ? "Validating..." : "Add Buyer"}
+        {isValidating ? "Submitting..." : "Add Buyer"}
       </Button>
     </form>
   );
 };
 
 export default AddBuyerForm;
-

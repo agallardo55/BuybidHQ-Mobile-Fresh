@@ -5,7 +5,6 @@ import { useBuyers } from "@/hooks/useBuyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
 import { CarrierType } from "@/types/buyers";
-import { supabase } from "@/integrations/supabase/client";
 import AddBuyerForm from "./form-sections/AddBuyerForm";
 import { CARRIER_OPTIONS } from "./form-sections/ContactInfoSection";
 
@@ -21,9 +20,10 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     name: "",
     dealership: "",
     mobile: "",
+    email: "",
     carrier: "" as CarrierType | "",
   });
-  const [isValidating, setIsValidating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatPhoneNumber = (phoneNumber: string): string => {
     // Remove all non-digit characters
@@ -38,52 +38,6 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     return phoneNumber;
   };
 
-  const validatePhoneNumber = async (phoneNumber: string) => {
-    try {
-      setIsValidating(true);
-      const formattedNumber = formatPhoneNumber(phoneNumber);
-      console.log("Validating phone number:", formattedNumber);
-
-      const { data, error } = await supabase.functions.invoke('validate-phone', {
-        body: { phone_number: formattedNumber }
-      });
-
-      if (error) {
-        console.error("Validation error:", error);
-        throw error;
-      }
-
-      console.log("Validation response:", data);
-
-      if (!data.is_valid) {
-        toast.error("Invalid phone number. Please check and try again.");
-        return false;
-      }
-
-      if (data.line_type !== 'mobile') {
-        toast.error("Please provide a mobile phone number.");
-        return false;
-      }
-
-      // Auto-set carrier if detected and it's one of our supported carriers
-      if (data.carrier?.name && CARRIER_OPTIONS.includes(data.carrier.name as CarrierType)) {
-        setFormData(prev => ({
-          ...prev,
-          carrier: data.carrier.name as CarrierType
-        }));
-        toast.success("Carrier detected automatically");
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Phone validation error:", error);
-      toast.error("Failed to validate phone number. Please try again.");
-      return false;
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -92,22 +46,22 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       return;
     }
 
-    if (!formData.name || !formData.dealership || !formData.mobile) {
+    if (!formData.name || !formData.dealership || !formData.mobile || !formData.email) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     try {
-      setIsValidating(true);
+      setIsSubmitting(true);
 
       const buyerData = {
         fullName: formData.name,
         dealershipName: formData.dealership,
         mobileNumber: formatPhoneNumber(formData.mobile),
         phoneCarrier: formData.carrier || "",
-        email: "",
+        email: formData.email,
         businessNumber: "",
-        licenseNumber: "", // Added this required field
+        licenseNumber: "",
         dealershipAddress: "",
         city: "",
         state: "",
@@ -115,14 +69,14 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       };
 
       await createBuyer(buyerData);
-      setFormData({ name: "", dealership: "", mobile: "", carrier: "" });
+      setFormData({ name: "", dealership: "", mobile: "", email: "", carrier: "" });
       onOpenChange(false);
       toast.success("Buyer added successfully");
     } catch (error) {
       console.error("Error adding buyer:", error);
       toast.error("Failed to add buyer. Please try again.");
     } finally {
-      setIsValidating(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -132,11 +86,6 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       ...prev,
       [name]: value
     }));
-
-    // Validate phone number when mobile number is complete
-    if (name === 'mobile' && value.length >= 10) {
-      validatePhoneNumber(value);
-    }
   };
 
   const handleCarrierChange = (value: string) => {
@@ -154,7 +103,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         </DialogHeader>
         <AddBuyerForm
           formData={formData}
-          isValidating={isValidating}
+          isValidating={false}
           onChange={handleChange}
           onCarrierChange={handleCarrierChange}
           onSubmit={handleSubmit}
