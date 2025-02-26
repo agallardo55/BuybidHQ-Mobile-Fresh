@@ -26,11 +26,6 @@ export const useSignUpSubmission = ({
     }
 
     try {
-      // Validate required fields based on plan type
-      if (formData.planType === 'individual' && !formData.licenseNumber) {
-        throw new Error('License number is required for individual dealers');
-      }
-
       // Step 1: Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -57,17 +52,6 @@ export const useSignUpSubmission = ({
       let dealershipId: string | undefined;
 
       if (formData.planType === 'individual') {
-        // Create individual dealer record with additional validation
-        const { data: existingLicense } = await supabase
-          .from('individual_dealers')
-          .select('id')
-          .eq('license_number', formData.licenseNumber)
-          .single();
-
-        if (existingLicense) {
-          throw new Error('This license number is already registered. Please contact support if you believe this is an error.');
-        }
-
         const { data: individualDealerData, error: individualDealerError } = await supabase
           .from('individual_dealers')
           .insert([
@@ -90,7 +74,7 @@ export const useSignUpSubmission = ({
           throw individualDealerError;
         }
       } else {
-        // Create or link to multi-user dealership with enhanced validation
+        // Create or link to multi-user dealership
         const { data: dealershipData, error: dealershipError } = await supabase
           .from('dealerships')
           .insert([
@@ -121,7 +105,7 @@ export const useSignUpSubmission = ({
         dealershipId = dealershipData.id;
       }
 
-      // Step 4: Update the user record with enhanced status tracking
+      // Step 4: Update the user record
       const { error: userError } = await supabase
         .from('buybidhq_users')
         .update({
@@ -137,7 +121,7 @@ export const useSignUpSubmission = ({
           is_active: true,
           status: formData.planType === 'individual' ? 'pending_payment' : 'active',
           sms_consent: formData.smsConsent,
-          phone_carrier: formData.carrier
+          ...(formData.carrier ? { phone_carrier: formData.carrier } : {})
         })
         .eq('id', authData.user.id);
 
@@ -145,7 +129,7 @@ export const useSignUpSubmission = ({
         throw userError;
       }
 
-      // Step 5: Create subscription record with trial and additional metadata
+      // Step 5: Create subscription record
       const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert([
@@ -167,7 +151,7 @@ export const useSignUpSubmission = ({
       toast.success("Account created successfully!");
       
       if (formData.planType === 'individual') {
-        // For individual plan, redirect to checkout with enhanced error handling
+        // For individual plan, redirect to checkout
         const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('stripe-checkout-session', {
           body: {
             currentPlan: formData.planType,
@@ -192,7 +176,7 @@ export const useSignUpSubmission = ({
         // Redirect to Stripe checkout
         window.location.href = checkoutData.url;
       } else {
-        // For other plans, go to signin with success message
+        // For other plans, go to signin
         toast.success("Welcome to BuybidHQ! You can now sign in to your account.");
         navigate('/signin');
       }
