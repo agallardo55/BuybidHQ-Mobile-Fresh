@@ -17,26 +17,6 @@ interface UserData {
   zip_code: string | null;
   dealership_id: string | null;
   dealer_name: string | null;
-  dealer_id: string | null;
-  business_phone: string | null;
-  business_email: string | null;
-  phone_carrier: string | null;
-}
-
-// Define the exact shape of the database response
-interface DatabaseUserResponse {
-  id: string;
-  email: string;
-  role: UserRole;
-  full_name: string | null;
-  mobile_number: string | null;
-  address: string | null;
-  city: string | null;
-  state: string | null;
-  zip_code: string | null;
-  dealership_id: string | null;
-  dealer_name: string | null;
-  dealer_id: string | null;
   business_phone: string | null;
   business_email: string | null;
   phone_carrier: string | null;
@@ -62,30 +42,11 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // Get user data using our new security definer function
+        // Use our new security definer function to get user data
         const { data: userData, error: userError } = await supabase
-          .from('buybidhq_users')
-          .select(`
-            id,
-            email,
-            role,
-            full_name,
-            mobile_number,
-            address,
-            city,
-            state,
-            zip_code,
-            dealership_id,
-            dealer:dealerships!buybidhq_users_dealership_id_fkey (
-              dealer_name,
-              dealer_id,
-              business_phone,
-              business_email
-            ),
-            phone_carrier
-          `)
-          .eq('id', session.user.id)
-          .single();
+          .rpc('get_user_with_dealership', {
+            user_id: session.user.id
+          });
 
         if (userError) {
           console.error('Error fetching user data:', userError);
@@ -109,7 +70,7 @@ export const useCurrentUser = () => {
 
         console.log('Is superadmin:', isSuperAdmin);
 
-        // Format the response to match our User type
+        // Format the response
         const formattedUser: UserData = {
           id: userData.id,
           email: userData.email,
@@ -121,10 +82,9 @@ export const useCurrentUser = () => {
           state: userData.state,
           zip_code: userData.zip_code,
           dealership_id: userData.dealership_id,
-          dealer_name: userData.dealer?.dealer_name || null,
-          dealer_id: userData.dealer?.dealer_id || null,
-          business_phone: userData.dealer?.business_phone || null,
-          business_email: userData.dealer?.business_email || null,
+          dealer_name: userData.dealer_name,
+          business_phone: userData.business_phone,
+          business_email: userData.business_email,
           phone_carrier: userData.phone_carrier
         };
 
