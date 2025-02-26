@@ -1,11 +1,15 @@
+
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
+import { PlanType } from "@/hooks/signup/types";
+
 interface PlanSelectionFormProps {
-  onSelect: (plan: 'beta-access' | 'individual' | 'pay-per-bid') => void;
+  onSelect: (plan: PlanType) => void;
   onBack: () => void;
 }
+
 const PlanSelectionForm = ({
   onSelect,
   onBack
@@ -103,4 +107,5 @@ const PlanSelectionForm = ({
       </div>
     </div>;
 };
+
 export default PlanSelectionForm;

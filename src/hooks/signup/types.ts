@@ -1,4 +1,7 @@
 
+export type SignUpStep = 'plan' | 'personal' | 'dealership';
+export type PlanType = 'beta-access' | 'individual' | 'pay-per-bid';
+
 export interface SignUpFormData {
   fullName: string;
   email: string;
@@ -13,8 +16,12 @@ export interface SignUpFormData {
   city: string;
   state: string;
   zipCode: string;
-  planType: 'beta-access' | 'individual' | 'pay-per-bid' | undefined;
+  planType?: PlanType;
   smsConsent: boolean;
 }
 
-export type SignUpStep = 'plan' | 'personal' | 'dealership';
+export interface SignUpState {
+  formData: SignUpFormData;
+  currentStep: SignUpStep;
+  isSubmitting: boolean;
+}

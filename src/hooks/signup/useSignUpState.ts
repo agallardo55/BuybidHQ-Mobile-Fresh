@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { SignUpFormData, SignUpStep } from "./types";
+import { SignUpFormData, SignUpStep, PlanType } from "./types";
 import { usePhoneFormat } from "./usePhoneFormat";
 
 export const useSignUpState = () => {
@@ -61,7 +61,7 @@ export const useSignUpState = () => {
     }));
   };
 
-  const handlePlanSelect = (planType: 'beta-access' | 'individual') => {
+  const handlePlanSelect = (planType: PlanType) => {
     setFormData((prev) => ({
       ...prev,
       planType,

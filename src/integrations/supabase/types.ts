@@ -248,6 +248,71 @@ export type Database = {
           },
         ]
       }
+      bid_usage: {
+        Row: {
+          amount: number | null
+          bid_request_id: string | null
+          billed_at: string | null
+          billing_status: string | null
+          created_at: string | null
+          id: string
+          stripe_invoice_item_id: string | null
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          bid_request_id?: string | null
+          billed_at?: string | null
+          billing_status?: string | null
+          created_at?: string | null
+          id?: string
+          stripe_invoice_item_id?: string | null
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          bid_request_id?: string | null
+          billed_at?: string | null
+          billing_status?: string | null
+          created_at?: string | null
+          id?: string
+          stripe_invoice_item_id?: string | null
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_usage_bid_request_id_fkey"
+            columns: ["bid_request_id"]
+            isOneToOne: false
+            referencedRelation: "bid_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_usage_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "buybidhq_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "buyers_user_roles_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookValues: {
         Row: {
           blackbook: string | null
@@ -1107,35 +1172,50 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          billing_cycle_anchor: string | null
           created_at: string
           current_period_end: string | null
           id: string
+          is_trial: boolean | null
+          last_billing_date: string | null
+          next_billing_date: string | null
           plan_type: string
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          trial_ends_at: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          billing_cycle_anchor?: string | null
           created_at?: string
           current_period_end?: string | null
           id?: string
+          is_trial?: boolean | null
+          last_billing_date?: string | null
+          next_billing_date?: string | null
           plan_type: string
           status: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          billing_cycle_anchor?: string | null
           created_at?: string
           current_period_end?: string | null
           id?: string
+          is_trial?: boolean | null
+          last_billing_date?: string | null
+          next_billing_date?: string | null
           plan_type?: string
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1817,6 +1897,7 @@ export type Database = {
         | "toll_free"
         | "unknown"
       phone_validation_status: "pending" | "valid" | "invalid"
+      subscription_plan_type: "beta-access" | "pay-per-bid" | "individual"
       user_role: "basic" | "individual" | "dealer" | "associate" | "admin"
       user_role_old: "admin" | "dealer" | "associate"
       waitlist_status: "pending" | "approved" | "rejected"
