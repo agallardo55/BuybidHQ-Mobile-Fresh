@@ -1,8 +1,8 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { SignUpFormData } from "./types";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface UseSignUpSubmissionProps {
   formData: SignUpFormData;
@@ -119,7 +119,7 @@ export const useSignUpSubmission = ({
           mobile_number: formData.mobileNumber,
           email: formData.email,
           role: formData.planType === 'individual' ? 'individual' : 'dealer',
-          dealership_id: dealershipId, // Only set for multi-user dealerships
+          dealership_id: dealershipId,
           address: formData.dealershipAddress,
           city: formData.city,
           state: formData.state,
@@ -134,14 +134,16 @@ export const useSignUpSubmission = ({
         throw userError;
       }
 
-      // Step 5: Create subscription record
+      // Step 5: Create subscription record with trial
       const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert([
           {
             user_id: authData.user.id,
             plan_type: formData.planType || 'beta-access',
-            status: formData.planType === 'individual' ? 'pending' : 'trialing'
+            status: formData.planType === 'individual' ? 'pending' : 'trialing',
+            is_trial: formData.planType !== 'individual',
+            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() // 14 days trial
           }
         ]);
 
@@ -152,8 +154,23 @@ export const useSignUpSubmission = ({
       toast.success("Account created successfully!");
       
       if (formData.planType === 'individual') {
-        navigate('/checkout');
+        // For individual plan, redirect to checkout
+        const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('stripe-checkout-session', {
+          body: {
+            currentPlan: formData.planType,
+            successUrl: `${window.location.origin}/account?success=true`,
+            cancelUrl: `${window.location.origin}/account?canceled=true`
+          }
+        });
+
+        if (checkoutError) {
+          throw checkoutError;
+        }
+
+        // Redirect to Stripe checkout
+        window.location.href = checkoutData.url;
       } else {
+        // For other plans, go to signin
         navigate('/signin');
       }
     } catch (error: any) {
