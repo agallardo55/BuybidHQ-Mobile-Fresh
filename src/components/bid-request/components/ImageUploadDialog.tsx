@@ -1,8 +1,15 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Upload } from "lucide-react";
+import { ImagePlus, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 // Maximum file size in bytes (50MB)
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
@@ -14,23 +21,6 @@ const formatFileSize = (bytes: number) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-
-// Helper function to smart truncate filename
-const smartTruncateFileName = (filename: string, maxLength: number = 25) => {
-  const lastDotIndex = filename.lastIndexOf('.');
-  if (lastDotIndex === -1) return filename; // No extension
-
-  const extension = filename.slice(lastDotIndex);
-  const baseName = filename.slice(0, lastDotIndex);
-  
-  if (baseName.length <= maxLength) return filename;
-  
-  const halfLength = Math.floor((maxLength - 3) / 2); // -3 for the ellipsis
-  const start = baseName.slice(0, halfLength);
-  const end = baseName.slice(-halfLength);
-  
-  return `${start}...${end}${extension}`;
 };
 
 interface ImageUploadDialogProps {
@@ -67,10 +57,52 @@ const ImageUploadDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-lg mx-auto">
+      <DialogContent className="w-[90vw] max-w-3xl mx-auto">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-semibold text-center">Upload Photos</DialogTitle>
         </DialogHeader>
+
+        {/* Selected Files Carousel */}
+        {selectedFiles.length > 0 && (
+          <div className="mb-6">
+            <Carousel 
+              className="relative w-full max-w-2xl mx-auto"
+              opts={{
+                align: "start",
+                loop: true
+              }}
+            >
+              <CarouselContent>
+                {selectedFiles.map((file, index) => (
+                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    <div className="p-1">
+                      <div className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <p className="text-white text-sm font-medium">
+                            {file.name}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" />
+            </Carousel>
+
+            <p className="text-sm text-gray-500 mt-2 text-center">
+              {selectedFiles.length} {selectedFiles.length === 1 ? 'photo' : 'photos'} selected
+            </p>
+          </div>
+        )}
+
+        {/* Upload Area */}
         <div className="space-y-4">
           <div className="flex flex-col items-center justify-center gap-4">
             <label 
@@ -95,28 +127,6 @@ const ImageUploadDialog = ({
                 onChange={handleFileSelect}
               />
             </label>
-            
-            {selectedFiles.length > 0 && (
-              <div className="w-full">
-                <p className="text-sm sm:text-base font-medium mb-2">Selected files:</p>
-                <div className="max-h-32 overflow-y-auto space-y-1 px-2">
-                  {selectedFiles.map((file, index) => (
-                    <div 
-                      key={index} 
-                      className="text-xs sm:text-sm text-gray-600 flex items-center justify-between p-2 bg-gray-50 rounded-md"
-                    >
-                      <div className="flex items-center gap-2 min-w-0 flex-1 pr-2">
-                        <ImagePlus className="h-4 w-4 flex-shrink-0" />
-                        <span className="block min-w-0" title={file.name}>
-                          {smartTruncateFileName(file.name)}
-                        </span>
-                      </div>
-                      <span className="text-xs text-gray-400 flex-shrink-0">{formatFileSize(file.size)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
             
             <Button 
               onClick={onUpload} 
