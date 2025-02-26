@@ -373,6 +373,7 @@ export type Database = {
           phone_validation_date: string | null
           profile_photo: string | null
           role: Database["public"]["Enums"]["user_role"]
+          sms_consent: boolean | null
           state: string | null
           status: string | null
           updated_at: string | null
@@ -400,6 +401,7 @@ export type Database = {
           phone_validation_date?: string | null
           profile_photo?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          sms_consent?: boolean | null
           state?: string | null
           status?: string | null
           updated_at?: string | null
@@ -427,6 +429,7 @@ export type Database = {
           phone_validation_date?: string | null
           profile_photo?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          sms_consent?: boolean | null
           state?: string | null
           status?: string | null
           updated_at?: string | null
