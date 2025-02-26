@@ -51,7 +51,8 @@ export const useSignUpSubmission = ({
 
       let dealershipId: string | undefined;
 
-      if (formData.planType === 'individual') {
+      // Both individual and pay-per-bid plans use individual_dealers table
+      if (formData.planType === 'individual' || formData.planType === 'pay-per-bid') {
         const { data: individualDealerData, error: individualDealerError } = await supabase
           .from('individual_dealers')
           .insert([
@@ -74,7 +75,7 @@ export const useSignUpSubmission = ({
           throw individualDealerError;
         }
       } else {
-        // Create or link to multi-user dealership
+        // Only multi-user dealerships use the dealerships table
         const { data: dealershipData, error: dealershipError } = await supabase
           .from('dealerships')
           .insert([
@@ -105,21 +106,21 @@ export const useSignUpSubmission = ({
         dealershipId = dealershipData.id;
       }
 
-      // Step 4: Update the user record
+      // Step 4: Update the user record - both individual and pay-per-bid get 'individual' role
       const { error: userError } = await supabase
         .from('buybidhq_users')
         .update({
           full_name: formData.fullName,
           mobile_number: formData.mobileNumber,
           email: formData.email,
-          role: formData.planType === 'individual' ? 'individual' : 'dealer',
+          role: formData.planType === 'beta-access' ? 'basic' : 'individual',
           dealership_id: dealershipId,
           address: formData.dealershipAddress,
           city: formData.city,
           state: formData.state,
           zip_code: formData.zipCode,
           is_active: true,
-          status: formData.planType === 'individual' ? 'pending_payment' : 'active',
+          status: ['individual', 'pay-per-bid'].includes(formData.planType) ? 'pending_payment' : 'active',
           sms_consent: formData.smsConsent,
           ...(formData.carrier ? { phone_carrier: formData.carrier } : {})
         })
@@ -129,15 +130,15 @@ export const useSignUpSubmission = ({
         throw userError;
       }
 
-      // Step 5: Create subscription record
+      // Step 5: Create subscription record with appropriate payment type
       const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert([
           {
             user_id: authData.user.id,
             plan_type: formData.planType || 'beta-access',
-            status: formData.planType === 'individual' ? 'pending' : 'trialing',
-            is_trial: formData.planType !== 'individual',
+            status: ['individual', 'pay-per-bid'].includes(formData.planType) ? 'pending' : 'trialing',
+            is_trial: !['individual', 'pay-per-bid'].includes(formData.planType),
             trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days trial
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -150,8 +151,8 @@ export const useSignUpSubmission = ({
 
       toast.success("Account created successfully!");
       
-      if (formData.planType === 'individual') {
-        // For individual plan, redirect to checkout
+      if (['individual', 'pay-per-bid'].includes(formData.planType)) {
+        // Both individual and pay-per-bid plans go through Stripe checkout
         const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('stripe-checkout-session', {
           body: {
             currentPlan: formData.planType,
@@ -176,7 +177,7 @@ export const useSignUpSubmission = ({
         // Redirect to Stripe checkout
         window.location.href = checkoutData.url;
       } else {
-        // For other plans, go to signin
+        // For beta-access plans, go to signin
         toast.success("Welcome to BuybidHQ! You can now sign in to your account.");
         navigate('/signin');
       }
