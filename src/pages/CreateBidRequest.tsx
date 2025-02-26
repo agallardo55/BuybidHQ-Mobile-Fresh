@@ -25,7 +25,9 @@ const CreateBidRequest = () => {
     setErrors,
     handleBatchChanges,
     uploadedImageUrls,
-    selectedFileUrls
+    selectedFileUrls,
+    setUploadedImageUrls, // Add this to destructure it
+    removeUploadedImage // Add this to destructure it
   } = useCreateBidRequest();
 
   const [showValidation, setShowValidation] = useState(false);
@@ -47,6 +49,17 @@ const CreateBidRequest = () => {
       return;
     }
     handleSubmit(currentUser.id);
+  };
+
+  // Add handler for image deletion
+  const handleDeleteImage = async (url: string, isUploaded: boolean) => {
+    if (isUploaded) {
+      const success = await removeUploadedImage(url);
+      if (success) {
+        // Update the state directly after successful deletion
+        setUploadedImageUrls(prev => prev.filter(imageUrl => imageUrl !== url));
+      }
+    }
   };
 
   return (
@@ -75,6 +88,7 @@ const CreateBidRequest = () => {
               onBatchChange={handleBatchChanges}
               uploadedImageUrls={uploadedImageUrls}
               selectedFileUrls={selectedFileUrls}
+              onDeleteImage={handleDeleteImage} // Add this prop
             />
             <div className="mt-6 pt-4 border-t border-gray-200 bg-white">
             </div>
