@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { BidRequestFormData, FormErrors } from "./types";
 import BasicVehicleInfo from "./BasicVehicleInfo";
@@ -36,6 +35,7 @@ interface MultiStepFormProps {
   setErrors: (errors: FormErrors) => void;
   uploadedImageUrls?: string[];
   selectedFileUrls?: string[];
+  onDeleteImage?: (url: string, isUploaded: boolean) => Promise<void>;
 }
 
 const MultiStepForm = ({
