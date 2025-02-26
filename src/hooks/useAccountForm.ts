@@ -53,7 +53,7 @@ export const useAccountForm = () => {
         phoneCarrier: currentUser.phone_carrier as CarrierType || undefined,
         businessNumber: currentUser.business_phone || "",
         dealershipName: currentUser.dealer_name || "",
-        licenseNumber: currentUser.dealer_id || "",
+        licenseNumber: "",  // No longer using dealer_id
         dealershipAddress: currentUser.address || "",
         city: currentUser.city || "",
         state: currentUser.state || "",

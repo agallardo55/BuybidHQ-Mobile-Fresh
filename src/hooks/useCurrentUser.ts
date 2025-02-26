@@ -43,7 +43,7 @@ export const useCurrentUser = () => {
         }
 
         // Use our new security definer function to get user data
-        const { data: userData, error: userError } = await supabase
+        const { data: userDataArray, error: userError } = await supabase
           .rpc('get_user_with_dealership', {
             user_id: session.user.id
           });
@@ -54,11 +54,14 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        if (!userData) {
+        if (!userDataArray || userDataArray.length === 0) {
           console.log('No user data found for ID:', session.user.id);
           toast.error("User profile not found. Please try signing out and back in.");
           return null;
         }
+
+        // Get the first (and only) user record
+        const userData = userDataArray[0];
 
         // Check if user is a superadmin
         const { data: isSuperAdmin, error: superAdminError } = await supabase
