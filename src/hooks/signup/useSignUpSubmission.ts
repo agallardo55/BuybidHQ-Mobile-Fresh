@@ -26,6 +26,11 @@ export const useSignUpSubmission = ({
     }
 
     try {
+      // Validate required fields based on plan type
+      if (formData.planType === 'individual' && !formData.licenseNumber) {
+        throw new Error('License number is required for individual dealers');
+      }
+
       // Step 1: Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -33,6 +38,7 @@ export const useSignUpSubmission = ({
         options: {
           data: {
             full_name: formData.fullName,
+            plan_type: formData.planType,
           },
         },
       });
@@ -51,7 +57,17 @@ export const useSignUpSubmission = ({
       let dealershipId: string | undefined;
 
       if (formData.planType === 'individual') {
-        // Create individual dealer record
+        // Create individual dealer record with additional validation
+        const { data: existingLicense } = await supabase
+          .from('individual_dealers')
+          .select('id')
+          .eq('license_number', formData.licenseNumber)
+          .single();
+
+        if (existingLicense) {
+          throw new Error('This license number is already registered. Please contact support if you believe this is an error.');
+        }
+
         const { data: individualDealerData, error: individualDealerError } = await supabase
           .from('individual_dealers')
           .insert([
@@ -71,14 +87,10 @@ export const useSignUpSubmission = ({
           .single();
 
         if (individualDealerError) {
-          // Handle unique constraint violation for license number
-          if (individualDealerError.code === '23505' && individualDealerError.message.includes('license_number')) {
-            throw new Error('This License Number is already registered. Please use a different License Number or contact support.');
-          }
           throw individualDealerError;
         }
       } else {
-        // Create or link to multi-user dealership
+        // Create or link to multi-user dealership with enhanced validation
         const { data: dealershipData, error: dealershipError } = await supabase
           .from('dealerships')
           .insert([
@@ -95,23 +107,21 @@ export const useSignUpSubmission = ({
               primary_dealer_name: formData.fullName,
               primary_dealer_email: formData.email,
               primary_dealer_phone: formData.mobileNumber,
-              dealer_type: 'multi_user'
+              dealer_type: 'multi_user',
+              is_active: true,
             }
           ])
           .select()
           .single();
 
         if (dealershipError) {
-          if (dealershipError.code === '23505' && dealershipError.message.includes('dealer_id')) {
-            throw new Error('This Dealer ID is already registered. Please use a different Dealer ID or contact support.');
-          }
           throw dealershipError;
         }
 
         dealershipId = dealershipData.id;
       }
 
-      // Step 4: Update the user record
+      // Step 4: Update the user record with enhanced status tracking
       const { error: userError } = await supabase
         .from('buybidhq_users')
         .update({
@@ -125,8 +135,9 @@ export const useSignUpSubmission = ({
           state: formData.state,
           zip_code: formData.zipCode,
           is_active: true,
-          status: 'active',
-          sms_consent: formData.smsConsent
+          status: formData.planType === 'individual' ? 'pending_payment' : 'active',
+          sms_consent: formData.smsConsent,
+          phone_carrier: formData.carrier
         })
         .eq('id', authData.user.id);
 
@@ -134,7 +145,7 @@ export const useSignUpSubmission = ({
         throw userError;
       }
 
-      // Step 5: Create subscription record with trial
+      // Step 5: Create subscription record with trial and additional metadata
       const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert([
@@ -143,7 +154,9 @@ export const useSignUpSubmission = ({
             plan_type: formData.planType || 'beta-access',
             status: formData.planType === 'individual' ? 'pending' : 'trialing',
             is_trial: formData.planType !== 'individual',
-            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() // 14 days trial
+            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days trial
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }
         ]);
 
@@ -154,23 +167,33 @@ export const useSignUpSubmission = ({
       toast.success("Account created successfully!");
       
       if (formData.planType === 'individual') {
-        // For individual plan, redirect to checkout
+        // For individual plan, redirect to checkout with enhanced error handling
         const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('stripe-checkout-session', {
           body: {
             currentPlan: formData.planType,
             successUrl: `${window.location.origin}/account?success=true`,
-            cancelUrl: `${window.location.origin}/account?canceled=true`
+            cancelUrl: `${window.location.origin}/account?canceled=true`,
+            customer: {
+              email: formData.email,
+              name: formData.fullName
+            }
           }
         });
 
         if (checkoutError) {
-          throw checkoutError;
+          console.error('Checkout error:', checkoutError);
+          throw new Error('Failed to initiate checkout. Please try again or contact support.');
+        }
+
+        if (!checkoutData?.url) {
+          throw new Error('No checkout URL returned');
         }
 
         // Redirect to Stripe checkout
         window.location.href = checkoutData.url;
       } else {
-        // For other plans, go to signin
+        // For other plans, go to signin with success message
+        toast.success("Welcome to BuybidHQ! You can now sign in to your account.");
         navigate('/signin');
       }
     } catch (error: any) {
