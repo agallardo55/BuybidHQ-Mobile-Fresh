@@ -5,11 +5,14 @@ import MultiStepForm from "@/components/bid-request/MultiStepForm";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { BidRequestFormData } from "@/components/bid-request/types";
 
 const CreateBidRequest = () => {
   const { currentUser } = useCurrentUser();
   const { buyers } = useBuyers();
+  const location = useLocation();
   const {
     formData,
     errors,
@@ -27,10 +30,23 @@ const CreateBidRequest = () => {
     uploadedImageUrls,
     selectedFileUrls,
     setUploadedImageUrls,
-    removeUploadedImage
+    removeUploadedImage,
+    setFormData
   } = useCreateBidRequest();
 
   const [showValidation, setShowValidation] = useState(false);
+
+  useEffect(() => {
+    // Check if we have quick post data from the dialog
+    const quickPostData = location.state?.quickPostData;
+    if (quickPostData) {
+      // Update form data with quick post data
+      setFormData({
+        ...formData,
+        ...quickPostData
+      });
+    }
+  }, [location.state]);
 
   const mappedBuyers = buyers?.map(buyer => ({
     id: buyer.id,
