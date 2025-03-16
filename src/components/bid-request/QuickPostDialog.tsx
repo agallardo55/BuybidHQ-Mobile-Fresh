@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import FormField from "./components/FormField";
+import { useVinDecoder } from "./vin-scanner/useVinDecoder";
 
 interface QuickPostDialogProps {
   isOpen: boolean;
@@ -30,6 +31,19 @@ const QuickPostDialog = ({ isOpen, onOpenChange }: QuickPostDialogProps) => {
     reconDetails: ""
   });
 
+  const { decodeVin, isLoading } = useVinDecoder((vehicleData) => {
+    setFormData(prev => ({
+      ...prev,
+      year: vehicleData.year || "",
+      make: vehicleData.make || "",
+      model: vehicleData.model || "",
+      trim: vehicleData.trim || "",
+      engineCylinders: vehicleData.engineCylinders || "",
+      transmission: vehicleData.transmission || "",
+      drivetrain: vehicleData.drivetrain || "",
+    }));
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -47,6 +61,15 @@ const QuickPostDialog = ({ isOpen, onOpenChange }: QuickPostDialogProps) => {
     // Navigate to create bid request page with form data as state
     navigate("/create-bid-request", { state: { quickPostData: formData } });
     onOpenChange(false);
+  };
+
+  const handleFetchVinDetails = () => {
+    if (!formData.vin || formData.vin.length !== 17) {
+      toast.error("Please enter a valid 17-character VIN");
+      return;
+    }
+
+    decodeVin(formData.vin);
   };
 
   return (
@@ -72,8 +95,13 @@ const QuickPostDialog = ({ isOpen, onOpenChange }: QuickPostDialogProps) => {
                     placeholder="Enter VIN"
                     maxLength={17}
                   />
-                  <Button type="button" className="bg-custom-blue hover:bg-custom-blue/90 px-6">
-                    Go
+                  <Button 
+                    type="button" 
+                    className="bg-custom-blue hover:bg-custom-blue/90 px-6"
+                    onClick={handleFetchVinDetails}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Loading..." : "Go"}
                   </Button>
                 </div>
               </div>
