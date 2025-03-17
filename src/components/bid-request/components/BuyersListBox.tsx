@@ -21,16 +21,21 @@ const BuyersListBox = ({
   selectedBuyers,
   onToggleBuyer
 }: BuyersListBoxProps) => {
+  // Sort buyers alphabetically by name
+  const sortedBuyers = [...buyers].sort((a, b) => 
+    a.name.localeCompare(b.name)
+  );
+
   return (
     <div className="border rounded-lg bg-white">
       <ScrollArea className="h-[200px] p-2">
-        {buyers.length === 0 ? (
+        {sortedBuyers.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 italic">
             No buyers available
           </div>
         ) : (
           <div className="space-y-2 px-1">
-            {buyers.map((buyer) => (
+            {sortedBuyers.map((buyer) => (
               <div
                 key={buyer.id}
                 className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-50"
