@@ -38,26 +38,25 @@ const BuyersListBox = ({
             {sortedBuyers.map((buyer) => (
               <div
                 key={buyer.id}
-                className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-50"
+                className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50"
               >
                 <Checkbox
                   id={`buyer-${buyer.id}`}
                   checked={selectedBuyers.includes(buyer.id)}
                   onCheckedChange={() => onToggleBuyer(buyer.id)}
-                  className="h-4 w-4"
+                  className="h-4 w-4 mt-1"
                 />
                 <label
                   htmlFor={`buyer-${buyer.id}`}
-                  className="flex-1 flex items-center justify-between text-sm cursor-pointer"
+                  className="flex-1 cursor-pointer"
                 >
-                  <div className="flex items-center gap-2">
-                    <UserRound className="h-4 w-4 text-gray-500" />
-                    <span>{buyer.name}</span>
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <UserRound className="h-4 w-4 text-gray-500" />
+                      <span className="font-medium text-sm">{buyer.name}</span>
+                    </div>
                     {buyer.dealership && (
-                      <>
-                        <span className="text-gray-500">-</span>
-                        <span className="text-gray-500">{buyer.dealership}</span>
-                      </>
+                      <span className="text-xs text-gray-500 ml-6">{buyer.dealership}</span>
                     )}
                   </div>
                 </label>
