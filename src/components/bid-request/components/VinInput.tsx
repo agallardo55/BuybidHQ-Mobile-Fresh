@@ -2,6 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Loader } from "lucide-react";
 
 interface VinInputProps {
   value: string;
@@ -31,7 +32,14 @@ const VinInput = ({ value, onChange, onFetchDetails, isLoading }: VinInputProps)
           onClick={onFetchDetails}
           disabled={isLoading}
         >
-          {isLoading ? "Loading..." : "Go"}
+          {isLoading ? (
+            <>
+              <Loader className="h-4 w-4 animate-spin mr-1" />
+              Loading
+            </>
+          ) : (
+            "Go"
+          )}
         </Button>
       </div>
     </div>
