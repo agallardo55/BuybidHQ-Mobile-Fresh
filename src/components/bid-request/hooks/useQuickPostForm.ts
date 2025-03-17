@@ -14,7 +14,6 @@ export interface QuickPostFormData {
   engineCylinders: string;
   transmission: string;
   drivetrain: string;
-  reconEstimate: string;
   reconDetails: string;
 }
 
@@ -30,7 +29,6 @@ export const useQuickPostForm = (onClose: () => void) => {
     engineCylinders: "",
     transmission: "",
     drivetrain: "",
-    reconEstimate: "",
     reconDetails: ""
   });
 

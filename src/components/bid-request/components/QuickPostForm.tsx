@@ -115,21 +115,6 @@ const QuickPostForm = ({
             required={false}
             placeholder="Enter drivetrain"
           />
-          
-          <div>
-            <Label htmlFor="reconEstimate" className="block text-sm font-medium text-gray-700 mb-1">
-              Recon Estimate
-            </Label>
-            <input
-              id="reconEstimate"
-              name="reconEstimate"
-              value={formData.reconEstimate}
-              onChange={onChange}
-              type="text"
-              placeholder="$0"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus:ring-1 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-            />
-          </div>
         </div>
       </div>
       
