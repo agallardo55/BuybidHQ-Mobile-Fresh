@@ -73,9 +73,7 @@ const QuickPostForm = ({
             required={false}
             placeholder="Enter model"
           />
-        </div>
-        
-        <div className="space-y-4">
+
           <FormField
             id="trim"
             label="Trim"
@@ -95,7 +93,9 @@ const QuickPostForm = ({
             required={false}
             placeholder="Enter engine type"
           />
-          
+        </div>
+        
+        <div className="space-y-4">
           <FormField
             id="transmission"
             label="Transmission"
@@ -115,21 +115,21 @@ const QuickPostForm = ({
             required={false}
             placeholder="Enter drivetrain"
           />
+
+          <div>
+            <Label htmlFor="reconDetails" className="block text-sm font-medium text-gray-700 mb-1">
+              Comments
+            </Label>
+            <Textarea
+              id="reconDetails"
+              name="reconDetails"
+              value={formData.reconDetails}
+              onChange={onChange}
+              placeholder="Enter additional comments or reconditioning details"
+              className="min-h-[100px]"
+            />
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <Label htmlFor="reconDetails" className="block text-sm font-medium text-gray-700 mb-1">
-          Comments
-        </Label>
-        <Textarea
-          id="reconDetails"
-          name="reconDetails"
-          value={formData.reconDetails}
-          onChange={onChange}
-          placeholder="Enter additional comments or reconditioning details"
-          className="min-h-[100px]"
-        />
       </div>
       
       <div className="flex justify-end gap-2 pt-4">
