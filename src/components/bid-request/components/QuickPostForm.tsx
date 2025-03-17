@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import FormField from "./FormField";
 import VinInput from "./VinInput";
 import { QuickPostFormData } from "../hooks/useQuickPostForm";
+import BuyersListBox from "./BuyersListBox";
+import { useBuyers } from "@/hooks/useBuyers";
+import { useState } from "react";
 
 interface QuickPostFormProps {
   formData: QuickPostFormData;
@@ -23,6 +26,19 @@ const QuickPostForm = ({
   onFetchVinDetails,
   onCancel
 }: QuickPostFormProps) => {
+  const { buyers } = useBuyers();
+  const [selectedBuyers, setSelectedBuyers] = useState<string[]>([]);
+  
+  const handleBuyerToggle = (buyerId: string) => {
+    setSelectedBuyers(prev => {
+      if (prev.includes(buyerId)) {
+        return prev.filter(id => id !== buyerId);
+      } else {
+        return [...prev, buyerId];
+      }
+    });
+  };
+  
   return (
     <form onSubmit={onSubmit} className="space-y-4 mt-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -127,6 +143,22 @@ const QuickPostForm = ({
               onChange={onChange}
               placeholder="Enter additional comments or reconditioning details"
               className="min-h-[100px]"
+            />
+          </div>
+          
+          <div className="mt-4">
+            <Label className="block text-sm font-medium text-gray-700 mb-1">
+              Buyers
+            </Label>
+            <BuyersListBox 
+              buyers={buyers?.map(buyer => ({
+                id: buyer.id,
+                name: buyer.name,
+                dealership: buyer.dealership,
+                mobile: buyer.mobileNumber
+              })) || []}
+              selectedBuyers={selectedBuyers}
+              onToggleBuyer={handleBuyerToggle}
             />
           </div>
         </div>
