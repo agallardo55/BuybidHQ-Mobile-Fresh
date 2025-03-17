@@ -2,6 +2,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserRound } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface Buyer {
   id: string;
@@ -34,32 +35,38 @@ const BuyersListBox = ({
             No buyers available
           </div>
         ) : (
-          <div className="space-y-2 px-1">
-            {sortedBuyers.map((buyer) => (
-              <div
-                key={buyer.id}
-                className="flex items-start space-x-2 p-2 rounded hover:bg-gray-50"
-              >
-                <Checkbox
-                  id={`buyer-${buyer.id}`}
-                  checked={selectedBuyers.includes(buyer.id)}
-                  onCheckedChange={() => onToggleBuyer(buyer.id)}
-                  className="h-4 w-4 mt-1"
-                />
-                <label
-                  htmlFor={`buyer-${buyer.id}`}
-                  className="flex-1 cursor-pointer"
+          <div className="space-y-1 px-1">
+            {sortedBuyers.map((buyer, index) => (
+              <div key={buyer.id}>
+                <div
+                  className={`flex items-start space-x-2 p-2 rounded ${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  } hover:bg-gray-100`}
                 >
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-2">
-                      <UserRound className="h-4 w-4 text-gray-500" />
-                      <span className="font-medium text-sm">{buyer.name}</span>
+                  <Checkbox
+                    id={`buyer-${buyer.id}`}
+                    checked={selectedBuyers.includes(buyer.id)}
+                    onCheckedChange={() => onToggleBuyer(buyer.id)}
+                    className="h-4 w-4 mt-1"
+                  />
+                  <label
+                    htmlFor={`buyer-${buyer.id}`}
+                    className="flex-1 cursor-pointer"
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <UserRound className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium text-sm">{buyer.name}</span>
+                      </div>
+                      {buyer.dealership && (
+                        <span className="text-xs text-gray-500 ml-6">{buyer.dealership}</span>
+                      )}
                     </div>
-                    {buyer.dealership && (
-                      <span className="text-xs text-gray-500 ml-6">{buyer.dealership}</span>
-                    )}
-                  </div>
-                </label>
+                  </label>
+                </div>
+                {index < sortedBuyers.length - 1 && (
+                  <Separator className="my-1" />
+                )}
               </div>
             ))}
           </div>
