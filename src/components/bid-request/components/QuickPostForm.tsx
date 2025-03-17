@@ -67,9 +67,7 @@ const QuickPostForm = ({
           </div>
           
           <div className="mt-4">
-            <Label className="block text-sm font-medium text-gray-700 mb-1">
-              Buyers
-            </Label>
+            <Label className="block text-sm font-medium text-gray-700 mb-1">Select Buyers</Label>
             <BuyersListBox buyers={buyers?.map(buyer => ({
             id: buyer.id,
             name: buyer.name,
