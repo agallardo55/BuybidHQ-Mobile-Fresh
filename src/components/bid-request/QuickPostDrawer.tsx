@@ -23,6 +23,8 @@ import {
 import { mockBuyers } from "./mockData";
 import VinInput from "./components/VinInput";
 import { TrimOption } from "./types";
+import { useVinDecoder } from "./vin-scanner/useVinDecoder";
+import { toast } from "sonner";
 
 interface QuickPostDrawerProps {
   isOpen: boolean;
@@ -30,8 +32,13 @@ interface QuickPostDrawerProps {
 }
 
 const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  // Form state
   const [vin, setVin] = useState("");
+  const [year, setYear] = useState("");
+  const [make, setMake] = useState("");
+  const [model, setModel] = useState("");
+  const [mileage, setMileage] = useState("");
+  const [notes, setNotes] = useState("");
   const [selectedBuyer, setSelectedBuyer] = useState("");
   const [selectedTrim, setSelectedTrim] = useState("");
   const [availableTrims, setAvailableTrims] = useState<TrimOption[]>([
@@ -40,24 +47,55 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
     { name: "Limited", description: "Limited Edition", specs: { engine: "6 Cylinder Turbo", transmission: "Automatic", drivetrain: "AWD" } },
   ]);
 
+  // Use the VIN decoder hook
+  const { isLoading, decodeVin } = useVinDecoder((vehicleData) => {
+    console.log("VIN decoder returned vehicle data:", vehicleData);
+    
+    // Update form state with the retrieved vehicle data
+    setYear(vehicleData.year || "");
+    setMake(vehicleData.make || "");
+    setModel(vehicleData.model || "");
+    
+    // Handle trims
+    if (vehicleData.availableTrims && vehicleData.availableTrims.length > 0) {
+      setAvailableTrims(vehicleData.availableTrims);
+      setSelectedTrim(vehicleData.trim || vehicleData.availableTrims[0]?.name || "");
+    }
+    
+    toast.success("Vehicle information retrieved successfully");
+  });
+
   const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setVin(e.target.value);
   };
 
   const handleFetchVin = () => {
-    if (!vin) return;
+    if (!vin) {
+      toast.error("Please enter a VIN");
+      return;
+    }
     
-    setIsLoading(true);
-    // Simulate fetching VIN details
-    setTimeout(() => {
-      setIsLoading(false);
-      // Here you would normally populate form with VIN data
-    }, 1000);
+    if (vin.length !== 17) {
+      toast.error("Please enter a valid 17-character VIN");
+      return;
+    }
+    
+    // Call the VIN decoder
+    decodeVin(vin);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle quick post submission logic here
+    
+    // Validate required fields
+    if (!vin || !year || !make || !model || !selectedBuyer) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+    
+    // Process the bid request
+    toast.success("Bid request created successfully");
     onClose();
   };
 
@@ -87,17 +125,35 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
 
             <div className="space-y-1 w-full">
               <Label htmlFor="year" className="text-sm">Year</Label>
-              <Input id="year" placeholder="Year" className="h-8 w-full" />
+              <Input 
+                id="year" 
+                placeholder="Year" 
+                className="h-8 w-full" 
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+              />
             </div>
 
             <div className="space-y-1 w-full">
               <Label htmlFor="make" className="text-sm">Make</Label>
-              <Input id="make" placeholder="Make" className="h-8 w-full" />
+              <Input 
+                id="make" 
+                placeholder="Make" 
+                className="h-8 w-full" 
+                value={make}
+                onChange={(e) => setMake(e.target.value)}
+              />
             </div>
             
             <div className="space-y-1 w-full">
               <Label htmlFor="model" className="text-sm">Model</Label>
-              <Input id="model" placeholder="Model" className="h-8 w-full" />
+              <Input 
+                id="model" 
+                placeholder="Model" 
+                className="h-8 w-full"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+              />
             </div>
 
             <div className="space-y-1 w-full">
@@ -121,7 +177,13 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
 
             <div className="space-y-1 w-full">
               <Label htmlFor="mileage" className="text-sm">Mileage</Label>
-              <Input id="mileage" placeholder="Mileage" className="h-8 w-full" />
+              <Input 
+                id="mileage" 
+                placeholder="Mileage" 
+                className="h-8 w-full"
+                value={mileage}
+                onChange={(e) => setMileage(e.target.value)}
+              />
             </div>
 
             <div className="space-y-1 w-full">
@@ -131,6 +193,8 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
                 placeholder="Enter any additional details" 
                 rows={2} 
                 className="resize-none text-sm w-full"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
               />
             </div>
             
