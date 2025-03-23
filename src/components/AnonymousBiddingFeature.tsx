@@ -1,3 +1,4 @@
+
 import { Shield, Scale, Handshake, ArrowRight, Lock, CheckCircle2, UserCheck } from "lucide-react";
 const AnonymousBiddingFeature = () => {
   const features = [{
@@ -18,7 +19,7 @@ const AnonymousBiddingFeature = () => {
     title: "Submit Anonymous Bid",
     description: "Place your bid through our secure platform without revealing your identity"
   }, {
-    icon: <MessageCircle className="h-8 w-8 text-white bg-accent p-1 rounded-full" />,
+    icon: <Scale className="h-8 w-8 text-white bg-accent p-1 rounded-full" />,
     title: "Negotiate Securely",
     description: "Discuss details while maintaining your privacy throughout the process"
   }, {
