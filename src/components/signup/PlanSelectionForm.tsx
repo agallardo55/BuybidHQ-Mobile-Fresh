@@ -1,15 +1,12 @@
-
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 import { PlanType } from "@/hooks/signup/types";
-
 interface PlanSelectionFormProps {
   onSelect: (plan: PlanType) => void;
   onBack: () => void;
 }
-
 const PlanSelectionForm = ({
   onSelect,
   onBack
@@ -17,7 +14,7 @@ const PlanSelectionForm = ({
   return <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6 space-y-4 cursor-pointer hover:border-accent" onClick={() => onSelect('beta-access')}>
-          <h3 className="text-lg font-semibold">Beta Trial</h3>
+          <h3 className="text-lg font-semibold">Free Plan</h3>
           <div className="text-2xl font-bold">Free</div>
           <p className="text-sm text-gray-600">Free while in beta</p>
           <ul className="space-y-2">
@@ -66,5 +63,4 @@ const PlanSelectionForm = ({
       </div>
     </div>;
 };
-
 export default PlanSelectionForm;
