@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { mockBuyers } from "./mockData";
 import VinInput from "./components/VinInput";
+import { TrimOption } from "./types";
 
 interface QuickPostDrawerProps {
   isOpen: boolean;
@@ -32,6 +33,12 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [vin, setVin] = useState("");
   const [selectedBuyer, setSelectedBuyer] = useState("");
+  const [selectedTrim, setSelectedTrim] = useState("");
+  const [availableTrims, setAvailableTrims] = useState<TrimOption[]>([
+    { name: "Base", description: "Base Trim", specs: { engine: "4 Cylinder", transmission: "Automatic", drivetrain: "FWD" } },
+    { name: "Sport", description: "Sport Trim", specs: { engine: "6 Cylinder", transmission: "Manual", drivetrain: "AWD" } },
+    { name: "Limited", description: "Limited Edition", specs: { engine: "6 Cylinder Turbo", transmission: "Automatic", drivetrain: "AWD" } },
+  ]);
 
   const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setVin(e.target.value);
@@ -91,6 +98,25 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
             <div className="space-y-1 w-full">
               <Label htmlFor="model" className="text-sm">Model</Label>
               <Input id="model" placeholder="Model" className="h-8 w-full" />
+            </div>
+
+            <div className="space-y-1 w-full">
+              <Label htmlFor="trim" className="text-sm">Trim</Label>
+              <Select value={selectedTrim} onValueChange={setSelectedTrim}>
+                <SelectTrigger className="w-full h-8">
+                  <SelectValue placeholder="Select a trim" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTrims.map((trim) => (
+                    <SelectItem key={trim.name} value={trim.name}>
+                      <div className="flex items-center gap-1">
+                        <span>{trim.name}</span>
+                        <span className="text-xs text-muted-foreground"> - {trim.description}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1 w-full">
