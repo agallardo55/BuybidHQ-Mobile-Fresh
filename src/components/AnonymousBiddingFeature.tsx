@@ -1,11 +1,11 @@
-import { Shield, MessageCircle, Handshake, ArrowRight, Lock, CheckCircle2, UserCheck } from "lucide-react";
+import { Shield, Scale, Handshake, ArrowRight, Lock, CheckCircle2, UserCheck } from "lucide-react";
 const AnonymousBiddingFeature = () => {
   const features = [{
     icon: <UserCheck className="h-12 w-12 text-accent" />,
     title: "Verified Buyer Network",
     description: "Receive competitive offers from pre-screened, trusted dealers in our verified buyer network."
   }, {
-    icon: <MessageCircle className="h-12 w-12 text-accent" />,
+    icon: <Scale className="h-12 w-12 text-accent" />,
     title: "No Negotiation Needed",
     description: "Skip the back-and-forth - simply submit your bid request and wait for the right offer."
   }, {
