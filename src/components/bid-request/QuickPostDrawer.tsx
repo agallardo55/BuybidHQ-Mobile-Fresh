@@ -10,7 +10,7 @@ import {
   SheetFooter
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
-import { mockBuyers } from "./mockData";
+import { useBuyers } from "@/hooks/useBuyers";
 import VinInput from "./components/VinInput";
 import BasicVehicleFields from "./components/BasicVehicleFields";
 import TrimSelector from "./components/TrimSelector";
@@ -40,6 +40,17 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
     { name: "Sport", description: "Sport Trim", specs: { engine: "6 Cylinder", transmission: "Manual", drivetrain: "AWD" } },
     { name: "Limited", description: "Limited Edition", specs: { engine: "6 Cylinder Turbo", transmission: "Automatic", drivetrain: "AWD" } },
   ]);
+
+  // Use the buyers hook to get real buyers
+  const { buyers = [] } = useBuyers();
+
+  // Map buyers to the format expected by BuyerSelector
+  const mappedBuyers = buyers.map(buyer => ({
+    id: buyer.id,
+    name: buyer.name,
+    dealership: buyer.dealership,
+    mobile: buyer.mobileNumber
+  }));
 
   // Use the VIN decoder hook
   const { isLoading, decodeVin } = useVinDecoder((vehicleData) => {
@@ -138,7 +149,7 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
             
             <BuyerSelector
               selectedBuyer={selectedBuyer}
-              buyers={mockBuyers}
+              buyers={mappedBuyers}
               onBuyerChange={setSelectedBuyer}
             />
           </div>
