@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader } from "lucide-react";
 import { 
   Sheet, 
   SheetContent, 
@@ -19,6 +20,24 @@ interface QuickPostDrawerProps {
 }
 
 const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [vin, setVin] = useState("");
+
+  const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVin(e.target.value);
+  };
+
+  const handleFetchVin = () => {
+    if (!vin) return;
+    
+    setIsLoading(true);
+    // Simulate fetching VIN details
+    setTimeout(() => {
+      setIsLoading(false);
+      // Here you would normally populate form with VIN data
+    }, 1000);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle quick post submission logic here
@@ -38,8 +57,31 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="vin">VIN</Label>
-              <Input id="vin" placeholder="Enter vehicle VIN" />
+              <Label htmlFor="quick-vin">VIN</Label>
+              <div className="flex relative">
+                <Input 
+                  id="quick-vin" 
+                  value={vin}
+                  onChange={handleVinChange}
+                  placeholder="Enter vehicle VIN" 
+                  className="rounded-r-none pr-2"
+                />
+                <Button 
+                  type="button" 
+                  onClick={handleFetchVin}
+                  disabled={isLoading}
+                  className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader className="h-4 w-4 animate-spin mr-1" />
+                      Loading
+                    </>
+                  ) : (
+                    "Go"
+                  )}
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-2">

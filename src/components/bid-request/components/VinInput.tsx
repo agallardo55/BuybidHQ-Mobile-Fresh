@@ -17,7 +17,7 @@ const VinInput = ({ value, onChange, onFetchDetails, isLoading }: VinInputProps)
       <Label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
         VIN <span className="text-red-500">*</span>
       </Label>
-      <div className="flex gap-2">
+      <div className="flex relative">
         <Input
           id="vin"
           name="vin"
@@ -25,10 +25,11 @@ const VinInput = ({ value, onChange, onFetchDetails, isLoading }: VinInputProps)
           onChange={onChange}
           placeholder="Enter VIN"
           maxLength={17}
+          className="rounded-r-none pr-2"
         />
         <Button 
           type="button" 
-          className="bg-custom-blue hover:bg-custom-blue/90 px-6"
+          className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0"
           onClick={onFetchDetails}
           disabled={isLoading}
         >
