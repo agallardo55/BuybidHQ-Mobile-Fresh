@@ -17,6 +17,16 @@ interface TrimSelectorProps {
 }
 
 const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelectorProps) => {
+  // Function to get the formatted specs for display
+  const getSpecsDisplay = (trim: TrimOption): string => {
+    if (!trim.specs) return "";
+    return `${trim.specs.engine || ""}${trim.specs.transmission ? `, ${trim.specs.transmission}` : ''}${trim.specs.drivetrain ? `, ${trim.specs.drivetrain}` : ''}`;
+  };
+
+  // Find the selected trim to show its specs
+  const selectedTrimObject = availableTrims.find(trim => trim.name === selectedTrim);
+  const selectedSpecsDisplay = selectedTrimObject ? getSpecsDisplay(selectedTrimObject) : "";
+
   return (
     <div className="space-y-1 w-full">
       <Label htmlFor="trim" className="text-sm">Trim</Label>
@@ -30,16 +40,18 @@ const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelect
               <div className="flex flex-col gap-1 w-full">
                 <span className="font-medium group-data-[highlighted]:text-white">{trim.name}</span>
                 <span className="text-xs text-muted-foreground max-w-full group-data-[highlighted]:text-white/90">{trim.description}</span>
-                {trim.specs && (
-                  <span className="text-xs text-muted-foreground max-w-full group-data-[highlighted]:text-white/90">
-                    {trim.specs.engine}{trim.specs.transmission ? `, ${trim.specs.transmission}` : ''}{trim.specs.drivetrain ? `, ${trim.specs.drivetrain}` : ''}
-                  </span>
-                )}
               </div>
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
+      
+      {/* Display specifications only when a trim is selected */}
+      {selectedTrim && selectedSpecsDisplay && (
+        <div className="text-xs text-muted-foreground mt-1">
+          {selectedSpecsDisplay}
+        </div>
+      )}
     </div>
   );
 };
