@@ -1,3 +1,4 @@
+
 import { Shield, Scale, Handshake, ArrowRight, Lock, CheckCircle2, UserCheck } from "lucide-react";
 const AnonymousBiddingFeature = () => {
   const features = [{
@@ -47,28 +48,6 @@ const AnonymousBiddingFeature = () => {
                 {feature.description}
               </p>
             </div>)}
-        </div>
-        
-        <div className="bg-gray-50 rounded-xl p-8 shadow-sm max-w-4xl mx-auto">
-          <h3 className="text-2xl font-semibold text-center text-primary mb-8">How Buybid Connect™ Works</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {steps.map((step, index) => <div key={index} className="flex flex-col items-center text-center relative">
-                <div className="mb-4">
-                  {step.icon}
-                </div>
-                <h4 className="text-lg font-semibold text-primary mb-2">{step.title}</h4>
-                <p className="text-sm text-gray-600">{step.description}</p>
-                
-                {index < steps.length - 1 && <ArrowRight className="hidden md:block absolute top-8 -right-3 text-gray-300 h-6 w-6" />}
-              </div>)}
-          </div>
-          
-          <div className="mt-8 text-center">
-            <div className="inline-block px-4 py-2 bg-accent/10 text-accent font-medium text-sm rounded-full">
-              Protect your identity while still connecting with the right dealers
-            </div>
-          </div>
         </div>
       </div>
     </section>;
