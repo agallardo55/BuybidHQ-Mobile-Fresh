@@ -1,6 +1,8 @@
 
 export const usePhoneFormat = () => {
   const formatPhoneNumber = (value: string) => {
+    if (!value) return '';
+    
     // Strip all non-digit characters
     const phoneNumber = value.replace(/\D/g, '');
     
@@ -17,7 +19,7 @@ export const usePhoneFormat = () => {
     if (phoneNumber.length > 0) {
       return `(${phoneNumber}`;
     }
-    return phoneNumber;
+    return '';
   };
 
   return { formatPhoneNumber };
