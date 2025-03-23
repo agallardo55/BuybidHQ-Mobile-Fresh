@@ -35,7 +35,8 @@ members</h3>
         </Card>
 
         <Card className="p-6 space-y-4 cursor-pointer hover:border-accent" onClick={() => onSelect('pay-per-bid')}>
-          <h3 className="text-lg font-semibold">Pay per Buybid</h3>
+          <h3 className="text-lg font-semibold">For buyers looking to expand
+their network</h3>
           <div className="text-2xl font-bold">$5<span className="text-sm font-normal">/buybid</span></div>
           <p className="text-sm text-gray-600">For occasional users</p>
           <ul className="space-y-2">
