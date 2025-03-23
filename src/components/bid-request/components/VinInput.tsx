@@ -13,11 +13,11 @@ interface VinInputProps {
 
 const VinInput = ({ value, onChange, onFetchDetails, isLoading }: VinInputProps) => {
   return (
-    <div>
+    <div className="w-full">
       <Label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
         VIN <span className="text-red-500">*</span>
       </Label>
-      <div className="flex relative">
+      <div className="flex w-full">
         <Input
           id="vin"
           name="vin"
@@ -25,7 +25,7 @@ const VinInput = ({ value, onChange, onFetchDetails, isLoading }: VinInputProps)
           onChange={onChange}
           placeholder="Enter VIN"
           maxLength={17}
-          className="rounded-r-none pr-2 h-9"
+          className="rounded-r-none h-9 flex-1"
         />
         <Button 
           type="button" 

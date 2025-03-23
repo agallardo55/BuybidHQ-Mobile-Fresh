@@ -68,23 +68,23 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-3">
-            <div className="space-y-1">
+            <div className="space-y-1 w-full">
               <Label htmlFor="quick-vin">VIN</Label>
-              <div className="flex relative w-full">
+              <div className="flex w-full">
                 <Input 
                   id="quick-vin" 
                   value={vin}
                   onChange={handleVinChange}
                   placeholder="Enter vehicle VIN" 
-                  className="rounded-r-none pr-2 w-full h-9"
+                  className="rounded-r-none w-full h-9"
                 />
                 <Button 
                   type="button" 
                   onClick={handleFetchVin}
                   disabled={isLoading}
-                  className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0 whitespace-nowrap h-9"
+                  className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0 h-9"
                   size="sm"
                 >
                   {isLoading ? (
@@ -99,7 +99,7 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1 w-full">
               <Label htmlFor="buyer-select">Select Buyer</Label>
               <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
                 <SelectTrigger className="w-full h-9">
@@ -119,46 +119,46 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
               </Select>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div className="space-y-1">
+            <div className="flex flex-wrap gap-2 w-full">
+              <div className="space-y-1 flex-1 min-w-[calc(50%-4px)]">
                 <Label htmlFor="year" className="text-sm">Year</Label>
-                <Input id="year" placeholder="Year" className="h-8" />
+                <Input id="year" placeholder="Year" className="h-8 w-full" />
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1 flex-1 min-w-[calc(50%-4px)]">
                 <Label htmlFor="make" className="text-sm">Make</Label>
-                <Input id="make" placeholder="Make" className="h-8" />
+                <Input id="make" placeholder="Make" className="h-8 w-full" />
               </div>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div className="space-y-1">
+            <div className="flex flex-wrap gap-2 w-full">
+              <div className="space-y-1 flex-1 min-w-[calc(50%-4px)]">
                 <Label htmlFor="model" className="text-sm">Model</Label>
-                <Input id="model" placeholder="Model" className="h-8" />
+                <Input id="model" placeholder="Model" className="h-8 w-full" />
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1 flex-1 min-w-[calc(50%-4px)]">
                 <Label htmlFor="mileage" className="text-sm">Mileage</Label>
-                <Input id="mileage" placeholder="Mileage" className="h-8" />
+                <Input id="mileage" placeholder="Mileage" className="h-8 w-full" />
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1 w-full">
               <Label htmlFor="notes" className="text-sm">Additional Notes</Label>
               <Textarea 
                 id="notes" 
                 placeholder="Enter any additional details" 
                 rows={2} 
-                className="resize-none text-sm"
+                className="resize-none text-sm w-full"
               />
             </div>
           </div>
 
-          <SheetFooter className="pt-3 flex flex-col sm:flex-row gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto h-8 text-sm">
+          <SheetFooter className="pt-2 flex flex-row gap-2 sm:justify-end">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1 sm:flex-initial h-8 text-sm">
               Cancel
             </Button>
-            <Button type="submit" className="w-full sm:w-auto bg-accent text-white hover:bg-accent/90 h-8 text-sm">
+            <Button type="submit" className="flex-1 sm:flex-initial bg-accent text-white hover:bg-accent/90 h-8 text-sm">
               Create Request
             </Button>
           </SheetFooter>
