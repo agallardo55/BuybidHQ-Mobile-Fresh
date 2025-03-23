@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -17,7 +16,7 @@ const PlanSelectionForm = ({
         <Card className="p-6 space-y-4 cursor-pointer hover:border-accent" onClick={() => onSelect('beta-access')}>
           <h3 className="text-lg font-semibold">Free Plan</h3>
           <div className="text-2xl font-bold">$0<span className="text-sm font-normal">/per user/per mo.</span></div>
-          <p className="text-sm text-gray-600">Free while in beta</p>
+          <p className="text-sm text-gray-600">Perfect for the individual dealer</p>
           <ul className="space-y-2">
             <li className="flex items-center">
               <Check className="w-4 h-4 mr-2 text-accent" />
