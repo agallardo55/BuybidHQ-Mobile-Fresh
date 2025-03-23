@@ -79,26 +79,6 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
             />
 
             <div className="space-y-1 w-full">
-              <Label htmlFor="buyer-select">Select Buyer</Label>
-              <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
-                <SelectTrigger className="w-full h-9">
-                  <SelectValue placeholder="Select a buyer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortedBuyers.map((buyer) => (
-                    <SelectItem key={buyer.id} value={buyer.id}>
-                      <div className="flex items-center gap-2">
-                        <Users className="h-3 w-3 text-muted-foreground" />
-                        <span>{buyer.name}</span>
-                        <span className="text-xs text-muted-foreground">({buyer.dealership})</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1 w-full">
               <Label htmlFor="year" className="text-sm">Year</Label>
               <Input id="year" placeholder="Year" className="h-8 w-full" />
             </div>
@@ -126,6 +106,26 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
                 rows={2} 
                 className="resize-none text-sm w-full"
               />
+            </div>
+            
+            <div className="space-y-1 w-full">
+              <Label htmlFor="buyer-select">Select Buyer</Label>
+              <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
+                <SelectTrigger className="w-full h-9">
+                  <SelectValue placeholder="Select a buyer" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortedBuyers.map((buyer) => (
+                    <SelectItem key={buyer.id} value={buyer.id}>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-3 w-3 text-muted-foreground" />
+                        <span>{buyer.name}</span>
+                        <span className="text-xs text-muted-foreground">({buyer.dealership})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
