@@ -37,10 +37,9 @@ const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelect
         <SelectContent>
           {availableTrims.map((trim) => (
             <SelectItem key={trim.name} value={trim.name}>
-              <div className="flex flex-col gap-1 w-full">
-                <span className="font-medium group-data-[highlighted]:text-white">{trim.name}</span>
-                <span className="text-xs text-muted-foreground max-w-full group-data-[highlighted]:text-white/90">{trim.description}</span>
-              </div>
+              <span className="font-medium group-data-[highlighted]:text-white">
+                {trim.name}{trim.description ? ` - ${trim.description}` : ''}
+              </span>
             </SelectItem>
           ))}
         </SelectContent>
