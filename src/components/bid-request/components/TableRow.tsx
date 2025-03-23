@@ -54,7 +54,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
         {request.mileage.toLocaleString()}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-        {offer ? offer.buyerName.split('(')?.[0]?.trim() : <span className="text-gray-500">No buyer</span>}
+        {request.buyer || <span className="text-gray-500">No buyer</span>}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
         {offer ? `$${offer.amount.toLocaleString()}` : <span className="text-gray-500">No offers yet</span>}
