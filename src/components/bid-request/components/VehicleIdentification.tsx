@@ -2,6 +2,7 @@ import FormField from "./FormField";
 import VinSection from "../VinSection";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrimOption } from "../types";
+import TrimSelector from "./TrimSelector";
 
 interface VehicleIdentificationProps {
   formData: {
@@ -44,6 +45,22 @@ const VehicleIdentification = ({
   showValidation
 }: VehicleIdentificationProps) => {
   console.log('VehicleIdentification rendered with formData:', formData);
+
+  // Deduplicate trims before rendering
+  const uniqueTrims = formData.availableTrims.reduce((acc: TrimOption[], current) => {
+    const isDuplicate = acc.some(item => {
+      // Consider a trim duplicate if:
+      // - Names match exactly OR
+      // - Both are "GT3 RS" related
+      return item.name === current.name || 
+             (item.name === 'GT3 RS' && current.name === 'GT3 RS');
+    });
+    
+    if (!isDuplicate) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
 
   const cleanTrimDescription = (description: string): string => {
     if (!description) return '';
@@ -168,8 +185,8 @@ const VehicleIdentification = ({
             <SelectValue placeholder="Select trim level" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            {formData.availableTrims && formData.availableTrims.length > 0 ? (
-              formData.availableTrims.map((trim, index) => {
+            {uniqueTrims && uniqueTrims.length > 0 ? (
+              uniqueTrims.map((trim, index) => {
                 const displayValue = getDisplayValue(trim);
                 return (
                   <SelectItem 

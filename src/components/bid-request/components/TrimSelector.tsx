@@ -17,6 +17,15 @@ interface TrimSelectorProps {
 }
 
 const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelectorProps) => {
+  // Deduplicate trims before rendering
+  const uniqueTrims = availableTrims.reduce((acc: TrimOption[], current) => {
+    const isDuplicate = acc.some(item => item.name === current.name);
+    if (!isDuplicate) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+
   return (
     <div className="space-y-1 w-full">
       <Label htmlFor="trim" className="text-sm">Trim</Label>
@@ -25,7 +34,7 @@ const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelect
           <SelectValue placeholder="Select a trim" />
         </SelectTrigger>
         <SelectContent>
-          {availableTrims.map((trim) => (
+          {uniqueTrims.map((trim) => (
             <SelectItem key={trim.name} value={trim.name}>
               <span className="font-medium group-data-[highlighted]:text-white">
                 {trim.name}{trim.description ? ` - ${trim.description}` : ''}
