@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, UserRound } from "lucide-react";
+import { MappedBuyer } from "@/hooks/buyers/types";
 
 interface BuyersSectionProps {
   errors: { buyers?: string };
@@ -60,32 +61,46 @@ const BuyersSection = ({
         </div>
         <ScrollArea className="h-[400px]">
           <div className="space-y-2">
-            {buyers.map((buyer) => (
-              <div
-                key={buyer.id}
-                className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-50"
-              >
-                <Checkbox
-                  id={`buyer-${buyer.id}`}
-                  checked={selectedBuyers.includes(buyer.id)}
-                  onCheckedChange={() => toggleBuyer(buyer.id)}
-                  className="h-4 w-4"
-                />
-                <label
-                  htmlFor={`buyer-${buyer.id}`}
-                  className="flex-1 flex items-center justify-between text-sm cursor-pointer"
+            {buyers.length > 0 ? (
+              buyers.map((buyer) => (
+                <div
+                  key={buyer.id}
+                  className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-50"
                 >
-                  <div className="flex items-center gap-2">
-                    <UserRound className="h-4 w-4 text-gray-500" />
-                    <span>{buyer.name}</span>
-                    <span className="text-gray-500">-</span>
-                    <span className="text-gray-500">{buyer.dealership}</span>
-                    <span className="text-gray-500">-</span>
-                    <span className="text-gray-500">Mobile: {buyer.mobile}</span>
-                  </div>
-                </label>
+                  <Checkbox
+                    id={`buyer-${buyer.id}`}
+                    checked={selectedBuyers.includes(buyer.id)}
+                    onCheckedChange={() => toggleBuyer(buyer.id)}
+                    className="h-4 w-4"
+                  />
+                  <label
+                    htmlFor={`buyer-${buyer.id}`}
+                    className="flex-1 flex items-center justify-between text-sm cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <UserRound className="h-4 w-4 text-gray-500" />
+                      <span>{buyer.name}</span>
+                      {buyer.dealership && (
+                        <>
+                          <span className="text-gray-500">-</span>
+                          <span className="text-gray-500">{buyer.dealership}</span>
+                        </>
+                      )}
+                      {buyer.mobile && (
+                        <>
+                          <span className="text-gray-500">-</span>
+                          <span className="text-gray-500">Mobile: {buyer.mobile}</span>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                No buyers found. Try adjusting your search or add a new buyer.
               </div>
-            ))}
+            )}
           </div>
         </ScrollArea>
       </div>

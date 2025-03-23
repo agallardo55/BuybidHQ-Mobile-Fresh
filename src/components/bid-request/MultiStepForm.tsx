@@ -56,7 +56,8 @@ const MultiStepForm = ({
   showValidation,
   setErrors,
   uploadedImageUrls = [],
-  selectedFileUrls = []
+  selectedFileUrls = [],
+  onDeleteImage
 }: MultiStepFormProps) => {
   const {
     currentStep,

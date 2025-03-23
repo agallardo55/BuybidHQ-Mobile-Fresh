@@ -32,6 +32,7 @@ const CreateBidRequest = () => {
 
   const [showValidation, setShowValidation] = useState(false);
 
+  // Map buyers to the format expected by the components
   const mappedBuyers = buyers?.map(buyer => ({
     id: buyer.id,
     name: buyer.name,
@@ -41,7 +42,7 @@ const CreateBidRequest = () => {
 
   const filteredBuyers = mappedBuyers.filter(buyer => 
     buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    buyer.dealership?.toLowerCase().includes(searchTerm.toLowerCase())
+    (buyer.dealership && buyer.dealership.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const onSubmit = () => {

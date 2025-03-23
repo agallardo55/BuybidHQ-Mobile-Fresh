@@ -9,16 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface Buyer {
-  id: string;
-  name: string;
-  dealership: string;
-}
+import { MappedBuyer } from "@/hooks/buyers/types";
 
 interface BuyerSelectorProps {
   selectedBuyer: string;
-  buyers: Buyer[];
+  buyers: MappedBuyer[];
   onBuyerChange: (value: string) => void;
 }
 
@@ -41,7 +36,7 @@ const BuyerSelector = ({ selectedBuyer, buyers, onBuyerChange }: BuyerSelectorPr
               <div className="flex items-center gap-2">
                 <Users className="h-3 w-3 text-muted-foreground" />
                 <span>{buyer.name}</span>
-                <span className="text-xs text-muted-foreground">({buyer.dealership})</span>
+                <span className="text-xs text-muted-foreground">({buyer.dealership || 'No dealership'})</span>
               </div>
             </SelectItem>
           ))}
