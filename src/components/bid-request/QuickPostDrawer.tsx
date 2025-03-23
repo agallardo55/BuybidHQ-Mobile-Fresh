@@ -184,9 +184,14 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
                 <SelectContent>
                   {availableTrims.map((trim) => (
                     <SelectItem key={trim.name} value={trim.name}>
-                      <div className="flex items-center gap-1">
-                        <span>{trim.name}</span>
-                        <span className="text-xs text-muted-foreground"> - {trim.description}</span>
+                      <div className="flex flex-col gap-1 w-full">
+                        <span className="font-medium">{trim.name}</span>
+                        <span className="text-xs text-muted-foreground">{trim.description}</span>
+                        {trim.specs && (
+                          <span className="text-xs text-muted-foreground">
+                            {trim.specs.engine}{trim.specs.transmission ? `, ${trim.specs.transmission}` : ''}{trim.specs.drivetrain ? `, ${trim.specs.drivetrain}` : ''}
+                          </span>
+                        )}
                       </div>
                     </SelectItem>
                   ))}
