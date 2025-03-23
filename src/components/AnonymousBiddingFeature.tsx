@@ -1,4 +1,3 @@
-
 import { Shield, MessageCircle, Handshake, ArrowRight, Lock, CheckCircle2, UserCheck } from "lucide-react";
 const AnonymousBiddingFeature = () => {
   const features = [{
@@ -8,7 +7,7 @@ const AnonymousBiddingFeature = () => {
   }, {
     icon: <MessageCircle className="h-12 w-12 text-accent" />,
     title: "No Negotiation Needed",
-    description: "Skip the back-and-forth haggling - simply set your terms and wait for the right match."
+    description: "Skip the back-and-forth - simply submit your bid request and wait for the right offer."
   }, {
     icon: <Handshake className="h-12 w-12 text-accent" />,
     title: "Connect when Ready",
