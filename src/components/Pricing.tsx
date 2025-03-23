@@ -58,7 +58,7 @@ const Pricing = () => {
           <Card className="flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl">Buybid Connect</CardTitle>
-              <CardDescription>For occasional users</CardDescription>
+              <CardDescription>For buyers looking to expand their network</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
