@@ -1,3 +1,4 @@
+
 import { Shield, MessageCircle, Handshake, ArrowRight, Lock, CheckCircle2 } from "lucide-react";
 const AnonymousBiddingFeature = () => {
   const features = [{
@@ -10,7 +11,7 @@ const AnonymousBiddingFeature = () => {
     description: "Communicate securely through our platform while maintaining your anonymity."
   }, {
     icon: <Handshake className="h-12 w-12 text-accent" />,
-    title: "Connect on Success",
+    title: "Connect when Ready",
     description: "Your identity is only shared when your bid is accepted and you choose to connect."
   }];
   const steps = [{
