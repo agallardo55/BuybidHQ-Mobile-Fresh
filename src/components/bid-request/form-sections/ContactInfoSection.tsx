@@ -34,17 +34,27 @@ const ContactInfoSection = ({
   const { formatPhoneNumber } = usePhoneFormat();
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedNumber = formatPhoneNumber(e.target.value);
-    // Create a new event with the formatted value
-    const newEvent = {
-      ...e,
-      target: {
-        ...e.target,
-        value: formattedNumber
-      }
-    } as React.ChangeEvent<HTMLInputElement>;
+    // Get the raw input value
+    const inputValue = e.target.value;
     
-    onChange(newEvent);
+    // Only format if there's a value to format
+    if (inputValue) {
+      const formattedNumber = formatPhoneNumber(inputValue);
+      
+      // Create a synthetic event with the formatted value
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: formattedNumber
+        }
+      } as React.ChangeEvent<HTMLInputElement>;
+      
+      onChange(syntheticEvent);
+    } else {
+      // If the input is empty, pass the original event
+      onChange(e);
+    }
   };
 
   return (
@@ -57,7 +67,8 @@ const ContactInfoSection = ({
           value={mobile}
           onChange={handlePhoneChange}
           required
-          maxLength={14}
+          maxLength={14} // (XXX) XXX-XXXX format
+          type="tel" // Use tel type for better mobile keyboard
         />
       </div>
       <div className="space-y-2">
