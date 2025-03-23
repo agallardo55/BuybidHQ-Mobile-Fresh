@@ -49,7 +49,7 @@ export const SubscriptionTab = () => {
       const currentPlan = subscription?.plan_type;
 
       // If upgrading to Dealership plan, redirect to contact form
-      if (currentPlan === "beta-access" || currentPlan === "individual") {
+      if (currentPlan === "beta-access") {
         const contactSection = document.getElementById('contact');
         if (contactSection) {
           toast({
@@ -65,7 +65,7 @@ export const SubscriptionTab = () => {
         }
       }
 
-      // For Individual plan upgrades, use Stripe Checkout
+      // For Pay-per-bid upgrades, use Stripe Checkout
       const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
         method: 'POST',
         body: {
@@ -93,8 +93,8 @@ export const SubscriptionTab = () => {
     switch (subscription.plan_type) {
       case "beta-access":
         return "Beta Access (Free)";
-      case "individual":
-        return "Individual ($49/month)";
+      case "pay-per-bid":
+        return "Pay per Buybid ($5/buybid)";
       case "dealership":
         return "Dealership (Custom)";
       default:

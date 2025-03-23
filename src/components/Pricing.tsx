@@ -24,7 +24,7 @@ const Pricing = () => {
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Simple, Flexible Pricing</h2>
           <p className="mt-4 text-lg text-gray-600">Choose the plan that's right for your business</p>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-4 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8">
           {/* Beta Trial Plan */}
           <Card className="flex flex-col">
             <CardHeader>
@@ -92,59 +92,6 @@ const Pricing = () => {
             </CardContent>
             <CardFooter>
               <Button onClick={() => setShowWaitlist(true)} className="w-full bg-accent hover:bg-accent/90">Get Started</Button>
-            </CardFooter>
-          </Card>
-
-          {/* Individual Plan */}
-          <Card className="flex flex-col relative border-accent">
-            <div className="absolute -top-2 sm:-top-3 md:-top-4 left-1/2 -translate-x-1/2 px-2 sm:px-3 py-0.5 sm:py-1 bg-accent text-white text-xs sm:text-sm rounded-full whitespace-nowrap">Limited Time Offer</div>
-            <CardHeader>
-              <CardTitle className="text-2xl">Individual</CardTitle>
-              <CardDescription>For individual members</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <div className="mt-2 relative">
-                <div className="absolute -top-6 text-gray-500 line-through text-lg">$98/month</div>
-                <div className="flex items-baseline">
-                  <span className="text-3xl font-bold">$49</span>
-                  <span className="ml-1 text-gray-500">/month</span>
-                </div>
-                <div className="text-accent text-sm mt-1">50% off for first year</div>
-              </div>
-              <ul className="mt-6 space-y-4">
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Advanced bidding tools</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Unlimited buybids</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Unlimited buyer connections</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Buybid dashboard</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>14-day free trial</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-5 w-5 text-accent mr-2" />
-                  <span className="flex items-center gap-2">
-                    Marketplace Access
-                    <span className="text-[#325AE7] text-sm">Coming Soon</span>
-                  </span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={() => setShowWaitlist(true)} className="w-full bg-accent hover:bg-accent/90">
-                Get Started
-              </Button>
             </CardFooter>
           </Card>
 
