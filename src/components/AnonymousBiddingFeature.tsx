@@ -1,41 +1,61 @@
 
-import { ArrowRight, Shield, Handshake, MessageCircle } from "lucide-react";
+import { Shield, MessageCircle, Handshake, ArrowRight, Lock, CheckCircle2 } from "lucide-react";
 
 const AnonymousBiddingFeature = () => {
   const features = [
     {
       icon: <Shield className="h-12 w-12 text-accent" />,
-      title: "Anonymous Bidding",
-      description: "Submit bids anonymously to dealers. Keep your identity protected until you choose to reveal it."
+      title: "Bid Anonymously",
+      description: "Submit bids without revealing your identity to any dealers in the network."
     },
     {
       icon: <MessageCircle className="h-12 w-12 text-accent" />,
-      title: "Secure Communication",
-      description: "Exchange messages through our platform while maintaining your anonymity throughout the negotiation process."
+      title: "Secure Messaging",
+      description: "Communicate securely through our platform while maintaining your anonymity."
     },
     {
       icon: <Handshake className="h-12 w-12 text-accent" />,
-      title: "Connect When You Win",
-      description: "Only when your bid is accepted will your contact information be shared, ensuring a fair and protected bidding process."
+      title: "Connect on Success",
+      description: "Your identity is only shared when your bid is accepted and you choose to connect."
+    }
+  ];
+
+  const steps = [
+    {
+      icon: <Lock className="h-8 w-8 text-white bg-accent p-1 rounded-full" />,
+      title: "Submit Anonymous Bid",
+      description: "Place your bid through our secure platform without revealing your identity"
+    },
+    {
+      icon: <MessageCircle className="h-8 w-8 text-white bg-accent p-1 rounded-full" />,
+      title: "Negotiate Securely",
+      description: "Discuss details while maintaining your privacy throughout the process"
+    },
+    {
+      icon: <CheckCircle2 className="h-8 w-8 text-white bg-accent p-1 rounded-full" />,
+      title: "Connect When Ready",
+      description: "Only share your information when you're satisfied with the deal terms"
     }
   ];
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-24 bg-white">
       <div className="container px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-            Anonymous Bidding with Buybid Connect
+            Buybid Connect™ Anonymous Bidding
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Make bids without revealing your identity. Only connect when it matters.
+          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+            Our innovative platform allows you to make bids without revealing your identity,
+            connecting only when a deal is ready to close.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              className="flex flex-col items-center text-center p-6 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="mb-4">
                 {feature.icon}
@@ -50,35 +70,28 @@ const AnonymousBiddingFeature = () => {
           ))}
         </div>
         
-        <div className="mt-12 flex justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 max-w-3xl">
-            <div className="relative">
-              <span className="absolute -top-3 -right-3 bg-accent text-white text-xs px-2 py-1 rounded-full font-bold">
-                Buybid Connect Feature
-              </span>
-              <h3 className="text-xl font-semibold text-primary mb-4 text-center">How It Works</h3>
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex-1 text-center">
-                  <div className="font-bold mb-1">1. Submit Your Bid</div>
-                  <p className="text-sm text-gray-600">
-                    Place your bid anonymously through our secure platform
-                  </p>
+        <div className="bg-gray-50 rounded-xl p-8 shadow-sm max-w-4xl mx-auto">
+          <h3 className="text-2xl font-semibold text-center text-primary mb-8">How Buybid Connect™ Works</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {steps.map((step, index) => (
+              <div key={index} className="flex flex-col items-center text-center relative">
+                <div className="mb-4">
+                  {step.icon}
                 </div>
-                <ArrowRight className="hidden md:block h-5 w-5 text-gray-400" />
-                <div className="flex-1 text-center">
-                  <div className="font-bold mb-1">2. Get Notified if Selected</div>
-                  <p className="text-sm text-gray-600">
-                    Receive notification when your bid wins
-                  </p>
-                </div>
-                <ArrowRight className="hidden md:block h-5 w-5 text-gray-400" />
-                <div className="flex-1 text-center">
-                  <div className="font-bold mb-1">3. Connect Directly</div>
-                  <p className="text-sm text-gray-600">
-                    Connect with the seller to finalize your deal
-                  </p>
-                </div>
+                <h4 className="text-lg font-semibold text-primary mb-2">{step.title}</h4>
+                <p className="text-sm text-gray-600">{step.description}</p>
+                
+                {index < steps.length - 1 && (
+                  <ArrowRight className="hidden md:block absolute top-8 -right-3 text-gray-300 h-6 w-6" />
+                )}
               </div>
+            ))}
+          </div>
+          
+          <div className="mt-8 text-center">
+            <div className="inline-block px-4 py-2 bg-accent/10 text-accent font-medium text-sm rounded-full">
+              Protect your identity while still connecting with the right dealers
             </div>
           </div>
         </div>
