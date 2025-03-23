@@ -84,6 +84,25 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
     decodeVin(vin);
   };
 
+  // Handle mileage input to only accept numbers without decimals
+  const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Replace any non-numeric characters
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
+    // Format with commas for thousands
+    let formattedValue = numericValue;
+    if (numericValue) {
+      formattedValue = Number(numericValue).toLocaleString('en-US', {
+        maximumFractionDigits: 0,
+        useGrouping: true
+      });
+    }
+    
+    setMileage(formattedValue);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle quick post submission logic here
@@ -182,7 +201,9 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
                 placeholder="Mileage" 
                 className="h-8 w-full"
                 value={mileage}
-                onChange={(e) => setMileage(e.target.value)}
+                onChange={handleMileageChange}
+                inputMode="numeric"
+                pattern="[0-9,]*"
               />
             </div>
 
