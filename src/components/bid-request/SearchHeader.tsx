@@ -1,10 +1,8 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Zap } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import QuickPostDialog from "./QuickPostDialog";
 
 interface SearchHeaderProps {
   searchTerm: string;
@@ -12,8 +10,6 @@ interface SearchHeaderProps {
 }
 
 const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
-  const [quickPostOpen, setQuickPostOpen] = useState(false);
-  
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -29,15 +25,6 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
           />
         </div>
         
-        <Button 
-          variant="secondary" 
-          className="flex items-center gap-2 w-full sm:w-auto"
-          onClick={() => setQuickPostOpen(true)}
-        >
-          <Zap className="h-4 w-4" />
-          Quick Post
-        </Button>
-        
         <Link to="/create-bid-request" className="w-full sm:w-auto">
           <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-white w-full sm:w-auto">
             <Plus className="h-4 w-4" />
@@ -45,11 +32,6 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
           </Button>
         </Link>
       </div>
-      
-      <QuickPostDialog 
-        isOpen={quickPostOpen} 
-        onOpenChange={setQuickPostOpen} 
-      />
     </div>
   );
 };
