@@ -1,14 +1,13 @@
-
 import { Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
 import { useWaitlist } from "./waitlist/WaitlistContext";
-
 const Pricing = () => {
   const navigate = useNavigate();
-  const { setShowWaitlist } = useWaitlist();
-  
+  const {
+    setShowWaitlist
+  } = useWaitlist();
   const scrollToContact = () => {
     const contactSection = document.getElementById('contact');
     if (contactSection) {
@@ -17,7 +16,6 @@ const Pricing = () => {
       });
     }
   };
-  
   return <section id="pricing" className="py-24 bg-gray-50">
       <div className="container px-4 md:px-6">
         <div className="mb-12 text-center">
@@ -28,8 +26,8 @@ const Pricing = () => {
           {/* Beta Trial Plan */}
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle className="text-2xl">Beta Trial</CardTitle>
-              <CardDescription>Perfect for the curious members</CardDescription>
+              <CardTitle className="text-2xl">Free Plan</CardTitle>
+              <CardDescription>Perfect for the individual members</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
@@ -142,5 +140,4 @@ const Pricing = () => {
       </div>
     </section>;
 };
-
 export default Pricing;
