@@ -30,7 +30,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
 
   const currentStatus = offer?.status || request.status;
   
-  // Determine the buyer name to display - if there's an offer, show the buyer who made the offer
+  // Show only the buyer name without dealership information
   const buyerName = offer ? offer.buyerName : request.buyer;
 
   return (

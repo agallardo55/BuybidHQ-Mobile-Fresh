@@ -53,14 +53,9 @@ const BuyersListBox = ({
                     htmlFor={`buyer-${buyer.id}`}
                     className="flex-1 cursor-pointer"
                   >
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <UserRound className="h-4 w-4 text-gray-500" />
-                        <span className="font-medium text-sm">{buyer.name}</span>
-                      </div>
-                      {buyer.dealership && (
-                        <span className="text-xs text-gray-500 ml-6">{buyer.dealership}</span>
-                      )}
+                    <div className="flex items-center gap-2">
+                      <UserRound className="h-4 w-4 text-gray-500" />
+                      <span className="font-medium text-sm">{buyer.name}</span>
                     </div>
                   </label>
                 </div>
