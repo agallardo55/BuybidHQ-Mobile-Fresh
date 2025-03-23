@@ -29,6 +29,9 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
   };
 
   const currentStatus = offer?.status || request.status;
+  
+  // Determine the buyer name to display - if there's an offer, show the buyer who made the offer
+  const buyerName = offer ? offer.buyerName : request.buyer;
 
   return (
     <UITableRow 
@@ -54,7 +57,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
         {request.mileage.toLocaleString()}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-        {request.buyer || <span className="text-gray-500">No buyer</span>}
+        {buyerName || <span className="text-gray-500">No buyer</span>}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
         {offer ? `$${offer.amount.toLocaleString()}` : <span className="text-gray-500">No offers yet</span>}
