@@ -44,12 +44,26 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
   // Use the buyers hook to get real buyers
   const { buyers = [] } = useBuyers();
 
-  // Map buyers to the format expected by BuyerSelector
+  // Map buyers to the format expected by BuyerSelector with all required properties
   const mappedBuyers = buyers.map(buyer => ({
     id: buyer.id,
+    user_id: buyer.user_id,
     name: buyer.name,
+    email: buyer.email,
     dealership: buyer.dealership,
-    mobile: buyer.mobileNumber
+    dealerId: buyer.dealerId,
+    mobileNumber: buyer.mobileNumber,
+    businessNumber: buyer.businessNumber,
+    location: buyer.location,
+    address: buyer.address,
+    city: buyer.city,
+    state: buyer.state,
+    zipCode: buyer.zipCode,
+    acceptedBids: buyer.acceptedBids,
+    pendingBids: buyer.pendingBids,
+    declinedBids: buyer.declinedBids,
+    phoneCarrier: buyer.phoneCarrier,
+    phoneValidationStatus: buyer.phoneValidationStatus
   }));
 
   // Use the VIN decoder hook
