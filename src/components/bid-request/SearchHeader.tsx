@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Plus, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import QuickPostDrawer from "./QuickPostDrawer";
 
 interface SearchHeaderProps {
   searchTerm: string;
@@ -10,6 +12,8 @@ interface SearchHeaderProps {
 }
 
 const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -28,6 +32,7 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
         <Button 
           variant="secondary" 
           className="flex items-center gap-2 w-full sm:w-auto"
+          onClick={() => setIsDrawerOpen(true)}
         >
           <Zap className="h-4 w-4" />
           Quick Post
@@ -40,6 +45,8 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
           </Button>
         </Link>
       </div>
+
+      <QuickPostDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </div>
   );
 };
