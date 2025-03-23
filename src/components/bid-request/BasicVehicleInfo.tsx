@@ -1,6 +1,7 @@
 
-import VehicleIdentification from "./components/VehicleIdentification";
+import VehicleIdentificationContainer from "./components/VehicleIdentificationContainer";
 import VehicleSpecifications from "./components/VehicleSpecifications";
+import { TrimOption } from "./types";
 
 interface BasicVehicleInfoProps {
   formData: {
@@ -8,21 +9,13 @@ interface BasicVehicleInfoProps {
     make: string;
     model: string;
     trim: string;
-    displayTrim: string; // Added to match VehicleIdentification props
+    displayTrim: string;
     mileage: string;
     engineCylinders: string;
     transmission: string;
     drivetrain: string;
     vin: string;
-    availableTrims: Array<{
-      name: string;
-      description: string;
-      specs?: {
-        engine?: string;
-        transmission?: string;
-        drivetrain?: string;
-      }
-    }>;
+    availableTrims: TrimOption[];
   };
   errors: {
     year?: string;
@@ -49,60 +42,14 @@ const BasicVehicleInfo = ({
   onSelectChange,
   showValidation 
 }: BasicVehicleInfoProps) => {
-  const handleVehicleDataFetched = (data: {
-    year: string;
-    make: string;
-    model: string;
-    trim: string;
-    engineCylinders: string;
-    transmission: string;
-    drivetrain: string;
-    availableTrims: Array<{
-      name: string;
-      description: string;
-      specs?: {
-        engine?: string;
-        transmission?: string;
-        drivetrain?: string;
-      }
-    }>;
-  }) => {
-    console.log('Vehicle data received in BasicVehicleInfo:', data);
-    
-    // Always use batch changes to properly handle complex data
-    const changes = Object.entries(data).map(([name, value]) => ({
-      name,
-      value
-    }));
-    
-    console.log('Sending batch changes:', changes);
-    
-    if (onBatchChange) {
-      onBatchChange(changes);
-    } else {
-      // Fallback for simple string values if batch change isn't available
-      Object.entries(data).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-          const syntheticEvent = {
-            target: {
-              name: key,
-              value: value
-            }
-          } as React.ChangeEvent<HTMLInputElement>;
-          onChange(syntheticEvent);
-        }
-      });
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <VehicleIdentification
+        <VehicleIdentificationContainer
           formData={formData}
           errors={errors}
           onChange={onChange}
-          onVehicleDataFetched={handleVehicleDataFetched}
+          onBatchChange={onBatchChange}
           onSelectChange={onSelectChange}
           showValidation={showValidation}
         />
