@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CarrierType } from "@/types/buyers";
-import { useEffect, useState } from "react";
+import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
 
 export const CARRIER_OPTIONS: CarrierType[] = [
   'Verizon Wireless',
@@ -31,6 +31,22 @@ const ContactInfoSection = ({
   onChange, 
   onCarrierChange 
 }: ContactInfoSectionProps) => {
+  const { formatPhoneNumber } = usePhoneFormat();
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedNumber = formatPhoneNumber(e.target.value);
+    // Create a new event with the formatted value
+    const newEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: formattedNumber
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    onChange(newEvent);
+  };
+
   return (
     <>
       <div className="space-y-2">
@@ -39,8 +55,9 @@ const ContactInfoSection = ({
           placeholder="Enter mobile number"
           name="mobile"
           value={mobile}
-          onChange={onChange}
+          onChange={handlePhoneChange}
           required
+          maxLength={14}
         />
       </div>
       <div className="space-y-2">
