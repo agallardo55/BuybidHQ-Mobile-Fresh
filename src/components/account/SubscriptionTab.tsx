@@ -95,6 +95,8 @@ export const SubscriptionTab = () => {
         return "Beta Access (Free)";
       case "pay-per-bid":
         return "Pay per Buybid ($5/buybid)";
+      case "individual":
+        return "Individual Plan";
       case "dealership":
         return "Dealership (Custom)";
       default:

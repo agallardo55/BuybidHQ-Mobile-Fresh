@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 interface Subscription {
   id: string;
-  plan_type: 'beta-access' | 'individual' | 'dealership';
+  plan_type: 'beta-access' | 'pay-per-bid' | 'individual' | 'dealership';
   status: 'active' | 'canceled' | 'past_due' | 'trialing';
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
