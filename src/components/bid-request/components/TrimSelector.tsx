@@ -28,10 +28,10 @@ const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelect
           {availableTrims.map((trim) => (
             <SelectItem key={trim.name} value={trim.name}>
               <div className="flex flex-col gap-1 w-full">
-                <span className="font-medium">{trim.name}</span>
-                <span className="text-xs text-muted-foreground max-w-full">{trim.description}</span>
+                <span className="font-medium group-data-[highlighted]:text-white">{trim.name}</span>
+                <span className="text-xs text-muted-foreground max-w-full group-data-[highlighted]:text-white/90">{trim.description}</span>
                 {trim.specs && (
-                  <span className="text-xs text-muted-foreground max-w-full">
+                  <span className="text-xs text-muted-foreground max-w-full group-data-[highlighted]:text-white/90">
                     {trim.specs.engine}{trim.specs.transmission ? `, ${trim.specs.transmission}` : ''}{trim.specs.drivetrain ? `, ${trim.specs.drivetrain}` : ''}
                   </span>
                 )}
