@@ -25,18 +25,19 @@ const VinInput = ({ value, onChange, onFetchDetails, isLoading }: VinInputProps)
           onChange={onChange}
           placeholder="Enter VIN"
           maxLength={17}
-          className="rounded-r-none pr-2"
+          className="rounded-r-none pr-2 h-9"
         />
         <Button 
           type="button" 
-          className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0"
+          className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0 h-9"
           onClick={onFetchDetails}
           disabled={isLoading}
+          size="sm"
         >
           {isLoading ? (
             <>
-              <Loader className="h-4 w-4 animate-spin mr-1" />
-              Loading
+              <Loader className="h-3 w-3 animate-spin mr-1" />
+              <span className="hidden sm:inline text-xs">Loading</span>
             </>
           ) : (
             "Go"
