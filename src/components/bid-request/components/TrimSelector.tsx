@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { deduplicateTrims } from "../utils/trimUtils";
 
 interface TrimSelectorProps {
   selectedTrim: string;
@@ -18,13 +19,7 @@ interface TrimSelectorProps {
 
 const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelectorProps) => {
   // Deduplicate trims before rendering
-  const uniqueTrims = availableTrims.reduce((acc: TrimOption[], current) => {
-    const isDuplicate = acc.some(item => item.name === current.name);
-    if (!isDuplicate) {
-      acc.push(current);
-    }
-    return acc;
-  }, []);
+  const uniqueTrims = deduplicateTrims(availableTrims);
 
   return (
     <div className="space-y-1 w-full">
