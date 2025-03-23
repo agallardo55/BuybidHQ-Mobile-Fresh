@@ -58,24 +58,24 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="quick-vin">VIN</Label>
-              <div className="flex relative">
+              <div className="flex relative w-full">
                 <Input 
                   id="quick-vin" 
                   value={vin}
                   onChange={handleVinChange}
                   placeholder="Enter vehicle VIN" 
-                  className="rounded-r-none pr-2"
+                  className="rounded-r-none pr-2 w-full"
                 />
                 <Button 
                   type="button" 
                   onClick={handleFetchVin}
                   disabled={isLoading}
-                  className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0"
+                  className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0 whitespace-nowrap"
                 >
                   {isLoading ? (
                     <>
                       <Loader className="h-4 w-4 animate-spin mr-1" />
-                      Loading
+                      <span className="hidden sm:inline">Loading</span>
                     </>
                   ) : (
                     "Go"
@@ -84,33 +84,37 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="year">Year</Label>
-              <Input id="year" placeholder="Vehicle year" />
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="year">Year</Label>
+                <Input id="year" placeholder="Vehicle year" />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="make">Make</Label>
-              <Input id="make" placeholder="Vehicle make" />
+              <div className="space-y-2">
+                <Label htmlFor="make">Make</Label>
+                <Input id="make" placeholder="Vehicle make" />
+              </div>
             </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="model">Model</Label>
+                <Input id="model" placeholder="Vehicle model" />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="model">Model</Label>
-              <Input id="model" placeholder="Vehicle model" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="mileage">Mileage</Label>
-              <Input id="mileage" placeholder="Vehicle mileage" />
+              <div className="space-y-2">
+                <Label htmlFor="mileage">Mileage</Label>
+                <Input id="mileage" placeholder="Vehicle mileage" />
+              </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="notes">Additional Notes</Label>
-              <Textarea id="notes" placeholder="Enter any additional details" rows={3} />
+              <Textarea id="notes" placeholder="Enter any additional details" rows={3} className="resize-none" />
             </div>
           </div>
 
-          <SheetFooter className="pt-4">
+          <SheetFooter className="pt-4 flex flex-col sm:flex-row gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
               Cancel
             </Button>
