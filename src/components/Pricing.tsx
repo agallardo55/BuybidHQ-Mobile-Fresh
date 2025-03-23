@@ -32,7 +32,7 @@ const Pricing = () => {
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
                 <span className="text-3xl font-bold">Free</span>
-                <span className="ml-1 text-gray-500">/while in beta</span>
+                <span className="ml-1 text-gray-500">/membership</span>
               </div>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
