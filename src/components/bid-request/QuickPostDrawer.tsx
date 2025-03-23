@@ -1,10 +1,6 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader, ChevronDown, Users } from "lucide-react";
 import { 
   Sheet, 
   SheetContent, 
@@ -13,18 +9,16 @@ import {
   SheetDescription,
   SheetFooter
 } from "@/components/ui/sheet";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { toast } from "sonner";
 import { mockBuyers } from "./mockData";
 import VinInput from "./components/VinInput";
+import BasicVehicleFields from "./components/BasicVehicleFields";
+import TrimSelector from "./components/TrimSelector";
+import MileageInput from "./components/MileageInput";
+import NotesInput from "./components/NotesInput";
+import BuyerSelector from "./components/BuyerSelector";
 import { TrimOption } from "./types";
 import { useVinDecoder } from "./vin-scanner/useVinDecoder";
-import { toast } from "sonner";
 
 interface QuickPostDrawerProps {
   isOpen: boolean;
@@ -84,28 +78,8 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
     decodeVin(vin);
   };
 
-  // Handle mileage input to only accept numbers without decimals
-  const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    
-    // Replace any non-numeric characters
-    const numericValue = value.replace(/[^0-9]/g, '');
-    
-    // Format with commas for thousands
-    let formattedValue = numericValue;
-    if (numericValue) {
-      formattedValue = Number(numericValue).toLocaleString('en-US', {
-        maximumFractionDigits: 0,
-        useGrouping: true
-      });
-    }
-    
-    setMileage(formattedValue);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle quick post submission logic here
     
     // Validate required fields
     if (!vin || !year || !make || !model || !selectedBuyer) {
@@ -117,11 +91,6 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
     toast.success("Bid request created successfully");
     onClose();
   };
-
-  // Sort buyers alphabetically by name
-  const sortedBuyers = [...mockBuyers].sort((a, b) => 
-    a.name.localeCompare(b.name)
-  );
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -142,107 +111,36 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
               isLoading={isLoading}
             />
 
-            <div className="space-y-1 w-full">
-              <Label htmlFor="year" className="text-sm">Year</Label>
-              <Input 
-                id="year" 
-                placeholder="Year" 
-                className="h-8 w-full" 
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-              />
-            </div>
+            <BasicVehicleFields
+              year={year}
+              make={make}
+              model={model}
+              onYearChange={(e) => setYear(e.target.value)}
+              onMakeChange={(e) => setMake(e.target.value)}
+              onModelChange={(e) => setModel(e.target.value)}
+            />
 
-            <div className="space-y-1 w-full">
-              <Label htmlFor="make" className="text-sm">Make</Label>
-              <Input 
-                id="make" 
-                placeholder="Make" 
-                className="h-8 w-full" 
-                value={make}
-                onChange={(e) => setMake(e.target.value)}
-              />
-            </div>
+            <TrimSelector
+              selectedTrim={selectedTrim}
+              availableTrims={availableTrims}
+              onTrimChange={setSelectedTrim}
+            />
+
+            <MileageInput
+              mileage={mileage}
+              onChange={(e) => setMileage(e.target.value)}
+            />
+
+            <NotesInput
+              notes={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
             
-            <div className="space-y-1 w-full">
-              <Label htmlFor="model" className="text-sm">Model</Label>
-              <Input 
-                id="model" 
-                placeholder="Model" 
-                className="h-8 w-full"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-1 w-full">
-              <Label htmlFor="trim" className="text-sm">Trim</Label>
-              <Select value={selectedTrim} onValueChange={setSelectedTrim}>
-                <SelectTrigger className="w-full h-8">
-                  <SelectValue placeholder="Select a trim" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTrims.map((trim) => (
-                    <SelectItem key={trim.name} value={trim.name}>
-                      <div className="flex flex-col gap-1 w-full">
-                        <span className="font-medium">{trim.name}</span>
-                        <span className="text-xs text-muted-foreground">{trim.description}</span>
-                        {trim.specs && (
-                          <span className="text-xs text-muted-foreground">
-                            {trim.specs.engine}{trim.specs.transmission ? `, ${trim.specs.transmission}` : ''}{trim.specs.drivetrain ? `, ${trim.specs.drivetrain}` : ''}
-                          </span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1 w-full">
-              <Label htmlFor="mileage" className="text-sm">Mileage</Label>
-              <Input 
-                id="mileage" 
-                placeholder="Mileage" 
-                className="h-8 w-full"
-                value={mileage}
-                onChange={handleMileageChange}
-                inputMode="numeric"
-                pattern="[0-9,]*"
-              />
-            </div>
-
-            <div className="space-y-1 w-full">
-              <Label htmlFor="notes" className="text-sm">Additional Notes</Label>
-              <Textarea 
-                id="notes" 
-                placeholder="Enter any additional details" 
-                rows={2} 
-                className="resize-none text-sm w-full"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-1 w-full">
-              <Label htmlFor="buyer-select">Select Buyer</Label>
-              <Select value={selectedBuyer} onValueChange={setSelectedBuyer}>
-                <SelectTrigger className="w-full h-9">
-                  <SelectValue placeholder="Select a buyer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortedBuyers.map((buyer) => (
-                    <SelectItem key={buyer.id} value={buyer.id}>
-                      <div className="flex items-center gap-2">
-                        <Users className="h-3 w-3 text-muted-foreground" />
-                        <span>{buyer.name}</span>
-                        <span className="text-xs text-muted-foreground">({buyer.dealership})</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <BuyerSelector
+              selectedBuyer={selectedBuyer}
+              buyers={mockBuyers}
+              onBuyerChange={setSelectedBuyer}
+            />
           </div>
 
           <SheetFooter className="pt-2 flex flex-row gap-2 sm:justify-end">
