@@ -36,7 +36,7 @@ const PlanSelectionForm = ({
 
         <Card className="p-6 space-y-4 cursor-pointer hover:border-accent" onClick={() => onSelect('pay-per-bid')}>
           <h3 className="text-lg font-semibold">Buybid Connect </h3>
-          <div className="text-2xl font-bold">$5<span className="text-sm font-normal">/buybid</span></div>
+          <div className="text-2xl font-bold">$5<span className="text-sm font-normal">/per buybid</span></div>
           <p className="text-sm text-gray-600">For occasional users</p>
           <ul className="space-y-2">
             <li className="flex items-center">
