@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { mockBuyers } from "./mockData";
+import VinInput from "./components/VinInput";
 
 interface QuickPostDrawerProps {
   isOpen: boolean;
@@ -70,34 +71,12 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-3">
-            <div className="space-y-1 w-full">
-              <Label htmlFor="quick-vin">VIN</Label>
-              <div className="flex w-full">
-                <Input 
-                  id="quick-vin" 
-                  value={vin}
-                  onChange={handleVinChange}
-                  placeholder="Enter vehicle VIN" 
-                  className="rounded-r-none w-full h-9"
-                />
-                <Button 
-                  type="button" 
-                  onClick={handleFetchVin}
-                  disabled={isLoading}
-                  className="bg-custom-blue hover:bg-custom-blue/90 rounded-l-none border-l-0 h-9"
-                  size="sm"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader className="h-3 w-3 animate-spin mr-1" />
-                      <span className="hidden sm:inline text-xs">Loading</span>
-                    </>
-                  ) : (
-                    "Go"
-                  )}
-                </Button>
-              </div>
-            </div>
+            <VinInput 
+              value={vin}
+              onChange={handleVinChange}
+              onFetchDetails={handleFetchVin}
+              isLoading={isLoading}
+            />
 
             <div className="space-y-1 w-full">
               <Label htmlFor="buyer-select">Select Buyer</Label>
@@ -119,28 +98,24 @@ const QuickPostDrawer = ({ isOpen, onClose }: QuickPostDrawerProps) => {
               </Select>
             </div>
 
-            <div className="flex flex-wrap gap-2 w-full">
-              <div className="space-y-1 flex-1 min-w-[calc(50%-4px)]">
-                <Label htmlFor="year" className="text-sm">Year</Label>
-                <Input id="year" placeholder="Year" className="h-8 w-full" />
-              </div>
+            <div className="space-y-1 w-full">
+              <Label htmlFor="year" className="text-sm">Year</Label>
+              <Input id="year" placeholder="Year" className="h-8 w-full" />
+            </div>
 
-              <div className="space-y-1 flex-1 min-w-[calc(50%-4px)]">
-                <Label htmlFor="make" className="text-sm">Make</Label>
-                <Input id="make" placeholder="Make" className="h-8 w-full" />
-              </div>
+            <div className="space-y-1 w-full">
+              <Label htmlFor="make" className="text-sm">Make</Label>
+              <Input id="make" placeholder="Make" className="h-8 w-full" />
             </div>
             
-            <div className="flex flex-wrap gap-2 w-full">
-              <div className="space-y-1 flex-1 min-w-[calc(50%-4px)]">
-                <Label htmlFor="model" className="text-sm">Model</Label>
-                <Input id="model" placeholder="Model" className="h-8 w-full" />
-              </div>
+            <div className="space-y-1 w-full">
+              <Label htmlFor="model" className="text-sm">Model</Label>
+              <Input id="model" placeholder="Model" className="h-8 w-full" />
+            </div>
 
-              <div className="space-y-1 flex-1 min-w-[calc(50%-4px)]">
-                <Label htmlFor="mileage" className="text-sm">Mileage</Label>
-                <Input id="mileage" placeholder="Mileage" className="h-8 w-full" />
-              </div>
+            <div className="space-y-1 w-full">
+              <Label htmlFor="mileage" className="text-sm">Mileage</Label>
+              <Input id="mileage" placeholder="Mileage" className="h-8 w-full" />
             </div>
 
             <div className="space-y-1 w-full">

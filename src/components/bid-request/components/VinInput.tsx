@@ -13,8 +13,8 @@ interface VinInputProps {
 
 const VinInput = ({ value, onChange, onFetchDetails, isLoading }: VinInputProps) => {
   return (
-    <div className="w-full">
-      <Label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
+    <div className="space-y-1 w-full">
+      <Label htmlFor="vin" className="text-sm font-medium">
         VIN <span className="text-red-500">*</span>
       </Label>
       <div className="flex w-full">
