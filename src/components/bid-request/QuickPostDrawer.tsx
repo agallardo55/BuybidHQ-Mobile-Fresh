@@ -184,13 +184,13 @@ const QuickPostDrawer = ({
         options: notes
       };
 
-      // Prepare reconditioning data with default values
+      // Prepare reconditioning data with values that match the database constraints
       const reconData = {
-        windshield: 'Good',
-        engine_light: 'No',
-        brakes: 'Good',
-        tires: 'Good',
-        maintenance: 'Up to date',
+        windshield: 'clear',
+        engine_light: 'none',
+        brakes: 'acceptable',
+        tires: 'acceptable',
+        maintenance: 'upToDate',
         recon_estimate: '0',
         recon_details: notes || 'No additional details'
       };
