@@ -30,8 +30,10 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
 
   const currentStatus = offer?.status || request.status;
   
-  // Show only the buyer name without dealership information
-  const buyerName = offer ? offer.buyerName : request.buyer;
+  // Extract only the buyer name without dealership information
+  const buyerName = offer ? 
+    (offer.buyerName ? offer.buyerName.split(' - ')[0].trim() : '') : 
+    (request.buyer ? request.buyer.split(' - ')[0].trim() : '');
 
   return (
     <UITableRow 
