@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { deduplicateTrims } from "../utils/trimUtils";
+import { deduplicateTrims, getDisplayValue } from "../utils/trimUtils";
 
 interface TrimSelectorProps {
   selectedTrim: string;
@@ -29,13 +29,16 @@ const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelect
           <SelectValue placeholder="Select a trim" />
         </SelectTrigger>
         <SelectContent>
-          {uniqueTrims.map((trim) => (
-            <SelectItem key={trim.name} value={trim.name}>
-              <span className="font-medium group-data-[highlighted]:text-white">
-                {trim.name}{trim.description ? ` - ${trim.description}` : ''}
-              </span>
-            </SelectItem>
-          ))}
+          {uniqueTrims.map((trim, index) => {
+            const displayValue = getDisplayValue(trim);
+            return (
+              <SelectItem key={`${trim.name}-${index}`} value={trim.name}>
+                <span className="font-medium group-data-[highlighted]:text-white">
+                  {displayValue}
+                </span>
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
     </div>

@@ -47,20 +47,26 @@ export const cleanTrimDescription = (description: string): string => {
  * Creates a display value for a trim by combining name and description
  */
 export const getDisplayValue = (trim: TrimOption): string => {
-  // If we have both name and description, combine them appropriately
-  if (trim.name && trim.description) {
-    // If the description already starts with the name, just clean the description
-    if (trim.description.startsWith(trim.name)) {
-      return cleanTrimDescription(trim.description);
-    }
-    // Otherwise, combine name with cleaned description
-    const cleanedDesc = cleanTrimDescription(trim.description);
-    // Avoid duplication if the name is already part of the cleaned description
-    if (!cleanedDesc.includes(trim.name)) {
-      return `${trim.name} ${cleanedDesc}`;
-    }
-    return cleanedDesc;
+  // If there's no name or description, return an empty string
+  if (!trim.name && !trim.description) return '';
+  
+  // If we only have a name, return it
+  if (trim.name && !trim.description) return trim.name;
+  
+  // If we only have a description, clean and return it
+  if (!trim.name && trim.description) return cleanTrimDescription(trim.description);
+  
+  // If the description already contains the trim name, don't duplicate it
+  if (trim.description.includes(trim.name)) {
+    return cleanTrimDescription(trim.description);
   }
-  // Fallback to whatever we have
-  return cleanTrimDescription(trim.name || trim.description || '');
+  
+  // If the name is "GT3 RS" and the description contains "GT3 RS", 
+  // just return the cleaned description to avoid duplication
+  if (trim.name === 'GT3 RS' && trim.description.includes('GT3 RS')) {
+    return cleanTrimDescription(trim.description);
+  }
+  
+  // Otherwise combine the name with the cleaned description
+  return `${trim.name} ${cleanTrimDescription(trim.description)}`;
 };
