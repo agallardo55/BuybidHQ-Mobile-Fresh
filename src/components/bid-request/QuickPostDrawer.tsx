@@ -60,8 +60,8 @@ const QuickPostDrawer = ({
   }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Get current user
-  const { user } = useCurrentUser();
+  // Get current user - fixed here to use currentUser instead of user
+  const { currentUser } = useCurrentUser();
 
   // Use the buyers hook to get real buyers
   const {
@@ -137,7 +137,8 @@ const QuickPostDrawer = ({
       return;
     }
 
-    if (!user?.id) {
+    // Fixed here to use currentUser?.id instead of user?.id
+    if (!currentUser?.id) {
       toast.error("You must be logged in to create a bid request");
       return;
     }
@@ -158,7 +159,7 @@ const QuickPostDrawer = ({
       const { data: userData, error: userError } = await supabase
         .from('buybidhq_users')
         .select('full_name')
-        .eq('id', user.id)
+        .eq('id', currentUser.id) // Fixed here to use currentUser.id
         .single();
 
       if (userError) {
@@ -200,7 +201,7 @@ const QuickPostDrawer = ({
         recon_data: reconData,
         image_urls: [],
         buyer_ids: [selectedBuyer],
-        creator_id: user.id
+        creator_id: currentUser.id // Fixed here to use currentUser.id
       });
 
       if (bidRequestError) {
