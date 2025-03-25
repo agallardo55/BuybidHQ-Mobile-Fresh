@@ -34,9 +34,11 @@ const BuyerSelector = ({ selectedBuyer, buyers, onBuyerChange }: BuyerSelectorPr
           {sortedBuyers.map((buyer) => (
             <SelectItem key={buyer.id} value={buyer.id}>
               <div className="flex items-center gap-2">
-                <Users className="h-3 w-3 text-muted-foreground" />
+                <Users className="h-3 w-3 text-muted-foreground group-data-[highlighted]:text-white" />
                 <span>{buyer.name}</span>
-                <span className="text-xs text-muted-foreground">({buyer.dealership || 'No dealership'})</span>
+                {buyer.dealership && (
+                  <span className="text-xs text-muted-foreground group-data-[highlighted]:text-white">({buyer.dealership || 'No dealership'})</span>
+                )}
               </div>
             </SelectItem>
           ))}
