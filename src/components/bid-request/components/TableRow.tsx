@@ -30,10 +30,8 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
 
   const currentStatus = offer?.status || request.status;
   
-  // Extract only the buyer name without dealership information
-  const buyerName = offer ? 
-    (offer.buyerName ? offer.buyerName.split(' - ')[0].trim() : '') : 
-    (request.buyer ? request.buyer.split(' - ')[0].trim() : '');
+  // Get just the buyer name without any dealership info
+  const buyerName = getBuyerNameOnly(offer ? offer.buyerName : request.buyer);
 
   return (
     <UITableRow 
@@ -85,4 +83,23 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
       </TableCell>
     </UITableRow>
   );
+};
+
+// Helper function to extract only the buyer name from any format
+const getBuyerNameOnly = (fullBuyerText: string | undefined): string => {
+  if (!fullBuyerText) return '';
+  
+  // Handle various potential formats:
+  // "John Doe - ABC Dealership" or "John Doe (ABC Dealership)" or just "John Doe"
+  const dashSplit = fullBuyerText.split(' - ');
+  if (dashSplit.length > 1) {
+    return dashSplit[0].trim();
+  }
+  
+  const parenSplit = fullBuyerText.split('(');
+  if (parenSplit.length > 1) {
+    return parenSplit[0].trim();
+  }
+  
+  return fullBuyerText.trim();
 };
