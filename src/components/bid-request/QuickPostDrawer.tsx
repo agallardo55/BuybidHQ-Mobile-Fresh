@@ -14,7 +14,7 @@ const QuickPostDrawer = ({
 }: QuickPostDrawerProps) => {
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[300px] sm:w-[300px] overflow-y-auto p-3">
+      <SheetContent className="w-[400px] sm:w-[400px] overflow-y-auto p-3">
         <QuickPostForm onClose={onClose} />
       </SheetContent>
     </Sheet>
