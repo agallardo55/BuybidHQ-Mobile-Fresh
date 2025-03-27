@@ -2,12 +2,16 @@
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Car, Gauge, ArrowRight, ChevronLeft, Check } from "lucide-react";
+import { Car, Gauge, ArrowRight, ChevronLeft, Send, Engine, Transmission } from "lucide-react";
 import { useVinDecoder } from "../vin-scanner/useVinDecoder";
 import { toast } from "sonner";
 import { TrimOption } from "../types";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
+import { useBuyers } from "@/hooks/useBuyers";
+import BuyerSelector from "../components/BuyerSelector";
+import NotesInput from "../components/NotesInput";
+import { Card } from "@/components/ui/card";
 
 interface QuickPostFormProps {
   onClose: () => void;
@@ -17,12 +21,14 @@ type FormView = "vinEntry" | "vehicleDetails";
 
 const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
   const navigate = useNavigate();
+  const { buyers } = useBuyers();
   
   // Form state
   const [vin, setVin] = useState("");
   const [mileage, setMileage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentView, setCurrentView] = useState<FormView>("vinEntry");
+  const [selectedBuyer, setSelectedBuyer] = useState("");
   
   // Vehicle details after fetch
   const [vehicleDetails, setVehicleDetails] = useState<{
@@ -38,6 +44,14 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
   
   // Additional fields for second view
   const [notes, setNotes] = useState("");
+  
+  // Map buyers to the format expected by the BuyerSelector component
+  const mappedBuyers = buyers?.map(buyer => ({
+    id: buyer.id,
+    name: buyer.name,
+    dealership: buyer.dealership,
+    mobile: buyer.mobileNumber
+  })) || [];
   
   const { decodeVin, isLoading } = useVinDecoder((vehicleData) => {
     // Store the vehicle data once fetched
@@ -62,17 +76,21 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
   };
 
   const handleCreateBidRequest = () => {
-    // Here we would typically navigate to the create bid request form with the details pre-filled
-    // For now, let's just show a success message and close
+    if (!selectedBuyer) {
+      toast.error("Please select a buyer");
+      return;
+    }
+    
     toast.success("Creating new bid request with vehicle details");
     
-    // Navigate to create bid request page (you could pass state with the vehicle details)
+    // Navigate to create bid request page with the vehicle details
     navigate("/create-bid-request", { 
       state: { 
         vin,
         mileage: mileage.replace(/,/g, ''),
         ...vehicleDetails,
-        notes 
+        notes,
+        buyerId: selectedBuyer
       } 
     });
     
@@ -111,6 +129,14 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     }
     
     setMileage(formattedValue);
+  };
+
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNotes(e.target.value);
+  };
+
+  const handleBuyerChange = (value: string) => {
+    setSelectedBuyer(value);
   };
 
   return (
@@ -167,8 +193,8 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
           </p>
         </>
       ) : (
-        <>
-          <div className="flex items-center mb-4">
+        <div className="flex flex-col space-y-6">
+          <div className="flex items-center mb-2">
             <Button 
               variant="ghost" 
               size="sm" 
@@ -181,56 +207,79 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
           </div>
           
           {vehicleDetails && (
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-3 rounded-md">
-                <h3 className="text-lg font-medium mb-2">
-                  {vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}
-                </h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="font-medium">VIN:</span> {vin}
-                  </div>
-                  <div>
-                    <span className="font-medium">Mileage:</span> {mileage}
-                  </div>
-                  <div>
-                    <span className="font-medium">Trim:</span> {vehicleDetails.trim}
-                  </div>
-                  <div>
-                    <span className="font-medium">Engine:</span> {vehicleDetails.engineCylinders || "N/A"}
-                  </div>
-                  <div>
-                    <span className="font-medium">Transmission:</span> {vehicleDetails.transmission || "N/A"}
-                  </div>
-                  <div>
-                    <span className="font-medium">Drivetrain:</span> {vehicleDetails.drivetrain || "N/A"}
+            <>
+              <Card className="p-6 rounded-lg border border-gray-200">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-xl font-bold">
+                    {vehicleDetails.year} {vehicleDetails.make} {vehicleDetails.model}
+                  </h3>
+                  <div className="bg-gray-100 px-3 py-1 rounded-full text-sm">
+                    {vehicleDetails.trim}
                   </div>
                 </div>
-              </div>
+                
+                <div className="text-gray-700 mb-4">
+                  <p>VIN: {vin}</p>
+                </div>
+                
+                <div className="flex items-center text-gray-600 mb-4">
+                  <Car className="h-5 w-5 mr-2 text-gray-500" />
+                  <span className="text-lg">{mileage} miles</span>
+                </div>
+                
+                <div className="border-t border-gray-200 my-3"></div>
+                
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex items-center">
+                    <Engine className="h-5 w-5 mr-2 text-gray-500" />
+                    <span>Engine: {vehicleDetails.engineCylinders || "N/A"}</span>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <Transmission className="h-5 w-5 mr-2 text-gray-500" />
+                    <span>Transmission: {vehicleDetails.transmission || "N/A"}</span>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <Car className="h-5 w-5 mr-2 text-gray-500" />
+                    <span>Drivetrain: {vehicleDetails.drivetrain || "N/A"}</span>
+                  </div>
+                </div>
+              </Card>
               
-              <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                  Additional Notes
-                </label>
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold">Notes</h3>
                 <Textarea
-                  id="notes"
+                  placeholder="Add any additional information about your bid request..."
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Enter any additional details about the vehicle..."
+                  onChange={handleNotesChange}
                   className="h-24 resize-none"
                 />
               </div>
               
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold">Select Buyer</h3>
+                <BuyerSelector
+                  selectedBuyer={selectedBuyer}
+                  buyers={mappedBuyers}
+                  onBuyerChange={handleBuyerChange}
+                />
+              </div>
+              
               <Button 
-                className="w-full bg-blue-400 hover:bg-blue-500 text-white"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6"
                 onClick={handleCreateBidRequest}
               >
-                <Check className="mr-1 h-4 w-4" />
-                Create Bid Request
+                <Send className="mr-2 h-5 w-5" />
+                Submit Bid Request
               </Button>
-            </div>
+              
+              <p className="text-gray-500 text-center text-sm">
+                After submission, dealers will contact you with offers
+              </p>
+            </>
           )}
-        </>
+        </div>
       )}
     </div>
   );

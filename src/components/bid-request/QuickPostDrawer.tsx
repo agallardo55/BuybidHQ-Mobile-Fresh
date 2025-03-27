@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import QuickPostForm from "./quick-post/QuickPostForm";
 
 interface QuickPostDrawerProps {
@@ -14,7 +14,7 @@ const QuickPostDrawer = ({
 }: QuickPostDrawerProps) => {
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[400px] sm:max-w-md overflow-y-auto p-4">
+      <SheetContent className="w-[90%] sm:w-[500px] md:max-w-md overflow-y-auto p-4">
         <QuickPostForm onClose={onClose} />
       </SheetContent>
     </Sheet>
