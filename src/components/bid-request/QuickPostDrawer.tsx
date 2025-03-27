@@ -1,7 +1,6 @@
 
 import React from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import QuickPostForm from "./quick-post/QuickPostForm";
 
 interface QuickPostDrawerProps {
@@ -15,21 +14,8 @@ const QuickPostDrawer = ({
 }: QuickPostDrawerProps) => {
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader className="mb-4">
-          <SheetTitle>Quick Post</SheetTitle>
-          <SheetDescription>
-            Create a quick bid request with minimal details.
-          </SheetDescription>
-        </SheetHeader>
-
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto p-4">
         <QuickPostForm onClose={onClose} />
-
-        <SheetFooter className="pt-2 flex flex-row gap-2 sm:justify-end">
-          <Button type="button" variant="outline" onClick={onClose} className="flex-1 sm:flex-initial h-8 text-sm">
-            Close
-          </Button>
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
