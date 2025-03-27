@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Car, Gauge, ArrowRight, ChevronLeft, Send, Engine, Transmission } from "lucide-react";
+import { Car, Gauge, ArrowRight, ChevronLeft, Send, Wrench, Cog } from "lucide-react";
 import { useVinDecoder } from "../vin-scanner/useVinDecoder";
 import { toast } from "sonner";
 import { TrimOption } from "../types";
@@ -12,6 +12,7 @@ import { useBuyers } from "@/hooks/useBuyers";
 import BuyerSelector from "../components/BuyerSelector";
 import NotesInput from "../components/NotesInput";
 import { Card } from "@/components/ui/card";
+import { MappedBuyer } from "@/hooks/buyers/types";
 
 interface QuickPostFormProps {
   onClose: () => void;
@@ -46,11 +47,25 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
   const [notes, setNotes] = useState("");
   
   // Map buyers to the format expected by the BuyerSelector component
-  const mappedBuyers = buyers?.map(buyer => ({
+  const mappedBuyers: MappedBuyer[] = buyers?.map(buyer => ({
     id: buyer.id,
+    user_id: buyer.user_id || '',
     name: buyer.name,
+    email: buyer.email || '',
     dealership: buyer.dealership,
-    mobile: buyer.mobileNumber
+    dealerId: buyer.dealerId || '',
+    mobileNumber: buyer.mobileNumber,
+    businessNumber: buyer.businessNumber || '',
+    location: buyer.location || '',
+    address: buyer.address || '',
+    city: buyer.city || '',
+    state: buyer.state || '',
+    zipCode: buyer.zipCode || '',
+    acceptedBids: buyer.acceptedBids || 0,
+    pendingBids: buyer.pendingBids || 0,
+    declinedBids: buyer.declinedBids || 0,
+    phoneCarrier: buyer.phoneCarrier || 'N/A',
+    phoneValidationStatus: buyer.phoneValidationStatus
   })) || [];
   
   const { decodeVin, isLoading } = useVinDecoder((vehicleData) => {
@@ -231,12 +246,12 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
                 
                 <div className="space-y-3 text-gray-700">
                   <div className="flex items-center">
-                    <Engine className="h-5 w-5 mr-2 text-gray-500" />
+                    <Wrench className="h-5 w-5 mr-2 text-gray-500" />
                     <span>Engine: {vehicleDetails.engineCylinders || "N/A"}</span>
                   </div>
                   
                   <div className="flex items-center">
-                    <Transmission className="h-5 w-5 mr-2 text-gray-500" />
+                    <Cog className="h-5 w-5 mr-2 text-gray-500" />
                     <span>Transmission: {vehicleDetails.transmission || "N/A"}</span>
                   </div>
                   
