@@ -2,6 +2,7 @@
 import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import QuickPostForm from "./quick-post/QuickPostForm";
 
 interface QuickPostDrawerProps {
   isOpen: boolean;
@@ -12,7 +13,8 @@ const QuickPostDrawer = ({
   isOpen,
   onClose
 }: QuickPostDrawerProps) => {
-  return <Sheet open={isOpen} onOpenChange={onClose}>
+  return (
+    <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="mb-4">
           <SheetTitle>Quick Post</SheetTitle>
@@ -21,11 +23,7 @@ const QuickPostDrawer = ({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex justify-center items-center h-64">
-          <p className="text-center text-muted-foreground">
-            Quick post functionality is currently being updated.
-          </p>
-        </div>
+        <QuickPostForm onClose={onClose} />
 
         <SheetFooter className="pt-2 flex flex-row gap-2 sm:justify-end">
           <Button type="button" variant="outline" onClick={onClose} className="flex-1 sm:flex-initial h-8 text-sm">
@@ -33,7 +31,8 @@ const QuickPostDrawer = ({
           </Button>
         </SheetFooter>
       </SheetContent>
-    </Sheet>;
+    </Sheet>
+  );
 };
 
 export default QuickPostDrawer;
