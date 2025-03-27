@@ -2,10 +2,9 @@
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Car, Gauge, ArrowRight, X } from "lucide-react";
+import { Car, Gauge, ArrowRight } from "lucide-react";
 import { useVinDecoder } from "../vin-scanner/useVinDecoder";
 import { toast } from "sonner";
-import MileageInput from "../components/MileageInput";
 
 interface QuickPostFormProps {
   onClose: () => void;
@@ -52,48 +51,60 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     setVin(limitedVin);
   };
 
+  // Handle mileage input to only accept numbers
+  const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
+    // Format with commas for thousands
+    let formattedValue = numericValue;
+    if (numericValue) {
+      formattedValue = Number(numericValue).toLocaleString('en-US', {
+        maximumFractionDigits: 0,
+        useGrouping: true
+      });
+    }
+    
+    setMileage(formattedValue);
+  };
+
   return (
     <div className="flex flex-col py-4 px-1">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Quick Vehicle Post</h2>
-        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-      
+      <h2 className="text-2xl font-semibold mb-2">Enter Vehicle VIN</h2>
       <p className="text-gray-500 mb-6">
-        Enter the vehicle VIN to fetch details
+        Please enter the 17-character VIN to fetch vehicle details
       </p>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
-          <div className="relative">
-            <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input 
-              value={vin}
-              onChange={handleVinChange}
-              className="pl-11 py-5 text-base uppercase"
-              placeholder="VIN (17 characters)"
-              maxLength={17}
-            />
-            <div className="text-xs text-gray-500 mt-1 ml-2">
-              {vin.length}/17 characters
-            </div>
-          </div>
-          
-          <MileageInput 
-            mileage={mileage}
-            onChange={(e) => setMileage(e.target.value)}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="relative">
+          <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <Input 
+            value={vin}
+            onChange={handleVinChange}
+            className="pl-11 py-6 uppercase"
+            placeholder="e.g. 1C4HJWDG3JL915998"
+            maxLength={17}
+          />
+        </div>
+        
+        <div className="relative">
+          <Gauge className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <Input 
+            value={mileage}
+            onChange={handleMileageChange}
+            className="pl-11 py-6"
+            placeholder="Vehicle Mileage"
+            inputMode="numeric"
           />
         </div>
         
         <Button 
           type="submit" 
-          className="w-full py-6 bg-blue-500 hover:bg-blue-600 text-white"
+          className="w-full py-6 bg-blue-400 hover:bg-blue-500 text-white"
           disabled={isLoading || isSubmitting || vin.length !== 17}
         >
           {isLoading || isSubmitting ? (
-            "Processing..."
+            "Loading..."
           ) : (
             <>
               Fetch Vehicle Details
@@ -104,7 +115,7 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
       </form>
       
       <p className="text-gray-500 text-center mt-6 text-sm">
-        VIN can be found on the dashboard or driver's door jamb
+        VIN can be found on the vehicle's dashboard or driver-side door jamb
       </p>
     </div>
   );
