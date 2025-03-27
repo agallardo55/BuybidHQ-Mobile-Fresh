@@ -43,8 +43,8 @@ const VehicleDetailsView = ({
   onSubmit
 }: VehicleDetailsViewProps) => {
   return (
-    <div className="flex flex-col space-y-6">
-      <div className="flex items-center mb-2">
+    <div className="flex flex-col space-y-5">
+      <div className="flex items-center mb-1">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -53,7 +53,7 @@ const VehicleDetailsView = ({
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <h2 className="text-2xl font-semibold">Vehicle Details</h2>
+        <h2 className="text-lg font-semibold">Vehicle Details</h2>
       </div>
       
       <VehicleDetailsCard
@@ -68,18 +68,18 @@ const VehicleDetailsView = ({
         drivetrain={vehicleDetails.drivetrain}
       />
       
-      <div className="space-y-2">
-        <h3 className="text-xl font-semibold">Notes</h3>
+      <div className="space-y-1">
+        <h3 className="text-base font-semibold">Notes</h3>
         <Textarea
           placeholder="Add any additional information about your bid request..."
           value={notes}
           onChange={onNotesChange}
-          className="h-24 resize-none"
+          className="h-20 resize-none text-sm"
         />
       </div>
       
-      <div className="space-y-2">
-        <h3 className="text-xl font-semibold">Select Buyer</h3>
+      <div className="space-y-1">
+        <h3 className="text-base font-semibold">Select Buyer</h3>
         <BuyerSelector
           selectedBuyer={selectedBuyer}
           buyers={buyers}
@@ -88,14 +88,14 @@ const VehicleDetailsView = ({
       </div>
       
       <Button 
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 text-sm"
         onClick={onSubmit}
       >
-        <Send className="mr-2 h-5 w-5" />
+        <Send className="mr-2 h-4 w-4" />
         Submit Bid Request
       </Button>
       
-      <p className="text-gray-500 text-center text-sm">
+      <p className="text-gray-500 text-center text-xs">
         After submission, dealers will contact you with offers
       </p>
     </div>

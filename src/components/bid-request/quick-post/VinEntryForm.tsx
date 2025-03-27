@@ -25,8 +25,8 @@ const VinEntryForm = ({
 }: VinEntryFormProps) => {
   return (
     <>
-      <h2 className="text-2xl font-semibold mb-2">Enter Vehicle VIN</h2>
-      <p className="text-gray-500 mb-4">
+      <h2 className="text-xl font-semibold mb-2">Enter Vehicle VIN</h2>
+      <p className="text-gray-500 mb-4 text-sm">
         Please enter the 17-character VIN to fetch vehicle details
       </p>
       
