@@ -38,6 +38,19 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     decodeVin(vin);
   };
 
+  // Format and validate VIN input
+  const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    
+    // Remove any non-alphanumeric characters
+    const formattedVin = input.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    
+    // Limit to 17 characters
+    const limitedVin = formattedVin.slice(0, 17);
+    
+    setVin(limitedVin);
+  };
+
   // Handle mileage input to only accept numbers
   const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -67,8 +80,8 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
           <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <Input 
             value={vin}
-            onChange={(e) => setVin(e.target.value)}
-            className="pl-11 py-6"
+            onChange={handleVinChange}
+            className="pl-11 py-6 uppercase"
             placeholder="e.g. 1C4HJWDG3JL915998"
             maxLength={17}
           />
@@ -88,7 +101,7 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
         <Button 
           type="submit" 
           className="w-full py-6 bg-blue-400 hover:bg-blue-500 text-white"
-          disabled={isLoading || isSubmitting}
+          disabled={isLoading || isSubmitting || vin.length !== 17}
         >
           {isLoading || isSubmitting ? (
             "Loading..."
