@@ -78,14 +78,11 @@ const VehicleDetailsView = ({
         />
       </div>
       
-      <div className="space-y-1">
-        <h3 className="text-base font-semibold">Select Buyer</h3>
-        <BuyerSelector
-          selectedBuyer={selectedBuyer}
-          buyers={buyers}
-          onBuyerChange={onBuyerChange}
-        />
-      </div>
+      <BuyerSelector
+        selectedBuyer={selectedBuyer}
+        buyers={buyers}
+        onBuyerChange={onBuyerChange}
+      />
       
       <Button 
         className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 text-sm"
