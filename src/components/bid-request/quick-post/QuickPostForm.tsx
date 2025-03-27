@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Car, Gauge, ArrowRight } from "lucide-react";
@@ -12,7 +11,6 @@ interface QuickPostFormProps {
 }
 
 const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
-  const navigate = useNavigate();
   const [vin, setVin] = useState("");
   const [mileage, setMileage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,16 +20,8 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     console.log("Vehicle data fetched:", vehicleData);
     toast.success("Vehicle details retrieved successfully");
     
-    // Navigate to the vehicle details view with the data
-    navigate("/vehicle-details", { 
-      state: { 
-        vehicleData: {
-          ...vehicleData,
-          mileage: mileage
-        }
-      } 
-    });
-    
+    // Here you would typically navigate to a more detailed form
+    // with the pre-filled vehicle data
     setIsSubmitting(false);
     onClose();
   });

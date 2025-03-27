@@ -11,9 +11,6 @@ export interface CarApiResult {
     drive_type?: string;
     turbo?: boolean;
     trim?: string;
-    body_class?: string;
-    doors?: string;
-    series?: string;
   };
   trims: CarApiTrim[];
 }
@@ -48,10 +45,4 @@ export interface TrimOption {
     transmission?: string;
     drivetrain?: string;
   };
-  year?: number;
-}
-
-export interface ResponseResult {
-  status: number;
-  data: VehicleData | { error: string };
 }

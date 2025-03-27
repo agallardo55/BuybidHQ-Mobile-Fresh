@@ -1,60 +1,73 @@
 
-import React from "react";
-import { Car, Gauge, GitFork } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import FormField from "./FormField";
 
 interface VehicleSpecificationsProps {
-  mileage: string;
-  engineCylinders: string;
-  transmission: string;
-  drivetrain: string;
+  formData: {
+    mileage: string;
+    engineCylinders: string;
+    transmission: string;
+    drivetrain: string;
+  };
+  errors: {
+    mileage?: string;
+    engineCylinders?: string;
+    transmission?: string;
+    drivetrain?: string;
+  };
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  showValidation?: boolean;
 }
 
-const VehicleSpecifications: React.FC<VehicleSpecificationsProps> = ({
-  mileage,
-  engineCylinders,
-  transmission,
-  drivetrain
-}) => {
+const VehicleSpecifications = ({
+  formData,
+  errors,
+  onChange,
+  showValidation
+}: VehicleSpecificationsProps) => {
   return (
-    <>
-      <div className="flex items-center gap-2 mt-4 text-gray-600">
-        <Car className="h-5 w-5" />
-        <span>{Number(mileage.replace(/,/g, '')).toLocaleString()} miles</span>
-      </div>
-      
-      <Separator className="my-4" />
-      
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 text-gray-600">
-          <Gauge className="h-5 w-5 shrink-0" />
-          <span>Engine: {engineCylinders}</span>
-        </div>
-        
-        <div className="flex items-center gap-2 text-gray-600">
-          <GitFork className="h-5 w-5 shrink-0 rotate-90" />
-          <span>Transmission: {transmission}</span>
-        </div>
-        
-        <div className="flex items-center gap-2 text-gray-600">
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            className="shrink-0"
-          >
-            <path d="M5 9h14M9 5v14M4.5 4.5l15 15" />
-          </svg>
-          <span>Drivetrain: {drivetrain}</span>
-        </div>
-      </div>
-    </>
+    <div className="space-y-4">
+      <FormField
+        id="mileage"
+        label="Mileage"
+        type="number"
+        value={formData.mileage}
+        onChange={onChange}
+        error={errors.mileage}
+        placeholder="35000"
+        min="0"
+        showValidation={showValidation}
+      />
+      <FormField
+        id="engineCylinders"
+        label="Engine"
+        value={formData.engineCylinders}
+        onChange={onChange}
+        error={errors.engineCylinders}
+        placeholder="2.0L 4-Cylinder Turbo"
+        required={false}
+        showValidation={showValidation}
+      />
+      <FormField
+        id="transmission"
+        label="Transmission"
+        value={formData.transmission}
+        onChange={onChange}
+        error={errors.transmission}
+        placeholder="8-Speed Automatic"
+        required={false}
+        showValidation={showValidation}
+      />
+      <FormField
+        id="drivetrain"
+        label="Drivetrain"
+        value={formData.drivetrain}
+        onChange={onChange}
+        error={errors.drivetrain}
+        placeholder="AWD, FWD, RWD"
+        required={false}
+        showValidation={showValidation}
+      />
+    </div>
   );
 };
 

@@ -54,10 +54,10 @@ const BasicVehicleInfo = ({
           showValidation={showValidation}
         />
         <VehicleSpecifications
-          mileage={formData.mileage}
-          engineCylinders={formData.engineCylinders}
-          transmission={formData.transmission}
-          drivetrain={formData.drivetrain}
+          formData={formData}
+          errors={errors}
+          onChange={onChange}
+          showValidation={showValidation}
         />
       </div>
     </div>
