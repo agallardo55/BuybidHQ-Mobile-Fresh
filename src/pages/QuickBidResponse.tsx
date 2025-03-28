@@ -132,7 +132,7 @@ const QuickBidResponse = () => {
         <QuickBidDetailsView
           vehicle={data.vehicle as VehicleDetails}
           buyer={data.buyer}
-          notes={data.notes || ''}
+          notes={data.notes || ''} // Ensure we pass a string by adding fallback
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
           existingBidAmount={existingBidAmount}

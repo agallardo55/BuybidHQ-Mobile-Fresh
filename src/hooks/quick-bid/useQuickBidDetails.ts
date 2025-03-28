@@ -3,12 +3,46 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useParams } from "react-router-dom";
 
+// Define an interface for the return type
+interface QuickBidDetails {
+  requestId: string;
+  createdAt: Date;
+  status: string;
+  notes: string;
+  vehicle: {
+    year: string;
+    make: string;
+    model: string;
+    trim: string;
+    vin: string;
+    mileage: string;
+    engineCylinders: string;
+    transmission: string;
+    drivetrain: string;
+    exteriorColor: string;
+    interiorColor: string;
+    accessories: string;
+    windshield: string;
+    engineLights: string;
+    brakes: string;
+    tire: string;
+    maintenance: string;
+    reconEstimate: string;
+    reconDetails: string;
+  };
+  buyer: {
+    name: string;
+    dealership: string;
+    mobileNumber: string;
+  };
+}
+
 export const useQuickBidDetails = () => {
   const { id } = useParams();
 
   return useQuery({
     queryKey: ['quickBidDetails', id],
-    queryFn: async () => {
+    queryFn: async (): Promise<QuickBidDetails> => {
       if (!id) throw new Error('No bid request ID provided');
 
       // Get the quick bid request details
@@ -60,7 +94,7 @@ export const useQuickBidDetails = () => {
       
       // Use the first token's notes or empty string
       const notes = tokenData.length > 0 && tokenData[0] && 'notes' in tokenData[0] 
-        ? tokenData[0].notes || '' 
+        ? String(tokenData[0].notes || '') 
         : '';
       
       return {
