@@ -69,15 +69,15 @@ export const useQuickBidDetails = () => {
         status: requestDetails.status,
         notes: notes,
         vehicle: {
-          year: vehicle.year || 'N/A',
-          make: vehicle.make || 'N/A',
-          model: vehicle.model || 'N/A',
-          trim: vehicle.trim || 'N/A',
-          vin: vehicle.vin || 'N/A',
-          mileage: vehicle.mileage || 'N/A',
-          engineCylinders: vehicle.engine || 'N/A',
-          transmission: vehicle.transmission || 'N/A',
-          drivetrain: vehicle.drivetrain || 'N/A',
+          year: typeof vehicle === 'object' && vehicle && 'year' in vehicle ? String(vehicle.year || 'N/A') : 'N/A',
+          make: typeof vehicle === 'object' && vehicle && 'make' in vehicle ? String(vehicle.make || 'N/A') : 'N/A',
+          model: typeof vehicle === 'object' && vehicle && 'model' in vehicle ? String(vehicle.model || 'N/A') : 'N/A',
+          trim: typeof vehicle === 'object' && vehicle && 'trim' in vehicle ? String(vehicle.trim || 'N/A') : 'N/A',
+          vin: typeof vehicle === 'object' && vehicle && 'vin' in vehicle ? String(vehicle.vin || 'N/A') : 'N/A',
+          mileage: typeof vehicle === 'object' && vehicle && 'mileage' in vehicle ? String(vehicle.mileage || 'N/A') : 'N/A',
+          engineCylinders: typeof vehicle === 'object' && vehicle && 'engine' in vehicle ? String(vehicle.engine || 'N/A') : 'N/A',
+          transmission: typeof vehicle === 'object' && vehicle && 'transmission' in vehicle ? String(vehicle.transmission || 'N/A') : 'N/A',
+          drivetrain: typeof vehicle === 'object' && vehicle && 'drivetrain' in vehicle ? String(vehicle.drivetrain || 'N/A') : 'N/A',
           exteriorColor: 'N/A',
           interiorColor: 'N/A',
           accessories: 'N/A',
@@ -90,9 +90,9 @@ export const useQuickBidDetails = () => {
           reconDetails: 'N/A'
         },
         buyer: {
-          name: user.full_name || 'N/A',
+          name: typeof user === 'object' && user && 'full_name' in user ? String(user.full_name || 'N/A') : 'N/A',
           dealership: 'N/A',
-          mobileNumber: user.mobile_number || 'N/A'
+          mobileNumber: typeof user === 'object' && user && 'mobile_number' in user ? String(user.mobile_number || 'N/A') : 'N/A'
         }
       };
     },
