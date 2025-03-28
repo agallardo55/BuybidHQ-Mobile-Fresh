@@ -1,48 +1,33 @@
 
-import React, { useState } from "react";
-import { useVinDecoder } from "../vin-scanner/useVinDecoder";
+import React from "react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { useBuyers } from "@/hooks/useBuyers";
 import { MappedBuyer } from "@/hooks/buyers/types";
 import VinEntryForm from "./VinEntryForm";
 import VehicleDetailsView from "./VehicleDetailsView";
-import { formatVin, formatMileage, createSyntheticEvent } from "./helpers";
-import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useQuickPostState } from "@/hooks/quick-post/useQuickPostState";
+import { useQuickPostSubmission } from "@/hooks/quick-post/useQuickPostSubmission";
+import { useVinFormHandling } from "@/hooks/quick-post/useVinFormHandling";
 
 interface QuickPostFormProps {
   onClose: () => void;
 }
 
-type FormView = "vinEntry" | "vehicleDetails";
-
 const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
-  const navigate = useNavigate();
   const { buyers } = useBuyers();
   const { currentUser } = useCurrentUser();
   
-  // Form state
-  const [vin, setVin] = useState("");
-  const [mileage, setMileage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentView, setCurrentView] = useState<FormView>("vinEntry");
-  const [selectedBuyer, setSelectedBuyer] = useState("");
-  
-  // Vehicle details after fetch
-  const [vehicleDetails, setVehicleDetails] = useState<{
-    year: string;
-    make: string;
-    model: string;
-    trim: string;
-    engineCylinders: string;
-    transmission: string;
-    drivetrain: string;
-    availableTrims: any[];
-  } | null>(null);
-  
-  // Additional fields for second view
-  const [notes, setNotes] = useState("");
+  // Get state from custom hooks
+  const {
+    vin, setVin,
+    mileage, setMileage,
+    isSubmitting, setIsSubmitting,
+    currentView, setCurrentView,
+    selectedBuyer, setSelectedBuyer,
+    vehicleDetails, setVehicleDetails,
+    notes, setNotes
+  } = useQuickPostState();
   
   // Map buyers to the format expected by the BuyerSelector component
   const mappedBuyers: MappedBuyer[] = buyers?.map(buyer => ({
@@ -66,149 +51,16 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     phoneValidationStatus: buyer.phoneValidationStatus
   })) || [];
   
-  const { decodeVin, isLoading } = useVinDecoder((vehicleData) => {
-    // Store the vehicle data once fetched
-    setVehicleDetails(vehicleData);
-    setIsSubmitting(false);
-    
-    // Switch to the vehicle details view
-    setCurrentView("vehicleDetails");
-    toast.success("Vehicle details retrieved successfully");
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!vin || vin.length !== 17) {
-      toast.error("Please enter a valid 17-character VIN");
-      return;
-    }
-    
-    setIsSubmitting(true);
-    decodeVin(vin);
-  };
-
-  const handleCreateBidRequest = async () => {
-    if (!selectedBuyer) {
-      toast.error("Please select a buyer");
-      return;
-    }
-
-    if (!currentUser?.id) {
-      toast.error("You must be logged in to submit a bid request");
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      // Insert vehicle record
-      const { data: vehicleData, error: vehicleError } = await supabase
-        .from('vehicles')
-        .insert({
-          year: vehicleDetails?.year,
-          make: vehicleDetails?.make,
-          model: vehicleDetails?.model,
-          trim: vehicleDetails?.trim,
-          vin: vin,
-          mileage: mileage.replace(/,/g, ''),
-          engine: vehicleDetails?.engineCylinders,
-          transmission: vehicleDetails?.transmission,
-          drivetrain: vehicleDetails?.drivetrain
-        })
-        .select('id')
-        .single();
-
-      if (vehicleError) {
-        throw new Error(`Error creating vehicle: ${vehicleError.message}`);
-      }
-
-      // Create bid request - Use "Pending" instead of "pending" to match the expected type
-      const { data: bidRequestData, error: bidRequestError } = await supabase
-        .from('bid_requests')
-        .insert({
-          user_id: currentUser.id,
-          vehicle_id: vehicleData.id,
-          status: 'Pending'
-        })
-        .select('id')
-        .single();
-
-      if (bidRequestError) {
-        throw new Error(`Error creating bid request: ${bidRequestError.message}`);
-      }
-
-      // Create bid submission token
-      const expiryDate = new Date();
-      expiryDate.setDate(expiryDate.getDate() + 7); // Expires in 7 days
-
-      const { data: tokenData, error: tokenError } = await supabase
-        .from('bid_submission_tokens')
-        .insert({
-          bid_request_id: bidRequestData.id,
-          buyer_id: selectedBuyer,
-          token: crypto.randomUUID(),
-          expires_at: expiryDate.toISOString(),
-          is_used: false,
-          notes: notes // Store any notes here
-        })
-        .select('token')
-        .single();
-
-      if (tokenError) {
-        throw new Error(`Error creating submission token: ${tokenError.message}`);
-      }
-
-      // Get the selected buyer's details for SMS
-      const selectedBuyerDetails = mappedBuyers.find(buyer => buyer.id === selectedBuyer);
-      
-      if (!selectedBuyerDetails) {
-        throw new Error("Selected buyer not found");
-      }
-
-      // Send SMS notification
-      const bidRequestUrl = `${window.location.origin}/quick-bid/${bidRequestData.id}?token=${tokenData.token}`;
-      
-      await supabase.functions.invoke('send-knock-sms', {
-        body: {
-          type: 'bid_request',
-          phoneNumber: selectedBuyerDetails.mobileNumber,
-          senderName: currentUser.full_name || 'A dealer', // Use full_name instead of fullName
-          bidRequestUrl,
-          vehicleDetails: {
-            year: vehicleDetails?.year,
-            make: vehicleDetails?.make,
-            model: vehicleDetails?.model
-          }
-        }
-      });
-
-      toast.success("Bid request sent successfully to buyer");
-      onClose();
-      
-    } catch (error: any) {
-      console.error('Error submitting quick bid request:', error);
-      toast.error(error.message || "Failed to submit bid request");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const goBackToVinEntry = () => {
-    setCurrentView("vinEntry");
-  };
-
-  // Format and validate VIN input
-  const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedVin = formatVin(e.target.value);
-    setVin(formattedVin);
-  };
-
-  // Handle mileage input to only accept numbers
-  const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedValue = formatMileage(e.target.value);
-    setMileage(formattedValue);
-  };
+  // VIN form handling
+  const {
+    isLoading,
+    handleSubmit,
+    handleVinChange,
+    handleMileageChange
+  } = useVinFormHandling(setVehicleDetails, setIsSubmitting, setCurrentView);
+  
+  // Bid submission handling
+  const { handleCreateBidRequest } = useQuickPostSubmission(onClose, currentUser, mappedBuyers);
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNotes(e.target.value);
@@ -216,6 +68,28 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
 
   const handleBuyerChange = (value: string) => {
     setSelectedBuyer(value);
+  };
+
+  const goBackToVinEntry = () => {
+    setCurrentView("vinEntry");
+  };
+  
+  const onVinSubmit = (e: React.FormEvent) => {
+    handleSubmit(e, vin);
+  };
+  
+  const onVinChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleVinChange(e, setVin);
+  };
+  
+  const onMileageChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleMileageChange(e, setMileage);
+  };
+
+  const onCreateBidRequest = () => {
+    if (vehicleDetails) {
+      handleCreateBidRequest(vehicleDetails, vin, mileage, notes, selectedBuyer);
+    }
   };
 
   return (
@@ -226,9 +100,9 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
           mileage={mileage}
           isLoading={isLoading}
           isSubmitting={isSubmitting}
-          onVinChange={handleVinChange}
-          onMileageChange={handleMileageChange}
-          onSubmit={handleSubmit}
+          onVinChange={onVinChangeHandler}
+          onMileageChange={onMileageChangeHandler}
+          onSubmit={onVinSubmit}
         />
       ) : (
         vehicleDetails && (
@@ -242,7 +116,7 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
             onNotesChange={handleNotesChange}
             onBuyerChange={handleBuyerChange}
             onGoBack={goBackToVinEntry}
-            onSubmit={handleCreateBidRequest}
+            onSubmit={onCreateBidRequest}
           />
         )
       )}

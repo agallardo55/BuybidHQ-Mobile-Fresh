@@ -51,15 +51,19 @@ export const useQuickBidDetails = () => {
         throw new Error('No bid request found');
       }
 
+      // Safely handle possibly undefined values
       const vehicle = requestDetails.vehicles || {};
       const user = requestDetails.buybidhq_users || {};
-      const token = requestDetails.bid_submission_tokens?.[0] || {};
+      const tokenData = requestDetails.bid_submission_tokens || [];
+      
+      // Use the first token's notes or empty string
+      const notes = tokenData.length > 0 ? tokenData[0]?.notes || '' : '';
       
       return {
         requestId: requestDetails.id,
         createdAt: new Date(requestDetails.created_at),
         status: requestDetails.status,
-        notes: token.notes || '',
+        notes: notes,
         vehicle: {
           year: vehicle.year || 'N/A',
           make: vehicle.make || 'N/A',
