@@ -12,6 +12,7 @@ import SignUp from "./pages/SignUp";
 import BidRequestDashboard from "./pages/BidRequestDashboard";
 import CreateBidRequest from "./pages/CreateBidRequest";
 import BidResponse from "./pages/BidResponse";
+import QuickBidResponse from "./pages/QuickBidResponse";
 import Buyers from "./pages/Buyers";
 import Users from "./pages/Users";
 import Dealerships from "./pages/Dealerships";
@@ -82,6 +83,10 @@ const App = () => (
             <Route
               path="/bid-response/:id"
               element={<BidResponse />}
+            />
+            <Route
+              path="/quick-bid/:id"
+              element={<QuickBidResponse />}
             />
             <Route
               path="/buyers"
