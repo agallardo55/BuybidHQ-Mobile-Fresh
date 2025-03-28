@@ -9,6 +9,7 @@ import { ErrorState, LoadingState, SubmittedState } from "@/components/bid-respo
 import { useBidSubmission } from "@/hooks/useBidSubmission";
 import QuickBidDetailsView from "@/components/quick-bid/QuickBidDetailsView";
 import { useQuickBidDetails } from "@/hooks/quick-bid/useQuickBidDetails";
+import { VehicleDetails } from "@/components/bid-response/types";
 
 const QuickBidResponse = () => {
   const [searchParams] = useSearchParams();
@@ -129,7 +130,7 @@ const QuickBidResponse = () => {
         />
       ) : data ? (
         <QuickBidDetailsView
-          vehicle={data.vehicle}
+          vehicle={data.vehicle as VehicleDetails}
           buyer={data.buyer}
           notes={data.notes || ''}
           onSubmit={handleSubmit}
