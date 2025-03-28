@@ -33,7 +33,7 @@ const QuickBidResponse = () => {
   useEffect(() => {
     const checkExistingBid = async () => {
       if (!token) {
-        setTokenError("No submission token provided");
+        setTokenError("Bid Request Not Available");
         return;
       }
 
