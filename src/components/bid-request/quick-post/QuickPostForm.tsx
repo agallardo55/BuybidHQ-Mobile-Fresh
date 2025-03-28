@@ -123,13 +123,13 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
         throw new Error(`Error creating vehicle: ${vehicleError.message}`);
       }
 
-      // Create bid request
+      // Create bid request - Use "Pending" instead of "pending" to match the expected type
       const { data: bidRequestData, error: bidRequestError } = await supabase
         .from('bid_requests')
         .insert({
           user_id: currentUser.id,
           vehicle_id: vehicleData.id,
-          status: 'pending'
+          status: 'Pending'
         })
         .select('id')
         .single();
@@ -149,7 +149,8 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
           buyer_id: selectedBuyer,
           token: crypto.randomUUID(),
           expires_at: expiryDate.toISOString(),
-          is_used: false
+          is_used: false,
+          notes: notes // Store any notes here
         })
         .select('token')
         .single();
@@ -172,7 +173,7 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
         body: {
           type: 'bid_request',
           phoneNumber: selectedBuyerDetails.mobileNumber,
-          senderName: currentUser.fullName || 'A dealer',
+          senderName: currentUser.full_name || 'A dealer', // Use full_name instead of fullName
           bidRequestUrl,
           vehicleDetails: {
             year: vehicleDetails?.year,

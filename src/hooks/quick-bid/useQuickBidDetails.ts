@@ -13,41 +13,78 @@ export const useQuickBidDetails = () => {
 
       // Get the quick bid request details
       const { data: requestDetails, error: requestError } = await supabase
-        .rpc('get_quick_bid_request_details', {
-          p_request_id: id
-        });
+        .from('bid_requests')
+        .select(`
+          id,
+          created_at,
+          status,
+          vehicles (
+            id,
+            year, 
+            make,
+            model,
+            trim,
+            vin,
+            mileage,
+            engine,
+            transmission,
+            drivetrain
+          ),
+          buybidhq_users (
+            full_name,
+            dealership_id,
+            mobile_number
+          ),
+          bid_submission_tokens (
+            notes
+          )
+        `)
+        .eq('id', id)
+        .single();
 
       if (requestError) {
         console.error('Error fetching quick bid details:', requestError);
         throw requestError;
       }
 
-      if (!requestDetails || requestDetails.length === 0) {
+      if (!requestDetails) {
         throw new Error('No bid request found');
       }
 
-      const details = requestDetails[0];
+      const vehicle = requestDetails.vehicles || {};
+      const user = requestDetails.buybidhq_users || {};
+      const token = requestDetails.bid_submission_tokens?.[0] || {};
       
       return {
-        requestId: details.request_id,
-        createdAt: new Date(details.created_at),
-        status: details.status,
-        notes: details.notes || '',
+        requestId: requestDetails.id,
+        createdAt: new Date(requestDetails.created_at),
+        status: requestDetails.status,
+        notes: token.notes || '',
         vehicle: {
-          year: details.year,
-          make: details.make,
-          model: details.model,
-          trim: details.trim_level || 'N/A',
-          vin: details.vin,
-          mileage: details.mileage,
-          engineCylinders: details.engine_cylinders || 'N/A',
-          transmission: details.transmission || 'N/A',
-          drivetrain: details.drivetrain || 'N/A'
+          year: vehicle.year || 'N/A',
+          make: vehicle.make || 'N/A',
+          model: vehicle.model || 'N/A',
+          trim: vehicle.trim || 'N/A',
+          vin: vehicle.vin || 'N/A',
+          mileage: vehicle.mileage || 'N/A',
+          engineCylinders: vehicle.engine || 'N/A',
+          transmission: vehicle.transmission || 'N/A',
+          drivetrain: vehicle.drivetrain || 'N/A',
+          exteriorColor: 'N/A',
+          interiorColor: 'N/A',
+          accessories: 'N/A',
+          windshield: 'N/A',
+          engineLights: 'N/A',
+          brakes: 'N/A',
+          tire: 'N/A',
+          maintenance: 'N/A',
+          reconEstimate: '0',
+          reconDetails: 'N/A'
         },
         buyer: {
-          name: details.user_full_name,
-          dealership: details.dealership || 'N/A',
-          mobileNumber: details.mobile_number || 'N/A'
+          name: user.full_name || 'N/A',
+          dealership: 'N/A',
+          mobileNumber: user.mobile_number || 'N/A'
         }
       };
     },
