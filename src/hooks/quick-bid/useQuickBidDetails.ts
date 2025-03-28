@@ -54,10 +54,14 @@ export const useQuickBidDetails = () => {
       // Safely handle possibly undefined values
       const vehicle = requestDetails.vehicles || {};
       const user = requestDetails.buybidhq_users || {};
-      const tokenData = requestDetails.bid_submission_tokens || [];
+      const tokenData = Array.isArray(requestDetails.bid_submission_tokens) 
+        ? requestDetails.bid_submission_tokens 
+        : [];
       
       // Use the first token's notes or empty string
-      const notes = tokenData.length > 0 ? tokenData[0]?.notes || '' : '';
+      const notes = tokenData.length > 0 && tokenData[0] && 'notes' in tokenData[0] 
+        ? tokenData[0].notes || '' 
+        : '';
       
       return {
         requestId: requestDetails.id,

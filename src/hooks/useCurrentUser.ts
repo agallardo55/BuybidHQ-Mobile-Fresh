@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { User, UserRole } from "@/types/users";
 
-interface UserData {
+export interface UserData {
   id: string;
   email: string;
   role: UserRole;
