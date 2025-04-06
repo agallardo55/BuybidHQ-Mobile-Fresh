@@ -40,7 +40,7 @@ const Hero = () => {
               </div>
               <h1 className="mt-6 text-4xl font-bold tracking-tight text-white sm:text-6xl animate-slide-in" style={{
               textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)'
-            }}>Connecting Buyers and Sellers like never before.</h1>
+            }}>Connecting Wholesale Buyers and Sellers like never before.</h1>
               <p className="mt-6 text-lg leading-8 text-gray-100 animate-slide-in font-medium" style={{
               animationDelay: "0.2s",
               textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)'
