@@ -34,7 +34,7 @@ const Hero = () => {
           <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center lg:pt-32">
             <div className="mx-auto max-w-3xl">
               <div className="animate-fade-in">
-                <span className="rounded-full bg-white/20 px-3 py-1 text-sm font-semibold leading-6 text-white ring-1 ring-inset ring-white/40 backdrop-blur-[2px]">Built for Deals, Not Group Chats</span>
+                <span className="rounded-full bg-white/20 px-3 py-1 text-sm font-semibold leading-6 text-white ring-1 ring-inset ring-white/40 backdrop-blur-[2px]">Built all Dealer types</span>
               </div>
               <h1 className="mt-6 text-4xl font-bold tracking-tight text-white sm:text-6xl animate-slide-in" style={{
               textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)'
