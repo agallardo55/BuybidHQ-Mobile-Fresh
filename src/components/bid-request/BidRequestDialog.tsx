@@ -6,9 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ImageCarousel from "./components/ImageCarousel";
 import ImagePreviewDialog from "./components/ImagePreviewDialog";
 import RequestHeader from "./components/RequestHeader";
-import VehicleDetails from "./components/VehicleDetails";
-import VehicleCondition from "./components/VehicleCondition";
-import Reconditioning from "./components/Reconditioning";
+import BidRequestTabs from "./components/BidRequestTabs";
 
 interface BidRequestDialogProps {
   request: BidRequest | null;
@@ -63,11 +61,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-            <VehicleDetails request={request} />
-            <VehicleCondition request={request} />
-            <Reconditioning request={request} />
-          </div>
+          <BidRequestTabs request={request} />
         </DialogContent>
       </Dialog>
 
