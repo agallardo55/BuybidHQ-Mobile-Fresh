@@ -8,7 +8,7 @@ interface VehicleConditionProps {
 
 const VehicleCondition = ({ request }: VehicleConditionProps) => {
   return (
-    <div className="bg-white p-4 rounded-lg border">
+    <div className="bg-white p-3 rounded-lg border">
       <h3 className="font-semibold text-lg mb-2">Condition</h3>
       <div className="space-y-1">
         <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">

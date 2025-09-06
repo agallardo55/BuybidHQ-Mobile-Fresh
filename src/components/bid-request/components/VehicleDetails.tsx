@@ -7,8 +7,8 @@ interface VehicleDetailsProps {
 
 const VehicleDetails = ({ request }: VehicleDetailsProps) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div className="bg-white p-4 rounded-lg border">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="bg-white p-3 rounded-lg border">
         <h3 className="font-semibold text-lg mb-2">Details</h3>
         <div className="space-y-1">
           <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
@@ -28,7 +28,7 @@ const VehicleDetails = ({ request }: VehicleDetailsProps) => {
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg border">
+      <div className="bg-white p-3 rounded-lg border">
         <h3 className="font-semibold text-lg mb-2">Technical Specs</h3>
         <div className="space-y-1">
           <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">

@@ -50,10 +50,10 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="!w-[95vw] sm:!w-[90vw] md:!w-[85vw] lg:!w-[80vw] xl:!w-[75vw] !max-w-[1400px]">
+        <DialogContent className="!w-[95vw] sm:!w-[90vw] md:!w-[85vw] lg:!w-[80vw] xl:!w-[75vw] !max-w-[1400px] !max-h-[90vh] overflow-y-auto">
           <RequestHeader request={request} />
           
-          <div className="mt-4 bg-gray-50 rounded-lg p-4">
+          <div className="mt-3 bg-gray-50 rounded-lg p-3">
             <ImageCarousel 
               uploadedImages={images} 
               selectedFileUrls={[]} 

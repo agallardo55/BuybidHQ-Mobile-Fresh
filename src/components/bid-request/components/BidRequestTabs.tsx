@@ -12,25 +12,25 @@ interface BidRequestTabsProps {
 
 const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
   return (
-    <Tabs defaultValue="details" className="mt-4">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="details" className="flex items-center gap-2">
-          <Car size={16} />
+    <Tabs defaultValue="details" className="mt-2">
+      <TabsList className="grid w-full grid-cols-4 mb-3">
+        <TabsTrigger value="details" className="flex items-center gap-2 text-xs px-2 py-1.5">
+          <Car size={14} />
           Details
         </TabsTrigger>
-        <TabsTrigger value="appearance" className="flex items-center gap-2">
-          <Eye size={16} />
+        <TabsTrigger value="appearance" className="flex items-center gap-2 text-xs px-2 py-1.5">
+          <Eye size={14} />
           Appearance
         </TabsTrigger>
-        <TabsTrigger value="condition" className="flex items-center gap-2">
-          <Wrench size={16} />
+        <TabsTrigger value="condition" className="flex items-center gap-2 text-xs px-2 py-1.5">
+          <Wrench size={14} />
           Condition
         </TabsTrigger>
-        <TabsTrigger value="offers" className="flex items-center gap-2">
-          <DollarSign size={16} />
+        <TabsTrigger value="offers" className="flex items-center gap-2 text-xs px-2 py-1.5">
+          <DollarSign size={14} />
           Offers
           {request.offers.length > 0 && (
-            <Badge variant="secondary" className="ml-1">
+            <Badge variant="secondary" className="ml-1 text-xs px-1 py-0">
               {request.offers.length}
             </Badge>
           )}
@@ -42,9 +42,9 @@ const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
       </TabsContent>
       
       <TabsContent value="appearance">
-        <div className="bg-white border rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">Vehicle Appearance</h3>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white border rounded-lg p-4">
+          <h3 className="text-lg font-semibold mb-3">Vehicle Appearance</h3>
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium text-gray-600">Exterior Color</label>
               <p className="text-sm mt-1">{request.exteriorColor || 'Not specified'}</p>
@@ -62,19 +62,19 @@ const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
       </TabsContent>
       
       <TabsContent value="condition">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <VehicleCondition request={request} />
           <Reconditioning request={request} />
         </div>
       </TabsContent>
       
       <TabsContent value="offers">
-        <div className="bg-white border rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">Bid Offers</h3>
+        <div className="bg-white border rounded-lg p-4">
+          <h3 className="text-lg font-semibold mb-3">Bid Offers</h3>
           {request.offers.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {request.offers.map((offer, index) => (
-                <div key={offer.id} className="border rounded-lg p-4 bg-gray-50">
+                <div key={offer.id} className="border rounded-lg p-3 bg-gray-50">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="font-medium">{offer.buyerName}</h4>
@@ -101,8 +101,8 @@ const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <DollarSign size={48} className="mx-auto text-gray-400 mb-2" />
+            <div className="text-center py-6">
+              <DollarSign size={40} className="mx-auto text-gray-400 mb-2" />
               <p className="text-gray-600">No offers received yet</p>
             </div>
           )}
