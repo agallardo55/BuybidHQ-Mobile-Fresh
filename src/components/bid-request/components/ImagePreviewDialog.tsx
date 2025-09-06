@@ -1,6 +1,5 @@
 
-import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface ImagePreviewDialogProps {
   previewImage: string | null;
@@ -10,14 +9,20 @@ interface ImagePreviewDialogProps {
 const ImagePreviewDialog = ({ previewImage, onOpenChange }: ImagePreviewDialogProps) => {
   return (
     <Dialog open={!!previewImage} onOpenChange={open => !open && onOpenChange(false)}>
-      <DialogContent className="sm:max-w-3xl p-0 bg-black border-black">
-        <div className="relative w-full h-[80vh]">
-          {previewImage && <img src={previewImage} alt="Preview" className="w-full h-full object-contain" />}
+      <DialogContent className="sm:max-w-[90vw] p-0 bg-black border-0 shadow-none [&>button]:text-white [&>button]:hover:bg-white/20 [&>button]:focus:ring-white/50">
+        <DialogTitle className="sr-only">Image Preview</DialogTitle>
+        <DialogDescription className="sr-only">
+          Full size preview of the selected vehicle image
+        </DialogDescription>
+        <div className="relative w-full h-[80vh] flex items-center justify-center">
+          {previewImage && (
+            <img 
+              src={previewImage} 
+              alt="Vehicle preview" 
+              className="w-full h-full object-contain rounded-lg" 
+            />
+          )}
         </div>
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-white">
-          <X className="h-4 w-4 text-white" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
       </DialogContent>
     </Dialog>
   );
