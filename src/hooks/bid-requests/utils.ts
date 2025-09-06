@@ -25,6 +25,7 @@ interface BidRequestDetails {
   maintenance: string;
   recon_estimate: string;
   recon_details: string;
+  primary_image?: string | null;
 }
 
 interface BidOffer {
@@ -93,6 +94,7 @@ export const transformBidRequest = (
     vin: item.vin,
     mileage: parseInt(item.mileage),
     buyer: item.user_full_name || 'Unknown',
+    primaryImage: item.primary_image,
     offers,
     status,
     engineCylinders: item.engine_cylinders,

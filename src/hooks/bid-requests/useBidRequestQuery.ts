@@ -50,10 +50,22 @@ export const useBidRequestQuery = (enabled: boolean) => {
             return null;
           }
 
+          // Get primary image for this request
+          const { data: imageData } = await supabase
+            .from('images')
+            .select('image_url')
+            .eq('bid_request_id', request.id)
+            .order('sequence_order', { ascending: true, nullsFirst: false })
+            .order('created_at', { ascending: true })
+            .limit(1);
+
+          const primaryImage = imageData?.[0]?.image_url || null;
+
           return {
             ...data?.[0],
             created_at: request.created_at,
-            status: validateStatus(request.status)
+            status: validateStatus(request.status),
+            primary_image: primaryImage
           };
         });
 

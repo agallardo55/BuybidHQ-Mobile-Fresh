@@ -39,9 +39,9 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
       onClick={onClick}
     >
       <TableCell className="py-2 px-4 h-[44px] w-16">
-        {request.images && request.images.length > 0 ? (
+        {request.primaryImage ? (
           <img 
-            src={request.images[0]} 
+            src={request.primaryImage} 
             alt="Vehicle thumbnail" 
             className="w-10 h-10 object-cover rounded"
           />

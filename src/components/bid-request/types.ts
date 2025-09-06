@@ -9,7 +9,7 @@ export interface BidRequest {
   vin: string;
   mileage: number;
   buyer: string;
-  images?: string[];
+  primaryImage?: string | null;
   offers: {
     id: string;
     amount: number;
