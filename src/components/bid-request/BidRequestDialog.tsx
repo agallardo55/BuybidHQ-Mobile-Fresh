@@ -50,7 +50,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="!w-[95vw] sm:!w-[90vw] md:!w-[85vw] lg:!w-[80vw] xl:!w-[75vw] !max-w-[1400px] !max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!w-[95vw] sm:!w-[90vw] md:!w-[85vw] lg:!w-[80vw] xl:!w-[75vw] !max-w-[1400px] !max-h-[90vh] overflow-y-auto pb-6">
           <RequestHeader request={request} />
           
           <div className="mt-3 bg-gray-50 rounded-lg p-3">
@@ -61,7 +61,9 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
             />
           </div>
 
-          <BidRequestTabs request={request} />
+          <div className="pb-4">
+            <BidRequestTabs request={request} />
+          </div>
         </DialogContent>
       </Dialog>
 
