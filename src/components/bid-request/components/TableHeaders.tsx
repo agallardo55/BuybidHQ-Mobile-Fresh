@@ -51,6 +51,7 @@ const SortableHeader = ({
 export const TableHeaders = ({ sortConfig, onSort }: TableHeadersProps) => (
   <TableHeader>
     <TableRow>
+      <TableHead className="text-sm w-16">Image</TableHead>
       <SortableHeader field="createdAt" sortConfig={sortConfig} onSort={onSort}>Date</SortableHeader>
       <SortableHeader field="year" sortConfig={sortConfig} onSort={onSort}>Year</SortableHeader>
       <SortableHeader field="make" sortConfig={sortConfig} onSort={onSort}>Make</SortableHeader>

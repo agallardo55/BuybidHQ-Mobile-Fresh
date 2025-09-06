@@ -38,6 +38,19 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
       className="text-sm hover:bg-muted/50 cursor-pointer"
       onClick={onClick}
     >
+      <TableCell className="py-2 px-4 h-[44px] w-16">
+        {request.images && request.images.length > 0 ? (
+          <img 
+            src={request.images[0]} 
+            alt="Vehicle thumbnail" 
+            className="w-10 h-10 object-cover rounded"
+          />
+        ) : (
+          <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
+            <span className="text-xs text-muted-foreground">No Image</span>
+          </div>
+        )}
+      </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
         {formatDate(request.createdAt)}
       </TableCell>
