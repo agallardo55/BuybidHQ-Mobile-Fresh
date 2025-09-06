@@ -3,6 +3,7 @@ import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
 import { BidRequest } from "../types";
+import carPlaceholder from "@/assets/car-placeholder.png";
 
 interface TableRowProps {
   request: BidRequest;
@@ -46,9 +47,11 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
             className="w-10 h-10 object-cover rounded"
           />
         ) : (
-          <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
-            <span className="text-xs text-muted-foreground">No Image</span>
-          </div>
+          <img 
+            src={carPlaceholder} 
+            alt="Vehicle placeholder" 
+            className="w-10 h-10 object-cover rounded opacity-50"
+          />
         )}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
