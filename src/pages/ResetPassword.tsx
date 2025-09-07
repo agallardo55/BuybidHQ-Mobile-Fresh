@@ -16,7 +16,15 @@ const ResetPassword = () => {
   const location = useLocation();
 
   // Check if we're in a recovery flow
-  const isRecoveryFlow = location.hash.includes('type=recovery');
+  const isRecoveryFlow = location.hash.includes('type=recovery') || location.search.includes('type=recovery');
+  
+  // Debug logging (temporary)
+  console.log('ResetPassword:', {
+    pathname: location.pathname,
+    hash: location.hash,
+    search: location.search,
+    isRecoveryFlow
+  });
 
   const passwordsMatch = password === confirmPassword;
   const showMismatchError = confirmPassword.length > 0 && !passwordsMatch;
@@ -104,7 +112,7 @@ const ResetPassword = () => {
             className="mx-auto h-12 w-auto"
           />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            {location.hash.includes('type=recovery') ? "Reset Your Password" : "Set New Password"}
+            {isRecoveryFlow ? "Reset Your Password" : "Set New Password"}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Please enter your new password below.

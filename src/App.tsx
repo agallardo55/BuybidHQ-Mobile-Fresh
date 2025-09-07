@@ -2,7 +2,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute, AuthRoute } from "@/components/ProtectedRoute";
 import { PasswordResetRoute } from "@/components/PasswordResetRoute";
@@ -63,6 +63,10 @@ const App = () => (
                   <ResetPassword />
                 </PasswordResetRoute>
               } 
+            />
+            <Route 
+              path="/password-reset" 
+              element={<Navigate to="/reset-password" replace />} 
             />
             <Route
               path="/dashboard"

@@ -13,7 +13,15 @@ export const PasswordResetRoute = ({ children }: { children: ReactNode }) => {
   }
 
   // Check if this is a password reset attempt by looking for the token in the URL
-  const hasResetToken = location.hash.includes('type=recovery');
+  const hasResetToken = location.hash.includes('type=recovery') || location.search.includes('type=recovery');
+  
+  // Debug logging (temporary)
+  console.log('PasswordResetRoute:', {
+    pathname: location.pathname,
+    hash: location.hash,
+    search: location.search,
+    hasResetToken
+  });
 
   // If there's no reset token and user is logged in, redirect to dashboard
   if (!hasResetToken && user) {
