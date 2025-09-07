@@ -89,7 +89,7 @@ const VehicleDetailsView = ({
         onClick={onSubmit}
       >
         <Send className="mr-2 h-4 w-4" />
-        Submit Bid Request
+        Submit
       </Button>
       
       <p className="text-gray-500 text-center text-xs">
