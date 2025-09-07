@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute, AuthRoute } from "@/components/ProtectedRoute";
 import { PasswordResetRoute } from "@/components/PasswordResetRoute";
+import { RecoveryRedirector } from "@/components/RecoveryRedirector";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -28,6 +29,7 @@ const App = () => (
     <TooltipProvider>
       <BrowserRouter>
         <AuthProvider>
+          <RecoveryRedirector />
           <Toaster />
           <Sonner position="top-center" />
           <Routes>

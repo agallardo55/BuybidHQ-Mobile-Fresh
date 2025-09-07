@@ -86,14 +86,11 @@ const ResetPassword = () => {
 
       toast({
         title: "Success",
-        description: "Your password has been successfully reset. Please sign in with your new password.",
+        description: "Your password has been successfully updated. Welcome back!",
       });
       
-      // Sign out the user after password reset
-      await supabase.auth.signOut();
-      
-      // After successful password reset, navigate to sign in
-      navigate("/signin");
+      // Keep the user signed in and redirect to dashboard
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Error",
