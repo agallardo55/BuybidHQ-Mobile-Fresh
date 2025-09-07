@@ -94,10 +94,10 @@ const VehicleDetailsView = ({
         <Button
           onClick={onSubmit}
           disabled={selectedBuyers.length === 0}
-          className="w-full py-3 text-base font-medium"
+          className="w-full py-3 text-base font-medium bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Send className="mr-2 h-4 w-4" />
-          Send Bid Request to {selectedBuyers.length} Buyer{selectedBuyers.length !== 1 ? 's' : ''}
+          Submit
         </Button>
         
         <p className="text-muted-foreground text-center text-xs mt-2">
