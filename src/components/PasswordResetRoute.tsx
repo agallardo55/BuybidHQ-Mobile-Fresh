@@ -12,8 +12,11 @@ export const PasswordResetRoute = ({ children }: { children: ReactNode }) => {
     return <div>Loading...</div>;
   }
 
-  // Check if this is a password reset attempt by looking for the token in the URL
-  const hasResetToken = location.hash.includes('type=recovery') || location.search.includes('type=recovery');
+  // Check if this is a password reset attempt by looking for Supabase recovery tokens
+  const hasResetToken = location.hash.includes('type=recovery') || 
+                       location.search.includes('type=recovery') ||
+                       location.hash.includes('access_token') ||
+                       location.search.includes('access_token');
   
   // Debug logging (temporary)
   console.log('PasswordResetRoute:', {

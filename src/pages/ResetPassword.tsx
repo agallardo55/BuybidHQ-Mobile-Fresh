@@ -15,8 +15,11 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if we're in a recovery flow
-  const isRecoveryFlow = location.hash.includes('type=recovery') || location.search.includes('type=recovery');
+  // Check if we're in a recovery flow by looking for Supabase tokens
+  const isRecoveryFlow = location.hash.includes('type=recovery') || 
+                        location.search.includes('type=recovery') ||
+                        location.hash.includes('access_token') ||
+                        location.search.includes('access_token');
   
   // Debug logging (temporary)
   console.log('ResetPassword:', {
