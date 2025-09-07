@@ -97,7 +97,7 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
   };
 
   return (
-    <div className="flex flex-col py-4 px-1">
+    <div className="flex flex-col h-full">
       {currentView === "vinEntry" ? (
         <VinEntryForm 
           vin={vin}
