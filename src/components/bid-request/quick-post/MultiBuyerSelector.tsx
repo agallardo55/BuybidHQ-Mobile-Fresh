@@ -41,7 +41,7 @@ const MultiBuyerSelector = ({ selectedBuyers, buyers, onToggleBuyer }: MultiBuye
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          className="pl-10 focus:outline-none"
+          className="pl-10 focus:outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0 focus:!ring-0 focus:!ring-offset-0"
         />
       </div>
       
