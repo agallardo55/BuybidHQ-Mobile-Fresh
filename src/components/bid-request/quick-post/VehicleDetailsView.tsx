@@ -51,7 +51,7 @@ const VehicleDetailsView = ({
   onSubmit
 }: VehicleDetailsViewProps) => {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative overflow-hidden">
       <div className="flex-1 overflow-y-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button
