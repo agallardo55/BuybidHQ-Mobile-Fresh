@@ -3,9 +3,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, Send } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ChevronLeft, Send, Users } from "lucide-react";
 import VehicleDetailsCard from "./VehicleDetailsCard";
-import MultiBuyerSelector from "./MultiBuyerSelector";
+import BuyerPickerPanel from "@/components/buyers/BuyerPickerPanel";
 import { MappedBuyer } from "@/hooks/buyers/types";
 import { TrimOption } from "../types";
 
@@ -25,8 +26,11 @@ interface VehicleDetailsViewProps {
   notes: string;
   selectedBuyers: string[];
   buyers: MappedBuyer[];
+  isBuyerPickerOpen: boolean;
   onNotesChange: (notes: string) => void;
-  onToggleBuyer: (buyerId: string) => void;
+  onSelectedBuyersChange: (buyerIds: string[]) => void;
+  onOpenBuyerPicker: () => void;
+  onCloseBuyerPicker: () => void;
   onGoBack: () => void;
   onSubmit: () => void;
 }
@@ -38,8 +42,11 @@ const VehicleDetailsView = ({
   notes,
   selectedBuyers,
   buyers,
+  isBuyerPickerOpen,
   onNotesChange,
-  onToggleBuyer,
+  onSelectedBuyersChange,
+  onOpenBuyerPicker,
+  onCloseBuyerPicker,
   onGoBack,
   onSubmit
 }: VehicleDetailsViewProps) => {
@@ -82,11 +89,29 @@ const VehicleDetailsView = ({
             />
           </div>
 
-          <MultiBuyerSelector
-            selectedBuyers={selectedBuyers}
-            buyers={buyers}
-            onToggleBuyer={onToggleBuyer}
-          />
+          <div className="space-y-2">
+            <Label>Select Buyers</Label>
+            <Button
+              variant="outline"
+              onClick={onOpenBuyerPicker}
+              className="w-full justify-between h-auto p-4"
+            >
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span>
+                  {selectedBuyers.length === 0 
+                    ? "Choose buyers to send bid request" 
+                    : `${selectedBuyers.length} buyer${selectedBuyers.length === 1 ? '' : 's'} selected`
+                  }
+                </span>
+              </div>
+              {selectedBuyers.length > 0 && (
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+                  {selectedBuyers.length}
+                </Badge>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -104,6 +129,14 @@ const VehicleDetailsView = ({
           Dealers will receive your request via SMS/Email
         </p>
       </div>
+
+      <BuyerPickerPanel
+        isOpen={isBuyerPickerOpen}
+        onClose={onCloseBuyerPicker}
+        buyers={buyers}
+        selectedBuyers={selectedBuyers}
+        onSelectedBuyersChange={onSelectedBuyersChange}
+      />
     </div>
   );
 };

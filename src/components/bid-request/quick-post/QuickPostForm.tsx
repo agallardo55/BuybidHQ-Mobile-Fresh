@@ -25,6 +25,7 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     isSubmitting, setIsSubmitting,
     currentView, setCurrentView,
     selectedBuyers, setSelectedBuyers,
+    isBuyerPickerOpen, setIsBuyerPickerOpen,
     vehicleDetails, setVehicleDetails,
     notes, setNotes
   } = useQuickPostState();
@@ -66,12 +67,16 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     setNotes(notes);
   };
 
-  const handleToggleBuyer = (buyerId: string) => {
-    if (selectedBuyers.includes(buyerId)) {
-      setSelectedBuyers(selectedBuyers.filter(id => id !== buyerId));
-    } else {
-      setSelectedBuyers([...selectedBuyers, buyerId]);
-    }
+  const handleSelectedBuyersChange = (buyerIds: string[]) => {
+    setSelectedBuyers(buyerIds);
+  };
+
+  const handleOpenBuyerPicker = () => {
+    setIsBuyerPickerOpen(true);
+  };
+
+  const handleCloseBuyerPicker = () => {
+    setIsBuyerPickerOpen(false);
   };
 
   const goBackToVinEntry = () => {
@@ -117,8 +122,11 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
             notes={notes}
             selectedBuyers={selectedBuyers}
             buyers={mappedBuyers}
+            isBuyerPickerOpen={isBuyerPickerOpen}
             onNotesChange={handleNotesChange}
-            onToggleBuyer={handleToggleBuyer}
+            onSelectedBuyersChange={handleSelectedBuyersChange}
+            onOpenBuyerPicker={handleOpenBuyerPicker}
+            onCloseBuyerPicker={handleCloseBuyerPicker}
             onGoBack={goBackToVinEntry}
             onSubmit={onCreateBidRequest}
           />

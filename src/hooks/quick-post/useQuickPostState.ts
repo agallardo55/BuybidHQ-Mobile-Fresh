@@ -22,6 +22,7 @@ export function useQuickPostState() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentView, setCurrentView] = useState<FormView>("vinEntry");
   const [selectedBuyers, setSelectedBuyers] = useState<string[]>([]);
+  const [isBuyerPickerOpen, setIsBuyerPickerOpen] = useState(false);
   
   // Vehicle details after fetch
   const [vehicleDetails, setVehicleDetails] = useState<VehicleDetailsType | null>(null);
@@ -40,6 +41,8 @@ export function useQuickPostState() {
     setCurrentView,
     selectedBuyers,
     setSelectedBuyers,
+    isBuyerPickerOpen,
+    setIsBuyerPickerOpen,
     vehicleDetails,
     setVehicleDetails,
     notes,
