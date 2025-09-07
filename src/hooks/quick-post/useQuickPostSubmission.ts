@@ -17,10 +17,10 @@ export function useQuickPostSubmission(
     vin: string,
     mileage: string,
     notes: string,
-    selectedBuyer: string
+    selectedBuyers: string[]
   ) => {
-    if (!selectedBuyer) {
-      toast.error("Please select a buyer");
+    if (!selectedBuyers || selectedBuyers.length === 0) {
+      toast.error("Please select at least one buyer");
       return;
     }
 
@@ -68,52 +68,62 @@ export function useQuickPostSubmission(
         throw new Error(`Error creating bid request: ${bidRequestError.message}`);
       }
 
-      // Create bid submission token
+      // Create bid submission tokens for each selected buyer
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 7); // Expires in 7 days
 
-      const { data: tokenData, error: tokenError } = await supabase
-        .from('bid_submission_tokens')
-        .insert({
-          bid_request_id: bidRequestData.id,
-          buyer_id: selectedBuyer,
-          token: crypto.randomUUID(),
-          expires_at: expiryDate.toISOString(),
-          is_used: false,
-          notes: notes // Store any notes here
-        })
-        .select('token')
-        .single();
+      const smsPromises = [];
 
-      if (tokenError) {
-        throw new Error(`Error creating submission token: ${tokenError.message}`);
-      }
+      for (const buyerId of selectedBuyers) {
+        // Create submission token for this buyer
+        const { data: tokenData, error: tokenError } = await supabase
+          .from('bid_submission_tokens')
+          .insert({
+            bid_request_id: bidRequestData.id,
+            buyer_id: buyerId,
+            token: crypto.randomUUID(),
+            expires_at: expiryDate.toISOString(),
+            is_used: false
+          })
+          .select('token')
+          .single();
 
-      // Get the selected buyer's details for SMS
-      const selectedBuyerDetails = mappedBuyers.find(buyer => buyer.id === selectedBuyer);
-      
-      if (!selectedBuyerDetails) {
-        throw new Error("Selected buyer not found");
-      }
-
-      // Send SMS notification
-      const bidRequestUrl = `${window.location.origin}/quick-bid/${bidRequestData.id}?token=${tokenData.token}`;
-      
-      await supabase.functions.invoke('send-knock-sms', {
-        body: {
-          type: 'bid_request',
-          phoneNumber: selectedBuyerDetails.mobileNumber,
-          senderName: currentUser.full_name || 'A dealer',
-          bidRequestUrl,
-          vehicleDetails: {
-            year: vehicleDetails?.year,
-            make: vehicleDetails?.make,
-            model: vehicleDetails?.model
-          }
+        if (tokenError) {
+          throw new Error(`Error creating submission token for buyer ${buyerId}: ${tokenError.message}`);
         }
-      });
 
-      toast.success("Bid request sent successfully to buyer");
+        // Get buyer details for SMS
+        const buyerDetails = mappedBuyers.find(buyer => buyer.id === buyerId);
+        
+        if (!buyerDetails) {
+          console.warn(`Buyer with ID ${buyerId} not found, skipping SMS`);
+          continue;
+        }
+
+        // Prepare SMS notification
+        const bidRequestUrl = `${window.location.origin}/quick-bid/${bidRequestData.id}?token=${tokenData.token}`;
+        
+        smsPromises.push(
+          supabase.functions.invoke('send-knock-sms', {
+            body: {
+              type: 'bid_request',
+              phoneNumber: buyerDetails.mobileNumber,
+              senderName: currentUser.full_name || 'A dealer',
+              bidRequestUrl,
+              vehicleDetails: {
+                year: vehicleDetails?.year,
+                make: vehicleDetails?.make,
+                model: vehicleDetails?.model
+              }
+            }
+          })
+        );
+      }
+
+      // Send all SMS notifications in parallel
+      await Promise.all(smsPromises);
+
+      toast.success(`Bid request sent successfully to ${selectedBuyers.length} buyer${selectedBuyers.length === 1 ? '' : 's'}`);
       onClose();
       
     } catch (error: any) {

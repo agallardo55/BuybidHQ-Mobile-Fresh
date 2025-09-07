@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, Send } from "lucide-react";
 import VehicleDetailsCard from "./VehicleDetailsCard";
-import BuyerSelector from "../components/BuyerSelector";
+import MultiBuyerSelector from "./MultiBuyerSelector";
 import { MappedBuyer } from "@/hooks/buyers/types";
 import { TrimOption } from "../types";
 
@@ -22,10 +22,10 @@ interface VehicleDetailsViewProps {
   vin: string;
   mileage: string;
   notes: string;
-  selectedBuyer: string;
+  selectedBuyers: string[];
   buyers: MappedBuyer[];
   onNotesChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  onBuyerChange: (value: string) => void;
+  onToggleBuyer: (buyerId: string) => void;
   onGoBack: () => void;
   onSubmit: () => void;
 }
@@ -35,10 +35,10 @@ const VehicleDetailsView = ({
   vin,
   mileage,
   notes,
-  selectedBuyer,
+  selectedBuyers,
   buyers,
   onNotesChange,
-  onBuyerChange,
+  onToggleBuyer,
   onGoBack,
   onSubmit
 }: VehicleDetailsViewProps) => {
@@ -78,10 +78,10 @@ const VehicleDetailsView = ({
         />
       </div>
       
-      <BuyerSelector
-        selectedBuyer={selectedBuyer}
+      <MultiBuyerSelector
+        selectedBuyers={selectedBuyers}
         buyers={buyers}
-        onBuyerChange={onBuyerChange}
+        onToggleBuyer={onToggleBuyer}
       />
       
       <Button 

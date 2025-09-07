@@ -24,7 +24,7 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     mileage, setMileage,
     isSubmitting, setIsSubmitting,
     currentView, setCurrentView,
-    selectedBuyer, setSelectedBuyer,
+    selectedBuyers, setSelectedBuyers,
     vehicleDetails, setVehicleDetails,
     notes, setNotes
   } = useQuickPostState();
@@ -66,8 +66,12 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
     setNotes(e.target.value);
   };
 
-  const handleBuyerChange = (value: string) => {
-    setSelectedBuyer(value);
+  const handleToggleBuyer = (buyerId: string) => {
+    if (selectedBuyers.includes(buyerId)) {
+      setSelectedBuyers(selectedBuyers.filter(id => id !== buyerId));
+    } else {
+      setSelectedBuyers([...selectedBuyers, buyerId]);
+    }
   };
 
   const goBackToVinEntry = () => {
@@ -88,7 +92,7 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
 
   const onCreateBidRequest = () => {
     if (vehicleDetails) {
-      handleCreateBidRequest(vehicleDetails, vin, mileage, notes, selectedBuyer);
+      handleCreateBidRequest(vehicleDetails, vin, mileage, notes, selectedBuyers);
     }
   };
 
@@ -111,10 +115,10 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
             vin={vin}
             mileage={mileage}
             notes={notes}
-            selectedBuyer={selectedBuyer}
+            selectedBuyers={selectedBuyers}
             buyers={mappedBuyers}
             onNotesChange={handleNotesChange}
-            onBuyerChange={handleBuyerChange}
+            onToggleBuyer={handleToggleBuyer}
             onGoBack={goBackToVinEntry}
             onSubmit={onCreateBidRequest}
           />
