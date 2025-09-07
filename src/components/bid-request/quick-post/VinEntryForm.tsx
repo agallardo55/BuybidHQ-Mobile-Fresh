@@ -63,7 +63,7 @@ const VinEntryForm = ({
             "Loading..."
           ) : (
             <>
-              Fetch Vehicle Details
+              Submit
               <ArrowRight className="ml-1 h-4 w-4" />
             </>
           )}
