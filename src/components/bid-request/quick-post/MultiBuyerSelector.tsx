@@ -58,7 +58,7 @@ const MultiBuyerSelector = ({ selectedBuyers, buyers, onToggleBuyer }: MultiBuye
                   {filteredBuyers.map((buyer) => (
                     <div
                       key={buyer.id}
-                      className={`p-3 rounded cursor-pointer transition-colors ${
+                      className={`group p-3 rounded cursor-pointer transition-colors ${
                         selectedBuyers.includes(buyer.id) 
                           ? "bg-primary text-primary-foreground" 
                           : "hover:bg-accent hover:text-accent-foreground"
@@ -69,7 +69,7 @@ const MultiBuyerSelector = ({ selectedBuyers, buyers, onToggleBuyer }: MultiBuye
                         <div className={`font-medium text-sm truncate ${
                           selectedBuyers.includes(buyer.id) 
                             ? "text-primary-foreground" 
-                            : ""
+                            : "group-hover:text-accent-foreground"
                         }`}>
                           {buyer.name}
                         </div>
@@ -77,7 +77,7 @@ const MultiBuyerSelector = ({ selectedBuyers, buyers, onToggleBuyer }: MultiBuye
                           <div className={`text-xs truncate ${
                             selectedBuyers.includes(buyer.id) 
                               ? "text-primary-foreground/80" 
-                              : "text-muted-foreground"
+                              : "text-muted-foreground group-hover:text-accent-foreground"
                           }`}>
                             {buyer.dealership}
                           </div>
