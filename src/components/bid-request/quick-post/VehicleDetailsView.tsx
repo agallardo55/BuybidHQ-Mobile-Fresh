@@ -78,7 +78,7 @@ const VehicleDetailsView = ({
               value={notes}
               onChange={(e) => onNotesChange(e.target.value)}
               rows={3}
-              className="resize-none focus:ring-2 focus:ring-primary focus:border-primary"
+              className="resize-none"
             />
           </div>
 
