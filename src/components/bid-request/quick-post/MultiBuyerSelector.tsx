@@ -60,7 +60,7 @@ const MultiBuyerSelector = ({ selectedBuyers, buyers, onToggleBuyer }: MultiBuye
                       key={buyer.id}
                       className={`group p-3 rounded cursor-pointer transition-colors ${
                         selectedBuyers.includes(buyer.id) 
-                          ? "bg-primary text-primary-foreground" 
+                          ? "bg-blue-600 text-white" 
                           : "hover:bg-accent hover:text-accent-foreground"
                       }`}
                       onClick={() => onToggleBuyer(buyer.id)}
@@ -68,7 +68,7 @@ const MultiBuyerSelector = ({ selectedBuyers, buyers, onToggleBuyer }: MultiBuye
                       <div className="flex-1 min-w-0">
                         <div className={`font-medium text-sm truncate ${
                           selectedBuyers.includes(buyer.id) 
-                            ? "text-primary-foreground" 
+                            ? "text-white" 
                             : "group-hover:text-accent-foreground"
                         }`}>
                           {buyer.name}
@@ -76,7 +76,7 @@ const MultiBuyerSelector = ({ selectedBuyers, buyers, onToggleBuyer }: MultiBuye
                         {buyer.dealership && (
                           <div className={`text-xs truncate ${
                             selectedBuyers.includes(buyer.id) 
-                              ? "text-primary-foreground/80" 
+                              ? "text-white/80" 
                               : "text-muted-foreground group-hover:text-accent-foreground"
                           }`}>
                             {buyer.dealership}
