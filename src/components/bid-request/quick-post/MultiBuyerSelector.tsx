@@ -1,15 +1,21 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
-import { Users, ChevronDown, X } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Users, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { MappedBuyer } from "@/hooks/buyers/types";
 
 interface MultiBuyerSelectorProps {
@@ -19,106 +25,77 @@ interface MultiBuyerSelectorProps {
 }
 
 const MultiBuyerSelector = ({ selectedBuyers, buyers, onToggleBuyer }: MultiBuyerSelectorProps) => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
   
   // Sort buyers alphabetically by name
   const sortedBuyers = [...buyers].sort((a, b) => 
     a.name.localeCompare(b.name)
   );
 
-  const selectedBuyerNames = selectedBuyers.map(id => 
-    buyers.find(buyer => buyer.id === id)?.name
-  ).filter(Boolean);
-
-  const handleRemoveBuyer = (buyerId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggleBuyer(buyerId);
-  };
-
   return (
-    <div className="space-y-2">
-      <Label htmlFor="buyer-select">Select Buyers</Label>
+    <div className="space-y-3">
+      <Label>Select Buyers</Label>
       
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between h-auto min-h-[2.5rem] p-3"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
           >
-            <div className="flex items-center gap-2 flex-wrap">
-              <Users className="h-4 w-4 text-muted-foreground shrink-0" />
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
               {selectedBuyers.length === 0 ? (
-                <span className="text-muted-foreground">Select buyers</span>
+                <span className="text-muted-foreground">Select buyers...</span>
               ) : (
                 <span className="text-sm">
-                  {selectedBuyers.length === 1 
-                    ? `${selectedBuyerNames[0]}`
-                    : `${selectedBuyers.length} buyers selected`
-                  }
+                  {selectedBuyers.length} buyer{selectedBuyers.length !== 1 ? 's' : ''} selected
                 </span>
               )}
             </div>
-            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
-        </CollapsibleTrigger>
-        
-        <CollapsibleContent className="mt-2">
-          <div className="border rounded-lg bg-card">
-            <ScrollArea className="h-[200px] p-2">
-              {sortedBuyers.length === 0 ? (
-                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                  No buyers available
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  {sortedBuyers.map((buyer) => (
-                    <div
-                      key={buyer.id}
-                      className="flex items-center space-x-3 p-2 rounded hover:bg-accent/50 cursor-pointer"
-                      onClick={() => onToggleBuyer(buyer.id)}
-                    >
-                      <Checkbox
-                        checked={selectedBuyers.includes(buyer.id)}
-                        onChange={() => onToggleBuyer(buyer.id)}
-                        className="h-4 w-4"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm truncate">{buyer.name}</span>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0" align="start">
+          <Command>
+            <CommandInput placeholder="Search buyers..." />
+            <CommandList>
+              <CommandEmpty>No buyers found.</CommandEmpty>
+              <CommandGroup className="max-h-64 overflow-auto">
+                {sortedBuyers.map((buyer) => (
+                  <CommandItem
+                    key={buyer.id}
+                    value={buyer.name}
+                    onSelect={() => onToggleBuyer(buyer.id)}
+                    className="cursor-pointer"
+                  >
+                    <Check
+                      className={`mr-2 h-4 w-4 ${
+                        selectedBuyers.includes(buyer.id) ? "opacity-100" : "opacity-0"
+                      }`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">{buyer.name}</div>
+                      {buyer.dealership && (
+                        <div className="text-xs text-muted-foreground truncate">
+                          {buyer.dealership}
                         </div>
-                        {buyer.dealership && (
-                          <span className="text-xs text-muted-foreground truncate">
-                            {buyer.dealership}
-                          </span>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       {selectedBuyers.length > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2">
-          {selectedBuyers.map((buyerId) => {
-            const buyer = buyers.find(b => b.id === buyerId);
-            return buyer ? (
-              <Badge key={buyerId} variant="secondary" className="text-xs">
-                {buyer.name}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-0 ml-1 hover:bg-transparent"
-                  onClick={(e) => handleRemoveBuyer(buyerId, e)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
-            ) : null;
-          })}
+        <div className="text-xs text-muted-foreground">
+          Selected: {selectedBuyers.map(id => 
+            buyers.find(b => b.id === id)?.name
+          ).filter(Boolean).join(", ")}
         </div>
       )}
     </div>

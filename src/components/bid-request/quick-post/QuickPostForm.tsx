@@ -62,8 +62,8 @@ const QuickPostForm = ({ onClose }: QuickPostFormProps) => {
   // Bid submission handling
   const { handleCreateBidRequest } = useQuickPostSubmission(onClose, currentUser, mappedBuyers);
 
-  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNotes(e.target.value);
+  const handleNotesChange = (notes: string) => {
+    setNotes(notes);
   };
 
   const handleToggleBuyer = (buyerId: string) => {
