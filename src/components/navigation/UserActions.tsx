@@ -18,14 +18,6 @@ interface UserActionsProps {
 const UserActions = ({ unreadCount, onLogout, onClick, className = "" }: UserActionsProps) => {
   return (
     <div className={`flex items-center space-x-6 ${className}`}>
-      <Link 
-        to="/account"
-        className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
-        aria-label="Account"
-        onClick={onClick}
-      >
-        <UserRound className="h-5 w-5" />
-      </Link>
       <Popover>
         <PopoverTrigger asChild>
           <button 
@@ -49,6 +41,14 @@ const UserActions = ({ unreadCount, onLogout, onClick, className = "" }: UserAct
           <NotificationList />
         </PopoverContent>
       </Popover>
+      <Link 
+        to="/account"
+        className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
+        aria-label="Account"
+        onClick={onClick}
+      >
+        <UserRound className="h-5 w-5" />
+      </Link>
       <button 
         onClick={() => {
           onLogout();
