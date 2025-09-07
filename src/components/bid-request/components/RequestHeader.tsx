@@ -18,7 +18,9 @@ const RequestHeader = ({ request }: RequestHeaderProps) => {
 
   const getHighestOffer = (offers: BidRequest['offers']) => {
     if (!offers || offers.length === 0) return null;
-    return Math.max(...offers.map(offer => offer.amount));
+    return offers.reduce((highest, current) => 
+      current.amount > highest.amount ? current : highest
+    );
   };
 
   const highestOffer = getHighestOffer(request.offers);
@@ -35,7 +37,9 @@ const RequestHeader = ({ request }: RequestHeaderProps) => {
         </div>
         <div>
           <span className="text-gray-500">Buyer:</span>
-          <p className="font-medium">{request.buyer}</p>
+          <p className="font-medium">
+            {highestOffer ? highestOffer.buyerName : request.buyer}
+          </p>
         </div>
         <div>
           <span className="text-gray-500">Highest Offer:</span>
@@ -43,7 +47,7 @@ const RequestHeader = ({ request }: RequestHeaderProps) => {
             {highestOffer === null ? (
               <span className="text-gray-500">No offers yet</span>
             ) : (
-              `$${highestOffer.toLocaleString()}`
+              `$${highestOffer.amount.toLocaleString()}`
             )}
           </p>
         </div>
