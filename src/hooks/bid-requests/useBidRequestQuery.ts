@@ -72,22 +72,34 @@ export const useBidRequestQuery = (enabled: boolean) => {
         const details = (await Promise.all(detailsPromises)).filter(Boolean);
 
         // Get bid responses with buyer information
-        const requestIds = details.map(item => item.request_id);
-        const { data: responses, error: responsesError } = await supabase
-          .from('bid_responses')
-          .select(`
-            id,
-            bid_request_id,
-            offer_amount,
-            created_at,
-            status,
-            buyers!inner(
-              buyer_name,
-              dealer_name
-            )
-          `)
-          .in('bid_request_id', requestIds)
-          .order('offer_amount', { ascending: false });
+        const requestIds = details
+          .map(item => item.request_id)
+          .filter(id => id !== undefined && id !== null);
+          
+        let responses = [];
+        let responsesError = null;
+        
+        // Only fetch responses if we have valid request IDs
+        if (requestIds.length > 0) {
+          const { data: responseData, error: responseError } = await supabase
+            .from('bid_responses')
+            .select(`
+              id,
+              bid_request_id,
+              offer_amount,
+              created_at,
+              status,
+              buyers!inner(
+                buyer_name,
+                dealer_name
+              )
+            `)
+            .in('bid_request_id', requestIds)
+            .order('offer_amount', { ascending: false });
+            
+          responses = responseData || [];
+          responsesError = responseError;
+        }
 
         if (responsesError) {
           console.error("Error fetching bid responses:", responsesError);
