@@ -3,7 +3,7 @@ const AdminFooter = () => {
   return (
     <footer className="bg-white py-4 mt-auto border-t">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-center">
+        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-end">
           <p className="text-sm text-gray-500">
             © {new Date().getFullYear()} BuybidHQ™. All rights reserved.
           </p>
