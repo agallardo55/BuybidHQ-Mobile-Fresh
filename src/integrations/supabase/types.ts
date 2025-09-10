@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.4"
+  }
   public: {
     Tables: {
       bid_request_access: {
@@ -1506,65 +1511,49 @@ export type Database = {
       batch_process_carrier_detection: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_processed: number
-          carriers_detected: number
           carriers_by_type: Json
+          carriers_detected: number
+          total_processed: number
         }[]
       }
       can_access_bid_request: {
-        Args: {
-          checking_user_id: string
-          request_id: string
-        }
+        Args: { checking_user_id: string; request_id: string }
         Returns: boolean
       }
       can_access_buyer: {
-        Args: {
-          checking_user_id: string
-          target_buyer_id: string
-        }
+        Args: { checking_user_id: string; target_buyer_id: string }
         Returns: boolean
       }
       can_access_dealership: {
-        Args: {
-          checking_user_id: string
-        }
+        Args: { checking_user_id: string }
         Returns: boolean
       }
       can_manage_user: {
-        Args: {
-          manager_id: string
-          target_user_id: string
-        }
+        Args: { manager_id: string; target_user_id: string }
         Returns: boolean
       }
       check_admin_status: {
-        Args: {
-          checking_user_id: string
-        }
+        Args: { checking_user_id: string }
         Returns: boolean
       }
       check_user_role: {
-        Args: {
-          user_id: string
-          required_role: string
-        }
+        Args: { required_role: string; user_id: string }
         Returns: boolean
       }
       check_user_role_no_rls: {
         Args: {
-          user_id: string
           required_role: Database["public"]["Enums"]["user_role"]
+          user_id: string
         }
         Returns: boolean
       }
       cleanup_phone_numbers: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_processed: number
-          standardized: number
-          invalid: number
           duplicates: number
+          invalid: number
+          standardized: number
+          total_processed: number
         }[]
       }
       clear_notifications: {
@@ -1573,30 +1562,27 @@ export type Database = {
       }
       create_complete_bid_request: {
         Args: {
-          vehicle_data: Json
-          recon_data: Json
-          image_urls: string[]
           buyer_ids: string[]
           creator_id: string
+          image_urls: string[]
+          recon_data: Json
+          vehicle_data: Json
         }
         Returns: string
       }
       create_mfa_verification: {
         Args: {
-          p_user_id: string
           p_method: Database["public"]["Enums"]["mfa_method"]
+          p_user_id: string
         }
         Returns: {
-          verification_id: string
           code: string
           expires_at: string
+          verification_id: string
         }[]
       }
       generate_bid_submission_token: {
-        Args: {
-          p_bid_request_id: string
-          p_buyer_id: string
-        }
+        Args: { p_bid_request_id: string; p_buyer_id: string }
         Returns: string
       }
       generate_verification_code: {
@@ -1604,203 +1590,165 @@ export type Database = {
         Returns: string
       }
       get_bid_notification_details: {
-        Args: {
-          p_bid_response_id: string
-        }
+        Args: { p_bid_response_id: string }
         Returns: {
-          creator_phone: string
           buyer_name: string
-          vehicle_year: string
+          creator_phone: string
+          offer_amount: number
           vehicle_make: string
           vehicle_model: string
-          offer_amount: number
+          vehicle_year: string
         }[]
       }
       get_bid_request_details: {
-        Args: {
-          p_request_id: string
-        }
+        Args: { p_request_id: string }
         Returns: {
-          request_id: string
+          accessories: string
+          brakes: string
           created_at: string
-          status: string
-          year: string
-          make: string
-          model: string
-          trim_level: string
-          vin: string
-          mileage: string
-          user_full_name: string
-          engine_cylinders: string
-          transmission: string
           drivetrain: string
+          engine_cylinders: string
+          engine_lights: string
           exterior_color: string
           interior_color: string
-          accessories: string
-          windshield: string
-          engine_lights: string
-          brakes: string
-          tire: string
           maintenance: string
-          recon_estimate: string
+          make: string
+          mileage: string
+          model: string
           recon_details: string
+          recon_estimate: string
+          request_id: string
+          status: string
+          tire: string
+          transmission: string
+          trim_level: string
+          user_full_name: string
+          vin: string
+          windshield: string
+          year: string
         }[]
       }
       get_bid_response_details: {
-        Args: {
-          bid_response_id: string
-        }
+        Args: { bid_response_id: string }
         Returns: {
-          response_id: string
-          request_id: string
-          year: string
-          make: string
-          model: string
-          trim_level: string
-          vin: string
-          mileage: string
+          accessories: string
+          brakes: string
+          dealership: string
+          drivetrain: string
+          engine_cylinders: string
+          engine_lights: string
           exterior_color: string
           interior_color: string
-          windshield: string
-          engine_lights: string
-          brakes: string
-          tire: string
           maintenance: string
-          recon_estimate: string
-          recon_details: string
-          accessories: string
-          transmission: string
-          engine_cylinders: string
-          drivetrain: string
-          user_full_name: string
-          dealership: string
+          make: string
+          mileage: string
           mobile_number: string
+          model: string
           offer_amount: number
+          recon_details: string
+          recon_estimate: string
+          request_id: string
+          response_id: string
           status: string
+          tire: string
+          transmission: string
+          trim_level: string
+          user_full_name: string
+          vin: string
+          windshield: string
+          year: string
         }[]
       }
       get_carrier_for_validated_number: {
-        Args: {
-          p_user_id: string
-          p_phone_number: string
-        }
+        Args: { p_phone_number: string; p_user_id: string }
         Returns: {
-          carrier: string
-          number_type: Database["public"]["Enums"]["phone_number_type"]
           area_code: string
+          carrier: string
           is_valid: boolean
+          number_type: Database["public"]["Enums"]["phone_number_type"]
         }[]
       }
       get_sms_gateway_email: {
-        Args: {
-          phone_number: string
-          carrier: string
-        }
+        Args: { carrier: string; phone_number: string }
         Returns: string
       }
       get_user_dealership: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: string
       }
       get_user_profile: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: Database["public"]["CompositeTypes"]["user_profile_type"]
       }
       get_user_role: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: string
       }
       get_user_with_dealership: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: {
-          id: string
-          email: string
-          role: Database["public"]["Enums"]["user_role"]
-          full_name: string
-          mobile_number: string
           address: string
+          business_email: string
+          business_phone: string
           city: string
+          dealer_name: string
+          dealership_id: string
+          email: string
+          full_name: string
+          id: string
+          mobile_number: string
+          phone_carrier: string
+          role: Database["public"]["Enums"]["user_role"]
           state: string
           zip_code: string
-          dealership_id: string
-          dealer_name: string
-          business_phone: string
-          business_email: string
-          phone_carrier: string
         }[]
       }
       handle_user_deletion: {
         Args: {
-          user_id: string
           deleted_by_id: string
           deletion_reason?: string
+          user_id: string
         }
         Returns: undefined
       }
       has_admin_access: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: boolean
       }
       has_dealership_access: {
-        Args: {
-          user_id: string
-          target_dealership_id: string
-        }
+        Args: { target_dealership_id: string; user_id: string }
         Returns: boolean
       }
       has_permission: {
         Args: {
-          p_user_id: string
-          p_resource_type: string
           p_resource_id: string
+          p_resource_type: string
+          p_user_id: string
         }
         Returns: boolean
       }
       is_admin: {
-        Args: {
-          checking_user_id: string
-        }
+        Args: { checking_user_id: string }
         Returns: boolean
       }
       is_basic_or_individual: {
-        Args: {
-          checking_user_id: string
-        }
+        Args: { checking_user_id: string }
         Returns: boolean
       }
       is_dealer: {
-        Args: {
-          checking_user_id: string
-        }
+        Args: { checking_user_id: string }
         Returns: boolean
       }
       is_primary_dealer: {
-        Args: {
-          checking_user_id: string
-          dealership_id: string
-        }
+        Args: { checking_user_id: string; dealership_id: string }
         Returns: boolean
       }
       is_superadmin: {
-        Args: {
-          user_email: string
-        }
+        Args: { user_email: string }
         Returns: boolean
       }
       mark_notifications_as_read: {
-        Args: {
-          notification_ids: string[]
-        }
+        Args: { notification_ids: string[] }
         Returns: string[]
       }
       migrate_individual_dealers: {
@@ -1810,34 +1758,28 @@ export type Database = {
       process_carrier_detection_batch: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_processed: number
           carriers_detected: number
+          total_processed: number
         }[]
       }
       process_phone_validation_batch: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_processed: number
-          successful: number
           failed: number
+          successful: number
+          total_processed: number
         }[]
       }
       standardize_buyer_phone: {
-        Args: {
-          phone_input: string
-        }
+        Args: { phone_input: string }
         Returns: string
       }
       standardize_carrier_name: {
-        Args: {
-          carrier: string
-        }
+        Args: { carrier: string }
         Returns: string
       }
       standardize_phone_number: {
-        Args: {
-          phone_input: string
-        }
+        Args: { phone_input: string }
         Returns: string
       }
       transfer_primary_dealer: {
@@ -1849,32 +1791,25 @@ export type Database = {
         Returns: boolean
       }
       validate_bid_submission_token: {
-        Args: {
-          p_token: string
-        }
+        Args: { p_token: string }
         Returns: {
-          is_valid: boolean
           bid_request_id: string
           buyer_id: string
           existing_bid_amount: number
           has_existing_bid: boolean
+          is_valid: boolean
         }[]
       }
       validate_phone_with_twilio: {
-        Args: {
-          phone_input: string
-        }
+        Args: { phone_input: string }
         Returns: Json
       }
       verify_mfa_code: {
-        Args: {
-          p_user_id: string
-          p_verification_code: string
-        }
+        Args: { p_user_id: string; p_verification_code: string }
         Returns: {
-          is_valid: boolean
           attempts_remaining: number
           error_message: string
+          is_valid: boolean
         }[]
       }
     }
@@ -1928,27 +1863,33 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1956,20 +1897,24 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1977,20 +1922,24 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1998,29 +1947,64 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      bid_status: ["Pending", "Approved", "Declined"],
+      buyer_phone_validation_status: [
+        "pending",
+        "valid",
+        "invalid",
+        "processing",
+      ],
+      dealer_type: ["individual", "multi_user"],
+      mfa_method: ["email", "sms"],
+      mfa_status: ["enabled", "disabled", "pending"],
+      notification_type: [
+        "bid_request",
+        "bid_response",
+        "bid_accepted",
+        "bid_declined",
+      ],
+      phone_number_type: ["mobile", "landline", "voip", "toll_free", "unknown"],
+      phone_validation_status: ["pending", "valid", "invalid"],
+      subscription_plan_type: ["beta-access", "pay-per-bid", "individual"],
+      user_role: ["basic", "individual", "dealer", "associate", "admin"],
+      user_role_old: ["admin", "dealer", "associate"],
+      waitlist_status: ["pending", "approved", "rejected"],
+    },
+  },
+} as const
