@@ -1668,6 +1668,27 @@ export type Database = {
           number_type: Database["public"]["Enums"]["phone_number_type"]
         }[]
       }
+      get_public_bid_request_details: {
+        Args: { p_token: string }
+        Returns: {
+          buyer_dealership: string
+          buyer_mobile: string
+          buyer_name: string
+          created_at: string
+          notes: string
+          request_id: string
+          status: string
+          vehicle_drivetrain: string
+          vehicle_engine: string
+          vehicle_make: string
+          vehicle_mileage: string
+          vehicle_model: string
+          vehicle_transmission: string
+          vehicle_trim: string
+          vehicle_vin: string
+          vehicle_year: string
+        }[]
+      }
       get_sms_gateway_email: {
         Args: { carrier: string; phone_number: string }
         Returns: string

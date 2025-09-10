@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 // Define an interface for the return type
 interface QuickBidDetails {
@@ -38,80 +38,44 @@ interface QuickBidDetails {
 }
 
 export const useQuickBidDetails = () => {
-  const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
 
   return useQuery({
-    queryKey: ['quickBidDetails', id],
+    queryKey: ['quickBidDetails', token],
     queryFn: async (): Promise<QuickBidDetails> => {
-      if (!id) throw new Error('No bid request ID provided');
+      if (!token) throw new Error('No bid token provided');
 
-      // Get the quick bid request details
+      // Use the new secure RPC to get bid request details
       const { data: requestDetails, error: requestError } = await supabase
-        .from('bid_requests')
-        .select(`
-          id,
-          created_at,
-          status,
-          vehicles (
-            id,
-            year, 
-            make,
-            model,
-            trim,
-            vin,
-            mileage,
-            engine,
-            transmission,
-            drivetrain
-          ),
-          buybidhq_users (
-            full_name,
-            dealership_id,
-            mobile_number
-          ),
-          bid_submission_tokens (
-            notes
-          )
-        `)
-        .eq('id', id)
-        .single();
+        .rpc('get_public_bid_request_details', { p_token: token });
 
       if (requestError) {
         console.error('Error fetching quick bid details:', requestError);
         throw requestError;
       }
 
-      if (!requestDetails) {
-        throw new Error('No bid request found');
+      if (!requestDetails || requestDetails.length === 0) {
+        throw new Error('Invalid or expired bid token');
       }
 
-      // Safely handle possibly undefined values
-      const vehicle = requestDetails.vehicles || {};
-      const user = requestDetails.buybidhq_users || {};
-      const tokenData = Array.isArray(requestDetails.bid_submission_tokens) 
-        ? requestDetails.bid_submission_tokens 
-        : [];
-      
-      // Use the first token's notes or empty string
-      const notes = tokenData.length > 0 && tokenData[0] && 'notes' in tokenData[0] 
-        ? String(tokenData[0].notes || '') 
-        : '';
+      const detail = requestDetails[0];
       
       return {
-        requestId: requestDetails.id,
-        createdAt: new Date(requestDetails.created_at),
-        status: requestDetails.status,
-        notes: notes,
+        requestId: detail.request_id,
+        createdAt: new Date(detail.created_at),
+        status: detail.status,
+        notes: detail.notes || '',
         vehicle: {
-          year: typeof vehicle === 'object' && vehicle && 'year' in vehicle ? String(vehicle.year || 'N/A') : 'N/A',
-          make: typeof vehicle === 'object' && vehicle && 'make' in vehicle ? String(vehicle.make || 'N/A') : 'N/A',
-          model: typeof vehicle === 'object' && vehicle && 'model' in vehicle ? String(vehicle.model || 'N/A') : 'N/A',
-          trim: typeof vehicle === 'object' && vehicle && 'trim' in vehicle ? String(vehicle.trim || 'N/A') : 'N/A',
-          vin: typeof vehicle === 'object' && vehicle && 'vin' in vehicle ? String(vehicle.vin || 'N/A') : 'N/A',
-          mileage: typeof vehicle === 'object' && vehicle && 'mileage' in vehicle ? String(vehicle.mileage || 'N/A') : 'N/A',
-          engineCylinders: typeof vehicle === 'object' && vehicle && 'engine' in vehicle ? String(vehicle.engine || 'N/A') : 'N/A',
-          transmission: typeof vehicle === 'object' && vehicle && 'transmission' in vehicle ? String(vehicle.transmission || 'N/A') : 'N/A',
-          drivetrain: typeof vehicle === 'object' && vehicle && 'drivetrain' in vehicle ? String(vehicle.drivetrain || 'N/A') : 'N/A',
+          year: detail.vehicle_year,
+          make: detail.vehicle_make,
+          model: detail.vehicle_model,
+          trim: detail.vehicle_trim,
+          vin: detail.vehicle_vin,
+          mileage: detail.vehicle_mileage,
+          engineCylinders: detail.vehicle_engine,
+          transmission: detail.vehicle_transmission,
+          drivetrain: detail.vehicle_drivetrain,
           exteriorColor: 'N/A',
           interiorColor: 'N/A',
           accessories: 'N/A',
@@ -124,12 +88,12 @@ export const useQuickBidDetails = () => {
           reconDetails: 'N/A'
         },
         buyer: {
-          name: typeof user === 'object' && user && 'full_name' in user ? String(user.full_name || 'N/A') : 'N/A',
-          dealership: 'N/A',
-          mobileNumber: typeof user === 'object' && user && 'mobile_number' in user ? String(user.mobile_number || 'N/A') : 'N/A'
+          name: detail.buyer_name,
+          dealership: detail.buyer_dealership,
+          mobileNumber: detail.buyer_mobile
         }
       };
     },
-    enabled: !!id
+    enabled: !!token
   });
 };

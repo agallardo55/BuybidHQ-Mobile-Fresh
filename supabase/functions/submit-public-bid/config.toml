@@ -1,0 +1,2 @@
+[functions.submit-public-bid]
+verify_jwt = false
