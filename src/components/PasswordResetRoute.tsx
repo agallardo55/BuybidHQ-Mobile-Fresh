@@ -18,13 +18,8 @@ export const PasswordResetRoute = ({ children }: { children: ReactNode }) => {
                        location.hash.includes('access_token') ||
                        location.search.includes('access_token');
   
-  // Debug logging (temporary)
-  console.log('PasswordResetRoute:', {
-    pathname: location.pathname,
-    hash: location.hash,
-    search: location.search,
-    hasResetToken
-  });
+  // Security: Log navigation without sensitive tokens
+  console.log('PasswordResetRoute: Checking reset flow for path:', location.pathname);
 
   // If there's no reset token and user is logged in, redirect to dashboard
   if (!hasResetToken && user) {
