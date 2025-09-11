@@ -1511,7 +1511,6 @@ export type Database = {
       batch_process_carrier_detection: {
         Args: Record<PropertyKey, never>
         Returns: {
-          carriers_by_type: Json
           carriers_detected: number
           total_processed: number
         }[]
