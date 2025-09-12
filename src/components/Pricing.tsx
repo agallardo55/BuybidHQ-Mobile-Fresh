@@ -32,12 +32,12 @@ const Pricing = () => {
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
                 <span className="text-3xl font-bold">$0</span>
-                <span className="ml-1 text-gray-500">/per user/per mo.</span>
+                <span className="ml-1 text-gray-500">/per mo.</span>
               </div>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Unlimited buybids</span>
+                  <span>10 buybids</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
@@ -45,7 +45,7 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Buybid dashboard</span>
+                  <span>Dashboard Access</span>
                 </li>
               </ul>
             </CardContent>
@@ -62,8 +62,8 @@ const Pricing = () => {
             </CardHeader>
             <CardContent className="flex-grow">
               <div className="mt-2 flex items-baseline">
-                <span className="text-3xl font-bold">$5</span>
-                <span className="ml-1 text-gray-500">/per buybid</span>
+                <span className="text-3xl font-bold">$100</span>
+                <span className="ml-1 text-gray-500">/per mo</span>
               </div>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
@@ -80,7 +80,7 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Buybid dashboard</span>
+                  <span>Dashboard Access</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
