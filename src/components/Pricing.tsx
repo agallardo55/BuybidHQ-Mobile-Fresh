@@ -124,8 +124,8 @@ const Pricing = () => {
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
                   <span className="flex items-center gap-2">
-                    All Basic features
-                    <span className="text-[#325AE7] text-sm">Coming Soon</span>
+                    Marketplace Access
+                    
                   </span>
                 </li>
               </ul>
