@@ -107,7 +107,7 @@ const Pricing = () => {
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>All Individual features</span>
+                  <span>Unlimited buybids</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
@@ -124,7 +124,7 @@ const Pricing = () => {
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
                   <span className="flex items-center gap-2">
-                    All Basic features
+                    Marketplace Access
                     
                   </span>
                 </li>
