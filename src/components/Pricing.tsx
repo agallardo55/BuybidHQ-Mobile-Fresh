@@ -72,7 +72,7 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Cancel Anytime</span>
+                  <span>Billed Monthly</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
