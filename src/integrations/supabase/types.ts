@@ -1490,22 +1490,6 @@ export type Database = {
         }
         Relationships: []
       }
-      unified_dealer_info: {
-        Row: {
-          address: string | null
-          business_email: string | null
-          business_name: string | null
-          business_phone: string | null
-          city: string | null
-          dealer_type: Database["public"]["Enums"]["dealer_type"] | null
-          id: string | null
-          license_number: string | null
-          state: string | null
-          user_id: string | null
-          zip_code: string | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       batch_process_carrier_detection: {
@@ -1691,6 +1675,22 @@ export type Database = {
       get_sms_gateway_email: {
         Args: { carrier: string; phone_number: string }
         Returns: string
+      }
+      get_unified_dealer_info: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          address: string
+          business_email: string
+          business_name: string
+          business_phone: string
+          city: string
+          dealer_type: Database["public"]["Enums"]["dealer_type"]
+          id: string
+          license_number: string
+          state: string
+          user_id: string
+          zip_code: string
+        }[]
       }
       get_user_dealership: {
         Args: { user_id: string }
