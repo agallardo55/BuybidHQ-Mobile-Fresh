@@ -57,7 +57,7 @@ const Pricing = () => {
           {/* Pay per Buybid Plan */}
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle className="text-2xl">Buybid Connect</CardTitle>
+              <CardTitle className="text-2xl">Connect Plan</CardTitle>
               <CardDescription>For buyers looking to expand their network</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
