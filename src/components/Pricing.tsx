@@ -104,7 +104,7 @@ const Pricing = () => {
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
-                  <span>Unlimited buybids</span>
+                  <span>Unlimited buybids per mo.</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
