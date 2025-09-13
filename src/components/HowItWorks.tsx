@@ -11,7 +11,7 @@ const HowItWorks = () => {
     {
       icon: <Search className="w-12 h-12 text-accent" />,
       title: "Receive Offers",
-      description: "Connected buyers review your request and submit their best offers"
+      description: "Connected buyers review your bid requests and submit their offers"
     },
     {
       icon: <CheckCircle className="w-12 h-12 text-accent" />,
