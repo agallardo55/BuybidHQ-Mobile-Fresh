@@ -37,7 +37,8 @@ const CreateBidRequest = () => {
     id: buyer.id,
     name: buyer.name,
     dealership: buyer.dealership,
-    mobile: buyer.mobileNumber
+    mobile: buyer.mobileNumber,
+    email: buyer.email
   })) || [];
 
   const filteredBuyers = mappedBuyers.filter(buyer => 

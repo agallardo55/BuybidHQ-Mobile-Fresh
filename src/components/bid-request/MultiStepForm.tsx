@@ -23,6 +23,7 @@ interface MultiStepFormProps {
     name: string;
     dealership: string;
     mobile: string;
+    email: string;
   }>;
   searchTerm: string;
   setSearchTerm: (term: string) => void;

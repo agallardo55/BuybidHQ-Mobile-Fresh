@@ -16,6 +16,7 @@ interface BuyersSectionProps {
     name: string;
     dealership: string;
     mobile: string;
+    email: string;
   }>;
   selectedBuyers: string[];
   toggleBuyer: (buyerId: string) => void;
@@ -60,12 +61,13 @@ const BuyersSection = ({
           </Button>
         </div>
         {/* Header Row */}
-        <div className="grid grid-cols-[40px_32px_200px_180px_120px] items-center gap-3 py-2 px-1.5 bg-gray-50 border-b border-gray-200 font-medium text-sm text-gray-700">
+        <div className="grid grid-cols-[40px_32px_200px_180px_120px_200px] items-center gap-3 py-2 px-1.5 bg-gray-50 border-b border-gray-200 font-medium text-sm text-gray-700">
           <div></div>
           <div></div>
           <div>Name</div>
           <div>Dealership</div>
           <div>Phone</div>
+          <div>Email</div>
         </div>
         <ScrollArea className="h-[400px]">
           <div>
@@ -73,7 +75,7 @@ const BuyersSection = ({
               buyers.map((buyer, index) => (
                 <div
                   key={buyer.id}
-                  className="grid grid-cols-[40px_32px_200px_180px_120px] items-center gap-3 py-3 px-1.5 border border-gray-200 bg-white hover:bg-gray-100"
+                  className="grid grid-cols-[40px_32px_200px_180px_120px_200px] items-center gap-3 py-3 px-1.5 border border-gray-200 bg-white hover:bg-gray-100"
                 >
                   <div className="flex justify-center">
                     <Checkbox
@@ -94,6 +96,9 @@ const BuyersSection = ({
                   </div>
                   <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
                     {buyer.mobile || '-'}
+                  </div>
+                  <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
+                    {buyer.email || '-'}
                   </div>
                 </div>
               ))
