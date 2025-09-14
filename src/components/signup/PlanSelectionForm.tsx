@@ -61,7 +61,7 @@ const PlanSelectionForm = ({
             <ul className="mt-6 space-y-4">
               <li className="flex items-center">
                 <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Pay as you go</span>
+                <span>Unlimited Buybids</span>
               </li>
               <li className="flex items-center">
                 <Check className="h-5 w-5 text-accent mr-2" />
