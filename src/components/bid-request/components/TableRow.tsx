@@ -97,8 +97,8 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="accepted" className="bg-green-100 text-green-800 hover:bg-green-200 focus:bg-green-200">Accepted</SelectItem>
-            <SelectItem value="declined" className="bg-red-100 text-red-800 hover:bg-red-200 focus:bg-red-200">Declined</SelectItem>
+            <SelectItem value="accepted" className="bg-green-100 text-green-800 hover:bg-green-500 hover:text-white focus:bg-green-500 focus:text-white">Accepted</SelectItem>
+            <SelectItem value="declined" className="bg-red-100 text-red-800 hover:bg-red-500 hover:text-white focus:bg-red-500 focus:text-white">Declined</SelectItem>
           </SelectContent>
         </Select>
       </TableCell>
