@@ -65,7 +65,7 @@ const BuyersSection = ({
               buyers.map((buyer, index) => (
                 <div
                   key={buyer.id}
-                  className="flex items-center space-x-2 py-3 px-1.5 rounded border border-gray-200 bg-white hover:bg-gray-100"
+                  className="flex items-center space-x-2 py-3 px-1.5 border border-gray-200 bg-white hover:bg-gray-100"
                 >
                   <Checkbox
                     id={`buyer-${buyer.id}`}
