@@ -65,7 +65,7 @@ const BuyersSection = ({
               buyers.map((buyer, index) => (
                 <div
                   key={buyer.id}
-                  className={`flex items-center space-x-2 p-1.5 rounded hover:bg-gray-100 ${
+                  className={`flex items-center space-x-2 p-1.5 rounded border border-gray-200 hover:bg-gray-100 ${
                     index % 2 === 0 ? 'bg-white' : 'bg-slate-50'
                   }`}
                 >
