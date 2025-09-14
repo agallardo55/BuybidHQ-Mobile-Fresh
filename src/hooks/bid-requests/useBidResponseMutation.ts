@@ -43,9 +43,13 @@ export const useBidResponseMutation = () => {
         if (declineError) throw declineError;
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, { status }) => {
       queryClient.invalidateQueries({ queryKey: ['bidRequests'] });
-      toast.success("Bid response status updated successfully");
+      if (status === "accepted") {
+        toast.success("Buybid offer Accepted all other offers will be declined");
+      } else {
+        toast.success("Bid response status updated successfully");
+      }
     },
     onError: (error) => {
       console.error("Update bid response error:", error);
