@@ -10,9 +10,10 @@ interface TableRowProps {
   offer?: BidRequest['offers'][0];
   onClick: () => void;
   onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
+  onBidRequestStatusUpdate?: (requestId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
-export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: TableRowProps) => {
+export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onBidRequestStatusUpdate }: TableRowProps) => {
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), 'MM/dd/yyyy');
@@ -23,9 +24,12 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
   };
 
   const handleStatusUpdate = (value: "pending" | "accepted" | "declined") => {
-    if (onStatusUpdate) {
-      const id = offer?.id || request.id;
-      onStatusUpdate(id, value);
+    if (offer && onStatusUpdate) {
+      // Update bid response for offers
+      onStatusUpdate(offer.id, value);
+    } else if (!offer && onBidRequestStatusUpdate) {
+      // Update bid request directly when no offer exists
+      onBidRequestStatusUpdate(request.id, value);
     }
   };
 

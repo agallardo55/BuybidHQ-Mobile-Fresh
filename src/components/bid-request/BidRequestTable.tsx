@@ -4,6 +4,7 @@ import { BidRequest } from "./types";
 import { useState } from "react";
 import BidRequestDialog from "./BidRequestDialog";
 import { useBidResponseMutation } from "@/hooks/bid-requests/useBidResponseMutation";
+import { useBidRequestMutation } from "@/hooks/bid-requests/useBidRequestMutation";
 import { TableHeaders } from "./components/TableHeaders";
 import { TableRowComponent } from "./components/TableRow";
 
@@ -20,6 +21,7 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
   const [selectedRequest, setSelectedRequest] = useState<BidRequest | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { mutate: updateBidResponseStatus } = useBidResponseMutation();
+  const { mutate: updateBidRequestStatus } = useBidRequestMutation();
 
   const handleRowClick = (request: BidRequest) => {
     setSelectedRequest(request);
@@ -28,6 +30,10 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
 
   const handleStatusUpdate = (responseId: string, status: "pending" | "accepted" | "declined") => {
     updateBidResponseStatus({ responseId, status });
+  };
+
+  const handleBidRequestStatusUpdate = (requestId: string, status: "pending" | "accepted" | "declined") => {
+    updateBidRequestStatus({ id: requestId, status });
   };
 
   return (
@@ -45,6 +51,7 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                         key={request.id}
                         request={request}
                         onClick={() => handleRowClick(request)}
+                        onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
                       />
                     )];
                   }
