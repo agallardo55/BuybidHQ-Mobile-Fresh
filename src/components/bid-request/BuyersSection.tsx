@@ -62,10 +62,12 @@ const BuyersSection = ({
         <ScrollArea className="h-[400px]">
           <div className="space-y-2">
             {buyers.length > 0 ? (
-              buyers.map((buyer) => (
+              buyers.map((buyer, index) => (
                 <div
                   key={buyer.id}
-                  className="flex items-center space-x-2 p-1.5 rounded hover:bg-gray-50"
+                  className={`flex items-center space-x-2 p-1.5 rounded hover:bg-gray-50 ${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
+                  }`}
                 >
                   <Checkbox
                     id={`buyer-${buyer.id}`}
