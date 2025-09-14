@@ -44,7 +44,7 @@ const TrimDropdown = ({
                 <SelectItem 
                   key={`${displayValue}-${index}`} 
                   value={displayValue}
-                  className="hover:bg-blue-50 focus:bg-blue-50 transition-colors cursor-pointer"
+                  className="hover:bg-gray-100 focus:bg-gray-100 transition-colors cursor-pointer"
                 >
                   <div className="w-full whitespace-normal break-words">
                     <div className="font-medium text-gray-900">
