@@ -59,6 +59,14 @@ const BuyersSection = ({
             <span>Buyer</span>
           </Button>
         </div>
+        {/* Header Row */}
+        <div className="grid grid-cols-[40px_32px_200px_180px_120px] items-center gap-3 py-2 px-1.5 bg-gray-50 border-b border-gray-200 font-medium text-sm text-gray-700">
+          <div></div>
+          <div></div>
+          <div>Name</div>
+          <div>Dealership</div>
+          <div>Phone</div>
+        </div>
         <ScrollArea className="h-[400px]">
           <div>
             {buyers.length > 0 ? (
