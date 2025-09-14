@@ -11,6 +11,10 @@ interface BidRequestTabsProps {
 }
 
 const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
   return (
     <Tabs defaultValue="details" className="mt-2">
       <TabsList className="grid w-full grid-cols-4 mb-3">
@@ -93,7 +97,7 @@ const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
                           'secondary'
                         }
                       >
-                        {offer.status}
+                        {capitalizeFirstLetter(offer.status)}
                       </Badge>
                     </div>
                   </div>

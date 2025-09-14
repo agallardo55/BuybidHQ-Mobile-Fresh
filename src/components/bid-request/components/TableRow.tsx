@@ -31,6 +31,11 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
 
   const currentStatus = offer?.status || request.status;
   
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+  
   // Get just the buyer name without any dealership info
   const buyerName = getBuyerNameOnly(offer ? offer.buyerName : request.buyer);
 
@@ -88,7 +93,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate }: T
             ${currentStatus.toLowerCase() === 'pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
             ${currentStatus.toLowerCase() === 'declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
           `}>
-            <SelectValue>{currentStatus}</SelectValue>
+            <SelectValue>{capitalizeFirstLetter(currentStatus)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="pending">Pending</SelectItem>
