@@ -65,35 +65,28 @@ const BuyersSection = ({
               buyers.map((buyer, index) => (
                 <div
                   key={buyer.id}
-                  className="flex items-center space-x-2 py-3 px-1.5 border border-gray-200 bg-white hover:bg-gray-100"
+                  className="grid grid-cols-[40px_32px_1fr_1fr_120px] items-center gap-3 py-3 px-1.5 border border-gray-200 bg-white hover:bg-gray-100"
                 >
-                  <Checkbox
-                    id={`buyer-${buyer.id}`}
-                    checked={selectedBuyers.includes(buyer.id)}
-                    onCheckedChange={() => toggleBuyer(buyer.id)}
-                    className="h-4 w-4"
-                  />
-                  <label
-                    htmlFor={`buyer-${buyer.id}`}
-                    className="flex-1 flex items-center justify-between text-sm cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <UserRound className="h-4 w-4 text-gray-500" />
-                      <span>{buyer.name}</span>
-                      {buyer.dealership && (
-                        <>
-                          <span className="text-gray-500">-</span>
-                          <span className="text-gray-500">{buyer.dealership}</span>
-                        </>
-                      )}
-                      {buyer.mobile && (
-                        <>
-                          <span className="text-gray-500">-</span>
-                          <span className="text-gray-500">Mobile: {buyer.mobile}</span>
-                        </>
-                      )}
-                    </div>
-                  </label>
+                  <div className="flex justify-center">
+                    <Checkbox
+                      id={`buyer-${buyer.id}`}
+                      checked={selectedBuyers.includes(buyer.id)}
+                      onCheckedChange={() => toggleBuyer(buyer.id)}
+                      className="h-4 w-4"
+                    />
+                  </div>
+                  <div className="flex justify-center">
+                    <UserRound className="h-4 w-4 text-gray-500" />
+                  </div>
+                  <div className="text-sm font-medium cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
+                    {buyer.name}
+                  </div>
+                  <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
+                    {buyer.dealership || '-'}
+                  </div>
+                  <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
+                    {buyer.mobile || '-'}
+                  </div>
                 </div>
               ))
             ) : (
