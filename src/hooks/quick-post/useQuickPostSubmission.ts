@@ -104,7 +104,7 @@ export function useQuickPostSubmission(
         const bidRequestUrl = `${window.location.origin}/quick-bid/${bidRequestData.id}?token=${tokenData.token}`;
         
         smsPromises.push(
-          supabase.functions.invoke('send-knock-sms', {
+          supabase.functions.invoke('send-twilio-sms', {
             body: {
               type: 'bid_request',
               phoneNumber: buyerDetails.mobileNumber,

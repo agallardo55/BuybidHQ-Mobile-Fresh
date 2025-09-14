@@ -77,7 +77,7 @@ export const useBidRequestSubmission = () => {
 
       console.log(`[${requestId}] Bid request created successfully:`, bidRequestData);
 
-      // Send notifications via Knock to selected buyers
+      // Send notifications via Twilio to selected buyers
       for (const buyerId of selectedBuyers) {
         console.log(`[${requestId}] Processing buyer ID:`, buyerId);
         
@@ -109,8 +109,8 @@ export const useBidRequestSubmission = () => {
         // Generate bid submission URL with secure token
         const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenResponse)}`;
 
-        // Send notification via Knock
-        const { error: knockError } = await supabase.functions.invoke('send-knock-sms', {
+        // Send notification via Twilio
+        const { error: twilioError } = await supabase.functions.invoke('send-twilio-sms', {
           body: {
             type: 'bid_request',
             phoneNumber: buyerData.buyer_mobile,
@@ -124,10 +124,10 @@ export const useBidRequestSubmission = () => {
           }
         });
 
-        if (knockError) {
+        if (twilioError) {
           console.error(`[${requestId}] Error sending notification to buyer:`, {
             name: buyerData.buyer_name,
-            error: knockError
+            error: twilioError
           });
           toast.error(`Failed to send notification to ${buyerData.buyer_name}`);
         } else {

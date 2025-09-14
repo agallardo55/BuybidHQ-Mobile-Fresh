@@ -18,7 +18,7 @@ export const BidResponseScenario = ({ phoneNumber, isLoading, setIsLoading }: Bi
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-knock-sms', {
+      const { data, error } = await supabase.functions.invoke('send-twilio-sms', {
         body: {
           type: "bid_response",
           phoneNumber,

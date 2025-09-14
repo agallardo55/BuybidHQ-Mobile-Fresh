@@ -12,7 +12,7 @@ export const ErrorScenarios = ({ isLoading, setIsLoading }: ErrorScenariosProps)
   const testInvalidNumber = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-knock-sms', {
+    const { data, error } = await supabase.functions.invoke('send-twilio-sms', {
         body: {
           type: "bid_request",
           phoneNumber: "5005550001", // Twilio test number for failure
@@ -38,7 +38,7 @@ export const ErrorScenarios = ({ isLoading, setIsLoading }: ErrorScenariosProps)
   const testUnroutableNumber = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-knock-sms', {
+      const { data, error } = await supabase.functions.invoke('send-twilio-sms', {
         body: {
           type: "bid_request",
           phoneNumber: "5005550009", // Twilio test number for unroutable

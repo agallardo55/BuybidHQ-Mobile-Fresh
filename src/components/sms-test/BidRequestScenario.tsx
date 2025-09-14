@@ -25,7 +25,7 @@ export const BidRequestScenario = ({ phoneNumber, isLoading, setIsLoading }: Bid
         bidRequestUrl: "https://buybidhq.com/bid/test123"
       });
 
-      const { data, error } = await supabase.functions.invoke('send-knock-sms', {
+      const { data, error } = await supabase.functions.invoke('send-twilio-sms', {
         body: {
           type: "bid_request",
           phoneNumber,

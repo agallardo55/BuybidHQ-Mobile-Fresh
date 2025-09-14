@@ -111,9 +111,9 @@ serve(async (req) => {
     if (!detailsError && notificationDetails?.[0]) {
       const details = notificationDetails[0];
 
-      // Send SMS notification
+      // Send SMS notification to the bid request creator
       try {
-        await supabase.functions.invoke('send-bid-sms', {
+        await supabase.functions.invoke('send-twilio-sms', {
           body: {
             type: 'bid_response',
             phoneNumber: details.creator_phone,
