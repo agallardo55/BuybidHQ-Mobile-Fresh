@@ -65,7 +65,7 @@ const BuyersSection = ({
               buyers.map((buyer, index) => (
                 <div
                   key={buyer.id}
-                  className="grid grid-cols-[40px_32px_2fr_1fr_120px] items-center gap-3 py-3 px-1.5 border border-gray-200 bg-white hover:bg-gray-100"
+                  className="grid grid-cols-[40px_32px_200px_180px_120px] items-center gap-3 py-3 px-1.5 border border-gray-200 bg-white hover:bg-gray-100"
                 >
                   <div className="flex justify-center">
                     <Checkbox
