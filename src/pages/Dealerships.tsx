@@ -5,6 +5,7 @@ import AdminFooter from "@/components/footer/AdminFooter";
 import { useDealershipsQuery } from "@/hooks/dealerships/useDealershipsQuery";
 import { useDealershipMutations } from "@/hooks/dealerships/useDealershipMutations";
 import { Dealership, DealershipFormData } from "@/types/dealerships";
+import { DealershipWizardData } from "@/types/dealership-wizard";
 import DealershipList from "@/components/dealerships/DealershipList";
 import DealershipDialogs from "@/components/dealerships/DealershipDialogs";
 import DealershipHeader from "@/components/dealerships/DealershipHeader";
@@ -37,9 +38,9 @@ const Dealerships = () => {
     setCurrentPage(1);
   };
 
-  const handleCreateDealership = async (formData: DealershipFormData) => {
+  const handleCreateDealership = async (wizardData: DealershipWizardData) => {
     try {
-      await mutations.createDealership.mutateAsync(formData);
+      await mutations.createDealership.mutateAsync(wizardData);
       setIsCreateDialogOpen(false);
     } catch (error) {
       console.error('Error creating dealership:', error);

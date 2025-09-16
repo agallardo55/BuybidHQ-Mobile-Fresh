@@ -3,39 +3,82 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { DealershipFormData } from "@/types/dealerships";
+import { DealershipWizardData } from "@/types/dealership-wizard";
 
 export const useDealershipMutations = () => {
   const queryClient = useQueryClient();
 
   const createDealership = useMutation({
-    mutationFn: async (data: DealershipFormData) => {
-      console.log('Creating dealership with data:', data);
+    mutationFn: async (data: DealershipWizardData) => {
+      console.log('Creating dealership with wizard data:', data);
       
-      const insertData = {
-        dealer_name: data.dealerName,
-        dealer_id: data.dealerId || null,
-        business_phone: data.businessPhone,
-        business_email: data.businessEmail,
-        address: data.address || null,
-        city: data.city || null,
-        state: data.state || null,
-        zip_code: data.zipCode || null,
+      // First, create the dealership
+      const dealershipData = {
+        dealer_name: data.dealership.dealerName,
+        dealer_id: data.dealership.dealerId || null,
+        business_phone: data.dealership.businessPhone,
+        business_email: data.dealership.businessEmail,
+        address: data.dealership.address || null,
+        city: data.dealership.city || null,
+        state: data.dealership.state || null,
+        zip_code: data.dealership.zipCode || null,
       };
       
-      console.log('Insert data:', insertData);
-      
-      const { data: result, error } = await supabase
+      const { data: dealershipResult, error: dealershipError } = await supabase
         .from('dealerships')
-        .insert([insertData])
-        .select();
+        .insert([dealershipData])
+        .select()
+        .single();
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw new Error(`Failed to create dealership: ${error.message}`);
+      if (dealershipError) {
+        console.error('Dealership creation error:', dealershipError);
+        throw new Error(`Failed to create dealership: ${dealershipError.message}`);
       }
       
-      console.log('Created dealership:', result);
-      return result;
+      // Then, create the admin user
+      const adminUserData = {
+        full_name: data.adminUser.fullName,
+        email: data.adminUser.email,
+        mobile_number: data.adminUser.mobileNumber,
+        phone_carrier: data.adminUser.phoneCarrier,
+        address: data.adminUser.address || null,
+        city: data.adminUser.city || null,
+        state: data.adminUser.state || null,
+        zip_code: data.adminUser.zipCode || null,
+        role: 'admin' as const,
+        is_active: data.adminUser.isActive,
+        dealership_id: dealershipResult.id,
+      };
+
+      const { data: userResult, error: userError } = await supabase
+        .from('buybidhq_users')
+        .insert([adminUserData])
+        .select()
+        .single();
+
+      if (userError) {
+        console.error('Admin user creation error:', userError);
+        // If user creation fails, we should clean up the dealership
+        await supabase.from('dealerships').delete().eq('id', dealershipResult.id);
+        throw new Error(`Failed to create admin user: ${userError.message}`);
+      }
+
+      // Update dealership with primary user
+      const { error: updateError } = await supabase
+        .from('dealerships')
+        .update({ 
+          primary_user_id: userResult.id,
+          primary_assigned_at: new Date().toISOString()
+        })
+        .eq('id', dealershipResult.id);
+
+      if (updateError) {
+        console.error('Primary user assignment error:', updateError);
+        // Don't fail the whole operation for this
+      }
+
+      console.log('Created dealership and admin user:', { dealershipResult, userResult });
+      return { dealership: dealershipResult, adminUser: userResult };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dealerships'] });

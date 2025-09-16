@@ -1,6 +1,8 @@
 
 import { Dealership, DealershipFormData } from "@/types/dealerships";
+import { DealershipWizardData } from "@/types/dealership-wizard";
 import DealershipForm from "./DealershipForm";
+import DealershipWizardForm from "./wizard/DealershipWizardForm";
 import ViewDealershipDialog from "./ViewDealershipDialog";
 import {
   Dialog,
@@ -29,7 +31,7 @@ interface DealershipDialogsProps {
   setIsEditDialogOpen: (open: boolean) => void;
   setIsDeleteDialogOpen: (open: boolean) => void;
   setIsViewDialogOpen: (open: boolean) => void;
-  onCreateSubmit: (data: DealershipFormData) => Promise<void>;
+  onCreateSubmit: (data: DealershipWizardData) => Promise<void>;
   onUpdateSubmit: (data: DealershipFormData) => Promise<void>;
   onDeleteSubmit: () => Promise<void>;
   isCreating: boolean;
@@ -55,11 +57,11 @@ const DealershipDialogs = ({
   return (
     <>
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>Add New Dealership</DialogTitle>
           </DialogHeader>
-          <DealershipForm
+          <DealershipWizardForm
             onSubmit={onCreateSubmit}
             onCancel={() => setIsCreateDialogOpen(false)}
             isSubmitting={isCreating}
