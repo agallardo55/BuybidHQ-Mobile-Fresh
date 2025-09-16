@@ -36,8 +36,30 @@ const DealershipForm = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const validateForm = () => {
+    const errors: string[] = [];
+    
+    if (!formData.dealerName.trim()) errors.push("Dealership Name is required");
+    if (!formData.businessPhone.trim()) errors.push("Business Phone is required");
+    if (!formData.businessEmail.trim()) errors.push("Business Email is required");
+    
+    if (formData.businessEmail && !/\S+@\S+\.\S+/.test(formData.businessEmail)) {
+      errors.push("Valid email address is required");
+    }
+    
+    return errors;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      // You could show these errors with toast or set them to state
+      console.error('Validation errors:', validationErrors);
+      return;
+    }
+    
     onSubmit(formData);
   };
 
@@ -48,6 +70,9 @@ const DealershipForm = ({
         dealerId={formData.dealerId}
         businessPhone={formData.businessPhone}
         businessEmail={formData.businessEmail}
+        licenseNumber={formData.licenseNumber}
+        website={formData.website}
+        notes={formData.notes}
         onChange={handleChange}
       />
 

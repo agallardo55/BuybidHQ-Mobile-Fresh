@@ -9,62 +9,84 @@ export const useDealershipMutations = () => {
 
   const createDealership = useMutation({
     mutationFn: async (data: DealershipFormData) => {
-      const { error } = await supabase
+      console.log('Creating dealership with data:', data);
+      
+      const insertData = {
+        dealer_name: data.dealerName,
+        dealer_id: data.dealerId || null,
+        business_phone: data.businessPhone,
+        business_email: data.businessEmail,
+        address: data.address || null,
+        city: data.city || null,
+        state: data.state || null,
+        zip_code: data.zipCode || null,
+        license_number: data.licenseNumber || null,
+        website: data.website || null,
+        notes: data.notes || null
+      };
+      
+      console.log('Insert data:', insertData);
+      
+      const { data: result, error } = await supabase
         .from('dealerships')
-        .insert([{
-          dealer_name: data.dealerName,
-          dealer_id: data.dealerId,
-          business_phone: data.businessPhone,
-          business_email: data.businessEmail,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          zip_code: data.zipCode,
-          license_number: data.licenseNumber,
-          website: data.website,
-          notes: data.notes
-        }]);
+        .insert([insertData])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(`Failed to create dealership: ${error.message}`);
+      }
+      
+      console.log('Created dealership:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dealerships'] });
       toast.success('Dealership created successfully');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error creating dealership:', error);
-      toast.error('Failed to create dealership');
+      const errorMessage = error?.message || 'Failed to create dealership';
+      toast.error(errorMessage);
     }
   });
 
   const updateDealership = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<DealershipFormData> }) => {
+      console.log('Updating dealership:', id, 'with data:', data);
+      
+      const updateData = {
+        dealer_name: data.dealerName,
+        dealer_id: data.dealerId || null,
+        business_phone: data.businessPhone,
+        business_email: data.businessEmail,
+        address: data.address || null,
+        city: data.city || null,
+        state: data.state || null,
+        zip_code: data.zipCode || null,
+        license_number: data.licenseNumber || null,
+        website: data.website || null,
+        notes: data.notes || null
+      };
+      
       const { error } = await supabase
         .from('dealerships')
-        .update({
-          dealer_name: data.dealerName,
-          dealer_id: data.dealerId,
-          business_phone: data.businessPhone,
-          business_email: data.businessEmail,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          zip_code: data.zipCode,
-          license_number: data.licenseNumber,
-          website: data.website,
-          notes: data.notes
-        })
+        .update(updateData)
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw new Error(`Failed to update dealership: ${error.message}`);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dealerships'] });
       toast.success('Dealership updated successfully');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error updating dealership:', error);
-      toast.error('Failed to update dealership');
+      const errorMessage = error?.message || 'Failed to update dealership';
+      toast.error(errorMessage);
     }
   });
 
@@ -81,9 +103,10 @@ export const useDealershipMutations = () => {
       queryClient.invalidateQueries({ queryKey: ['dealerships'] });
       toast.success('Dealership deleted successfully');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error deleting dealership:', error);
-      toast.error('Failed to delete dealership');
+      const errorMessage = error?.message || 'Failed to delete dealership';
+      toast.error(errorMessage);
     }
   });
 
