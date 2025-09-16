@@ -221,6 +221,7 @@ const DealershipWizardForm = ({
           {currentStep === 'dealership' ? (
             <Button
               type="button"
+              variant="custom-blue"
               onClick={handleNext}
               disabled={isSubmitting}
             >
