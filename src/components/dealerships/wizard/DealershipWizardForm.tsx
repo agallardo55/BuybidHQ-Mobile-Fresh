@@ -160,14 +160,14 @@ const DealershipWizardForm = ({
           <TabsTrigger 
             value="dealership" 
             disabled={currentStep !== 'dealership'}
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
           >
             Dealership
           </TabsTrigger>
           <TabsTrigger 
             value="admin" 
             disabled={currentStep !== 'admin'}
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
           >
             Admin User
           </TabsTrigger>
