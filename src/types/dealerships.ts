@@ -35,7 +35,4 @@ export interface DealershipFormData {
   city: string;
   state: string;
   zipCode: string;
-  licenseNumber: string;
-  website: string;
-  notes: string;
 }

@@ -20,9 +20,6 @@ export const useDealershipMutations = () => {
         city: data.city || null,
         state: data.state || null,
         zip_code: data.zipCode || null,
-        license_number: data.licenseNumber || null,
-        website: data.website || null,
-        notes: data.notes || null
       };
       
       console.log('Insert data:', insertData);
@@ -64,9 +61,6 @@ export const useDealershipMutations = () => {
         city: data.city || null,
         state: data.state || null,
         zip_code: data.zipCode || null,
-        license_number: data.licenseNumber || null,
-        website: data.website || null,
-        notes: data.notes || null
       };
       
       const { error } = await supabase

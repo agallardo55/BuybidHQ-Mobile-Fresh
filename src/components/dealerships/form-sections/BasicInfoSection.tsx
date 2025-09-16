@@ -9,9 +9,6 @@ interface BasicInfoSectionProps {
   dealerId: string;
   businessPhone: string;
   businessEmail: string;
-  licenseNumber: string;
-  website: string;
-  notes: string;
   onChange: (field: string, value: string) => void;
 }
 
@@ -20,9 +17,6 @@ const BasicInfoSection = ({
   dealerId,
   businessPhone,
   businessEmail,
-  licenseNumber,
-  website,
-  notes,
   onChange,
 }: BasicInfoSectionProps) => {
   const formatPhoneNumber = (value: string) => {
@@ -76,33 +70,6 @@ const BasicInfoSection = ({
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="licenseNumber">License Number</Label>
-          <Input
-            id="licenseNumber"
-            value={licenseNumber}
-            onChange={(e) => onChange('licenseNumber', e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="website">Website</Label>
-          <Input
-            id="website"
-            value={website}
-            onChange={(e) => onChange('website', e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="notes">Notes</Label>
-        <Textarea
-          id="notes"
-          value={notes}
-          onChange={(e) => onChange('notes', e.target.value)}
-          rows={3}
-        />
       </div>
     </FormSection>
   );

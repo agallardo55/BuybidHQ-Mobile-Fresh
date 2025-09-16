@@ -27,9 +27,6 @@ const DealershipForm = ({
     city: initialData?.city || "",
     state: initialData?.state || "",
     zipCode: initialData?.zipCode || "",
-    licenseNumber: initialData?.licenseNumber || "",
-    website: initialData?.website || "",
-    notes: initialData?.notes || "",
   });
 
   const handleChange = (field: keyof DealershipFormData, value: string) => {
@@ -70,9 +67,6 @@ const DealershipForm = ({
         dealerId={formData.dealerId}
         businessPhone={formData.businessPhone}
         businessEmail={formData.businessEmail}
-        licenseNumber={formData.licenseNumber}
-        website={formData.website}
-        notes={formData.notes}
         onChange={handleChange}
       />
 

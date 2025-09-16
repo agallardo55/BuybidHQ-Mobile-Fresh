@@ -44,10 +44,6 @@ const ViewDealershipDialog = ({
                   <p className="text-sm text-gray-500">Business Email</p>
                   <p className="text-sm">{dealership.business_email}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Website</p>
-                  <p className="text-sm">{dealership.website || 'N/A'}</p>
-                </div>
               </div>
             </div>
 
@@ -95,20 +91,6 @@ const ViewDealershipDialog = ({
                 <div>
                   <p className="text-sm text-gray-500">ZIP Code</p>
                   <p className="text-sm">{dealership.zip_code || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-1">Additional Information</h3>
-              <div className="grid grid-cols-1 gap-2">
-                <div>
-                  <p className="text-sm text-gray-500">License Number</p>
-                  <p className="text-sm">{dealership.license_number || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Notes</p>
-                  <p className="text-sm">{dealership.notes || 'N/A'}</p>
                 </div>
               </div>
             </div>

@@ -83,9 +83,6 @@ const DealershipDialogs = ({
                 city: selectedDealership.city || "",
                 state: selectedDealership.state || "",
                 zipCode: selectedDealership.zip_code || "",
-                licenseNumber: selectedDealership.license_number || "",
-                website: selectedDealership.website || "",
-                notes: selectedDealership.notes || "",
               }}
               onSubmit={onUpdateSubmit}
               onCancel={() => setIsEditDialogOpen(false)}
