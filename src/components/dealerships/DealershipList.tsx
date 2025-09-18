@@ -10,6 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import { DealershipMobileCard } from "./DealershipMobileCard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DealershipListProps {
   dealerships: Dealership[];
@@ -45,6 +47,23 @@ const DealershipList = ({
   onEdit,
   onDelete
 }: DealershipListProps) => {
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        {dealerships.map((dealership) => (
+          <DealershipMobileCard
+            key={dealership.id}
+            dealership={dealership}
+            onView={onView}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto">
       <Table>

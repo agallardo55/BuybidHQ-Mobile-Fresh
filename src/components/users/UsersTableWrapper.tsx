@@ -2,6 +2,8 @@
 import { User } from "@/types/users";
 import UsersTable from "./UsersTable";
 import UsersTableFooter from "./UsersTableFooter";
+import { UserMobileCard } from "./UserMobileCard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UsersTableWrapperProps {
   users: User[];
@@ -35,6 +37,7 @@ const UsersTableWrapper = ({
   sortConfig,
   onSort,
 }: UsersTableWrapperProps) => {
+  const isMobile = useIsMobile();
   const getPageNumbers = () => {
     const delta = 2;
     const range = [];
@@ -47,6 +50,33 @@ const UsersTableWrapper = ({
     }
     return range;
   };
+
+  if (isMobile) {
+    return (
+      <div>
+        <div className="space-y-4 mb-6">
+          {users.map((user) => (
+            <UserMobileCard
+              key={user.id}
+              user={user}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+        <UsersTableFooter
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          getPageNumbers={getPageNumbers}
+        />
+      </div>
+    );
+  }
 
   return (
     <div>

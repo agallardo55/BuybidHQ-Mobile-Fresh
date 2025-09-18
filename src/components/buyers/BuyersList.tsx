@@ -2,6 +2,8 @@
 import { Buyer } from "@/types/buyers";
 import BuyersTable from "./BuyersTable";
 import TableFooter from "@/components/bid-request/TableFooter";
+import { BuyerMobileCard } from "./BuyerMobileCard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BuyersListProps {
   buyers: Buyer[];
@@ -35,6 +37,7 @@ const BuyersList = ({
   sortConfig,
   onSort
 }: BuyersListProps) => {
+  const isMobile = useIsMobile();
   const getPageNumbers = () => {
     const delta = 2;
     const range = [];
@@ -47,6 +50,33 @@ const BuyersList = ({
     }
     return range;
   };
+
+  if (isMobile) {
+    return (
+      <div>
+        <div className="space-y-4 mb-6">
+          {buyers.map((buyer) => (
+            <BuyerMobileCard
+              key={buyer.id}
+              buyer={buyer}
+              onView={onView}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
+        <TableFooter
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          getPageNumbers={getPageNumbers}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-x-auto">

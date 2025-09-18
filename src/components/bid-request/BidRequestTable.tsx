@@ -7,6 +7,8 @@ import { useBidResponseMutation } from "@/hooks/bid-requests/useBidResponseMutat
 import { useBidRequestMutation } from "@/hooks/bid-requests/useBidRequestMutation";
 import { TableHeaders } from "./components/TableHeaders";
 import { TableRowComponent } from "./components/TableRow";
+import { BidRequestMobileCard } from "./BidRequestMobileCard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BidRequestTableProps {
   requests: BidRequest[];
@@ -22,6 +24,7 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { mutate: updateBidResponseStatus } = useBidResponseMutation();
   const { mutate: updateBidRequestStatus } = useBidRequestMutation();
+  const isMobile = useIsMobile();
 
   const handleRowClick = (request: BidRequest) => {
     setSelectedRequest(request);
@@ -35,6 +38,49 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
   const handleBidRequestStatusUpdate = (requestId: string, status: "pending" | "accepted" | "declined") => {
     updateBidRequestStatus({ id: requestId, status });
   };
+
+  if (isMobile) {
+    return (
+      <>
+        <div className="space-y-4">
+          {requests && requests.length > 0 ? (
+            requests.flatMap((request) => {
+              if (!request.offers?.length) {
+                return [(
+                  <BidRequestMobileCard
+                    key={request.id}
+                    request={request}
+                    onClick={() => handleRowClick(request)}
+                    onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
+                  />
+                )];
+              }
+
+              return request.offers.map((offer, index) => (
+                <BidRequestMobileCard
+                  key={`${request.id}-${index}`}
+                  request={request}
+                  offer={offer}
+                  onClick={() => handleRowClick(request)}
+                  onStatusUpdate={handleStatusUpdate}
+                />
+              ));
+            })
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              No bid requests found
+            </div>
+          )}
+        </div>
+
+        <BidRequestDialog
+          request={selectedRequest}
+          isOpen={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+        />
+      </>
+    );
+  }
 
   return (
     <>
