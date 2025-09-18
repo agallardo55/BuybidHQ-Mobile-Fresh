@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { useMFAManagement } from "@/hooks/useMFAManagement";
 import {
@@ -28,43 +29,37 @@ export const MFASection = () => {
   return (
     <div className="pt-6 border-t">
       <h3 className="text-lg font-medium text-gray-900 mb-4">Email-Based Two-Factor Authentication (2FA)</h3>
-      {isMFAEnabled ? (
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Email-based two-factor authentication is currently enabled for your account.
-          </p>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={handleDisableMFA}
-            className="w-full"
-          >
-            Disable Email 2FA
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Add an extra layer of security by enabling email-based two-factor authentication.
-            You'll receive a verification code by email when signing in.
-          </p>
-          <Button
-            type="button"
-            onClick={handleEnrollMFA}
-            className="w-full bg-accent hover:bg-accent/90"
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Add an extra layer of security by enabling email-based two-factor authentication.
+          You'll receive a verification code by email when signing in.
+        </p>
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label className="text-base">Enable Email 2FA</Label>
+            <div className="text-sm text-muted-foreground">
+              {isMFAEnabled ? "Email 2FA is enabled" : "Email 2FA is disabled"}
+              {isEnrollingMFA && (
+                <div className="flex items-center mt-1">
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Setting up Email 2FA...
+                </div>
+              )}
+            </div>
+          </div>
+          <Switch
+            checked={isMFAEnabled}
             disabled={isEnrollingMFA}
-          >
-            {isEnrollingMFA ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Setting up Email 2FA...
-              </>
-            ) : (
-              "Enable Email 2FA"
-            )}
-          </Button>
+            onCheckedChange={(checked) => {
+              if (checked) {
+                handleEnrollMFA();
+              } else {
+                handleDisableMFA();
+              }
+            }}
+          />
         </div>
-      )}
+      </div>
 
       <Dialog open={showMFADialog} onOpenChange={setShowMFADialog}>
         <DialogContent>
