@@ -64,6 +64,13 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
           <div className="pb-4">
             <BidRequestTabs request={request} />
           </div>
+          
+          {/* Footer for visual breathing room */}
+          <div className="border-t pt-4 mt-6">
+            <div className="text-center text-sm text-gray-500">
+              Need help? Contact support for assistance with bid requests.
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
