@@ -1,5 +1,5 @@
 
-import DashboardNavigation from "@/components/DashboardNavigation";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import Footer from "@/components/Footer";
 import {
   Tabs,
@@ -19,8 +19,7 @@ const Account = () => {
   const isAdmin = currentUser?.role === 'admin';
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <DashboardNavigation />
+    <DashboardLayout>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 flex-grow">
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-4 sm:p-6">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Account Settings</h1>
@@ -58,7 +57,7 @@ const Account = () => {
         </div>
       </div>
       <Footer />
-    </div>
+    </DashboardLayout>
   );
 };
 

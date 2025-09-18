@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import DashboardNavigation from "@/components/DashboardNavigation";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import AdminFooter from "@/components/footer/AdminFooter";
 import SearchHeader from "@/components/bid-request/SearchHeader";
 import BidRequestTable from "@/components/bid-request/BidRequestTable";
@@ -108,9 +108,7 @@ const BidRequestDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <DashboardNavigation />
-
+    <DashboardLayout>
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
@@ -147,7 +145,7 @@ const BidRequestDashboard = () => {
       </div>
 
       <AdminFooter />
-    </div>
+    </DashboardLayout>
   );
 };
 

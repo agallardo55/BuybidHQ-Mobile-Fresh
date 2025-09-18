@@ -1,0 +1,40 @@
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import NotificationList from "./NotificationList";
+import { cn } from "@/lib/utils";
+
+interface NotificationPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  className?: string;
+}
+
+const NotificationPanel = ({ isOpen, onClose, className }: NotificationPanelProps) => {
+  return (
+    <div
+      className={cn(
+        "fixed top-16 right-0 h-[calc(100vh-4rem)] w-80 bg-white border-l border-gray-200 shadow-lg z-40 transform transition-transform duration-300 ease-in-out",
+        isOpen ? "translate-x-0" : "translate-x-full",
+        className
+      )}
+    >
+      <div className="flex items-center justify-between p-4 border-b">
+        <h2 className="text-lg font-semibold">Notifications</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="p-1 h-8 w-8"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div className="h-[calc(100%-4rem)] overflow-hidden">
+        <NotificationList />
+      </div>
+    </div>
+  );
+};
+
+export default NotificationPanel;

@@ -9,10 +9,16 @@ import Logo from "./navigation/Logo";
 import NavItems from "./navigation/NavItems";
 import UserActions from "./navigation/UserActions";
 import MobileMenu from "./navigation/MobileMenu";
+import NotificationPanel from "./notifications/NotificationPanel";
 
-const DashboardNavigation = () => {
+interface DashboardNavigationProps {
+  onNotificationPanelChange?: (isOpen: boolean) => void;
+}
+
+const DashboardNavigation = ({ onNotificationPanelChange }: DashboardNavigationProps = {}) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const isMobile = useIsMobile();
   const { currentUser, isLoading } = useCurrentUser();
@@ -73,6 +79,24 @@ const DashboardNavigation = () => {
     navigate('/');
   };
 
+  const handleNotificationPanelToggle = () => {
+    const newState = !isNotificationPanelOpen;
+    setIsNotificationPanelOpen(newState);
+    onNotificationPanelChange?.(newState);
+  };
+
+  const handleCloseNotificationPanel = () => {
+    setIsNotificationPanelOpen(false);
+    onNotificationPanelChange?.(false);
+  };
+
+  // Auto-close panel on mobile breakpoint
+  useEffect(() => {
+    if (isMobile && isNotificationPanelOpen) {
+      handleCloseNotificationPanel();
+    }
+  }, [isMobile]);
+
   return (
     <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -89,6 +113,8 @@ const DashboardNavigation = () => {
             <UserActions 
               unreadCount={unreadCount}
               onLogout={handleLogout}
+              onNotificationToggle={handleNotificationPanelToggle}
+              isNotificationPanelOpen={isNotificationPanelOpen}
               className="hidden md:flex"
             />
             <div className="md:hidden">
@@ -110,6 +136,13 @@ const DashboardNavigation = () => {
         onLogout={handleLogout}
         onClose={() => setIsOpen(false)}
       />
+
+      {!isMobile && (
+        <NotificationPanel
+          isOpen={isNotificationPanelOpen}
+          onClose={handleCloseNotificationPanel}
+        />
+      )}
     </nav>
   );
 };

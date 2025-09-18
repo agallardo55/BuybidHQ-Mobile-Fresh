@@ -21,23 +21,33 @@ interface UserActionsProps {
   onLogout: () => void;
   onClick?: () => void;
   className?: string;
+  onNotificationToggle?: () => void;
+  isNotificationPanelOpen?: boolean;
 }
 
-const UserActions = ({ unreadCount, onLogout, onClick, className = "" }: UserActionsProps) => {
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+const UserActions = ({ 
+  unreadCount, 
+  onLogout, 
+  onClick, 
+  className = "",
+  onNotificationToggle,
+  isNotificationPanelOpen = false
+}: UserActionsProps) => {
   const isMobile = useIsMobile();
 
   const handleNotificationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isMobile) {
-      setIsSheetOpen(true);
+    if (!isMobile && onNotificationToggle) {
+      onNotificationToggle();
     }
     onClick?.();
   };
 
   const NotificationButton = (
     <button 
-      className="relative p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
+      className={`relative p-2 transition-colors rounded-full hover:bg-gray-100 ${
+        isNotificationPanelOpen ? 'text-accent bg-gray-100' : 'text-gray-500 hover:text-accent'
+      }`}
       aria-label="Notifications"
       onClick={handleNotificationClick}
     >
@@ -86,18 +96,6 @@ const UserActions = ({ unreadCount, onLogout, onClick, className = "" }: UserAct
         </button>
       </div>
 
-      {!isMobile && (
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent side="right" className="w-[400px] p-0">
-            <SheetHeader className="p-6 pb-0">
-              <SheetTitle>Notifications</SheetTitle>
-            </SheetHeader>
-            <div className="p-6 pt-0">
-              <NotificationList />
-            </div>
-          </SheetContent>
-        </Sheet>
-      )}
     </>
   );
 };
