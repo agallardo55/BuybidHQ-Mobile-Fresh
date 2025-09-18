@@ -28,21 +28,21 @@ export const MFASection = () => {
 
   return (
     <div className="pt-6 border-t">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Email-Based Two-Factor Authentication (2FA)</h3>
+      <h3 className="text-lg font-medium text-gray-900 mb-4">Email-Based Multi-Factor Authentication (MFA)</h3>
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Add an extra layer of security by enabling email-based two-factor authentication.
+          Add an extra layer of security by enabling email-based multi-factor authentication.
           You'll receive a verification code by email when signing in.
         </p>
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <Label className="text-base">Enable Email 2FA</Label>
+            <Label className="text-base">Enable Email MFA</Label>
             <div className="text-sm text-muted-foreground">
-              {isMFAEnabled ? "Email 2FA is enabled" : "Email 2FA is disabled"}
+              {isMFAEnabled ? "Email MFA is enabled" : "Email MFA is disabled"}
               {isEnrollingMFA && (
                 <div className="flex items-center mt-1">
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                  Setting up Email 2FA...
+                  Setting up Email MFA...
                 </div>
               )}
             </div>
@@ -85,7 +85,7 @@ export const MFASection = () => {
               onClick={handleVerifyMFA}
               className="w-full bg-accent hover:bg-accent/90"
             >
-              Verify and Enable Email 2FA
+              Verify and Enable Email MFA
             </Button>
           </div>
         </DialogContent>
