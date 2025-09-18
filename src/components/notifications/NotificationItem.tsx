@@ -81,8 +81,8 @@ const NotificationItem = ({ id, type, content, createdAt, read, onRead }: Notifi
   return (
     <div 
       className={cn(
-        "p-4 border rounded-lg transition-colors cursor-pointer",
-        read ? "bg-gray-50" : "bg-white hover:bg-gray-50"
+        "p-4 transition-colors cursor-pointer border-b border-border/20 last:border-b-0",
+        read ? "bg-muted/30 hover:bg-muted/50" : "bg-background hover:bg-muted/30"
       )}
       onClick={() => !read && onRead(id)}
     >

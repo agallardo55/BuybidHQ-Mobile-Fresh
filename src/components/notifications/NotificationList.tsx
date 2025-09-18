@@ -272,7 +272,7 @@ const NotificationList = () => {
       {/* Notifications List */}
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="p-4 space-y-4">
+          <div className="p-4">
             {filteredNotifications.length === 0 ? (
               <div className="text-center text-gray-500">
                 {searchTerm ? 'No notifications match your search' : 'No notifications'}
