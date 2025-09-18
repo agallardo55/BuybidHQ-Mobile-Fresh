@@ -41,11 +41,11 @@ const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
         </TabsTrigger>
       </TabsList>
       
-      <TabsContent value="details" className="min-h-[400px] overflow-y-auto">
+      <TabsContent value="details" className="min-h-[320px] overflow-y-auto">
         <VehicleDetails request={request} />
       </TabsContent>
       
-      <TabsContent value="appearance" className="min-h-[400px] overflow-y-auto">
+      <TabsContent value="appearance" className="min-h-[320px] overflow-y-auto">
         <div className="bg-white border rounded-lg p-4">
           <h3 className="text-lg font-semibold mb-3">Vehicle Appearance</h3>
           <div className="grid grid-cols-2 gap-3">
@@ -65,14 +65,14 @@ const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
         </div>
       </TabsContent>
       
-      <TabsContent value="condition" className="min-h-[400px] overflow-y-auto">
+      <TabsContent value="condition" className="min-h-[320px] overflow-y-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <VehicleCondition request={request} />
           <Reconditioning request={request} />
         </div>
       </TabsContent>
       
-      <TabsContent value="offers" className="min-h-[400px] overflow-y-auto">
+      <TabsContent value="offers" className="min-h-[320px] overflow-y-auto">
         <div className="bg-white border rounded-lg p-4">
           <h3 className="text-lg font-semibold mb-3">Bid Offers</h3>
           {request.offers.length > 0 ? (
