@@ -102,7 +102,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
           <SelectContent>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="accepted" className="bg-green-100 text-green-800 data-[highlighted]:!bg-green-500 data-[highlighted]:!text-white focus:!bg-green-500 focus:!text-white">Accepted</SelectItem>
-            <SelectItem value="declined" className="bg-red-100 text-red-800 data-[highlighted]:!bg-red-500 data-[highlighted]:!text-white focus:!bg-red-500 focus:!text-white">Declined</SelectItem>
+            <SelectItem value="declined" className="bg-red-100 text-red-800 data-[highlighted]:!bg-red-500 data-[highlighted]:!text-white focus:!bg-red-500 focus:!text-white">Not Selected</SelectItem>
           </SelectContent>
         </Select>
       </TableCell>
