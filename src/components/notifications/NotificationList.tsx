@@ -274,7 +274,7 @@ const NotificationList = () => {
         <ScrollArea className="h-full">
           <div>
             {filteredNotifications.length === 0 ? (
-              <div className="text-center text-gray-500">
+              <div className="p-4 text-center text-gray-500">
                 {searchTerm ? 'No notifications match your search' : 'No notifications'}
               </div>
             ) : (
