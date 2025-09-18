@@ -99,7 +99,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
             <SelectValue>{capitalizeFirstLetter(currentStatus)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="pending" className="[&>span:first-child]:hidden">Pending</SelectItem>
+            <SelectItem value="pending" className="data-[highlighted]:!bg-blue-500 data-[highlighted]:!text-white focus:!bg-blue-500 focus:!text-white [&>span:first-child]:hidden">Pending</SelectItem>
             <SelectItem value="accepted" className="data-[highlighted]:!bg-green-100 data-[highlighted]:!text-green-700 focus:!bg-green-100 focus:!text-green-700 [&>span:first-child]:hidden">Accepted</SelectItem>
             <SelectItem value="declined" className="data-[highlighted]:!bg-red-100 data-[highlighted]:!text-red-700 focus:!bg-red-100 focus:!text-red-700 [&>span:first-child]:hidden">Not Selected</SelectItem>
           </SelectContent>
