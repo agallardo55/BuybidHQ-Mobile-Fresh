@@ -1,8 +1,10 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import NotificationItem from "./NotificationItem";
 import { Notification, NotificationContent } from "./types";
 import { toast } from "sonner";
@@ -47,6 +49,7 @@ const NotificationList = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchNotifications();
@@ -169,6 +172,53 @@ const NotificationList = () => {
     }
   };
 
+  // Filter notifications based on search term
+  const filteredNotifications = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return notifications;
+    }
+    
+    const searchLower = searchTerm.toLowerCase();
+    return notifications.filter((notification) => {
+      // Search in notification type
+      if (notification.type.toLowerCase().includes(searchLower)) {
+        return true;
+      }
+      
+      // Search in vehicle information if available
+      if (notification.content.vehicle) {
+        const vehicle = notification.content.vehicle;
+        if (
+          vehicle.year.toLowerCase().includes(searchLower) ||
+          vehicle.make.toLowerCase().includes(searchLower) ||
+          vehicle.model.toLowerCase().includes(searchLower)
+        ) {
+          return true;
+        }
+      }
+      
+      // Search in buyer information if available
+      if (notification.content.buyer) {
+        const buyer = notification.content.buyer;
+        if (
+          buyer.name.toLowerCase().includes(searchLower) ||
+          buyer.dealer.toLowerCase().includes(searchLower)
+        ) {
+          return true;
+        }
+      }
+      
+      // Search in offer amount if available
+      if (notification.content.offer_amount) {
+        if (notification.content.offer_amount.toString().includes(searchTerm)) {
+          return true;
+        }
+      }
+      
+      return false;
+    });
+  }, [notifications, searchTerm]);
+
   if (loading) {
     return <div className="p-4 text-center text-gray-500">Loading notifications...</div>;
   }
@@ -190,40 +240,59 @@ const NotificationList = () => {
   }
 
   return (
-    <div className="w-[380px]">
-      <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="font-semibold text-gray-900">Notifications</h2>
-        {notifications.length > 0 && (
+    <div className="h-full flex flex-col">
+      {/* Search Bar */}
+      <div className="p-4 border-b">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Search notifications..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+
+      {/* Clear All Button */}
+      {notifications.length > 0 && (
+        <div className="px-4 py-2 border-b">
           <Button 
             variant="ghost" 
             size="sm"
             onClick={handleClearAll}
+            className="w-full"
           >
-            Clear all
+            Clear all notifications
           </Button>
-        )}
-      </div>
-      <ScrollArea className="h-[400px]">
-        <div className="p-4 space-y-4">
-          {notifications.length === 0 ? (
-            <div className="text-center text-gray-500">
-              No notifications
-            </div>
-          ) : (
-            notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                id={notification.id}
-                type={notification.type}
-                content={notification.content}
-                createdAt={notification.created_at}
-                read={!!notification.read_at}
-                onRead={handleMarkAsRead}
-              />
-            ))
-          )}
         </div>
-      </ScrollArea>
+      )}
+
+      {/* Notifications List */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4 space-y-4">
+            {filteredNotifications.length === 0 ? (
+              <div className="text-center text-gray-500">
+                {searchTerm ? 'No notifications match your search' : 'No notifications'}
+              </div>
+            ) : (
+              filteredNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  id={notification.id}
+                  type={notification.type}
+                  content={notification.content}
+                  createdAt={notification.created_at}
+                  read={!!notification.read_at}
+                  onRead={handleMarkAsRead}
+                />
+              ))
+            )}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 };
