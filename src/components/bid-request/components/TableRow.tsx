@@ -94,13 +94,12 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
         >
           <SelectTrigger className={`w-[90px] h-6 text-sm font-medium focus:ring-0 focus:ring-offset-0
             ${currentStatus.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
-            ${currentStatus.toLowerCase() === 'pending' ? 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200' : ''}
             ${currentStatus.toLowerCase() === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
           `}>
             <SelectValue>{capitalizeFirstLetter(currentStatus)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="pending" className="bg-amber-100 text-amber-800 data-[highlighted]:!bg-amber-500 data-[highlighted]:!text-white focus:!bg-amber-500 focus:!text-white [&>span:first-child]:hidden">Pending</SelectItem>
+            <SelectItem value="pending" className="[&>span:first-child]:hidden">Pending</SelectItem>
             <SelectItem value="accepted" className="bg-green-100 text-green-800 data-[highlighted]:!bg-green-600 data-[highlighted]:!text-white focus:!bg-green-600 focus:!text-white [&>span:first-child]:hidden">Accepted</SelectItem>
             <SelectItem value="declined" className="bg-red-100 text-red-800 data-[highlighted]:!bg-red-500 data-[highlighted]:!text-white focus:!bg-red-500 focus:!text-white [&>span:first-child]:hidden">Not Selected</SelectItem>
           </SelectContent>
