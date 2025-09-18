@@ -20,6 +20,7 @@ export interface UserData {
   business_phone: string | null;
   business_email: string | null;
   phone_carrier: string | null;
+  profile_photo: string | null;
 }
 
 export const useCurrentUser = () => {
@@ -63,6 +64,13 @@ export const useCurrentUser = () => {
         // Get the first (and only) user record
         const userData = userDataArray[0];
 
+        // Fetch profile photo separately
+        const { data: profileData } = await supabase
+          .from('buybidhq_users')
+          .select('profile_photo')
+          .eq('id', session.user.id)
+          .single();
+
         // Check if user is a superadmin
         const { data: isSuperAdmin, error: superAdminError } = await supabase
           .rpc('is_superadmin', { user_email: session.user.email });
@@ -88,7 +96,8 @@ export const useCurrentUser = () => {
           dealer_name: userData.dealer_name,
           business_phone: userData.business_phone,
           business_email: userData.business_email,
-          phone_carrier: userData.phone_carrier
+          phone_carrier: userData.phone_carrier,
+          profile_photo: profileData?.profile_photo || null
         };
 
         console.log('Successfully fetched user data:', formattedUser);
