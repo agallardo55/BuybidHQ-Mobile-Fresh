@@ -100,9 +100,9 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
             <SelectValue>{capitalizeFirstLetter(currentStatus)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="pending" className="bg-blue-100 text-blue-800 data-[highlighted]:!bg-blue-500 data-[highlighted]:!text-white focus:!bg-blue-500 focus:!text-white [&>span]:hidden">Pending</SelectItem>
-            <SelectItem value="accepted" className="bg-green-100 text-green-800 data-[highlighted]:!bg-green-600 data-[highlighted]:!text-white focus:!bg-green-600 focus:!text-white [&>span]:hidden">Accepted</SelectItem>
-            <SelectItem value="declined" className="bg-gray-100 text-gray-800 data-[highlighted]:!bg-gray-500 data-[highlighted]:!text-white focus:!bg-gray-500 focus:!text-white [&>span]:hidden">Not Selected</SelectItem>
+            <SelectItem value="pending" className="bg-blue-100 text-blue-800 data-[highlighted]:!bg-blue-500 data-[highlighted]:!text-white focus:!bg-blue-500 focus:!text-white [&>span:first-child]:hidden">Pending</SelectItem>
+            <SelectItem value="accepted" className="bg-green-100 text-green-800 data-[highlighted]:!bg-green-600 data-[highlighted]:!text-white focus:!bg-green-600 focus:!text-white [&>span:first-child]:hidden">Accepted</SelectItem>
+            <SelectItem value="declined" className="bg-gray-100 text-gray-800 data-[highlighted]:!bg-gray-500 data-[highlighted]:!text-white focus:!bg-gray-500 focus:!text-white [&>span:first-child]:hidden">Not Selected</SelectItem>
           </SelectContent>
         </Select>
       </TableCell>
