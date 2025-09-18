@@ -1,7 +1,6 @@
 
 import { useState } from "react";
-import DashboardNavigation from "@/components/DashboardNavigation";
-import AdminFooter from "@/components/footer/AdminFooter";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { User } from "@/types/users";
 import AddUserDialog from "@/components/users/AddUserDialog";
 import DeleteUserDialog from "@/components/users/DeleteUserDialog";
@@ -110,8 +109,7 @@ const Users = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
-        <DashboardNavigation />
+      <DashboardLayout>
         <div className="pt-24 px-4 sm:px-8 flex-grow">
           <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
@@ -119,15 +117,12 @@ const Users = () => {
             </div>
           </div>
         </div>
-        <AdminFooter />
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
-      <DashboardNavigation />
-
+    <DashboardLayout>
       <div className="pt-24 px-4 sm:px-8 flex-grow pb-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
@@ -181,9 +176,7 @@ const Users = () => {
           mutations.updateUser.mutate({ userId, userData, dealershipData });
         }}
       />
-
-      <AdminFooter />
-    </div>
+    </DashboardLayout>
   );
 };
 

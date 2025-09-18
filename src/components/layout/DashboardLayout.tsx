@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardNavigation from "@/components/DashboardNavigation";
+import Footer from "@/components/Footer";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardLayoutProps {
@@ -23,6 +24,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       >
         {children}
       </div>
+      
+      <Footer />
     </div>
   );
 };

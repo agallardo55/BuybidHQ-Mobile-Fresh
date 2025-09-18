@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import AdminFooter from "@/components/footer/AdminFooter";
 import SearchHeader from "@/components/bid-request/SearchHeader";
 import BidRequestTable from "@/components/bid-request/BidRequestTable";
 import TableFooter from "@/components/bid-request/TableFooter";
@@ -143,8 +142,6 @@ const BidRequestDashboard = () => {
           </div>
         </div>
       </div>
-
-      <AdminFooter />
     </DashboardLayout>
   );
 };

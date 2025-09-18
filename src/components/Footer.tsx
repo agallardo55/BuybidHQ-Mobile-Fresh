@@ -15,7 +15,7 @@ const Footer = () => {
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   
-  const isAdminPage = ["/dashboard", "/buyers", "/account", "/create-bid-request"].includes(location.pathname);
+  const isAdminPage = ["/dashboard", "/buyers", "/users", "/dealerships", "/account", "/create-bid-request"].includes(location.pathname);
   const isBidResponsePage = location.pathname === "/bid-response";
 
   const handleContactClick = (e: React.MouseEvent) => {

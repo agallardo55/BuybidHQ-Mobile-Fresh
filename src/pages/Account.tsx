@@ -1,6 +1,5 @@
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import Footer from "@/components/Footer";
 import {
   Tabs,
   TabsContent,
@@ -56,7 +55,6 @@ const Account = () => {
           </Tabs>
         </div>
       </div>
-      <Footer />
     </DashboardLayout>
   );
 };

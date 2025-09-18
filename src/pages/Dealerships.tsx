@@ -1,7 +1,6 @@
 
 import { useState } from "react";
-import DashboardNavigation from "@/components/DashboardNavigation";
-import AdminFooter from "@/components/footer/AdminFooter";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useDealershipsQuery } from "@/hooks/dealerships/useDealershipsQuery";
 import { useDealershipMutations } from "@/hooks/dealerships/useDealershipMutations";
 import { Dealership, DealershipFormData } from "@/types/dealerships";
@@ -76,8 +75,7 @@ const Dealerships = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
-        <DashboardNavigation />
+      <DashboardLayout>
         <div className="pt-24 px-4 sm:px-8 pb-8 flex-grow">
           <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
@@ -85,15 +83,12 @@ const Dealerships = () => {
             </div>
           </div>
         </div>
-        <AdminFooter />
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
-      <DashboardNavigation />
-
+    <DashboardLayout>
       <div className="pt-24 px-4 sm:px-8 pb-8 flex-grow">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
@@ -147,9 +142,7 @@ const Dealerships = () => {
         isCreating={mutations.createDealership.isPending}
         isUpdating={mutations.updateDealership.isPending}
       />
-
-      <AdminFooter />
-    </div>
+    </DashboardLayout>
   );
 };
 
