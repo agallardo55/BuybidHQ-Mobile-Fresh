@@ -95,14 +95,14 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
           <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
             ${currentStatus.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
             ${currentStatus.toLowerCase() === 'pending' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-            ${currentStatus.toLowerCase() === 'declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+            ${currentStatus.toLowerCase() === 'declined' ? 'bg-gray-100 text-gray-800 border-gray-200' : ''}
           `}>
             <SelectValue>{capitalizeFirstLetter(currentStatus)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="accepted" className="bg-green-100 text-green-800 data-[highlighted]:!bg-green-500 data-[highlighted]:!text-white focus:!bg-green-500 focus:!text-white">Accepted</SelectItem>
-            <SelectItem value="declined" className="bg-red-100 text-red-800 data-[highlighted]:!bg-red-500 data-[highlighted]:!text-white focus:!bg-red-500 focus:!text-white">Not Selected</SelectItem>
+            <SelectItem value="declined" className="bg-gray-100 text-gray-800 data-[highlighted]:!bg-gray-500 data-[highlighted]:!text-white focus:!bg-gray-500 focus:!text-white">Not Selected</SelectItem>
           </SelectContent>
         </Select>
       </TableCell>
