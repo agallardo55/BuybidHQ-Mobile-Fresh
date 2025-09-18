@@ -68,6 +68,7 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                 })
               ) : (
                 <TableRowComponent
+                  key="empty-row"
                   request={{
                     id: "empty",
                     createdAt: new Date().toISOString(),

@@ -35,9 +35,10 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
 
   const currentStatus = offer?.status || request.status;
   
-  // Helper function to capitalize first letter
-  const capitalizeFirstLetter = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+  // Helper function to get display text for status
+  const getStatusDisplayText = (status: string) => {
+    if (status.toLowerCase() === 'declined') return 'Not Selected';
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
   
   // Get just the buyer name without any dealership info
@@ -96,7 +97,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
             ${currentStatus.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
             ${currentStatus.toLowerCase() === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
           `}>
-            <SelectValue>{capitalizeFirstLetter(currentStatus)}</SelectValue>
+            <SelectValue>{getStatusDisplayText(currentStatus)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="pending" className="data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-700 focus:!bg-gray-100 focus:!text-gray-700 [&>span:first-child]:hidden">Pending</SelectItem>
