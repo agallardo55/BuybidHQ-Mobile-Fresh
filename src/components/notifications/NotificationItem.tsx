@@ -81,15 +81,15 @@ const NotificationItem = ({ id, type, content, createdAt, read, onRead }: Notifi
   return (
     <div 
       className={cn(
-        "p-4 transition-colors cursor-pointer border-b border-border/20 last:border-b-0",
-        read ? "bg-muted/30 hover:bg-muted/50" : "bg-background hover:bg-muted/30"
+        "p-4 transition-colors cursor-pointer border-b border-border/20 last:border-b-0 hover:bg-gray-50/30",
+        read ? "opacity-75" : ""
       )}
       onClick={() => !read && onRead(id)}
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0">{icon}</div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-gray-900">{title}</p>
+          <p className={cn("text-gray-900", read ? "font-normal" : "font-semibold")}>{title}</p>
           <p className="text-sm text-gray-500 mt-1">{description}</p>
           <p className="text-xs text-gray-400 mt-2">{formattedTime}</p>
         </div>

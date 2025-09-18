@@ -13,7 +13,7 @@ const NotificationPanel = ({ isOpen, onClose, className }: NotificationPanelProp
   return (
     <div
       className={cn(
-        "fixed top-16 right-0 bottom-0 w-80 bg-white border-l border-gray-200 shadow-lg z-40 transform transition-transform duration-300 ease-in-out",
+        "fixed top-16 right-0 bottom-0 w-80 bg-gray-50/50 border-l border-gray-200 shadow-lg z-40 transform transition-transform duration-300 ease-in-out",
         isOpen ? "translate-x-0" : "translate-x-full",
         className
       )}
