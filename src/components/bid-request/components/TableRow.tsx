@@ -92,7 +92,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
           value={currentStatus.toLowerCase()}
           onValueChange={handleStatusUpdate}
         >
-          <SelectTrigger className={`w-[90px] h-6 text-sm font-medium
+          <SelectTrigger className={`w-[90px] h-6 text-sm font-medium focus:ring-0 focus:ring-offset-0
             ${currentStatus.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
             ${currentStatus.toLowerCase() === 'pending' ? 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200' : ''}
             ${currentStatus.toLowerCase() === 'declined' ? 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200' : ''}
