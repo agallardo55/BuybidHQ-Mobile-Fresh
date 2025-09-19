@@ -240,9 +240,9 @@ const NotificationList = () => {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-white">
       {/* Search Bar */}
-      <div className="p-4 border-b">
+      <div className="p-4 border-b bg-white">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
@@ -257,7 +257,7 @@ const NotificationList = () => {
 
       {/* Clear All Button */}
       {notifications.length > 0 && (
-        <div className="px-4 py-2 border-b">
+        <div className="px-4 py-2 border-b bg-white">
           <Button 
             variant="ghost" 
             size="sm"
@@ -270,11 +270,11 @@ const NotificationList = () => {
       )}
 
       {/* Notifications List */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <div>
+      <div className="flex-1 overflow-hidden bg-white">
+        <ScrollArea className="h-full bg-white">
+          <div className="bg-white">
             {filteredNotifications.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
+              <div className="p-4 text-center text-gray-500 bg-white">
                 {searchTerm ? 'No notifications match your search' : 'No notifications'}
               </div>
             ) : (
