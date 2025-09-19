@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Upload, Loader2 } from "lucide-react";
+import { Camera, Loader2 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -142,26 +142,6 @@ export const ProfileImageSection = () => {
           {currentUser?.role?.charAt(0).toUpperCase() + currentUser?.role?.slice(1) || "User"}
         </p>
       </div>
-
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={triggerFileInput}
-        disabled={uploading}
-        className="flex items-center gap-2"
-      >
-        {uploading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Uploading...
-          </>
-        ) : (
-          <>
-            <Upload className="h-4 w-4" />
-            Change Photo
-          </>
-        )}
-      </Button>
 
       <input
         ref={fileInputRef}
