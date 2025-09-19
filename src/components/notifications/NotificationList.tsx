@@ -240,7 +240,7 @@ const NotificationList = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="flex-1 flex flex-col bg-white">
       {/* Search Bar */}
       <div className="p-4 border-b bg-white">
         <div className="relative">
