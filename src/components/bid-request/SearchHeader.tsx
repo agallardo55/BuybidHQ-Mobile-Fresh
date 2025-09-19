@@ -18,7 +18,7 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
     <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
       <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       <div className="flex flex-wrap items-center gap-2 ml-auto">
-        <div className="relative w-[180px] sm:w-[225px]">
+        <div className="relative w-full sm:w-[225px]">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
             type="text"
