@@ -60,6 +60,7 @@ const NotificationList = () => {
   }, []);
 
   const fetchNotifications = async () => {
+    console.log('📱 Fetching notifications...');
     try {
       const { data, error } = await supabase
         .from('notifications')
@@ -69,6 +70,7 @@ const NotificationList = () => {
         .limit(10);
 
       if (error) throw error;
+      console.log('📱 Notifications data:', data);
       
       // Validate and transform the data
       const validNotifications = (data || []).map((notification): Notification => {
@@ -101,12 +103,14 @@ const NotificationList = () => {
 
       setNotifications(validNotifications);
       setError(null);
+      console.log('📱 Valid notifications set:', validNotifications);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       setError('Failed to load notifications');
       toast.error('Failed to load notifications');
     } finally {
       setLoading(false);
+      console.log('📱 Loading finished');
     }
   };
 
@@ -239,10 +243,12 @@ const NotificationList = () => {
     );
   }
 
+  console.log('📱 NotificationList render - notifications:', notifications.length, 'filtered:', filteredNotifications.length, 'loading:', loading, 'error:', error);
+
   return (
-    <div className="flex-1 flex flex-col bg-white">
+    <div className="flex-1 flex flex-col">
       {/* Search Bar */}
-      <div className="p-4 border-b bg-white">
+      <div className="p-4 border-b shrink-0">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
@@ -257,7 +263,7 @@ const NotificationList = () => {
 
       {/* Clear All Button */}
       {notifications.length > 0 && (
-        <div className="px-4 py-2 border-b bg-white">
+        <div className="px-4 py-2 border-b shrink-0">
           <Button 
             variant="ghost" 
             size="sm"
@@ -269,29 +275,25 @@ const NotificationList = () => {
         </div>
       )}
 
-      {/* Notifications List */}
-      <div className="flex-1 overflow-hidden bg-white">
-        <ScrollArea className="h-full bg-white">
-          <div className="bg-white">
-            {filteredNotifications.length === 0 ? (
-              <div className="p-4 text-center text-gray-500 bg-white">
-                {searchTerm ? 'No notifications match your search' : 'No notifications'}
-              </div>
-            ) : (
-              filteredNotifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  id={notification.id}
-                  type={notification.type}
-                  content={notification.content}
-                  createdAt={notification.created_at}
-                  read={!!notification.read_at}
-                  onRead={handleMarkAsRead}
-                />
-              ))
-            )}
+      {/* Notifications List - Using simple overflow instead of ScrollArea */}
+      <div className="flex-1 overflow-y-auto">
+        {filteredNotifications.length === 0 ? (
+          <div className="p-4 text-center text-gray-500">
+            {searchTerm ? 'No notifications match your search' : 'No notifications'}
           </div>
-        </ScrollArea>
+        ) : (
+          filteredNotifications.map((notification) => (
+            <NotificationItem
+              key={notification.id}
+              id={notification.id}
+              type={notification.type}
+              content={notification.content}
+              createdAt={notification.created_at}
+              read={!!notification.read_at}
+              onRead={handleMarkAsRead}
+            />
+          ))
+        )}
       </div>
     </div>
   );
