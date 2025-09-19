@@ -39,12 +39,23 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
         </Button>
         
         <Link to="/create-bid-request">
-          <Button variant="default" className="flex items-center gap-1 bg-accent hover:bg-accent/90 text-white h-9">
+          <Button variant="default" className="hidden md:flex items-center gap-1 bg-accent hover:bg-accent/90 text-white h-9">
             <Plus className="h-4 w-4" />
             <span>Bid Request</span>
           </Button>
         </Link>
       </div>
+
+      {/* Mobile FAB */}
+      <Link to="/create-bid-request" className="md:hidden">
+        <Button 
+          variant="default" 
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          aria-label="Create Bid Request"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+      </Link>
 
       <QuickPostDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </div>
