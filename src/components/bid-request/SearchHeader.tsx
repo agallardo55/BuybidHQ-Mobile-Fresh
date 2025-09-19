@@ -15,19 +15,23 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-      <div className="flex flex-wrap items-center gap-2 ml-auto">
-        <div className="relative w-full sm:w-[225px]">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            type="text"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-9"
-          />
-        </div>
+      
+      {/* Search input - full width on mobile */}
+      <div className="relative w-full sm:w-[225px] order-last sm:order-none">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Input
+          type="text"
+          placeholder="Search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10 h-9"
+        />
+      </div>
+
+      {/* Buttons container */}
+      <div className="flex items-center gap-2 sm:ml-auto">
         
         <Button 
           variant="secondary" 
