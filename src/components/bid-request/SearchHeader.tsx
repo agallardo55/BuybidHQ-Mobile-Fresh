@@ -54,7 +54,7 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
       <Link to="/create-bid-request" className="md:hidden">
         <Button 
           variant="default" 
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          className="fixed bottom-6 right-6 z-[999] w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           aria-label="Create Bid Request"
         >
           <Plus className="h-6 w-6" />
