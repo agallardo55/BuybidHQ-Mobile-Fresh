@@ -60,7 +60,6 @@ const NotificationList = () => {
   }, []);
 
   const fetchNotifications = async () => {
-    console.log('📱 Fetching notifications...');
     try {
       const { data, error } = await supabase
         .from('notifications')
@@ -70,7 +69,6 @@ const NotificationList = () => {
         .limit(10);
 
       if (error) throw error;
-      console.log('📱 Notifications data:', data);
       
       // Validate and transform the data
       const validNotifications = (data || []).map((notification): Notification => {
@@ -103,14 +101,12 @@ const NotificationList = () => {
 
       setNotifications(validNotifications);
       setError(null);
-      console.log('📱 Valid notifications set:', validNotifications);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       setError('Failed to load notifications');
       toast.error('Failed to load notifications');
     } finally {
       setLoading(false);
-      console.log('📱 Loading finished');
     }
   };
 
@@ -242,8 +238,6 @@ const NotificationList = () => {
       </div>
     );
   }
-
-  console.log('📱 NotificationList render - notifications:', notifications.length, 'filtered:', filteredNotifications.length, 'loading:', loading, 'error:', error);
 
   return (
     <div className="flex-1 flex flex-col">
