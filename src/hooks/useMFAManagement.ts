@@ -3,26 +3,45 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
-  checkEmailMFAStatus, 
-  sendMFAEnrollmentEmail, 
+  checkEmailMFAStatus,
+  checkSMSMFAStatus,
+  sendMFAEnrollmentEmail,
+  sendMFAEnrollmentSMS,
   verifyMFACode,
   disableMFA 
 } from "@/utils/mfaUtils";
-import { MFAState } from "@/types/mfa";
+import { MFAState, MFAMethod } from "@/types/mfa";
 
 export const useMFAManagement = () => {
   const { toast } = useToast();
   const [state, setState] = useState<MFAState>({
-    isMFAEnabled: false,
-    isEnrollingMFA: false,
-    showMFADialog: false,
+    emailMFA: {
+      enabled: false,
+      enrolling: false,
+      showDialog: false,
+    },
+    smsMFA: {
+      enabled: false,
+      enrolling: false,
+      showDialog: false,
+    },
   });
   const [verifyCode, setVerifyCode] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [currentMethod, setCurrentMethod] = useState<MFAMethod | null>(null);
 
   const checkMFAStatus = async () => {
     try {
-      const isEnabled = await checkEmailMFAStatus();
-      setState(prev => ({ ...prev, isMFAEnabled: isEnabled }));
+      const [emailEnabled, smsEnabled] = await Promise.all([
+        checkEmailMFAStatus(),
+        checkSMSMFAStatus()
+      ]);
+      
+      setState(prev => ({
+        ...prev,
+        emailMFA: { ...prev.emailMFA, enabled: emailEnabled },
+        smsMFA: { ...prev.smsMFA, enabled: smsEnabled }
+      }));
     } catch (error: any) {
       console.error('Error checking MFA status:', error);
       toast({
@@ -33,31 +52,85 @@ export const useMFAManagement = () => {
     }
   };
 
-  const handleEnrollMFA = async () => {
+  const handleEnrollEmailMFA = async () => {
     try {
-      setState(prev => ({ ...prev, isEnrollingMFA: true }));
+      setState(prev => ({
+        ...prev,
+        emailMFA: { ...prev.emailMFA, enrolling: true }
+      }));
       
       await sendMFAEnrollmentEmail();
+      setCurrentMethod('email');
 
-      setState(prev => ({ ...prev, showMFADialog: true }));
+      setState(prev => ({
+        ...prev,
+        emailMFA: { ...prev.emailMFA, showDialog: true }
+      }));
+      
       toast({
         title: "Code Sent",
         description: "Please check your email for the verification code.",
       });
     } catch (error: any) {
-      console.error('Error enrolling MFA:', error);
+      console.error('Error enrolling email MFA:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to enroll MFA",
+        description: error.message || "Failed to enroll email MFA",
         variant: "destructive",
       });
     } finally {
-      setState(prev => ({ ...prev, isEnrollingMFA: false }));
+      setState(prev => ({
+        ...prev,
+        emailMFA: { ...prev.emailMFA, enrolling: false }
+      }));
+    }
+  };
+
+  const handleEnrollSMSMFA = async () => {
+    if (!phoneNumber || phoneNumber.length < 10) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setState(prev => ({
+        ...prev,
+        smsMFA: { ...prev.smsMFA, enrolling: true }
+      }));
+      
+      await sendMFAEnrollmentSMS(phoneNumber);
+      setCurrentMethod('sms');
+
+      setState(prev => ({
+        ...prev,
+        smsMFA: { ...prev.smsMFA, showDialog: true }
+      }));
+      
+      toast({
+        title: "Code Sent",
+        description: "Please check your phone for the verification code.",
+      });
+    } catch (error: any) {
+      console.error('Error enrolling SMS MFA:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to enroll SMS MFA",
+        variant: "destructive",
+      });
+    } finally {
+      setState(prev => ({
+        ...prev,
+        smsMFA: { ...prev.smsMFA, enrolling: false }
+      }));
     }
   };
 
   const handleVerifyMFA = async () => {
-    if (!verifyCode) {
+    if (!verifyCode || !currentMethod) {
       toast({
         title: "Error",
         description: "Please enter the verification code",
@@ -67,12 +140,11 @@ export const useMFAManagement = () => {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.email) {
-        throw new Error("No user email found");
-      }
-
-      const result = await verifyMFACode(user.email, verifyCode);
+      const result = await verifyMFACode(
+        currentMethod, 
+        verifyCode, 
+        currentMethod === 'sms' ? phoneNumber : undefined
+      );
 
       if (!result.success) {
         throw new Error(result.error);
@@ -80,11 +152,19 @@ export const useMFAManagement = () => {
 
       toast({
         title: "Success",
-        description: "Email-based MFA has been enabled successfully",
+        description: `${currentMethod === 'email' ? 'Email' : 'SMS'} MFA has been enabled successfully`,
       });
       
-      setState(prev => ({ ...prev, showMFADialog: false }));
+      setState(prev => ({
+        ...prev,
+        [currentMethod + 'MFA']: { 
+          ...prev[currentMethod + 'MFA' as keyof MFAState] as any, 
+          showDialog: false 
+        }
+      }));
+      
       setVerifyCode("");
+      setCurrentMethod(null);
       checkMFAStatus();
     } catch (error: any) {
       console.error('Error verifying MFA:', error);
@@ -96,23 +176,61 @@ export const useMFAManagement = () => {
     }
   };
 
-  const handleDisableMFA = async () => {
+  const handleDisableEmailMFA = async () => {
     try {
-      await disableMFA();
-
+      await disableMFA('email');
       toast({
         title: "Success",
-        description: "MFA has been disabled successfully",
+        description: "Email MFA has been disabled successfully",
       });
-      
       checkMFAStatus();
     } catch (error: any) {
-      console.error('Error disabling MFA:', error);
+      console.error('Error disabling email MFA:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to disable MFA",
+        description: error.message || "Failed to disable email MFA",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleDisableSMSMFA = async () => {
+    try {
+      await disableMFA('sms');
+      toast({
+        title: "Success",
+        description: "SMS MFA has been disabled successfully",
+      });
+      checkMFAStatus();
+    } catch (error: any) {
+      console.error('Error disabling SMS MFA:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to disable SMS MFA",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const setEmailMFADialog = (show: boolean) => {
+    setState(prev => ({
+      ...prev,
+      emailMFA: { ...prev.emailMFA, showDialog: show }
+    }));
+    if (!show) {
+      setVerifyCode("");
+      setCurrentMethod(null);
+    }
+  };
+
+  const setSMSMFADialog = (show: boolean) => {
+    setState(prev => ({
+      ...prev,
+      smsMFA: { ...prev.smsMFA, showDialog: show }
+    }));
+    if (!show) {
+      setVerifyCode("");
+      setCurrentMethod(null);
     }
   };
 
@@ -124,9 +242,15 @@ export const useMFAManagement = () => {
     ...state,
     verifyCode,
     setVerifyCode,
-    setShowMFADialog: (show: boolean) => setState(prev => ({ ...prev, showMFADialog: show })),
-    handleEnrollMFA,
+    phoneNumber,
+    setPhoneNumber,
+    currentMethod,
+    setEmailMFADialog,
+    setSMSMFADialog,
+    handleEnrollEmailMFA,
+    handleEnrollSMSMFA,
     handleVerifyMFA,
-    handleDisableMFA,
+    handleDisableEmailMFA,
+    handleDisableSMSMFA,
   };
 };
