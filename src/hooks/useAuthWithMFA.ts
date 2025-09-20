@@ -54,38 +54,23 @@ export const useAuthWithMFA = () => {
         await supabase.auth.signOut();
         
         try {
-          // Get available MFA methods using edge function
-          const { data: methodsData, error: methodsError } = await supabase.functions.invoke('get-user-mfa-methods', {
-            body: { email }
-          });
-
-          if (methodsError) {
-            console.error('Error getting MFA methods:', methodsError);
-            // Fall back to manual flow
-            const params = new URLSearchParams();
-            params.set('email', email);
-            if (redirectTo) {
-              params.set('redirect', redirectTo);
-            }
-            navigate(`/auth/mfa-challenge?${params.toString()}`);
-            return true;
-          }
-
-          const availableMethods = methodsData?.methods || [];
-          // Priority: email first, then SMS
-          const selectedMethod = availableMethods.includes('email') ? 'email' : availableMethods[0];
-
-          if (selectedMethod) {
-            // Auto-send MFA code
-            const functionName = selectedMethod === 'email' ? 'send-mfa-challenge-email' : 'send-mfa-challenge-sms';
-            const { error: sendError } = await supabase.functions.invoke(functionName, {
-              body: { email, method: selectedMethod }
+          // For now, we'll only support email MFA with native Supabase OTP
+          // Check if user has email MFA enabled
+          const hasEmailMFA = mfaSettings.some(setting => setting.method === 'email');
+          
+          if (hasEmailMFA) {
+            // Auto-send email OTP using Supabase native method
+            const { error: sendError } = await supabase.auth.signInWithOtp({
+              email,
+              options: {
+                shouldCreateUser: false, // Don't create new users during MFA
+              }
             });
 
             // Build URL params with method and code-sent status
             const params = new URLSearchParams();
             params.set('email', email);
-            params.set('method', selectedMethod);
+            params.set('method', 'email');
             if (redirectTo) {
               params.set('redirect', redirectTo);
             }
@@ -95,7 +80,7 @@ export const useAuthWithMFA = () => {
               params.set('codeSent', 'true');
               toast({
                 title: "Code Sent",
-                description: `Verification code sent via ${selectedMethod === 'email' ? 'email' : 'SMS'}`,
+                description: "Verification code sent via email",
               });
             } else {
               console.error('Error auto-sending MFA code:', sendError);
@@ -145,27 +130,8 @@ export const useAuthWithMFA = () => {
     try {
       setIsLoading(true);
 
-      // Call edge function to complete MFA login
-      const { data, error } = await supabase.functions.invoke('complete-mfa-login', {
-        body: { email, redirectTo }
-      });
-
-      if (error || !data?.success) {
-        console.error('Error completing MFA login:', error);
-        toast({
-          title: "Error",
-          description: "Failed to complete login",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // If we get a login URL, redirect to it
-      if (data.loginUrl) {
-        window.location.href = data.loginUrl;
-        return true;
-      }
-
+      // With native Supabase OTP, the user is already authenticated after verifyOtp
+      // We just need to navigate to the intended destination
       toast({
         title: "Success",
         description: "Login completed successfully",

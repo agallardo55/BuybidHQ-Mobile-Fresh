@@ -34,18 +34,9 @@ export const useMFAChallenge = (
         setIsLoading(true);
         setError(null);
 
-        // Call edge function to get MFA methods (bypasses RLS since user is signed out)
-        const { data, error } = await supabase.functions.invoke('get-user-mfa-methods', {
-          body: { email }
-        });
-
-        if (error) {
-          console.error('Error loading MFA methods:', error);
-          setError('Failed to load MFA methods');
-          return;
-        }
-
-        const methods = data?.methods || [];
+        // Check if user has MFA enabled by checking mfa_settings
+        // For now, we'll assume email MFA is available since we can't easily check without auth
+        const methods: MFAMethod[] = ['email']; // Only support email MFA with native OTP for now
         setAvailableMethods(methods);
 
         // Auto-select if only one method
@@ -70,15 +61,23 @@ export const useMFAChallenge = (
       setIsLoading(true);
       setError(null);
 
-      // Call the appropriate edge function based on method
-      const functionName = method === 'email' ? 'send-mfa-challenge-email' : 'send-mfa-challenge-sms';
-      const { error: functionError } = await supabase.functions.invoke(functionName, {
-        body: { email, method }
-      });
+      if (method === 'email') {
+        // Use Supabase native OTP for email
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false, // Don't create new users during MFA
+          }
+        });
 
-      if (functionError) {
-        console.error(`Error calling ${functionName}:`, functionError);
-        setError(`Failed to send ${method} verification code`);
+        if (error) {
+          console.error('Error sending OTP via email:', error);
+          setError('Failed to send email verification code');
+          return false;
+        }
+      } else {
+        // SMS not supported with native OTP yet, show error
+        setError('SMS verification is not currently supported');
         return false;
       }
 
@@ -106,24 +105,25 @@ export const useMFAChallenge = (
       setIsVerifying(true);
       setError(null);
 
-      // Call edge function to verify MFA code
-      const { data, error: functionError } = await supabase.functions.invoke('verify-mfa-challenge', {
-        body: { email, code }
-      });
+      if (method === 'email') {
+        // Use Supabase native OTP verification
+        const { error } = await supabase.auth.verifyOtp({
+          email,
+          token: code,
+          type: 'email'
+        });
 
-      if (functionError) {
-        console.error('Error verifying MFA code:', functionError);
-        setError('Verification failed');
+        if (error) {
+          console.error('Error verifying OTP:', error);
+          setError('Invalid verification code');
+          return false;
+        }
+      } else {
+        setError('SMS verification is not currently supported');
         return false;
       }
 
-      if (!data?.success) {
-        setError(data?.error || 'Invalid verification code');
-        return false;
-      }
-
-      // MFA verification successful - complete the authentication
-      // The actual login completion should be handled by the calling component
+      // MFA verification successful - user is now authenticated
       toast({
         title: "Success",
         description: "Multi-factor authentication verified successfully",
