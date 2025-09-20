@@ -69,7 +69,7 @@ const AdminUserStep = ({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4">First Admin User</h3>
+        <h3 className="text-lg font-semibold mb-4">Admin Details</h3>
         <p className="text-sm text-muted-foreground mb-6">
           Set up the primary administrator account for this dealership.
         </p>
