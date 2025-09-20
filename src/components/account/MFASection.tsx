@@ -127,22 +127,9 @@ export const MFASection = () => {
             </div>
           </div>
           
-          {!smsMFA.enabled && (
-            <div className="ml-7">
-              {userMobileNumber ? (
-                <div>
-                  <Label className="text-xs text-muted-foreground">
-                    Phone Number
-                  </Label>
-                  <p className="text-sm font-medium text-foreground mt-1">
-                    {userMobileNumber}
-                  </p>
-                </div>
-              ) : (
-                <div className="text-xs text-orange-600 dark:text-orange-400">
-                  ⚠️ Please add a mobile number in your Personal Info tab to enable SMS MFA
-                </div>
-              )}
+          {!smsMFA.enabled && !userMobileNumber && (
+            <div className="ml-7 text-xs text-orange-600 dark:text-orange-400">
+              ⚠️ Please add a mobile number in your Personal Info tab to enable SMS MFA
             </div>
           )}
           
