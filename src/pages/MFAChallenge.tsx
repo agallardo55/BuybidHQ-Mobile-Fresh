@@ -17,6 +17,8 @@ export default function MFAChallenge() {
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
   const redirectTo = searchParams.get('redirect') || '/dashboard';
+  const urlMethod = searchParams.get('method') as MFAMethod | null;
+  const urlCodeSent = searchParams.get('codeSent') === 'true';
   
   const { completeMFALogin } = useAuthWithMFA();
 
@@ -33,7 +35,7 @@ export default function MFAChallenge() {
     sendMFAChallenge,
     verifyMFAChallenge,
     resendCode,
-  } = useMFAChallenge(email);
+  } = useMFAChallenge(email, urlMethod, urlCodeSent);
 
   useEffect(() => {
     if (!email) {

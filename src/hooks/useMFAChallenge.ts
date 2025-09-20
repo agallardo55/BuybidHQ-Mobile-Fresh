@@ -3,19 +3,31 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { MFAMethod } from "@/types/mfa";
 
-export const useMFAChallenge = (email: string | null) => {
+export const useMFAChallenge = (
+  email: string | null, 
+  initialMethod?: MFAMethod | null,
+  initialCodeSent?: boolean
+) => {
   const { toast } = useToast();
   const [availableMethods, setAvailableMethods] = useState<MFAMethod[]>([]);
-  const [selectedMethod, setSelectedMethod] = useState<MFAMethod | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<MFAMethod | null>(initialMethod || null);
   const [verificationCode, setVerificationCode] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialMethod); // Skip loading if method provided
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [codeSent, setCodeSent] = useState(false);
+  const [codeSent, setCodeSent] = useState(initialCodeSent || false);
 
-  // Load available MFA methods for the user
+  // Load available MFA methods for the user (skip if method already provided)
   useEffect(() => {
-    if (!email) return;
+    if (!email || initialMethod) {
+      // If method is provided via URL params, set it and skip loading
+      if (initialMethod) {
+        setAvailableMethods([initialMethod]);
+        setSelectedMethod(initialMethod);
+        setIsLoading(false);
+      }
+      return;
+    }
 
     const loadAvailableMethods = async () => {
       try {
@@ -49,7 +61,7 @@ export const useMFAChallenge = (email: string | null) => {
     };
 
     loadAvailableMethods();
-  }, [email]);
+  }, [email, initialMethod]);
 
   const sendMFAChallenge = async (method: MFAMethod): Promise<boolean> => {
     if (!email) return false;
