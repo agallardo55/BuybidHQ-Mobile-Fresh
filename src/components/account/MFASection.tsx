@@ -13,17 +13,16 @@ import {
   DialogDescription
 } from "@/components/ui/dialog";
 import { useMFAManagement } from "@/hooks/useMFAManagement";
-import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Loader2, Mail, Phone, Shield } from "lucide-react";
 
 export const MFASection = () => {
+  const { currentUser } = useCurrentUser();
   const {
     emailMFA,
     smsMFA,
     verifyCode,
     setVerifyCode,
-    phoneNumber,
-    setPhoneNumber,
     currentMethod,
     setEmailMFADialog,
     setSMSMFADialog,
@@ -34,11 +33,7 @@ export const MFASection = () => {
     handleDisableSMSMFA,
   } = useMFAManagement();
 
-  const { formatPhoneNumber } = usePhoneFormat();
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPhoneNumber(formatPhoneNumber(e.target.value));
-  };
+  const userMobileNumber = currentUser?.mobile_number;
 
   const handleEmailMFAToggle = (checked: boolean) => {
     if (checked) {
@@ -50,6 +45,10 @@ export const MFASection = () => {
 
   const handleSMSMFAToggle = (checked: boolean) => {
     if (checked) {
+      if (!userMobileNumber) {
+        // Show error message if no mobile number
+        return;
+      }
       handleEnrollSMSMFA();
     } else {
       handleDisableSMSMFA();
@@ -123,24 +122,27 @@ export const MFASection = () => {
                 id="sms-mfa"
                 checked={smsMFA.enabled}
                 onCheckedChange={handleSMSMFAToggle}
-                disabled={smsMFA.enrolling}
+                disabled={smsMFA.enrolling || !userMobileNumber}
               />
             </div>
           </div>
           
           {!smsMFA.enabled && (
             <div className="ml-7">
-              <Label htmlFor="phone-number" className="text-xs text-muted-foreground">
-                Phone Number (required for SMS MFA)
-              </Label>
-              <Input
-                id="phone-number"
-                type="tel"
-                placeholder="(555) 123-4567"
-                value={phoneNumber}
-                onChange={handlePhoneChange}
-                className="mt-1 max-w-xs"
-              />
+              {userMobileNumber ? (
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Phone Number
+                  </Label>
+                  <p className="text-sm font-medium text-foreground mt-1">
+                    {userMobileNumber}
+                  </p>
+                </div>
+              ) : (
+                <div className="text-xs text-orange-600 dark:text-orange-400">
+                  ⚠️ Please add a mobile number in your Personal Info tab to enable SMS MFA
+                </div>
+              )}
             </div>
           )}
           

@@ -27,7 +27,6 @@ export const useMFAManagement = () => {
     },
   });
   const [verifyCode, setVerifyCode] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [currentMethod, setCurrentMethod] = useState<MFAMethod | null>(null);
 
   const checkMFAStatus = async () => {
@@ -87,10 +86,28 @@ export const useMFAManagement = () => {
   };
 
   const handleEnrollSMSMFA = async () => {
-    if (!phoneNumber || phoneNumber.length < 10) {
+    // Get user's mobile number from their profile
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       toast({
         title: "Error",
-        description: "Please enter a valid phone number",
+        description: "User not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get user's mobile number from buybidhq_users table
+    const { data: userData, error: userError } = await supabase
+      .from('buybidhq_users')
+      .select('mobile_number')
+      .eq('id', user.id)
+      .single();
+
+    if (userError || !userData?.mobile_number) {
+      toast({
+        title: "Error",
+        description: "Please add a mobile number in your Personal Info tab first",
         variant: "destructive",
       });
       return;
@@ -102,7 +119,7 @@ export const useMFAManagement = () => {
         smsMFA: { ...prev.smsMFA, enrolling: true }
       }));
       
-      await sendMFAEnrollmentSMS(phoneNumber);
+      await sendMFAEnrollmentSMS(userData.mobile_number);
       setCurrentMethod('sms');
 
       setState(prev => ({
@@ -140,10 +157,22 @@ export const useMFAManagement = () => {
     }
 
     try {
+      // Get user's mobile number for SMS verification
+      let userMobileNumber;
+      if (currentMethod === 'sms') {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: userData } = await supabase
+          .from('buybidhq_users')
+          .select('mobile_number')
+          .eq('id', user!.id)
+          .single();
+        userMobileNumber = userData?.mobile_number;
+      }
+
       const result = await verifyMFACode(
         currentMethod, 
         verifyCode, 
-        currentMethod === 'sms' ? phoneNumber : undefined
+        userMobileNumber
       );
 
       if (!result.success) {
@@ -242,8 +271,6 @@ export const useMFAManagement = () => {
     ...state,
     verifyCode,
     setVerifyCode,
-    phoneNumber,
-    setPhoneNumber,
     currentMethod,
     setEmailMFADialog,
     setSMSMFADialog,
