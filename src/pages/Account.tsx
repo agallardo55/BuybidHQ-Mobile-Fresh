@@ -10,6 +10,7 @@ import { PersonalInfoTab } from "@/components/account/PersonalInfoTab";
 import { DealershipTab } from "@/components/account/DealershipTab";
 import { SubscriptionTab } from "@/components/account/SubscriptionTab";
 import { SecurityTab } from "@/components/account/SecurityTab";
+import { SettingsTab } from "@/components/account/SettingsTab";
 import { ProfileImageSection } from "@/components/account/ProfileImageSection";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
@@ -30,6 +31,7 @@ const Account = () => {
               <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
               {!isAdmin && <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>}
               <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
+              <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
               {!isAdmin && <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>}
             </TabsList>
 
@@ -45,6 +47,10 @@ const Account = () => {
 
             <TabsContent value="security">
               <SecurityTab />
+            </TabsContent>
+
+            <TabsContent value="settings">
+              <SettingsTab />
             </TabsContent>
 
             {!isAdmin && (
