@@ -21,32 +21,18 @@ export const useMFAChallenge = (email: string | null) => {
         setIsLoading(true);
         setError(null);
 
-        // Get user ID from email
-        const { data: users, error: userError } = await supabase
-          .from('buybidhq_users')
-          .select('id')
-          .eq('email', email)
-          .single();
+        // Call edge function to get MFA methods (bypasses RLS since user is signed out)
+        const { data, error } = await supabase.functions.invoke('get-user-mfa-methods', {
+          body: { email }
+        });
 
-        if (userError || !users) {
-          setError('User not found');
-          return;
-        }
-
-        // Get enabled MFA methods for this user
-        const { data: mfaSettings, error: mfaError } = await supabase
-          .from('mfa_settings')
-          .select('method')
-          .eq('user_id', users.id)
-          .eq('status', 'enabled');
-
-        if (mfaError) {
-          console.error('Error loading MFA methods:', mfaError);
+        if (error) {
+          console.error('Error loading MFA methods:', error);
           setError('Failed to load MFA methods');
           return;
         }
 
-        const methods = mfaSettings?.map(setting => setting.method as MFAMethod) || [];
+        const methods = data?.methods || [];
         setAvailableMethods(methods);
 
         // Auto-select if only one method
@@ -71,34 +57,10 @@ export const useMFAChallenge = (email: string | null) => {
       setIsLoading(true);
       setError(null);
 
-      // Get user data
-      const { data: userData, error: userError } = await supabase
-        .from('buybidhq_users')
-        .select('id, mobile_number')
-        .eq('email', email)
-        .single();
-
-      if (userError || !userData) {
-        setError('User not found');
-        return false;
-      }
-
-      if (method === 'sms' && !userData.mobile_number) {
-        setError('No mobile number configured for SMS');
-        return false;
-      }
-
       // Call the appropriate edge function based on method
-      const functionName = method === 'email' ? 'create-mfa-verification' : 'send-mfa-sms';
-      const body = method === 'email' 
-        ? { method }
-        : { method, phoneNumber: userData.mobile_number };
-
+      const functionName = method === 'email' ? 'send-mfa-challenge-email' : 'send-mfa-challenge-sms';
       const { error: functionError } = await supabase.functions.invoke(functionName, {
-        body,
-        headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
+        body: { email, method }
       });
 
       if (functionError) {
@@ -130,36 +92,19 @@ export const useMFAChallenge = (email: string | null) => {
       setIsVerifying(true);
       setError(null);
 
-      // Get user ID
-      const { data: userData, error: userError } = await supabase
-        .from('buybidhq_users')
-        .select('id')
-        .eq('email', email)
-        .single();
+      // Call edge function to verify MFA code
+      const { data, error: functionError } = await supabase.functions.invoke('verify-mfa-challenge', {
+        body: { email, code }
+      });
 
-      if (userError || !userData) {
-        setError('User not found');
-        return false;
-      }
-
-      // Verify the MFA code
-      const { data: verificationResult, error: verifyError } = await supabase.rpc(
-        'verify_mfa_code',
-        {
-          p_user_id: userData.id,
-          p_verification_code: code
-        }
-      );
-
-      if (verifyError) {
-        console.error('Error verifying MFA code:', verifyError);
+      if (functionError) {
+        console.error('Error verifying MFA code:', functionError);
         setError('Verification failed');
         return false;
       }
 
-      const result = verificationResult?.[0];
-      if (!result?.is_valid) {
-        setError(result?.error_message || 'Invalid verification code');
+      if (!data?.success) {
+        setError(data?.error || 'Invalid verification code');
         return false;
       }
 
