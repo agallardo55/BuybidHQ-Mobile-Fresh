@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
+import { useNotificationToasts } from "./notifications/useNotificationToasts";
 import Logo from "./navigation/Logo";
 import NavItems from "./navigation/NavItems";
 import UserActions from "./navigation/UserActions";
@@ -14,6 +15,9 @@ const DashboardNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { currentUser, isLoading } = useCurrentUser();
+
+  // Initialize notification toasts
+  useNotificationToasts();
 
   const canAccessUsers = currentUser?.role === 'admin' || currentUser?.role === 'dealer';
   const canAccessDealerships = currentUser?.role !== 'associate';

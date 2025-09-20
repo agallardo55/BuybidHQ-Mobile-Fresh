@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { UserRound, LogOut } from "lucide-react";
-import NotificationDialog from "../notifications/NotificationDialog";
+import NotificationButton from "../notifications/NotificationButton";
 
 interface UserActionsProps {
   unreadCount: number;
@@ -19,7 +19,7 @@ const UserActions = ({
 }: UserActionsProps) => {
   return (
     <div className={`flex items-center space-x-6 ${className}`}>
-      <NotificationDialog unreadCount={unreadCount} />
+      <NotificationButton unreadCount={unreadCount} />
       <Link 
         to="/account"
         className="p-2 text-gray-500 hover:text-accent transition-colors rounded-full hover:bg-gray-100"
