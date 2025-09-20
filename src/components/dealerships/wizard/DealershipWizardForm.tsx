@@ -231,10 +231,11 @@ const DealershipWizardForm = ({
           ) : (
             <Button
               type="button"
+              className="bg-accent hover:bg-accent/90"
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creating..." : "Create Dealership"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           )}
         </div>
