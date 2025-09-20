@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthWithMFA } from "@/hooks/useAuthWithMFA";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -18,6 +19,7 @@ const SignIn = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { signInWithMFA, isLoading: isMFALoading } = useAuthWithMFA();
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -38,29 +40,15 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (signInError) {
-        throw signInError;
+      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      const success = await signInWithMFA(email, password, from);
+      
+      if (!success) {
+        // Error handling is done in the hook
+        return;
       }
-
-      if (signInData.session) {
-        // If rememberMe is true, extend session
-        if (rememberMe) {
-          await supabase.auth.refreshSession({
-            refresh_token: signInData.session.refresh_token
-          });
-        }
-        
-        toast.success("Successfully signed in!");
-        const from = (location.state as any)?.from?.pathname || '/dashboard';
-        navigate(from, { replace: true });
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
+      
+      // Success handling is also done in the hook (navigation to MFA or dashboard)
     } catch (error: any) {
       console.error("Sign in error:", error);
       toast.error(error.message || "Failed to sign in. Please check your credentials.");
@@ -114,7 +102,7 @@ const SignIn = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
-                disabled={isLoading}
+            disabled={isLoading || isMFALoading}
                 className="mt-1"
               />
             </div>
@@ -136,9 +124,9 @@ const SignIn = () => {
           <Button 
             type="submit" 
             className="w-full bg-accent hover:bg-accent/90"
-            disabled={isLoading}
+            disabled={isLoading || isMFALoading}
           >
-            {isLoading ? (
+            {(isLoading || isMFALoading) ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Signing in...

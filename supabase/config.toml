@@ -1,1 +1,85 @@
 project_id = "fdcfdbjputcitgxosnyk"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+port = 54325
+
+[auth]
+enabled = true
+port = 54326
+
+[edge-functions]
+enabled = true
+port = 54327
+
+[functions.batch-validate-phones]
+verify_jwt = false
+
+[functions.decode-vin]
+verify_jwt = false
+
+[functions.get-recaptcha-key]
+verify_jwt = false
+
+[functions.send-bid-email]
+verify_jwt = false
+
+[functions.send-contact-email]
+verify_jwt = false
+
+[functions.send-knock-sms]
+verify_jwt = false
+
+[functions.send-sms-email]
+verify_jwt = false
+
+[functions.send-twilio-sms]
+verify_jwt = false
+
+[functions.submit-public-bid]
+verify_jwt = false
+
+[functions.submit-quick-bid]
+verify_jwt = false
+
+[functions.validate-carrier]
+verify_jwt = false
+
+[functions.verify-recaptcha]
+verify_jwt = false
+
+[functions.create-stripe-portal]
+verify_jwt = true
+
+[functions.stripe-checkout-session]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-mfa-verification]
+verify_jwt = true
+
+[functions.send-mfa-sms]
+verify_jwt = true
+
+[functions.complete-mfa-login]
+verify_jwt = false

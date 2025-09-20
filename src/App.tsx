@@ -22,6 +22,7 @@ import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import SmsTest from "./pages/SmsTest";
+import MFAChallenge from "./pages/MFAChallenge";
 import { StrictMode } from "react";
 
 const App = () => (
@@ -69,6 +70,10 @@ const App = () => (
             <Route 
               path="/password-reset" 
               element={<Navigate to="/reset-password" replace />} 
+            />
+            <Route 
+              path="/auth/mfa-challenge" 
+              element={<MFAChallenge />} 
             />
             <Route
               path="/dashboard"
