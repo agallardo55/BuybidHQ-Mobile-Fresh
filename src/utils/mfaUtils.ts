@@ -121,6 +121,23 @@ export const verifyMFACode = async (method: MFAMethod, token: string, phoneNumbe
   }
 };
 
+export const enableMFA = async (method: MFAMethod): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("No user found");
+  }
+
+  const { error } = await supabase
+    .from('mfa_settings')
+    .upsert({
+      user_id: user.id,
+      method,
+      status: 'enabled'
+    });
+
+  if (error) throw error;
+};
+
 export const disableMFA = async (method: MFAMethod): Promise<void> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

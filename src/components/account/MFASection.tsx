@@ -1,17 +1,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Dialog,
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogFooter,
-  DialogDescription
-} from "@/components/ui/dialog";
 import { useMFAManagement } from "@/hooks/useMFAManagement";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Loader2, Mail, Phone, Shield } from "lucide-react";
@@ -21,14 +11,8 @@ export const MFASection = () => {
   const {
     emailMFA,
     smsMFA,
-    verifyCode,
-    setVerifyCode,
-    currentMethod,
-    setEmailMFADialog,
-    setSMSMFADialog,
-    handleEnrollEmailMFA,
-    handleEnrollSMSMFA,
-    handleVerifyMFA,
+    handleEnableEmailMFA,
+    handleEnableSMSMFA,
     handleDisableEmailMFA,
     handleDisableSMSMFA,
   } = useMFAManagement();
@@ -37,7 +21,7 @@ export const MFASection = () => {
 
   const handleEmailMFAToggle = (checked: boolean) => {
     if (checked) {
-      handleEnrollEmailMFA();
+      handleEnableEmailMFA();
     } else {
       handleDisableEmailMFA();
     }
@@ -49,7 +33,7 @@ export const MFASection = () => {
         // Show error message if no mobile number
         return;
       }
-      handleEnrollSMSMFA();
+      handleEnableSMSMFA();
     } else {
       handleDisableSMSMFA();
     }
@@ -140,80 +124,6 @@ export const MFASection = () => {
           )}
         </div>
       </CardContent>
-
-      {/* Email MFA Verification Dialog */}
-      <Dialog open={emailMFA.showDialog} onOpenChange={setEmailMFADialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Verify Email MFA</DialogTitle>
-            <DialogDescription>
-              Enter the verification code sent to your email address.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="email-verify-code">Verification Code</Label>
-              <Input
-                id="email-verify-code"
-                type="text"
-                placeholder="Enter 6-digit code"
-                value={verifyCode}
-                onChange={(e) => setVerifyCode(e.target.value)}
-                maxLength={6}
-                className="mt-1"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEmailMFADialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleVerifyMFA}>
-              Verify Code
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* SMS MFA Verification Dialog */}
-      <Dialog open={smsMFA.showDialog} onOpenChange={setSMSMFADialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Verify SMS MFA</DialogTitle>
-            <DialogDescription>
-              Enter the verification code sent to your phone number.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="sms-verify-code">Verification Code</Label>
-              <Input
-                id="sms-verify-code"
-                type="text"
-                placeholder="Enter 6-digit code"
-                value={verifyCode}
-                onChange={(e) => setVerifyCode(e.target.value)}
-                maxLength={6}
-                className="mt-1"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setSMSMFADialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleVerifyMFA}>
-              Verify Code
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </Card>
   );
 };

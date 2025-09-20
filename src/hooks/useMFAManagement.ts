@@ -5,9 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   checkEmailMFAStatus,
   checkSMSMFAStatus,
-  sendMFAEnrollmentEmail,
-  sendMFAEnrollmentSMS,
-  verifyMFACode,
+  enableMFA,
   disableMFA 
 } from "@/utils/mfaUtils";
 import { MFAState, MFAMethod } from "@/types/mfa";
@@ -26,8 +24,6 @@ export const useMFAManagement = () => {
       showDialog: false,
     },
   });
-  const [verifyCode, setVerifyCode] = useState("");
-  const [currentMethod, setCurrentMethod] = useState<MFAMethod | null>(null);
 
   const checkMFAStatus = async () => {
     try {
@@ -51,30 +47,26 @@ export const useMFAManagement = () => {
     }
   };
 
-  const handleEnrollEmailMFA = async () => {
+  const handleEnableEmailMFA = async () => {
     try {
       setState(prev => ({
         ...prev,
         emailMFA: { ...prev.emailMFA, enrolling: true }
       }));
       
-      await sendMFAEnrollmentEmail();
-      setCurrentMethod('email');
-
-      setState(prev => ({
-        ...prev,
-        emailMFA: { ...prev.emailMFA, showDialog: true }
-      }));
+      await enableMFA('email');
       
       toast({
-        title: "Code Sent",
-        description: "Please check your email for the verification code.",
+        title: "Success",
+        description: "Email MFA has been enabled successfully",
       });
+      
+      checkMFAStatus();
     } catch (error: any) {
-      console.error('Error enrolling email MFA:', error);
+      console.error('Error enabling email MFA:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to enroll email MFA",
+        description: error.message || "Failed to enable email MFA",
         variant: "destructive",
       });
     } finally {
@@ -85,7 +77,7 @@ export const useMFAManagement = () => {
     }
   };
 
-  const handleEnrollSMSMFA = async () => {
+  const handleEnableSMSMFA = async () => {
     // Get user's mobile number from their profile
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -119,23 +111,19 @@ export const useMFAManagement = () => {
         smsMFA: { ...prev.smsMFA, enrolling: true }
       }));
       
-      await sendMFAEnrollmentSMS(userData.mobile_number);
-      setCurrentMethod('sms');
-
-      setState(prev => ({
-        ...prev,
-        smsMFA: { ...prev.smsMFA, showDialog: true }
-      }));
+      await enableMFA('sms');
       
       toast({
-        title: "Code Sent",
-        description: "Please check your phone for the verification code.",
+        title: "Success",
+        description: "SMS MFA has been enabled successfully",
       });
+      
+      checkMFAStatus();
     } catch (error: any) {
-      console.error('Error enrolling SMS MFA:', error);
+      console.error('Error enabling SMS MFA:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to enroll SMS MFA",
+        description: error.message || "Failed to enable SMS MFA",
         variant: "destructive",
       });
     } finally {
@@ -143,65 +131,6 @@ export const useMFAManagement = () => {
         ...prev,
         smsMFA: { ...prev.smsMFA, enrolling: false }
       }));
-    }
-  };
-
-  const handleVerifyMFA = async () => {
-    if (!verifyCode || !currentMethod) {
-      toast({
-        title: "Error",
-        description: "Please enter the verification code",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // Get user's mobile number for SMS verification
-      let userMobileNumber;
-      if (currentMethod === 'sms') {
-        const { data: { user } } = await supabase.auth.getUser();
-        const { data: userData } = await supabase
-          .from('buybidhq_users')
-          .select('mobile_number')
-          .eq('id', user!.id)
-          .single();
-        userMobileNumber = userData?.mobile_number;
-      }
-
-      const result = await verifyMFACode(
-        currentMethod, 
-        verifyCode, 
-        userMobileNumber
-      );
-
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-
-      toast({
-        title: "Success",
-        description: `${currentMethod === 'email' ? 'Email' : 'SMS'} MFA has been enabled successfully`,
-      });
-      
-      setState(prev => ({
-        ...prev,
-        [currentMethod + 'MFA']: { 
-          ...prev[currentMethod + 'MFA' as keyof MFAState] as any, 
-          showDialog: false 
-        }
-      }));
-      
-      setVerifyCode("");
-      setCurrentMethod(null);
-      checkMFAStatus();
-    } catch (error: any) {
-      console.error('Error verifying MFA:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to verify code",
-        variant: "destructive",
-      });
     }
   };
 
@@ -241,42 +170,14 @@ export const useMFAManagement = () => {
     }
   };
 
-  const setEmailMFADialog = (show: boolean) => {
-    setState(prev => ({
-      ...prev,
-      emailMFA: { ...prev.emailMFA, showDialog: show }
-    }));
-    if (!show) {
-      setVerifyCode("");
-      setCurrentMethod(null);
-    }
-  };
-
-  const setSMSMFADialog = (show: boolean) => {
-    setState(prev => ({
-      ...prev,
-      smsMFA: { ...prev.smsMFA, showDialog: show }
-    }));
-    if (!show) {
-      setVerifyCode("");
-      setCurrentMethod(null);
-    }
-  };
-
   useEffect(() => {
     checkMFAStatus();
   }, []);
 
   return {
     ...state,
-    verifyCode,
-    setVerifyCode,
-    currentMethod,
-    setEmailMFADialog,
-    setSMSMFADialog,
-    handleEnrollEmailMFA,
-    handleEnrollSMSMFA,
-    handleVerifyMFA,
+    handleEnableEmailMFA,
+    handleEnableSMSMFA,
     handleDisableEmailMFA,
     handleDisableSMSMFA,
   };
