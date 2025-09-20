@@ -100,6 +100,8 @@ export const verifyMFACode = async (method: MFAMethod, token: string, phoneNumbe
         user_id: user.id,
         method,
         status: 'enabled'
+      }, {
+        onConflict: 'user_id,method'
       });
 
     // If SMS, update user's mobile number
@@ -133,6 +135,8 @@ export const enableMFA = async (method: MFAMethod): Promise<void> => {
       user_id: user.id,
       method,
       status: 'enabled'
+    }, {
+      onConflict: 'user_id,method'
     });
 
   if (error) throw error;
