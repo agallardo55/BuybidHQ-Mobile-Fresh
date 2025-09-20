@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CarrierType } from "@/types/users";
+import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
 
 const CARRIER_OPTIONS: CarrierType[] = [
   'Verizon Wireless',
@@ -32,6 +33,13 @@ interface ContactInfoProps {
 }
 
 export const ContactInfo = ({ formData, handleChange }: ContactInfoProps) => {
+  const { formatPhoneNumber } = usePhoneFormat();
+
+  const handleMobileNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    handleChange({ target: { name: 'mobileNumber', value: formatted } });
+  };
+
   return (
     <>
       <div>
@@ -70,7 +78,7 @@ export const ContactInfo = ({ formData, handleChange }: ContactInfoProps) => {
           type="tel"
           required
           value={formData.mobileNumber}
-          onChange={handleChange}
+          onChange={handleMobileNumberChange}
           placeholder="(123) 456-7890"
           maxLength={14}
         />
