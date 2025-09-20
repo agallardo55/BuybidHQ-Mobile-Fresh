@@ -29,6 +29,7 @@ export default function MFAChallenge() {
     isLoading,
     isVerifying,
     error,
+    codeSent,
     sendMFAChallenge,
     verifyMFAChallenge,
     resendCode,
@@ -155,7 +156,7 @@ export default function MFAChallenge() {
           )}
 
           {/* Send Code Button */}
-          {selectedMethod && !verificationCode && (
+          {selectedMethod && !codeSent && (
             <Button 
               onClick={handleSendCode} 
               disabled={isLoading}
@@ -173,7 +174,7 @@ export default function MFAChallenge() {
           )}
 
           {/* Code Input */}
-          {selectedMethod && verificationCode !== null && (
+          {selectedMethod && codeSent && (
             <div className="space-y-4">
               <div className="text-center text-sm text-muted-foreground">
                 We sent a verification code to your {selectedMethod === 'email' ? 'email' : 'phone'}.

@@ -11,6 +11,7 @@ export const useMFAChallenge = (email: string | null) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [codeSent, setCodeSent] = useState(false);
 
   // Load available MFA methods for the user
   useEffect(() => {
@@ -70,6 +71,7 @@ export const useMFAChallenge = (email: string | null) => {
       }
 
       setVerificationCode(''); // Reset to show input
+      setCodeSent(true); // Show verification code section
       toast({
         title: "Code Sent",
         description: `Verification code sent via ${method === 'email' ? 'email' : 'SMS'}`,
@@ -128,7 +130,9 @@ export const useMFAChallenge = (email: string | null) => {
   const resendCode = async () => {
     if (selectedMethod) {
       setVerificationCode('');
-      await sendMFAChallenge(selectedMethod);
+      setCodeSent(false); // Reset code sent state
+      const success = await sendMFAChallenge(selectedMethod);
+      // codeSent will be set to true in sendMFAChallenge if successful
     }
   };
 
@@ -141,6 +145,7 @@ export const useMFAChallenge = (email: string | null) => {
     isLoading,
     isVerifying,
     error,
+    codeSent,
     sendMFAChallenge,
     verifyMFAChallenge,
     resendCode,
