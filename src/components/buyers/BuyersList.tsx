@@ -13,7 +13,6 @@ interface BuyersListProps {
   pageSize: number;
   onPageSizeChange: (size: number) => void;
   totalItems: number;
-  onView: (buyer: Buyer) => void;
   onDelete: (buyerId: string) => void;
   onEdit: (buyer: Buyer) => void;
   sortConfig: {
@@ -31,7 +30,6 @@ const BuyersList = ({
   pageSize,
   onPageSizeChange,
   totalItems,
-  onView,
   onDelete,
   onEdit,
   sortConfig,
@@ -59,7 +57,6 @@ const BuyersList = ({
             <BuyerMobileCard
               key={buyer.id}
               buyer={buyer}
-              onView={onView}
               onEdit={onEdit}
               onDelete={onDelete}
             />
@@ -82,7 +79,6 @@ const BuyersList = ({
     <div className="overflow-x-auto">
       <BuyersTable 
         buyers={buyers} 
-        onView={onView}
         onDelete={onDelete}
         onEdit={onEdit}
         sortConfig={sortConfig}

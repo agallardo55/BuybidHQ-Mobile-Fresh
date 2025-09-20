@@ -3,7 +3,6 @@ import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
 import BuyersHeader from "@/components/buyers/BuyersHeader";
 import BuyersList from "@/components/buyers/BuyersList";
-import ViewBuyerDialog from "@/components/buyers/ViewBuyerDialog";
 import DeleteBuyerDialog from "@/components/buyers/DeleteBuyerDialog";
 import EditBuyerDialog from "@/components/buyers/EditBuyerDialog";
 import BuyersLoading from "@/components/buyers/BuyersLoading";
@@ -22,8 +21,6 @@ const Buyers = () => {
     setPageSize,
     isDialogOpen,
     setIsDialogOpen,
-    isViewDialogOpen,
-    setIsViewDialogOpen,
     isDeleteDialogOpen,
     setIsDeleteDialogOpen,
     isEditDialogOpen,
@@ -56,14 +53,6 @@ const Buyers = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleView = (buyer: MappedBuyer) => {
-    // Convert MappedBuyer to Buyer
-    const convertedBuyer: Buyer = {
-      ...buyer,
-    };
-    setSelectedBuyer(convertedBuyer);
-    setIsViewDialogOpen(true);
-  };
 
   const handleEdit = (buyer: MappedBuyer) => {
     // Convert MappedBuyer to Buyer
@@ -127,7 +116,6 @@ const Buyers = () => {
               pageSize={pageSize}
               onPageSizeChange={handlePageSizeChange}
               totalItems={filteredBuyers.length}
-              onView={handleView}
               onDelete={handleDelete}
               onEdit={handleEdit}
               sortConfig={sortConfig}
@@ -136,12 +124,6 @@ const Buyers = () => {
           </div>
         </div>
       </div>
-
-      <ViewBuyerDialog
-        buyer={selectedBuyer}
-        isOpen={isViewDialogOpen}
-        onOpenChange={setIsViewDialogOpen}
-      />
 
       <EditBuyerDialog
         buyer={selectedBuyer}

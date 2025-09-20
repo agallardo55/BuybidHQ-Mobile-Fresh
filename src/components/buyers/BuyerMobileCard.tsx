@@ -1,20 +1,18 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, MapPin, Building, Eye, Pencil, Trash, Check, AlertCircle, XCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Building, Pencil, Trash, Check, AlertCircle, XCircle } from "lucide-react";
 import { Buyer } from "@/types/buyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface BuyerMobileCardProps {
   buyer: Buyer;
-  onView: (buyer: Buyer) => void;
   onEdit: (buyer: Buyer) => void;
   onDelete: (buyerId: string) => void;
 }
 
 export const BuyerMobileCard = ({
   buyer,
-  onView,
   onEdit,
   onDelete
 }: BuyerMobileCardProps) => {
@@ -65,16 +63,6 @@ export const BuyerMobileCard = ({
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onView(buyer)}
-            className="flex-1"
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            View
-          </Button>
-
           {canManageBuyer(buyer) && (
             <>
               <Button

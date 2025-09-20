@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Trash, Pencil, Check, AlertCircle, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Trash, Pencil, Check, AlertCircle, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Buyer } from "@/types/buyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 interface BuyersTableProps {
   buyers: Buyer[];
   onDelete: (buyerId: string) => void;
-  onView: (buyer: Buyer) => void;
   onEdit: (buyer: Buyer) => void;
   sortConfig: {
     field: keyof Buyer | null;
@@ -25,7 +24,7 @@ interface BuyersTableProps {
   onSort: (field: keyof Buyer) => void;
 }
 
-const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: BuyersTableProps) => {
+const BuyersTable = ({ buyers, onDelete, onEdit, sortConfig, onSort }: BuyersTableProps) => {
   const { currentUser } = useCurrentUser();
 
   const canManageBuyer = (buyer: Buyer) => {
@@ -99,14 +98,6 @@ const BuyersTable = ({ buyers, onDelete, onView, onEdit, sortConfig, onSort }: B
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.declinedBids}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onView(buyer)}
-                  className="h-7 w-7"
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
                 {canManageBuyer(buyer) && (
                   <>
                     <Button
