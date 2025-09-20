@@ -121,7 +121,7 @@ const NotificationDropdown = ({ unreadCount, trigger }: NotificationDropdownProp
               {notifications.map((notification, index) => (
                 <div key={notification.id}>
                   <div className={`p-3 rounded-lg mx-1 mb-1 group hover:bg-muted/50 transition-colors ${
-                    !notification.read_at ? 'bg-accent/10' : ''
+                    !notification.read_at ? 'bg-background' : 'bg-background'
                   }`}>
                     <div className="flex items-start gap-3">
                       <div className="text-lg flex-shrink-0 mt-0.5">
