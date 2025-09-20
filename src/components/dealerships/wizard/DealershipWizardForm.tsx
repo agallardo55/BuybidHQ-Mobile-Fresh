@@ -173,7 +173,7 @@ const DealershipWizardForm = ({
           </TabsTrigger>
         </TabsList>
 
-        <div className="mt-6">
+        <div className="mt-6 min-h-[400px]">
           <TabsContent value="dealership">
             <DealershipInfoStep
               formData={formData.dealership}
