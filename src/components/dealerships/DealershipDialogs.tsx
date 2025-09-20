@@ -57,7 +57,7 @@ const DealershipDialogs = ({
   return (
     <>
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="w-[800px] h-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Dealership</DialogTitle>
           </DialogHeader>
