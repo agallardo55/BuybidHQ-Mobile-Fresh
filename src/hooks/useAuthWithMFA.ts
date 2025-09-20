@@ -36,7 +36,7 @@ export const useAuthWithMFA = () => {
         return false;
       }
 
-      // Check if user has MFA enabled
+      // Check if user has MFA enabled - only redirect if explicitly enabled
       const { data: mfaSettings, error: mfaError } = await supabase
         .from('mfa_settings')
         .select('method, status')
@@ -48,8 +48,13 @@ export const useAuthWithMFA = () => {
         // Continue with normal login if we can't check MFA settings
       }
 
-      // If MFA is enabled, sign out temporarily and auto-send MFA code
-      if (mfaSettings && mfaSettings.length > 0) {
+      console.log('MFA Settings for user:', { userId: authData.user.id, mfaSettings });
+
+      // Only redirect to MFA if user has explicitly enabled MFA settings
+      // For now, disable MFA flow entirely until explicitly needed
+      const shouldUseMFA = false; // Temporarily disable MFA
+      
+      if (shouldUseMFA && mfaSettings && mfaSettings.length > 0) {
         // Sign out the session since we need to complete MFA first
         await supabase.auth.signOut();
         
