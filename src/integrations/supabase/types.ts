@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          billing_status: string | null
+          created_at: string | null
+          feature_group_enabled: boolean
+          id: string
+          name: string
+          plan: string
+          seat_limit: number
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_status?: string | null
+          created_at?: string | null
+          feature_group_enabled?: boolean
+          id?: string
+          name: string
+          plan?: string
+          seat_limit?: number
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_status?: string | null
+          created_at?: string | null
+          feature_group_enabled?: boolean
+          id?: string
+          name?: string
+          plan?: string
+          seat_limit?: number
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       bid_request_access: {
         Row: {
           access_level: string
@@ -83,6 +122,7 @@ export type Database = {
       }
       bid_requests: {
         Row: {
+          account_id: string | null
           contacts: string | null
           created_at: string
           id: string
@@ -93,6 +133,7 @@ export type Database = {
           vehicle_id: string | null
         }
         Insert: {
+          account_id?: string | null
           contacts?: string | null
           created_at?: string
           id?: string
@@ -103,6 +144,7 @@ export type Database = {
           vehicle_id?: string | null
         }
         Update: {
+          account_id?: string | null
           contacts?: string | null
           created_at?: string
           id?: string
@@ -113,6 +155,13 @@ export type Database = {
           vehicle_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "bid_requests_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bid_requests_contacts_fkey"
             columns: ["contacts"]
@@ -344,8 +393,10 @@ export type Database = {
       }
       buybidhq_users: {
         Row: {
+          account_id: string | null
           address: string | null
           agreed_at: string | null
+          app_role: string
           buyers: string | null
           city: string | null
           company: string | null
@@ -372,8 +423,10 @@ export type Database = {
           zip_code: string | null
         }
         Insert: {
+          account_id?: string | null
           address?: string | null
           agreed_at?: string | null
+          app_role?: string
           buyers?: string | null
           city?: string | null
           company?: string | null
@@ -400,8 +453,10 @@ export type Database = {
           zip_code?: string | null
         }
         Update: {
+          account_id?: string | null
           address?: string | null
           agreed_at?: string | null
+          app_role?: string
           buyers?: string | null
           city?: string | null
           company?: string | null
@@ -428,6 +483,13 @@ export type Database = {
           zip_code?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "buybidhq_users_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "buybidhq_users_dealership_id_fkey"
             columns: ["dealership_id"]
@@ -447,6 +509,7 @@ export type Database = {
       buyers: {
         Row: {
           accepted_bids: number | null
+          account_id: string | null
           address: string | null
           buyer_mobile: string | null
           buyer_name: string | null
@@ -459,6 +522,7 @@ export type Database = {
           email: string
           id: string
           last_validated_at: string | null
+          owner_user_id: string | null
           pending_bids: number | null
           phone_carrier: string | null
           phone_validation_status:
@@ -472,6 +536,7 @@ export type Database = {
         }
         Insert: {
           accepted_bids?: number | null
+          account_id?: string | null
           address?: string | null
           buyer_mobile?: string | null
           buyer_name?: string | null
@@ -484,6 +549,7 @@ export type Database = {
           email: string
           id?: string
           last_validated_at?: string | null
+          owner_user_id?: string | null
           pending_bids?: number | null
           phone_carrier?: string | null
           phone_validation_status?:
@@ -497,6 +563,7 @@ export type Database = {
         }
         Update: {
           accepted_bids?: number | null
+          account_id?: string | null
           address?: string | null
           buyer_mobile?: string | null
           buyer_name?: string | null
@@ -509,6 +576,7 @@ export type Database = {
           email?: string
           id?: string
           last_validated_at?: string | null
+          owner_user_id?: string | null
           pending_bids?: number | null
           phone_carrier?: string | null
           phone_validation_status?:
@@ -521,6 +589,13 @@ export type Database = {
           zip_code?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "buyers_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "buyers_user_id_fkey"
             columns: ["user_id"]
@@ -1413,6 +1488,10 @@ export type Database = {
         Args: { checking_user_id: string }
         Returns: boolean
       }
+      can_create_bid_request: {
+        Args: { user_id: string }
+        Returns: Json
+      }
       can_manage_user: {
         Args: { manager_id: string; target_user_id: string }
         Returns: boolean
@@ -1465,6 +1544,18 @@ export type Database = {
           expires_at: string
           verification_id: string
         }[]
+      }
+      current_user_account_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      current_user_in_account: {
+        Args: { a_id: string }
+        Returns: boolean
+      }
+      current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       generate_bid_submission_token: {
         Args: { p_bid_request_id: string; p_buyer_id: string }

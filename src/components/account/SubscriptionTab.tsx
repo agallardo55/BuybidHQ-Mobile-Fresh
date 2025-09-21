@@ -3,14 +3,15 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useSubscription } from "@/hooks/useSubscription";
+import { useAccount } from "@/hooks/useAccount";
 import { Loader2 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import type { PlanType } from "@/types/accounts";
 
 export const SubscriptionTab = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { subscription, isLoading } = useSubscription();
+  const { account, isLoading } = useAccount();
   const { currentUser } = useCurrentUser();
 
   // Early return for dealer users as a safety measure
@@ -46,15 +47,15 @@ export const SubscriptionTab = () => {
 
   const handleUpgradeSubscription = async () => {
     try {
-      const currentPlan = subscription?.plan_type;
+      const currentPlan = account?.plan;
 
-      // If upgrading to Dealership plan, redirect to contact form
-      if (currentPlan === "beta-access") {
+      // If upgrading from free plan, show contact sales message  
+      if (currentPlan === "free") {
         const contactSection = document.getElementById('contact');
         if (contactSection) {
           toast({
             title: "Contact Sales",
-            description: "Please contact our sales team to upgrade to the Dealership plan.",
+            description: "Please contact our sales team to upgrade your plan.",
           });
           contactSection.scrollIntoView({ behavior: 'smooth' });
           return;
@@ -65,11 +66,13 @@ export const SubscriptionTab = () => {
         }
       }
 
-      // For Pay-per-bid upgrades, use Stripe Checkout
+      // For connect plan upgrades, use Stripe Checkout
       const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
         method: 'POST',
         body: {
           currentPlan,
+          successUrl: `${window.location.origin}/account?success=true`,
+          cancelUrl: `${window.location.origin}/account?canceled=true`,
         },
       });
 
@@ -88,17 +91,15 @@ export const SubscriptionTab = () => {
   };
 
   const getCurrentPlanLabel = () => {
-    if (!subscription) return "Loading...";
+    if (!account) return "Loading...";
     
-    switch (subscription.plan_type) {
-      case "beta-access":
-        return "Beta Access (Free)";
-      case "pay-per-bid":
-        return "Pay per Buybid ($5/buybid)";
-      case "individual":
-        return "Individual Plan";
-      case "dealership":
-        return "Dealership (Custom)";
+    switch (account.plan) {
+      case "free":
+        return "Free Plan";
+      case "connect":
+        return "Connect Plan ($100/month)";
+      case "group":
+        return "Group Plan (Custom)";
       default:
         return "Select plan";
     }
@@ -120,14 +121,9 @@ export const SubscriptionTab = () => {
           <div>
             <p className="font-medium">{getCurrentPlanLabel()}</p>
             <p className="text-sm text-gray-500">
-              Status: {subscription?.status.charAt(0).toUpperCase() + subscription?.status.slice(1)}
+              Status: {account?.billing_status?.charAt(0).toUpperCase() + account?.billing_status?.slice(1)}
             </p>
           </div>
-          {subscription?.current_period_end && (
-            <p className="text-sm text-gray-500">
-              Renews: {new Date(subscription.current_period_end).toLocaleDateString()}
-            </p>
-          )}
         </div>
       </div>
 
@@ -137,11 +133,11 @@ export const SubscriptionTab = () => {
             type="button"
             onClick={handleUpgradeSubscription}
             className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-            disabled={subscription?.plan_type === 'dealership'}
+            disabled={account?.plan === 'group'}
           >
-            {subscription?.plan_type === 'dealership' ? 'Current Plan' : 'Upgrade Subscription'}
+            {account?.plan === 'group' ? 'Current Plan' : 'Upgrade Subscription'}
           </Button>
-          {subscription?.stripe_subscription_id && (
+          {account?.stripe_subscription_id && (
             <Button
               type="button"
               onClick={handleManageSubscription}
