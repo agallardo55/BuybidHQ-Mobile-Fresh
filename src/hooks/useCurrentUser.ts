@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { User, UserRole } from "@/types/users";
+import { AppRole } from "@/types/accounts";
 
 export interface UserData {
   id: string;
   email: string;
   role: UserRole;
+  app_role: AppRole;
   full_name: string | null;
   mobile_number: string | null;
   address: string | null;
@@ -43,11 +45,12 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // Use our new security definer function to get user data
+        // Get user data from buybidhq_users table
         const { data: userDataArray, error: userError } = await supabase
-          .rpc('get_user_with_dealership', {
-            user_id: session.user.id
-          });
+          .from('buybidhq_users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
@@ -55,21 +58,13 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        if (!userDataArray || userDataArray.length === 0) {
+        if (!userDataArray) {
           console.log('No user data found for ID:', session.user.id);
           toast.error("User profile not found. Please try signing out and back in.");
           return null;
         }
 
-        // Get the first (and only) user record
-        const userData = userDataArray[0];
-
-        // Fetch profile photo separately
-        const { data: profileData } = await supabase
-          .from('buybidhq_users')
-          .select('profile_photo')
-          .eq('id', session.user.id)
-          .single();
+        const userData = userDataArray;
 
         // Check if user is a superadmin
         const { data: isSuperAdmin, error: superAdminError } = await supabase
@@ -86,6 +81,7 @@ export const useCurrentUser = () => {
           id: userData.id,
           email: userData.email,
           role: isSuperAdmin ? 'admin' as UserRole : userData.role,
+          app_role: isSuperAdmin ? 'super_admin' : (userData.app_role as AppRole),
           full_name: userData.full_name,
           mobile_number: userData.mobile_number,
           address: userData.address,
@@ -93,11 +89,11 @@ export const useCurrentUser = () => {
           state: userData.state,
           zip_code: userData.zip_code,
           dealership_id: userData.dealership_id,
-          dealer_name: userData.dealer_name,
-          business_phone: userData.business_phone,
-          business_email: userData.business_email,
+          dealer_name: null, // Will be populated from account if needed
+          business_phone: null,
+          business_email: null,
           phone_carrier: userData.phone_carrier,
-          profile_photo: profileData?.profile_photo || null
+          profile_photo: userData.profile_photo || null
         };
 
         console.log('Successfully fetched user data:', formattedUser);

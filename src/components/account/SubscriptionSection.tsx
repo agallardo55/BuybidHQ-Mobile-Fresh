@@ -180,7 +180,7 @@ export const SubscriptionSection = () => {
             </div>
 
             {/* Group Plan (if feature enabled or super admin) */}
-            {(account?.feature_group_enabled || currentUser?.role === 'super_admin') && (
+            {(account?.feature_group_enabled || currentUser?.app_role === 'super_admin') && (
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-3">
                   <RadioGroupItem value="group" id="group" />
