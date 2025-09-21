@@ -10,7 +10,7 @@ const Features = () => {
     },
     {
       icon: <Shield className="h-12 w-12 text-accent" />,
-      title: "Private Transactions",
+      title: "Buy Bid",
       description: "Advanced security measures to protect your data and transactions"
     },
     {
