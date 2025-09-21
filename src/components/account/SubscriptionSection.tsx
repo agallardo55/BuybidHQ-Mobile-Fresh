@@ -5,8 +5,8 @@ import { CreditCard, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 export const SubscriptionSection = () => {
-  const handleConnectAccount = () => {
-    toast.info("Connect account functionality coming soon");
+  const handleConnectPlan = () => {
+    toast.info("Connect plan functionality coming soon");
   };
 
   const handleCancelAccount = () => {
@@ -39,10 +39,10 @@ export const SubscriptionSection = () => {
           <Button 
             variant="outline" 
             className="w-full justify-start"
-            onClick={handleConnectAccount}
+            onClick={handleConnectPlan}
           >
             <CreditCard className="h-4 w-4 mr-2" />
-            Connect Account
+            Connect Plan
           </Button>
           
           <Button 
