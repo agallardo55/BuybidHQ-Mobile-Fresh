@@ -74,7 +74,7 @@ export const SubscriptionSection = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="font-bold">$29</span>
+                    <span className="font-bold">$100</span>
                     <p className="text-xs text-muted-foreground">per month</p>
                   </div>
                 </div>
