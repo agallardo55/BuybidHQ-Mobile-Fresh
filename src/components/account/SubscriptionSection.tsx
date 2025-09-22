@@ -9,6 +9,7 @@ import { useAccount, useBidRequestLimit } from "@/hooks/useAccount";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { PLAN_INFO, type PlanType } from "@/types/accounts";
+import { isGroupPlanEnabled } from "@/config/features";
 
 export const SubscriptionSection = () => {
   const { account, isLoading: accountLoading } = useAccount();
@@ -180,7 +181,7 @@ export const SubscriptionSection = () => {
             </div>
 
             {/* Group Plan (if feature enabled or super admin) */}
-            {(account?.feature_group_enabled || currentUser?.app_role === 'super_admin') && (
+            {isGroupPlanEnabled && (account?.feature_group_enabled || currentUser?.app_role === 'super_admin') && (
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-3">
                   <RadioGroupItem value="group" id="group" />
