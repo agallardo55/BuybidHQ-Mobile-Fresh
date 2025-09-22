@@ -11,7 +11,7 @@ const Features = () => {
     {
       icon: <Shield className="h-12 w-12 text-accent" />,
       title: "Buy Bids Dashboard",
-      description: "Advanced security measures to protect your data and transactions"
+      description: "A place to manage and approve all your buy bids"
     },
     {
       icon: <BarChart className="h-12 w-12 text-accent" />,
