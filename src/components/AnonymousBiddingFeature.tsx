@@ -4,7 +4,7 @@ const AnonymousBiddingFeature = () => {
   const features = [{
     icon: <UserCheck className="h-12 w-12 text-accent" />,
     title: "Verified Buyer Network",
-    description: "Connect with buyers you know and trust"
+    description: "Manage and approve all your offers faster and easier"
   }, {
     icon: <Scale className="h-12 w-12 text-accent" />,
     title: "No Negotiation Needed",
