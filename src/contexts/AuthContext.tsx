@@ -4,21 +4,24 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AuthUser, AuthContextType } from '@/types/auth';
 
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  isLoading: boolean;
+// Enhanced context type with better typing
+interface EnhancedAuthContextType extends AuthContextType {
+  user: AuthUser | null;
+  // TODO: Add MFA state when implementing
+  // mfaRequired?: boolean;
+  // emailConfirmationRequired?: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({
+const AuthContext = createContext<EnhancedAuthContextType>({
   user: null,
   session: null,
   isLoading: true,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -29,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      setUser((session?.user as AuthUser) ?? null);
       setSession(session);
       setIsLoading(false);
 
@@ -49,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Listen for changes on auth state (sign in, sign out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      setUser((session?.user as AuthUser) ?? null);
       setSession(session);
       setIsLoading(false);
 
@@ -66,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               navigate('/signin');
             } else if (refreshedSession) {
               setSession(refreshedSession);
-              setUser(refreshedSession.user);
+              setUser(refreshedSession.user as AuthUser);
             }
           }, timeUntilExpiry - 5 * 60 * 1000);
         }

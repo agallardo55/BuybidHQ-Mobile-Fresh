@@ -47,7 +47,45 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Enhanced semantic status colors
+        status: {
+          pending: "hsl(var(--status-pending))",
+          active: "hsl(var(--status-active))",
+          completed: "hsl(var(--status-completed))",
+          cancelled: "hsl(var(--status-cancelled))",
+        },
+        // Enhanced feedback colors
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        info: "hsl(var(--info))",
+        error: "hsl(var(--error))",
+        // Legacy custom color (maintained for backward compatibility)
         "custom-blue": "hsl(223 76% 55%)",
+      },
+      // Enhanced spacing scale using semantic tokens
+      spacing: {
+        xs: "var(--spacing-xs)",
+        sm: "var(--spacing-sm)",
+        md: "var(--spacing-md)",
+        lg: "var(--spacing-lg)",
+        xl: "var(--spacing-xl)",
+        "2xl": "var(--spacing-2xl)",
+      },
+      // Enhanced typography scale  
+      fontSize: {
+        xs: ["var(--text-xs)", { lineHeight: "1.4" }],
+        sm: ["var(--text-sm)", { lineHeight: "1.5" }],
+        base: ["var(--text-base)", { lineHeight: "1.6" }],
+        lg: ["var(--text-lg)", { lineHeight: "1.6" }],
+        xl: ["var(--text-xl)", { lineHeight: "1.5" }],
+        "2xl": ["var(--text-2xl)", { lineHeight: "1.4" }],
+        "3xl": ["var(--text-3xl)", { lineHeight: "1.3" }],
+      },
+      // Enhanced animation durations
+      transitionDuration: {
+        fast: "var(--duration-fast)",
+        normal: "var(--duration-normal)",  
+        slow: "var(--duration-slow)",
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

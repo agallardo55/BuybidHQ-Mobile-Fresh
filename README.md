@@ -52,13 +52,156 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+# BuyBidHQ - Vehicle Bid Request Platform
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+BuyBidHQ is a comprehensive bid request application for auto dealers that enables them to send, manage, and track buy bids on used vehicles.
+
+## Features
+
+- **VIN Scanning & Decoding**: Manual entry or barcode scanning with API-based vehicle detail retrieval
+- **Vehicle Listing & Condition Tracking**: Complete vehicle information and condition documentation
+- **Bid Requests & Communication**: SMS and email-based bid request distribution via Twilio and Resend
+- **Multi-User Role Management**: Role-based access control for different user types
+- **Real-time Notifications**: Live updates on bid responses and status changes
+
+## Technology Stack
+
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with semantic design tokens
+- **UI Components**: shadcn/ui component library
+- **Backend**: Supabase (PostgreSQL + Edge Functions)
+- **Authentication**: Supabase Auth with enhanced MFA support
+- **Communication**: Twilio (SMS) + Resend (Email)
+- **State Management**: TanStack Query for server state
+- **Testing**: Vitest + Testing Library
+- **Mobile**: React/Capacitor for mobile apps
+
+## Architecture
+
+### Frontend Architecture
+- **Component-driven**: Modular, reusable React components
+- **Type Safety**: Full TypeScript implementation with strict typing
+- **Design System**: Semantic tokens and consistent styling
+- **State Management**: Server state via TanStack Query, local state via React hooks
+- **Route Protection**: Role-based access control with feature flags
+
+### Backend Architecture  
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **Authentication**: Supabase Auth with custom user profiles
+- **Business Logic**: Supabase Edge Functions (Deno runtime)
+- **File Storage**: Supabase Storage with access policies
+- **Real-time**: Supabase Realtime for live updates
+
+### Data Model
+- **Multi-tenant**: Account-based data isolation
+- **Role-based**: Flexible permission system
+- **Audit Trail**: Comprehensive logging and tracking
+- **Performance**: Optimized queries and caching
+
+## User Roles
+
+### Legacy System
+- **Basic**: Free trial users (10 bids/month)
+- **Individual**: Single-user dealers (unlimited bids)
+- **Associate**: Employee accounts under dealer control
+- **Dealer**: Dealership employees with management rights
+- **Admin**: Dealership administrators
+- **Super Admin**: System administrators
+
+### New System (Account-based)
+- **Member**: Basic account members
+- **Manager**: Team managers (group plans only)
+- **Account Admin**: Account administrators with billing access
+- **Super Admin**: System administrators
+
+## Development
+
+### Prerequisites
+- Node.js 18+ with npm
+- Git for version control
+
+### Setup
+```bash
+# Clone the repository
+git clone <YOUR_GIT_URL>
+cd <YOUR_PROJECT_NAME>
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Run tests
+npm run test
+
+# Run linting
+npm run lint
+
+# Build for production
+npm run build
+```
+
+### Development Standards
+- **TypeScript**: Strict mode enabled, no implicit any
+- **ESLint**: Consistent code style and error catching
+- **Prettier**: Automated code formatting
+- **Testing**: Comprehensive test coverage with Vitest
+- **Commits**: Conventional commit messages
+
+### Key Directories
+```
+src/
+├── components/          # Reusable UI components
+├── pages/              # Route components
+├── hooks/              # Custom React hooks
+├── contexts/           # React contexts (Auth, etc.)
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions and helpers
+├── __tests__/          # Test files
+└── integrations/       # External service integrations
+
+supabase/
+├── functions/          # Edge Functions
+└── migrations/         # Database migrations (read-only)
+```
+
+### Design System
+- **Semantic Tokens**: Consistent color, spacing, and typography scales
+- **Component Variants**: Flexible, reusable component patterns
+- **Accessibility**: WCAG 2.1 AA compliance
+- **Responsive**: Mobile-first design approach
+- **Dark Mode**: Full dark mode support
+
+### Testing Strategy
+- **Unit Tests**: Component and hook testing
+- **Integration Tests**: Multi-component interactions  
+- **E2E Tests**: Critical user journeys
+- **Performance Tests**: Bundle size and runtime performance
+
+## Documentation
+
+- [Data Model Documentation](docs/data-model.md) - Database schema and relationships
+- [API Documentation](docs/api.md) - Edge Function APIs
+- [Component Library](docs/components.md) - UI component documentation
+- [Deployment Guide](docs/deployment.md) - Production deployment instructions
+
+## Security
+
+- **Row Level Security**: Database-level access control
+- **Input Validation**: Client and server-side validation
+- **HTTPS Only**: Secure communication channels
+- **Rate Limiting**: API abuse prevention
+- **Audit Logging**: Comprehensive security event tracking
+
+## Performance
+
+- **Code Splitting**: Lazy-loaded routes and components
+- **Image Optimization**: Responsive images with proper sizing
+- **Caching**: Strategic caching of API responses
+- **Bundle Analysis**: Regular bundle size monitoring
+- **Core Web Vitals**: Performance metrics tracking
 
 ## How can I deploy this project?
 
