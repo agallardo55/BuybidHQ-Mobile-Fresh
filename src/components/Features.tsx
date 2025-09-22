@@ -5,7 +5,7 @@ const Features = () => {
   const features = [
     {
       icon: <Zap className="h-12 w-12 text-accent" />,
-      title: "Faster Buy bid offers",
+      title: "Faster buy bid offers",
       description: "Send bid requests instantly to your dealer network and get competitive offers"
     },
     {
