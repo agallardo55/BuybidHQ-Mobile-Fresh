@@ -2,35 +2,82 @@
 export interface BidRequest {
   id: string;
   createdAt: string;
-  year: number;
-  make: string;
-  model: string;
-  trim: string;
-  vin: string;
-  mileage: number;
-  buyer: string;
+  status: "Pending" | "Active" | "Completed" | "Cancelled";
+  userId: string;
+  accountId: string;
+  vehicleId: string;
+  // Legacy fields for backward compatibility
+  year?: number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  vin?: string;
+  mileage?: number;
+  buyer?: string;
   primaryImage?: string | null;
-  offers: {
+  offers?: {
     id: string;
     amount: number;
     buyerName: string;
     createdAt: string;
     status: "pending" | "accepted" | "declined";
   }[];
-  status: "pending" | "accepted" | "declined";
-  engineCylinders: string;
-  transmission: string;
-  drivetrain: string;
-  exteriorColor: string;
-  interiorColor: string;
-  accessories: string;
-  windshield: string;
-  engineLights: string;
-  brakes: string;
-  tire: string;
-  maintenance: string;
-  reconEstimate: string;
-  reconDetails: string;
+  engineCylinders?: string;
+  transmission?: string;
+  drivetrain?: string;
+  exteriorColor?: string;
+  interiorColor?: string;
+  accessories?: string;
+  windshield?: string;
+  engineLights?: string;
+  brakes?: string;
+  tire?: string;
+  maintenance?: string;
+  reconEstimate?: string;
+  reconDetails?: string;
+  // Enhanced fields matching data model
+  vehicle?: {
+    id: string;
+    year?: string;
+    make?: string;
+    model?: string;
+    trim?: string;
+    vin?: string;
+    mileage?: string;
+    engine?: string;
+    transmission?: string;
+    drivetrain?: string;
+    exterior?: string;
+    interior?: string;
+    options?: string;
+  };
+  reconditioning?: {
+    id: string;
+    windshield?: string;
+    engine_light?: string;
+    brakes?: string;
+    tires?: string;
+    maintenance?: string;
+    recon_estimate?: string;
+    recon_details?: string;
+  };
+  images?: {
+    id: string;
+    image_url?: string;
+    sequence_order?: number;
+  }[];
+  responses?: {
+    id: string;
+    offer_amount: number;
+    status: string;
+    buyer_id: string;
+    buyers?: {
+      id: string;
+      buyer_name?: string;
+      dealer_name?: string;
+      email: string;
+    };
+  }[];
 }
 
 export interface TrimOption {

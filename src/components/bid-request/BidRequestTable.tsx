@@ -118,6 +118,10 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                   request={{
                     id: "empty",
                     createdAt: new Date().toISOString(),
+                    status: "Pending",
+                    userId: "empty",
+                    accountId: "empty", 
+                    vehicleId: "empty",
                     year: 0,
                     make: "",
                     model: "",
@@ -126,7 +130,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                     mileage: 0,
                     buyer: "",
                     offers: [],
-                    status: "pending",
                     engineCylinders: "",
                     transmission: "",
                     drivetrain: "",

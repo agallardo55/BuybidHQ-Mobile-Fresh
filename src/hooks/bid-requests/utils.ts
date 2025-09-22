@@ -81,12 +81,18 @@ export const transformBidRequest = (
   offers: BidOffer[]
 ): BidRequest => {
   const status = ["pending", "accepted", "declined"].includes(item.status.toLowerCase()) 
-    ? item.status.toLowerCase() as "pending" | "accepted" | "declined"
-    : "pending";
+    ? (item.status.toLowerCase() === "pending" ? "Pending" :
+       item.status.toLowerCase() === "accepted" ? "Active" : 
+       item.status.toLowerCase() === "declined" ? "Cancelled" : "Pending") as "Pending" | "Active" | "Completed" | "Cancelled"
+    : "Pending";
 
   return {
     id: item.request_id,
     createdAt: item.created_at,
+    status,
+    userId: "unknown", // Add required property
+    accountId: "unknown", // Add required property  
+    vehicleId: "unknown", // Add required property
     year: parseInt(item.year) || 0,
     make: item.make,
     model: item.model,
@@ -96,7 +102,6 @@ export const transformBidRequest = (
     buyer: item.user_full_name || 'Unknown',
     primaryImage: item.primary_image,
     offers,
-    status,
     engineCylinders: item.engine_cylinders,
     transmission: item.transmission,
     drivetrain: item.drivetrain,
