@@ -92,6 +92,7 @@ const DashboardNavigation = () => {
               unreadCount={unreadCount}
               onLogout={handleLogout}
               className="hidden md:flex"
+              currentUser={currentUser}
             />
             <div className="md:hidden">
               <button
@@ -111,6 +112,7 @@ const DashboardNavigation = () => {
         unreadCount={unreadCount}
         onLogout={handleLogout}
         onClose={() => setIsOpen(false)}
+        currentUser={currentUser}
       />
     </nav>
   );

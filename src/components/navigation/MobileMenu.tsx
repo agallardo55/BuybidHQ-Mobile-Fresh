@@ -1,6 +1,7 @@
 
 import NavItems from "./NavItems";
 import UserActions from "./UserActions";
+import { UserData } from "@/hooks/useCurrentUser";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -8,9 +9,10 @@ interface MobileMenuProps {
   unreadCount: number;
   onLogout: () => void;
   onClose: () => void;
+  currentUser?: UserData | null;
 }
 
-const MobileMenu = ({ isOpen, navItems, unreadCount, onLogout, onClose }: MobileMenuProps) => {
+const MobileMenu = ({ isOpen, navItems, unreadCount, onLogout, onClose, currentUser }: MobileMenuProps) => {
   if (!isOpen) return null;
 
   return (
@@ -26,6 +28,7 @@ const MobileMenu = ({ isOpen, navItems, unreadCount, onLogout, onClose }: Mobile
             unreadCount={unreadCount}
             onLogout={onLogout}
             onClick={onClose}
+            currentUser={currentUser}
           />
         </div>
       </div>
