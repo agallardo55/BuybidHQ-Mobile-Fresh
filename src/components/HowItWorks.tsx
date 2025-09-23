@@ -6,7 +6,7 @@ const HowItWorks = () => {
     {
       icon: <MessageSquare className="w-12 h-12 text-accent" />,
       title: "Submit Your Request",
-      description: "Send your vehicle details via SMS and Email to instantly create a bid request"
+      description: "Send vehicle details via SMS and Email to instantly create a bid request"
     },
     {
       icon: <Search className="w-12 h-12 text-accent" />,
