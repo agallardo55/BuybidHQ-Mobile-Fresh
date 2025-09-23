@@ -27,7 +27,7 @@ const Index = () => {
         <Hero />
         <HowItWorks />
         <Features />
-        <AnonymousBiddingFeature />
+        {/* <AnonymousBiddingFeature /> */}
         <Pricing />
         <ContactUs />
         <AppDownload />
