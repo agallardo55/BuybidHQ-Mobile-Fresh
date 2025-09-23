@@ -11,7 +11,7 @@ const Features = () => {
     {
       icon: <Shield className="h-12 w-12 text-accent" />,
       title: "Private Marketplace",
-      description: "A secure place to connect only with your approved buyers"
+      description: "A private marketplace to connect with buyers you trust"
     },
     {
       icon: <BarChart className="h-12 w-12 text-accent" />,
