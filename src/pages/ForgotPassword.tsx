@@ -5,11 +5,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { MFAPasswordResetForm } from "@/components/MFAPasswordResetForm";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [showMFAForm, setShowMFAForm] = useState(false);
+  const [mfaMethods, setMfaMethods] = useState<('email' | 'sms')[]>([]);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,17 +20,37 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     try {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      // First check if user has MFA enabled
+      const { data: mfaCheck, error: mfaError } = await supabase.functions.invoke('check-mfa-for-reset', {
+        body: { email }
       });
 
-      if (error) throw error;
+      if (mfaError) {
+        throw mfaError;
+      }
 
-      setEmailSent(true);
-      toast({
-        title: "Check your email",
-        description: "If an account exists with this email, you will receive password reset instructions.",
-      });
+      if (mfaCheck?.hasMFA) {
+        // User has MFA - show MFA verification form
+        setMfaMethods(mfaCheck.methods || []);
+        setShowMFAForm(true);
+        toast({
+          title: "MFA Required",
+          description: "Your account has multi-factor authentication enabled. Please verify your identity to reset your password.",
+        });
+      } else {
+        // No MFA - proceed with standard reset
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+
+        if (error) throw error;
+
+        setEmailSent(true);
+        toast({
+          title: "Check your email",
+          description: "If an account exists with this email, you will receive password reset instructions.",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -37,6 +60,11 @@ const ForgotPassword = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleBackFromMFA = () => {
+    setShowMFAForm(false);
+    setMfaMethods([]);
   };
 
   return (
@@ -49,48 +77,60 @@ const ForgotPassword = () => {
             className="mx-auto h-12 w-auto"
           />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Reset Password</h2>
-          {!emailSent ? (
+          {!emailSent && !showMFAForm && (
             <p className="mt-2 text-sm text-gray-600">
               Enter your email address and we'll send you instructions to reset your password.
             </p>
-          ) : (
+          )}
+          {emailSent && !showMFAForm && (
             <p className="mt-2 text-sm text-gray-600">
               Check your email for the password reset link. You can close this page.
             </p>
           )}
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email address
-            </label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="mt-1"
-              disabled={emailSent}
+        
+        {showMFAForm ? (
+          <div className="mt-8">
+            <MFAPasswordResetForm 
+              email={email} 
+              mfaMethods={mfaMethods} 
+              onBack={handleBackFromMFA}
             />
           </div>
-          {!emailSent && (
-            <Button 
-              type="submit" 
-              className="w-full bg-accent hover:bg-accent/90"
-              disabled={isLoading}
+        ) : (
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email address
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                className="mt-1"
+                disabled={emailSent || isLoading}
+              />
+            </div>
+            {!emailSent && (
+              <Button 
+                type="submit" 
+                className="w-full bg-accent hover:bg-accent/90"
+                disabled={isLoading}
+              >
+                {isLoading ? "Checking..." : "Send Reset Instructions"}
+              </Button>
+            )}
+            <Link 
+              to="/signin" 
+              className="block text-center text-sm text-[#325AE7] hover:text-[#325AE7]/90"
             >
-              {isLoading ? "Sending..." : "Send Reset Instructions"}
-            </Button>
-          )}
-          <Link 
-            to="/signin" 
-            className="block text-center text-sm text-[#325AE7] hover:text-[#325AE7]/90"
-          >
-            ← Back to Sign In
-          </Link>
-        </form>
+              ← Back to Sign In
+            </Link>
+          </form>
+        )}
       </div>
     </div>
   );

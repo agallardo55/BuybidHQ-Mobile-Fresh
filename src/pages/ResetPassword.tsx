@@ -78,6 +78,19 @@ const ResetPassword = () => {
     }
 
     try {
+      // Enhanced security: Verify we're in a valid recovery session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session && !isRecoveryFlow) {
+        toast({
+          title: "Invalid Session",
+          description: "Invalid or expired password reset session. Please request a new password reset.",
+          variant: "destructive",
+        });
+        navigate('/forgot-password');
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: password
       });
@@ -92,11 +105,17 @@ const ResetPassword = () => {
       // Keep the user signed in and redirect to dashboard
       navigate("/dashboard");
     } catch (error: any) {
+      console.error('Password reset error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to reset password. Please try again.",
         variant: "destructive",
       });
+      
+      // If there's a session error, redirect to forgot password
+      if (error.message?.includes('session') || error.message?.includes('token')) {
+        navigate('/forgot-password');
+      }
     } finally {
       setIsLoading(false);
     }
