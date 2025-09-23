@@ -51,8 +51,7 @@ export const useAuthWithMFA = () => {
       console.log('MFA Settings for user:', { userId: authData.user.id, mfaSettings });
 
       // Only redirect to MFA if user has explicitly enabled MFA settings
-      // For now, disable MFA flow entirely until explicitly needed
-      const shouldUseMFA = false; // Temporarily disable MFA
+      const shouldUseMFA = true; // MFA system activated
       
       if (shouldUseMFA && mfaSettings && mfaSettings.length > 0) {
         // Sign out the session since we need to complete MFA first
