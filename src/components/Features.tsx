@@ -10,7 +10,7 @@ const Features = () => {
     },
     {
       icon: <Shield className="h-12 w-12 text-accent" />,
-      title: "Buy Bid Dashboard",
+      title: "Private Marketplace",
       description: "A place to manage and approve all your buy bids"
     },
     {
