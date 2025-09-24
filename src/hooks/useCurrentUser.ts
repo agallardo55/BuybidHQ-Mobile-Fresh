@@ -53,7 +53,7 @@ export const useCurrentUser = () => {
           .from('buybidhq_users')
           .select(`
             *,
-            dealerships (
+            dealerships!buybidhq_users_dealership_id_fkey (
               dealer_name,
               business_phone,
               business_email,
