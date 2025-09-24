@@ -24,7 +24,7 @@ const FAQ = () => {
               How does BuyBidHQ work for auto dealers?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
-              BuyBidHQ allows auto dealers to scan or enter VINs, retrieve vehicle details automatically, capture photos, describe vehicle conditions, and send bid requests via SMS or email to their dealer network. Buyers respond with their offers, and you can track all responses in one central dashboard.
+              BuyBidHQ allows auto dealers and wholesalers to send bid requests via SMS or email to their dealer network. Buyers respond with their offers, and you can track all responses in one central dashboard.
             </AccordionContent>
           </AccordionItem>
 
