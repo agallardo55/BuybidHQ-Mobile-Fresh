@@ -104,7 +104,7 @@ const Pricing = () => {
                 <span className="text-3xl font-bold">$599</span>
                 <span className="ml-1 text-gray-500">/per yr</span>
               </div>
-              <div className="mt-1 text-sm text-accent font-medium">Save $589/year</div>
+              <div className="mt-1 text-sm text-accent font-medium">Less than $50 per mo.</div>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
