@@ -11,8 +11,27 @@ export interface CarApiResult {
     drive_type?: string;
     turbo?: boolean;
     trim?: string;
+    body_class?: string;
+    doors?: string;
+    series?: string;
   };
   trims: CarApiTrim[];
+}
+
+// Alias for backward compatibility
+export type CarApiData = CarApiResult;
+
+export interface NHTSAEngineData {
+  cylinders?: string;
+  displacement?: string;
+  configuration?: string;
+  turbo?: boolean;
+}
+
+export interface NHTSATransmissionData {
+  speeds?: string;
+  style?: string;
+  type?: string;
 }
 
 export interface CarApiTrim {

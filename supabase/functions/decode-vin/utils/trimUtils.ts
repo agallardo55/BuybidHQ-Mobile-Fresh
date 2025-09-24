@@ -18,8 +18,11 @@ export function findBestTrimMatch(
   trims: CarApiTrim[],
   year: string | number,
   specs?: {
+    make?: string;
     displacement_l?: string;
     engine_number_of_cylinders?: string;
+    body_class?: string;
+    doors?: string;
   }
 ): string | null {
   if (!trims || trims.length === 0) {

@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Stripe checkout error:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error occurred' }),
       {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

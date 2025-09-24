@@ -156,8 +156,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Failed to process contact form submission',
-        details: error.message 
-      }), 
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
+      }),
       { 
         status: 400,
         headers: {

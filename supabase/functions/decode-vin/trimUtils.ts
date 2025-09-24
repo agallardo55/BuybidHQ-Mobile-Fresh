@@ -2,6 +2,7 @@
 import { CarApiTrim } from "./types.ts";
 
 interface GT3RSSpecs {
+  make?: string;
   displacement_l?: string;
   engine_number_of_cylinders?: string;
   body_class?: string;
@@ -21,7 +22,7 @@ function isGT3RSMatch(specs: GT3RSSpecs): boolean {
   return Object.values(matches).every(match => match === true);
 }
 
-function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number, specs?: any): string {
+function findBestTrimMatch(trims: CarApiTrim[] | undefined, year: number, specs?: GT3RSSpecs): string {
   if (!trims || trims.length === 0) {
     console.log('No trims available for matching');
     return '';

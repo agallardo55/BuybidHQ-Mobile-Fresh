@@ -52,7 +52,7 @@ serve(async (req) => {
     console.error('Error in send-sms-email function:', error)
     return new Response(
       JSON.stringify({
-        error: error.message || 'An error occurred while sending SMS email',
+        error: error instanceof Error ? error.message : 'An error occurred while sending SMS email',
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

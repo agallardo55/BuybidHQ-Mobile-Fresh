@@ -123,7 +123,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        emailId: emailResponse.id,
+        emailId: emailResponse.data?.id,
         testMode: IS_TEST_MODE,
         originalRecipient: email,
         actualRecipient: toEmail
@@ -140,8 +140,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Failed to send email notification',
-        details: error.message 
-      }), 
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
+      }),
       { 
         status: 400,
         headers: {
