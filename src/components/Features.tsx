@@ -21,7 +21,7 @@ const Features = () => {
     {
       icon: <BatteryCharging className="h-12 w-12 text-accent" />,
       title: "Real-time Updates",
-      description: "Get instant notifications about new bids and offers"
+      description: "Stay ahead with real-time bid and offer notifications via text or email."
     }
   ];
 
