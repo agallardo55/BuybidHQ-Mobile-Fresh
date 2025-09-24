@@ -7,10 +7,18 @@ import { mapResponsesToOffers, transformBidRequest } from "./utils";
 
 type BidStatus = "pending" | "accepted" | "declined";
 
-const validateStatus = (status: string): BidStatus => {
-  const validStatuses: BidStatus[] = ["pending", "accepted", "declined"];
-  const normalizedStatus = status.toLowerCase() as BidStatus;
-  return validStatuses.includes(normalizedStatus) ? normalizedStatus : "pending";
+const convertFromDbStatus = (status: string): BidStatus => {
+  const normalizedStatus = status.toLowerCase();
+  switch (normalizedStatus) {
+    case "approved":
+      return "accepted";
+    case "pending":
+      return "pending";
+    case "declined":
+      return "declined";
+    default:
+      return "pending";
+  }
 };
 
 export const useBidRequestQuery = (enabled: boolean) => {
@@ -64,7 +72,7 @@ export const useBidRequestQuery = (enabled: boolean) => {
           return {
             ...data?.[0],
             created_at: request.created_at,
-            status: validateStatus(request.status),
+            status: convertFromDbStatus(request.status),
             primary_image: primaryImage
           };
         });
@@ -111,7 +119,7 @@ export const useBidRequestQuery = (enabled: boolean) => {
         // Transform responses to ensure status is of correct type
         const typedResponses = responses?.map(response => ({
           ...response,
-          status: validateStatus(response.status)
+          status: convertFromDbStatus(response.status)
         }));
 
         // Map responses to their requests
