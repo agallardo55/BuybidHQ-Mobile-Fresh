@@ -4,7 +4,6 @@ import { BidRequest } from "./types";
 import { useState } from "react";
 import BidRequestDialog from "./BidRequestDialog";
 import { useBidResponseMutation } from "@/hooks/bid-requests/useBidResponseMutation";
-import { useBidRequestMutation } from "@/hooks/bid-requests/useBidRequestMutation";
 import { TableHeaders } from "./components/TableHeaders";
 import { TableRowComponent } from "./components/TableRow";
 import { BidRequestMobileCard } from "./BidRequestMobileCard";
@@ -23,7 +22,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
   const [selectedRequest, setSelectedRequest] = useState<BidRequest | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { mutate: updateBidResponseStatus } = useBidResponseMutation();
-  const { mutate: updateBidRequestStatus } = useBidRequestMutation();
   const isMobile = useIsMobile();
 
   const handleRowClick = (request: BidRequest) => {
@@ -33,10 +31,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
 
   const handleStatusUpdate = (responseId: string, status: "pending" | "accepted" | "declined") => {
     updateBidResponseStatus({ responseId, status });
-  };
-
-  const handleBidRequestStatusUpdate = (requestId: string, status: "pending" | "accepted" | "declined") => {
-    updateBidRequestStatus({ id: requestId, status });
   };
 
   if (isMobile) {
@@ -49,7 +43,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                 key={request.id}
                 request={request}
                 onClick={() => handleRowClick(request)}
-                onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
               />
             ))
           ) : (
@@ -64,7 +57,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onStatusUpdate={handleStatusUpdate}
-          onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
         />
       </>
     );
@@ -83,43 +75,14 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                     key={request.id}
                     request={request}
                     onClick={() => handleRowClick(request)}
-                    onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
                   />
                 ))
               ) : (
-                <TableRowComponent
-                  key="empty-row"
-                  request={{
-                    id: "empty",
-                    createdAt: new Date().toISOString(),
-                    status: "Pending",
-                    userId: "empty",
-                    accountId: "empty", 
-                    vehicleId: "empty",
-                    year: 0,
-                    make: "",
-                    model: "",
-                    trim: "",
-                    vin: "",
-                    mileage: 0,
-                    buyer: "",
-                    offers: [],
-                    engineCylinders: "",
-                    transmission: "",
-                    drivetrain: "",
-                    exteriorColor: "",
-                    interiorColor: "",
-                    accessories: "",
-                    windshield: "",
-                    engineLights: "",
-                    brakes: "",
-                    tire: "",
-                    maintenance: "",
-                    reconEstimate: "",
-                    reconDetails: ""
-                  }}
-                  onClick={() => {}}
-                />
+                <tr>
+                  <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                    No bid requests found
+                  </td>
+                </tr>
               )}
             </TableBody>
           </Table>
@@ -131,7 +94,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onStatusUpdate={handleStatusUpdate}
-        onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
       />
     </>
   );
