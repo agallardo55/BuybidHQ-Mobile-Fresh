@@ -27,11 +27,11 @@ const ImageCarousel = ({
         <div className="w-full max-w-[95%] mx-auto">
           <div className="flex gap-4 pb-4">
             <div className="flex-none relative">
-              <div className="h-32 relative rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+              <div className="h-24 w-36 relative rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
                 <img 
                   src={carPlaceholder} 
                   alt="No vehicle photos available" 
-                  className="h-20 w-auto object-contain opacity-50"
+                  className="h-16 w-auto object-contain opacity-50"
                 />
               </div>
             </div>
