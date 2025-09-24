@@ -42,6 +42,11 @@ export const CommunicationSettingsTab = () => {
         .eq("id", currentUser.id);
 
       if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Communication preferences updated successfully.",
+      });
     } catch (error: any) {
       console.error("Error updating preferences:", error);
       toast({

@@ -43,6 +43,11 @@ export const PersonalInfoTab = () => {
         .eq('id', user.id);
 
       if (userError) throw userError;
+
+      toast({
+        title: "Success",
+        description: "Personal information updated successfully.",
+      });
     } catch (error: any) {
       console.error('Error updating account:', error);
       toast({

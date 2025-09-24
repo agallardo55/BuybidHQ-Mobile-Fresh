@@ -36,7 +36,20 @@ export const DealershipTab = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate required fields
+    if (!formData.dealershipAddress || !formData.city || !formData.state || !formData.zipCode) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required address fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { error } = await supabase
         .from('buybidhq_users')
         .update({
@@ -45,14 +58,19 @@ export const DealershipTab = () => {
           state: formData.state,
           zip_code: formData.zipCode,
         })
-        .eq('id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('id', user.id);
 
       if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Address information updated successfully.",
+      });
     } catch (error) {
-      console.error('Error updating dealership:', error);
+      console.error('Error updating address:', error);
       toast({
         title: "Error",
-        description: "Failed to update dealership details. Please try again.",
+        description: "Failed to update address details. Please try again.",
         variant: "destructive",
       });
     }
@@ -71,34 +89,8 @@ export const DealershipTab = () => {
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700 mb-1">
-              Dealership Name
-            </label>
-            <Input
-              id="dealershipName"
-              name="dealershipName"
-              type="text"
-              required
-              value={formData.dealershipName}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
-              Dealer ID
-            </label>
-            <Input
-              id="licenseNumber"
-              name="licenseNumber"
-              type="text"
-              placeholder="(Optional)"
-              value={formData.licenseNumber}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
             <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">
-              Dealership Address
+              Address <span className="text-red-500">*</span>
             </label>
             <Input
               id="dealershipAddress"
@@ -107,11 +99,12 @@ export const DealershipTab = () => {
               required
               value={formData.dealershipAddress}
               onChange={handleChange}
+              placeholder="Street address"
             />
           </div>
           <div>
             <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-              City
+              City <span className="text-red-500">*</span>
             </label>
             <Input
               id="city"
@@ -125,7 +118,7 @@ export const DealershipTab = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-                State
+                State <span className="text-red-500">*</span>
               </label>
               <Select 
                 onValueChange={handleStateChange} 
@@ -145,7 +138,7 @@ export const DealershipTab = () => {
             </div>
             <div>
               <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-                ZIP Code
+                ZIP Code <span className="text-red-500">*</span>
               </label>
               <Input
                 id="zipCode"
@@ -168,7 +161,7 @@ export const DealershipTab = () => {
           type="submit"
           className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
         >
-          Save Changes
+          Save Address
         </Button>
       </div>
       <div className="h-8 border-t mt-6"></div>
