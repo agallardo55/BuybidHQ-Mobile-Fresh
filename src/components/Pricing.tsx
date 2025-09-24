@@ -94,7 +94,7 @@ const Pricing = () => {
           <Card className="flex flex-col relative border-accent">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
               <span className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-medium">
-                Most Popular
+                Limited Time Offer
               </span>
             </div>
             <CardHeader>
