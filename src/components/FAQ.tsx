@@ -20,7 +20,7 @@ const FAQ = () => {
 
         <Accordion type="single" collapsible className="space-y-4">
           <AccordionItem value="item-1" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
-            <AccordionTrigger className="text-left text-white hover:text-primary">
+            <AccordionTrigger className="text-left text-white hover:text-blue-400">
               How does BuybidHQ work?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
@@ -29,7 +29,7 @@ const FAQ = () => {
           </AccordionItem>
 
           <AccordionItem value="item-2" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
-            <AccordionTrigger className="text-left text-white hover:text-primary">
+            <AccordionTrigger className="text-left text-white hover:text-blue-400">
               Are there any additional fees?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
@@ -38,7 +38,7 @@ const FAQ = () => {
           </AccordionItem>
 
           <AccordionItem value="item-3" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
-            <AccordionTrigger className="text-left text-white hover:text-primary">
+            <AccordionTrigger className="text-left text-white hover:text-blue-400">
               How does VIN scanning and decoding work?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
@@ -47,7 +47,7 @@ const FAQ = () => {
           </AccordionItem>
 
           <AccordionItem value="item-4" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
-            <AccordionTrigger className="text-left text-white hover:text-primary">
+            <AccordionTrigger className="text-left text-white hover:text-blue-400">
               Can I send bid requests via both SMS and email?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
@@ -56,7 +56,7 @@ const FAQ = () => {
           </AccordionItem>
 
           <AccordionItem value="item-5" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
-            <AccordionTrigger className="text-left text-white hover:text-primary">
+            <AccordionTrigger className="text-left text-white hover:text-blue-400">
               How do I manage different user roles in my dealership?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
@@ -65,7 +65,7 @@ const FAQ = () => {
           </AccordionItem>
 
           <AccordionItem value="item-6" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
-            <AccordionTrigger className="text-left text-white hover:text-primary">
+            <AccordionTrigger className="text-left text-white hover:text-blue-400">
               Is my data secure and private?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
@@ -74,7 +74,7 @@ const FAQ = () => {
           </AccordionItem>
 
           <AccordionItem value="item-7" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
-            <AccordionTrigger className="text-left text-white hover:text-primary">
+            <AccordionTrigger className="text-left text-white hover:text-blue-400">
               Is there a mobile app available?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
@@ -83,7 +83,7 @@ const FAQ = () => {
           </AccordionItem>
 
           <AccordionItem value="item-8" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
-            <AccordionTrigger className="text-left text-white hover:text-primary">
+            <AccordionTrigger className="text-left text-white hover:text-blue-400">
               How do I get started with BuyBidHQ?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
