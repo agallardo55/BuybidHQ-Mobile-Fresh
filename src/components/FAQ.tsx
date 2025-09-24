@@ -46,6 +46,15 @@ const FAQ = () => {
             </AccordionContent>
           </AccordionItem>
 
+          <AccordionItem value="item-3a" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+              What offers will win the bid request?
+            </AccordionTrigger>
+            <AccordionContent className="text-gray-700">
+              You have complete control over which offer to accept. While the highest offer often wins, you can choose any offer based on factors like buyer relationship, payment terms, or timing that best meets your needs.
+            </AccordionContent>
+          </AccordionItem>
+
           <AccordionItem value="item-4" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
             <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
               How is BuybidHQ different than auctions?
