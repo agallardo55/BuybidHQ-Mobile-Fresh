@@ -133,7 +133,7 @@ export const CommunicationSettingsTab = () => {
             <Button 
               onClick={handleSave} 
               disabled={isSaving || (!smsEnabled && !emailEnabled)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving..." : "Save Preferences"}
