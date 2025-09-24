@@ -159,7 +159,11 @@ export const SubscriptionTab = () => {
                 </ul>
               </CardContent>
               <CardFooter>
-                {account?.plan === plan.id ? (
+                {(currentUser?.app_role === 'super_admin' || currentUser?.app_role === 'account_admin') ? (
+                  <Button disabled className="w-full bg-gray-100 text-gray-500">
+                    Admin Access
+                  </Button>
+                ) : account?.plan === plan.id ? (
                   <Button disabled className="w-full bg-green-100 text-green-700 hover:bg-green-100">
                     <Check className="h-4 w-4 mr-2" />
                     Current Plan
