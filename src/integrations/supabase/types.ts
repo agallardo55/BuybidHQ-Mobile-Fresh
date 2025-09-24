@@ -397,6 +397,8 @@ export type Database = {
           address: string | null
           agreed_at: string | null
           app_role: string
+          bid_request_email_enabled: boolean | null
+          bid_request_sms_enabled: boolean | null
           buyers: string | null
           city: string | null
           company: string | null
@@ -427,6 +429,8 @@ export type Database = {
           address?: string | null
           agreed_at?: string | null
           app_role?: string
+          bid_request_email_enabled?: boolean | null
+          bid_request_sms_enabled?: boolean | null
           buyers?: string | null
           city?: string | null
           company?: string | null
@@ -457,6 +461,8 @@ export type Database = {
           address?: string | null
           agreed_at?: string | null
           app_role?: string
+          bid_request_email_enabled?: boolean | null
+          bid_request_sms_enabled?: boolean | null
           buyers?: string | null
           city?: string | null
           company?: string | null

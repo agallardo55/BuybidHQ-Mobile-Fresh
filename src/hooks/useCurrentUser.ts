@@ -23,6 +23,8 @@ export interface UserData {
   business_email: string | null;
   phone_carrier: string | null;
   profile_photo: string | null;
+  bid_request_email_enabled: boolean;
+  bid_request_sms_enabled: boolean;
 }
 
 export const useCurrentUser = () => {
@@ -93,7 +95,9 @@ export const useCurrentUser = () => {
           business_phone: null,
           business_email: null,
           phone_carrier: userData.phone_carrier,
-          profile_photo: userData.profile_photo || null
+          profile_photo: userData.profile_photo || null,
+          bid_request_email_enabled: userData.bid_request_email_enabled ?? true,
+          bid_request_sms_enabled: userData.bid_request_sms_enabled ?? false
         };
 
         console.log('Successfully fetched user data:', formattedUser);

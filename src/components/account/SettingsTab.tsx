@@ -1,9 +1,5 @@
-import { SubscriptionSection } from "./SubscriptionSection";
+import { CommunicationSettingsTab } from "./CommunicationSettingsTab";
 
 export const SettingsTab = () => {
-  return (
-    <div className="space-y-6">
-      <SubscriptionSection />
-    </div>
-  );
+  return <CommunicationSettingsTab />;
 };
