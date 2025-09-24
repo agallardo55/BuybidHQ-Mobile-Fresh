@@ -7,13 +7,11 @@ import carPlaceholder from "@/assets/car-placeholder.png";
 
 interface TableRowProps {
   request: BidRequest;
-  offer?: BidRequest['offers'][0];
   onClick: () => void;
-  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
   onBidRequestStatusUpdate?: (requestId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
-export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onBidRequestStatusUpdate }: TableRowProps) => {
+export const TableRowComponent = ({ request, onClick, onBidRequestStatusUpdate }: TableRowProps) => {
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), 'MM/dd/yyyy');
@@ -24,25 +22,44 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
   };
 
   const handleStatusUpdate = (value: "pending" | "accepted" | "declined") => {
-    if (offer && onStatusUpdate) {
-      // Update bid response for offers
-      onStatusUpdate(offer.id, value);
-    } else if (!offer && onBidRequestStatusUpdate) {
-      // Update bid request directly when no offer exists
+    if (onBidRequestStatusUpdate) {
       onBidRequestStatusUpdate(request.id, value);
     }
   };
 
-  const currentStatus = offer?.status || request.status;
+  const currentStatus = request.status;
   
   // Helper function to get display text for status
   const getStatusDisplayText = (status: string) => {
     if (status.toLowerCase() === 'declined') return 'Not Selected';
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
-  
-  // Get just the buyer name without any dealership info
-  const buyerName = getBuyerNameOnly(offer ? offer.buyerName : request.buyer);
+
+  // Format offer summary for display
+  const formatOfferSummary = () => {
+    const summary = request.offerSummary;
+    if (!summary || summary.count === 0) {
+      return <span className="text-gray-500">No offers yet</span>;
+    }
+    
+    const highestOffer = summary.highestOffer ? `$${summary.highestOffer.toLocaleString()}` : 'N/A';
+    const statusText = summary.hasAcceptedOffer ? 'Accepted' : 
+                     summary.pendingCount > 0 ? 'Pending' : 'Declined';
+    
+    return (
+      <div className="flex flex-col">
+        <span className="font-medium">{summary.count} offer{summary.count !== 1 ? 's' : ''}</span>
+        <span className="text-sm text-gray-600">High: {highestOffer}</span>
+        <span className={`text-xs px-1 py-0.5 rounded ${
+          summary.hasAcceptedOffer ? 'bg-green-100 text-green-700' :
+          summary.pendingCount > 0 ? 'bg-yellow-100 text-yellow-700' :
+          'bg-red-100 text-red-700'
+        }`}>
+          {statusText}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <UITableRow 
@@ -83,10 +100,7 @@ export const TableRowComponent = ({ request, offer, onClick, onStatusUpdate, onB
         {request.mileage.toLocaleString()}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-        {buyerName || <span className="text-gray-500">No buyer</span>}
-      </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-        {offer ? `$${offer.amount.toLocaleString()}` : <span className="text-gray-500">No offers yet</span>}
+        {formatOfferSummary()}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
         <Select

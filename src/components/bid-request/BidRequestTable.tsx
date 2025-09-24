@@ -44,28 +44,14 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
       <>
         <div className="space-y-4">
           {requests && requests.length > 0 ? (
-            requests.flatMap((request) => {
-              if (!request.offers?.length) {
-                return [(
-                  <BidRequestMobileCard
-                    key={request.id}
-                    request={request}
-                    onClick={() => handleRowClick(request)}
-                    onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
-                  />
-                )];
-              }
-
-              return request.offers.map((offer, index) => (
-                <BidRequestMobileCard
-                  key={`${request.id}-${index}`}
-                  request={request}
-                  offer={offer}
-                  onClick={() => handleRowClick(request)}
-                  onStatusUpdate={handleStatusUpdate}
-                />
-              ));
-            })
+            requests.map((request) => (
+              <BidRequestMobileCard
+                key={request.id}
+                request={request}
+                onClick={() => handleRowClick(request)}
+                onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
+              />
+            ))
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               No bid requests found
@@ -92,28 +78,14 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
             <TableHeaders sortConfig={sortConfig} onSort={onSort} />
             <TableBody>
               {requests && requests.length > 0 ? (
-                requests.flatMap((request) => {
-                  if (!request.offers?.length) {
-                    return [(
-                      <TableRowComponent
-                        key={request.id}
-                        request={request}
-                        onClick={() => handleRowClick(request)}
-                        onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
-                      />
-                    )];
-                  }
-
-                  return request.offers.map((offer, index) => (
-                    <TableRowComponent
-                      key={`${request.id}-${index}`}
-                      request={request}
-                      offer={offer}
-                      onClick={() => handleRowClick(request)}
-                      onStatusUpdate={handleStatusUpdate}
-                    />
-                  ));
-                })
+                requests.map((request) => (
+                  <TableRowComponent
+                    key={request.id}
+                    request={request}
+                    onClick={() => handleRowClick(request)}
+                    onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
+                  />
+                ))
               ) : (
                 <TableRowComponent
                   key="empty-row"

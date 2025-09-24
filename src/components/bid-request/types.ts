@@ -22,6 +22,15 @@ export interface BidRequest {
     createdAt: string;
     status: "pending" | "accepted" | "declined";
   }[];
+  // Aggregated offer summary for table display
+  offerSummary?: {
+    count: number;
+    highestOffer: number | null;
+    acceptedCount: number;
+    pendingCount: number;
+    declinedCount: number;
+    hasAcceptedOffer: boolean;
+  };
   engineCylinders?: string;
   transmission?: string;
   drivetrain?: string;

@@ -7,37 +7,38 @@ import { BidRequest } from "./types";
 
 interface BidRequestMobileCardProps {
   request: BidRequest;
-  offer?: any;
   onClick: () => void;
-  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
   onBidRequestStatusUpdate?: (requestId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
 export const BidRequestMobileCard = ({
   request,
-  offer,
   onClick,
-  onStatusUpdate,
   onBidRequestStatusUpdate
 }: BidRequestMobileCardProps) => {
-  const currentStatus = offer?.status || request.status;
+  const currentStatus = request.status;
   
   const getStatusDisplayText = (status: string) => {
     if (status.toLowerCase() === 'declined') return 'Not Selected';
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
-  const getBuyerName = (buyerString: string) => {
-    if (!buyerString) return "N/A";
-    return buyerString.split(' at ')[0] || buyerString;
-  };
-
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'accepted': return 'bg-green-100 text-green-800 border-green-200';
-      case 'declined': return 'bg-red-100 text-red-800 border-red-200';
+      case 'accepted': case 'active': return 'bg-green-100 text-green-800 border-green-200';
+      case 'declined': case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+  };
+
+  const formatOfferSummary = () => {
+    const summary = request.offerSummary;
+    if (!summary || summary.count === 0) {
+      return "No offers yet";
+    }
+    
+    const highestOffer = summary.highestOffer ? `$${summary.highestOffer.toLocaleString()}` : 'N/A';
+    return `${summary.count} offer${summary.count !== 1 ? 's' : ''} • High: ${highestOffer}`;
   };
 
   return (
@@ -64,12 +65,10 @@ export const BidRequestMobileCard = ({
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span>{request.mileage?.toLocaleString()} miles</span>
           </div>
-          {offer?.buyer_name && (
-            <div className="flex items-center gap-2 text-sm">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span>{getBuyerName(offer.buyer_name)}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 text-sm">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <span>{formatOfferSummary()}</span>
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-3">
@@ -83,25 +82,9 @@ export const BidRequestMobileCard = ({
             View Details
           </Button>
 
-          {offer && onStatusUpdate ? (
+          {onBidRequestStatusUpdate && (
             <Select
-              value={currentStatus}
-              onValueChange={(value: "pending" | "accepted" | "declined") => 
-                onStatusUpdate(offer.id, value)
-              }
-            >
-              <SelectTrigger className={`w-32 text-xs ${getStatusColor(currentStatus)}`}>
-                <SelectValue>{getStatusDisplayText(currentStatus)}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="accepted">Accepted</SelectItem>
-                <SelectItem value="declined">Not Selected</SelectItem>
-              </SelectContent>
-            </Select>
-          ) : onBidRequestStatusUpdate ? (
-            <Select
-              value={currentStatus}
+              value={currentStatus.toLowerCase()}
               onValueChange={(value: "pending" | "accepted" | "declined") => 
                 onBidRequestStatusUpdate(request.id, value)
               }
@@ -115,7 +98,7 @@ export const BidRequestMobileCard = ({
                 <SelectItem value="declined">Not Selected</SelectItem>
               </SelectContent>
             </Select>
-          ) : null}
+          )}
         </div>
       </CardContent>
     </Card>

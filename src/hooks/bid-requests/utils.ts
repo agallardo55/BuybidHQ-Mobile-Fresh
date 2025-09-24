@@ -86,6 +86,16 @@ export const transformBidRequest = (
        item.status.toLowerCase() === "declined" ? "Cancelled" : "Pending") as "Pending" | "Active" | "Completed" | "Cancelled"
     : "Pending";
 
+  // Calculate offer summary
+  const offerSummary = {
+    count: offers.length,
+    highestOffer: offers.length > 0 ? Math.max(...offers.map(o => o.amount)) : null,
+    acceptedCount: offers.filter(o => o.status === "accepted").length,
+    pendingCount: offers.filter(o => o.status === "pending").length,
+    declinedCount: offers.filter(o => o.status === "declined").length,
+    hasAcceptedOffer: offers.some(o => o.status === "accepted")
+  };
+
   return {
     id: item.request_id,
     createdAt: item.created_at,
@@ -102,6 +112,7 @@ export const transformBidRequest = (
     buyer: item.user_full_name || 'Unknown',
     primaryImage: item.primary_image,
     offers,
+    offerSummary,
     engineCylinders: item.engine_cylinders,
     transmission: item.transmission,
     drivetrain: item.drivetrain,
