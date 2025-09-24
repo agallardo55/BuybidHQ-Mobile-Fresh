@@ -21,7 +21,7 @@ const FAQ = () => {
         <Accordion type="single" collapsible className="space-y-4">
           <AccordionItem value="item-1" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
             <AccordionTrigger className="text-left text-white hover:text-primary">
-              How does BuyBidHQ work for auto dealers?
+              How does BuybidHQ work?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
               BuyBidHQ allows auto dealers and wholesalers to send bid requests via SMS or email to their dealer network. Buyers respond with their offers, and you can track all responses in one central dashboard.
