@@ -78,7 +78,7 @@ export const PersonalInfoTab = () => {
       <div className="pt-4">
         <Button
           type="submit"
-          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+          className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
         >
           Save Changes
         </Button>
