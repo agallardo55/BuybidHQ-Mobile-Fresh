@@ -69,7 +69,7 @@ const FAQ = () => {
               How do I get started with BuyBidHQ?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              Getting started is easy! Sign up for a free trial, set up your dealership profile, add your buyer contacts, and start creating bid requests. Our support team provides onboarding assistance, and you can upgrade to a paid plan when you're ready to unlock all features.
+              Getting started is easy! Sign up for a free trial, set up your dealership profile, add your buyer contacts, and start creating bid requests. Our support team provides onboarding assistance, and you can upgrade to a paid plan when you're ready to unlock more deals and offers.
             </AccordionContent>
           </AccordionItem>
         </Accordion>
