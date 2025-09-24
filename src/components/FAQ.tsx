@@ -51,7 +51,7 @@ const FAQ = () => {
               Can I send bid requests via both SMS and email?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
-              Yes! BuyBidHQ supports both SMS (via Twilio) and email (via Resend) for sending bid requests. You can choose your preferred method or use both depending on your buyers' preferences and your communication strategy.
+              Yes! We supports both SMS and email for sending bid requests. You can choose your preferred method or use both depending on your buyers' preferences and your communication strategy.
             </AccordionContent>
           </AccordionItem>
 
