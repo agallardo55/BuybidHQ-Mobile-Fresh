@@ -32,10 +32,15 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
     
     return (
       <div className="flex flex-col">
-        <span className="font-medium">{summary.count} offer{summary.count !== 1 ? 's' : ''}</span>
         <span className="text-sm text-gray-600">High: {highestOffer}</span>
       </div>
     );
+  };
+
+  // Get offer count for display
+  const getOfferCount = () => {
+    const summary = request.offerSummary;
+    return summary?.count || 0;
   };
 
   // Get status badge variant
@@ -90,6 +95,9 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
         {request.mileage.toLocaleString()}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap text-center">
+        {getOfferCount()}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
         {formatOfferSummary()}
