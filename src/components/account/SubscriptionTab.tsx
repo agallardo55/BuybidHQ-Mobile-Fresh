@@ -113,11 +113,11 @@ export const SubscriptionTab = () => {
       </div>
 
       <div className="space-y-4">
-        <div className="flex flex-col space-y-2">
+        <div className="pt-4">
           <Button
             type="button"
             onClick={handleUpgradeSubscription}
-            className="w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
+            className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
             disabled={account?.plan === 'group'}
           >
             {account?.plan === 'group' ? 'Current Plan' : 'Upgrade Subscription'}
@@ -127,7 +127,7 @@ export const SubscriptionTab = () => {
               type="button"
               onClick={handleManageSubscription}
               variant="outline"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto ml-2"
             >
               Manage Payment Methods
             </Button>
