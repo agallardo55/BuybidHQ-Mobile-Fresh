@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { Loader2, Check } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PlanType } from "@/types/accounts";
 
 export const SubscriptionTab = () => {
@@ -77,52 +78,32 @@ export const SubscriptionTab = () => {
     }
   };
 
-  const subscriptionPlans = [
+  const mainPlans = [
     {
       id: 'free',
       name: 'Free Plan',
+      description: 'Perfect for the individual dealer',
       price: '$0',
-      period: 'forever',
+      period: '/per user/per mo.',
       features: [
-        'Up to 10 bid requests per month',
-        'Basic vehicle information',
-        'Email notifications',
-        'Community support'
+        '10 Buybids per mo.',
+        'Unlimited buyer connections',
+        'Buybid dashboard'
       ],
-      buttonText: 'Current Plan',
-      popular: false,
     },
     {
       id: 'connect',
-      name: 'Connect Plan',
+      name: 'Buybid Connect',
+      description: 'For buyers looking to expand their network',
       price: '$100',
-      period: 'per month',
+      period: '/per mo.',
       features: [
-        'Unlimited bid requests',
-        'Advanced vehicle details',
-        'SMS & Email notifications',
-        'Priority support',
-        'Analytics dashboard',
-        'API access'
+        'Unlimited Buybids',
+        'No monthly commitment',
+        'Billed Monthly',
+        'Buybid dashboard',
+        'All Basic features'
       ],
-      buttonText: 'Upgrade to Connect',
-      popular: true,
-    },
-    {
-      id: 'group',
-      name: 'Group Plan',
-      price: 'Custom',
-      period: 'pricing',
-      features: [
-        'Everything in Connect',
-        'Multiple user accounts',
-        'Advanced permissions',
-        'Custom integrations',
-        'Dedicated support',
-        'Custom branding'
-      ],
-      buttonText: 'Contact Sales',
-      popular: false,
     },
   ];
 
@@ -142,7 +123,7 @@ export const SubscriptionTab = () => {
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div>
             <p className="font-medium">
-              {subscriptionPlans.find(p => p.id === account?.plan)?.name || "Free Plan"}
+              {mainPlans.find(p => p.id === account?.plan)?.name || "Free Plan"}
             </p>
             <p className="text-sm text-gray-500">
               Status: {account?.billing_status?.charAt(0).toUpperCase() + account?.billing_status?.slice(1) || 'Active'}
@@ -154,74 +135,58 @@ export const SubscriptionTab = () => {
       {/* Available Plans */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900">Available Plans</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {subscriptionPlans.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative rounded-lg border p-6 ${
-                plan.popular
-                  ? 'border-blue-500 ring-2 ring-blue-500 ring-opacity-50'
-                  : 'border-gray-200'
-              } ${
-                account?.plan === plan.id ? 'bg-blue-50' : 'bg-white'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <span className="inline-flex px-3 py-1 text-xs font-semibold text-white bg-blue-500 rounded-full">
-                    Most Popular
-                  </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {mainPlans.map((plan) => (
+            <Card key={plan.id} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                <CardDescription>{plan.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <div className="mt-2 flex items-baseline">
+                  <span className="text-3xl font-bold">{plan.price}</span>
+                  <span className="ml-1 text-gray-500">{plan.period}</span>
                 </div>
-              )}
-
-              <div className="text-center">
-                <h4 className="text-lg font-medium text-gray-900">{plan.name}</h4>
-                <div className="mt-2">
-                  <span className="text-3xl font-bold text-gray-900">{plan.price}</span>
-                  <span className="text-gray-500">/{plan.period}</span>
-                </div>
-              </div>
-
-              <ul className="mt-6 space-y-3">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-6">
+                <ul className="mt-6 space-y-4">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-center">
+                      <Check className="h-5 w-5 text-accent mr-2" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter>
                 {account?.plan === plan.id ? (
-                  <Button
-                    disabled
-                    className="w-full bg-green-100 text-green-700 hover:bg-green-100"
-                  >
+                  <Button disabled className="w-full bg-green-100 text-green-700 hover:bg-green-100">
                     <Check className="h-4 w-4 mr-2" />
                     Current Plan
                   </Button>
                 ) : (
                   <Button
-                    onClick={() => {
-                      if (plan.id === 'group') {
-                        navigate('/#contact');
-                      } else {
-                        handleUpgradeSubscription(plan.id as PlanType);
-                      }
-                    }}
-                    className={`w-full ${
-                      plan.popular
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                        : 'bg-accent hover:bg-accent/90 text-accent-foreground'
-                    }`}
+                    onClick={() => handleUpgradeSubscription(plan.id as PlanType)}
+                    className="w-full bg-accent hover:bg-accent/90"
                   >
-                    {plan.buttonText}
+                    {plan.id === 'connect' ? 'Get Started' : 'Get Started'}
                   </Button>
                 )}
-              </div>
-            </div>
+              </CardFooter>
+            </Card>
           ))}
         </div>
+      </div>
+
+      {/* Group Plan Contact */}
+      <div className="text-center">
+        <p className="text-sm text-gray-600">
+          Need multi-user dealership management?{' '}
+          <button 
+            onClick={() => navigate('/#contact')} 
+            className="text-accent hover:text-accent/90 font-medium"
+          >
+            Contact us about our Group Plan
+          </button>
+        </p>
       </div>
 
       {/* Management Section */}
