@@ -51,7 +51,7 @@ const FAQ = () => {
               How is BuybidHQ different than auctions?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              Unlike traditional auctions with fees, time constraints, and public bidding, BuyBidHQ lets you send private bid requests directly to your trusted network of buyers. You control who sees your vehicles, negotiate directly with buyers you know, and avoid auction fees while getting competitive offers on your timeline.
+              Forget the hassle of auctions. BuyBidHQ lets you privately share vehicles with your trusted buyer network—no fees, no time pressure, just competitive offers when you're ready.
             </AccordionContent>
           </AccordionItem>
 
