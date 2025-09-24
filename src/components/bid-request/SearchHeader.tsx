@@ -36,7 +36,7 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
         
         <Button 
           variant="secondary" 
-          className="hidden md:flex items-center gap-1 h-9"
+          className="hidden items-center gap-1 h-9"
           onClick={() => setIsDrawerOpen(true)}
         >
           <Zap className="h-4 w-4" />
