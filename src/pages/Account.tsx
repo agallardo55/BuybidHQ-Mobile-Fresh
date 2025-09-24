@@ -29,7 +29,7 @@ const Account = () => {
           <Tabs defaultValue="personal" className="w-full">
             <TabsList className="mb-4 w-full flex flex-wrap gap-2">
               <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
-              {!isAdmin && <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>}
+              <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>
               <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
               <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
               {!isAdmin && <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>}
@@ -39,11 +39,9 @@ const Account = () => {
               <PersonalInfoTab />
             </TabsContent>
 
-            {!isAdmin && (
-              <TabsContent value="dealership">
-                <DealershipTab />
-              </TabsContent>
-            )}
+            <TabsContent value="dealership">
+              <DealershipTab />
+            </TabsContent>
 
             <TabsContent value="security">
               <SecurityTab />
