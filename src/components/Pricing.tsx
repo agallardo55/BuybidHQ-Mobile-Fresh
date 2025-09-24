@@ -91,9 +91,9 @@ const Pricing = () => {
           </Card>
 
           {/* Annual Plan */}
-          <Card className="flex flex-col relative border-primary">
+          <Card className="flex flex-col relative border-accent">
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium">
+              <span className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-medium">
                 Most Popular
               </span>
             </div>
@@ -106,7 +106,7 @@ const Pricing = () => {
                 <span className="text-3xl font-bold text-foreground">$599</span>
                 <span className="ml-1 text-muted-foreground">/per yr</span>
               </div>
-              <p className="mt-1 text-sm text-primary font-medium">Less than $50 per mo.</p>
+              <p className="mt-1 text-sm text-accent font-medium">Less than $50 per mo.</p>
               <ul className="mt-6 space-y-4">
                 <li className="flex items-center">
                   <Check className="h-5 w-5 text-accent mr-2" />
@@ -131,7 +131,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button onClick={() => setShowWaitlist(true)} className="w-full bg-primary hover:bg-primary/90">Get Started</Button>
+              <Button onClick={() => setShowWaitlist(true)} className="w-full bg-accent hover:bg-accent/90">Get Started</Button>
             </CardFooter>
           </Card>
 
