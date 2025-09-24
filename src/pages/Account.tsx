@@ -31,7 +31,7 @@ const Account = () => {
               <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
               {!isAdmin && <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>}
               <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
-              <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
+              <TabsTrigger value="settings" className="flex-1">Subscription</TabsTrigger>
               {!isAdmin && <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>}
             </TabsList>
 
