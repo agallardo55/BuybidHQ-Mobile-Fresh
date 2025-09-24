@@ -1070,6 +1070,33 @@ export type Database = {
           },
         ]
       }
+      password_reset_attempts: {
+        Row: {
+          attempts: number | null
+          created_at: string | null
+          email: string
+          id: string
+          last_attempt: string | null
+          reset_at: string | null
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string | null
+          email: string
+          id?: string
+          last_attempt?: string | null
+          reset_at?: string | null
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          last_attempt?: string | null
+          reset_at?: string | null
+        }
+        Relationships: []
+      }
       phone_validation_batch_results: {
         Row: {
           area_code: string | null
@@ -1351,6 +1378,75 @@ export type Database = {
           },
         ]
       }
+      user_security_events: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          device_info: Json | null
+          expires_at: string | null
+          id: string
+          ip_address: string | null
+          is_active: boolean | null
+          last_activity: string | null
+          session_token: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: Json | null
+          expires_at?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          session_token: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: Json | null
+          expires_at?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          session_token?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       vehicle_history: {
         Row: {
           autocheck_report: string | null
@@ -1498,6 +1594,10 @@ export type Database = {
       }
       check_admin_status: {
         Args: { checking_user_id: string }
+        Returns: boolean
+      }
+      check_password_reset_rate_limit: {
+        Args: { p_email: string }
         Returns: boolean
       }
       check_user_role: {
@@ -1767,6 +1867,16 @@ export type Database = {
         Args: { user_email: string }
         Returns: boolean
       }
+      log_security_event: {
+        Args: {
+          p_details?: Json
+          p_event_type: string
+          p_ip_address?: string
+          p_user_agent?: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       mark_notifications_as_read: {
         Args: { notification_ids: string[] }
         Returns: string[]
@@ -1789,6 +1899,10 @@ export type Database = {
           successful: number
           total_processed: number
         }[]
+      }
+      reset_password_attempts: {
+        Args: { p_email: string }
+        Returns: undefined
       }
       standardize_buyer_phone: {
         Args: { phone_input: string }

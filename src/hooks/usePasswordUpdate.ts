@@ -24,7 +24,7 @@ export const usePasswordUpdate = () => {
   const passwordsMatch = passwordData.newPassword === passwordData.confirmPassword;
   const showMismatchError = passwordData.confirmPassword.length > 0 && !passwordsMatch;
 
-  const handlePasswordUpdate = async (e: React.FormEvent) => {
+  const handlePasswordUpdate = async (e: React.FormEvent): Promise<boolean> => {
     e.preventDefault();
     
     const passwordValidation = validatePassword(passwordData.newPassword);
@@ -34,7 +34,7 @@ export const usePasswordUpdate = () => {
         description: passwordValidation.error,
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     const matchValidation = validatePasswordMatch(passwordData.newPassword, passwordData.confirmPassword);
@@ -44,7 +44,7 @@ export const usePasswordUpdate = () => {
         description: matchValidation.error,
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     setIsUpdatingPassword(true);
@@ -65,12 +65,15 @@ export const usePasswordUpdate = () => {
         newPassword: "",
         confirmPassword: "",
       });
+      
+      return true;
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to update password. Please try again.",
         variant: "destructive",
       });
+      return false;
     } finally {
       setIsUpdatingPassword(false);
     }
