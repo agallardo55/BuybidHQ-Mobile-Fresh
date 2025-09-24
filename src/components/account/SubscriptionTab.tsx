@@ -117,7 +117,7 @@ export const SubscriptionTab = () => {
           <Button
             type="button"
             onClick={handleUpgradeSubscription}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
             disabled={account?.plan === 'group'}
           >
             {account?.plan === 'group' ? 'Current Plan' : 'Upgrade Subscription'}
