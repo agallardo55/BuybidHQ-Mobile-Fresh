@@ -1,6 +1,7 @@
 
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import carPlaceholder from "@/assets/car-placeholder.png";
 
 interface ImageCarouselProps {
   uploadedImages: string[];
@@ -19,7 +20,26 @@ const ImageCarousel = ({
 }: ImageCarouselProps) => {
   const sortedUploadedImages = [...uploadedImages].reverse();
 
-  if (sortedUploadedImages.length === 0 && selectedFileUrls.length === 0) return null;
+  // Show placeholder if no images are available
+  if (sortedUploadedImages.length === 0 && selectedFileUrls.length === 0) {
+    return (
+      <div className="mt-4">
+        <div className="w-full max-w-[95%] mx-auto">
+          <div className="flex gap-4 pb-4">
+            <div className="flex-none relative">
+              <div className="h-32 relative rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                <img 
+                  src={carPlaceholder} 
+                  alt="No vehicle photos available" 
+                  className="h-20 w-auto object-contain opacity-50"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4">
