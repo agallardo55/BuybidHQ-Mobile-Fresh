@@ -58,18 +58,18 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
       className="text-sm hover:bg-muted/50 cursor-pointer"
       onClick={onClick}
     >
-      <TableCell className="py-2 px-4 h-[44px] w-16">
+      <TableCell className="py-2 px-4 h-[44px] w-20">
         {request.primaryImage ? (
           <img 
             src={request.primaryImage} 
             alt="Vehicle thumbnail" 
-            className="w-10 h-10 object-cover rounded"
+            className="w-14 h-10 object-cover rounded"
           />
         ) : (
           <img 
             src={carPlaceholder} 
             alt="Vehicle placeholder" 
-            className="w-10 h-10 object-cover rounded opacity-50"
+            className="w-14 h-10 object-cover rounded opacity-50"
           />
         )}
       </TableCell>
