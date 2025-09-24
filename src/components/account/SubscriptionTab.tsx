@@ -14,12 +14,12 @@ export const SubscriptionTab = () => {
   const { account, isLoading } = useAccount();
   const { currentUser } = useCurrentUser();
 
-  // Early return for dealer users as a safety measure
-  if (currentUser?.role === 'dealer') {
+  // Show message for admin and dealer users
+  if (currentUser?.role === 'dealer' || currentUser?.role === 'admin') {
     return (
       <div className="p-6 text-center">
         <p className="text-gray-600">
-          Subscription management is not available for dealer users.
+          Subscription management is not available for {currentUser?.role} users.
         </p>
       </div>
     );
@@ -132,7 +132,7 @@ export const SubscriptionTab = () => {
           <Button
             type="button"
             onClick={handleUpgradeSubscription}
-            className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
             disabled={account?.plan === 'group'}
           >
             {account?.plan === 'group' ? 'Current Plan' : 'Upgrade Subscription'}
@@ -142,7 +142,7 @@ export const SubscriptionTab = () => {
               type="button"
               onClick={handleManageSubscription}
               variant="outline"
-              className="w-full"
+              className="w-full sm:w-auto"
             >
               Manage Payment Methods
             </Button>
