@@ -48,7 +48,7 @@ const FAQ = () => {
 
           <AccordionItem value="item-4" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
             <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
-              How are my BuybidHQ different than auctions
+              How is BuybidHQ different than auctions?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
               Unlike traditional auctions with fees, time constraints, and public bidding, BuyBidHQ lets you send private bid requests directly to your trusted network of buyers. You control who sees your vehicles, negotiate directly with buyers you know, and avoid auction fees while getting competitive offers on your timeline.
