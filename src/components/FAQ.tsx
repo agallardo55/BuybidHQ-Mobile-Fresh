@@ -30,10 +30,10 @@ const FAQ = () => {
 
           <AccordionItem value="item-2" className="border border-gray-800 rounded-lg px-6 bg-gray-900/50">
             <AccordionTrigger className="text-left text-white hover:text-primary">
-              What's the difference between the Independent and Dealer plans?
+              Are there any additional fees?
             </AccordionTrigger>
             <AccordionContent className="text-gray-300">
-              The Independent plan ($29/month) is perfect for single-user dealers with basic bid request features. The Dealer plan ($99/month) includes multi-user management, advanced analytics, priority support, and additional features for larger dealership operations.
+              No, there are not additional auction or processing fees. The offer you accept is the offer you and your buyer agree too.
             </AccordionContent>
           </AccordionItem>
 
