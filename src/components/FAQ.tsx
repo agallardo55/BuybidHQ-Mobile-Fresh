@@ -42,7 +42,7 @@ const FAQ = () => {
               Can I send bid requests via both SMS and email?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              Yes! We supports both SMS and email for sending bid requests. You can choose your preferred method or use both depending on your buyers' preferences and your communication strategy.
+              Yes! We support both SMS and email for sending bid requests. You can choose your preferred method or use both depending on your buyers' preferences and your communication strategy.
             </AccordionContent>
           </AccordionItem>
 
