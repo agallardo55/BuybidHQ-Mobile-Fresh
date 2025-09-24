@@ -33,7 +33,7 @@ const FAQ = () => {
               Are there any additional fees?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              No, there are not additional auction or processing fees. The offer you accept is the offer you and your buyer agree too.
+              No, there are no additional auction or processing fees. The offer you accept is the offer you and your buyer agree too.
             </AccordionContent>
           </AccordionItem>
 
