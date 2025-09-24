@@ -60,7 +60,7 @@ const FAQ = () => {
               Is there a mobile app available?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              Yes! BuyBidHQ is available as both a web application and mobile apps for iOS and Android (built with React/Capacitor). The mobile app includes all features including VIN scanning, photo capture, and bid management on the go.
+              Yes! BuyBidHQ is available as both a web application and mobile apps for iOS and Android. The mobile app includes all features including VIN scanning, photo capture, and bid management on the go.
             </AccordionContent>
           </AccordionItem>
 
