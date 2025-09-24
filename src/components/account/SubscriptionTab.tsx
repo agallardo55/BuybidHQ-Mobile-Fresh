@@ -123,7 +123,9 @@ export const SubscriptionTab = () => {
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div>
             <p className="font-medium">
-              {mainPlans.find(p => p.id === account?.plan)?.name || "Free Plan"}
+              {currentUser?.app_role === 'super_admin' ? 'Super Admin' :
+               currentUser?.app_role === 'account_admin' ? 'Admin' :
+               mainPlans.find(p => p.id === account?.plan)?.name || "Free Plan"}
             </p>
             <p className="text-sm text-gray-500">
               Status: {account?.billing_status?.charAt(0).toUpperCase() + account?.billing_status?.slice(1) || 'Active'}
