@@ -22,7 +22,7 @@ const Pricing = () => {
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">Simple, Flexible Pricing</h2>
           <p className="mt-4 text-lg text-gray-600">Choose the plan that's right for your business</p>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-4 lg:gap-8">
           {/* Beta Trial Plan */}
           <Card className="flex flex-col">
             <CardHeader>
@@ -87,6 +87,51 @@ const Pricing = () => {
             </CardContent>
             <CardFooter>
               <Button onClick={() => setShowWaitlist(true)} className="w-full bg-accent hover:bg-accent/90">Get Started</Button>
+            </CardFooter>
+          </Card>
+
+          {/* Annual Plan */}
+          <Card className="flex flex-col relative border-primary">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium">
+                Most Popular
+              </span>
+            </div>
+            <CardHeader>
+              <CardTitle className="text-2xl">Annual Plan</CardTitle>
+              <CardDescription>Best value for committed users</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <div className="mt-2 flex items-baseline">
+                <span className="text-3xl font-bold">$599</span>
+                <span className="ml-1 text-gray-500">/per yr</span>
+              </div>
+              <p className="mt-1 text-sm text-primary font-medium">Less than $50 per mo.</p>
+              <ul className="mt-6 space-y-4">
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>Unlimited buybids per mo.</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>Billed Annually</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>Dashboard Access</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>All Connect features</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-5 w-5 text-accent mr-2" />
+                  <span>Lifetime Rate Lock</span>
+                </li>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={() => setShowWaitlist(true)} className="w-full bg-primary hover:bg-primary/90">Get Started</Button>
             </CardFooter>
           </Card>
 
