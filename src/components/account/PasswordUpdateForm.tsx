@@ -99,7 +99,8 @@ export const PasswordUpdateForm = () => {
 
           <Button
             type="submit"
-            className="w-full sm:w-auto"
+            variant="default"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
             disabled={isUpdatingPassword || showMismatchError || !isPasswordValid}
           >
             {isUpdatingPassword ? (
