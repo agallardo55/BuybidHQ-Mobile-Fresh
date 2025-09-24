@@ -55,15 +55,6 @@ const FAQ = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-4" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
-              How is BuybidHQ different than auctions?
-            </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
-              Forget the hassle of auctions. BuyBidHQ lets you privately share vehicles with your trusted buyer network—no fees, no time pressure, just competitive offers when you're ready.
-            </AccordionContent>
-          </AccordionItem>
-
           <AccordionItem value="item-6" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
             <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
               Is there a mobile app available?
