@@ -55,15 +55,6 @@ const FAQ = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-5" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
-              Is my data secure and private?
-            </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
-              Absolutely. We use enterprise-grade security with Supabase backend, multi-factor authentication, encrypted data transmission, and secure cloud storage. Your vehicle data, buyer information, and bid details are protected with industry-standard security measures.
-            </AccordionContent>
-          </AccordionItem>
-
           <AccordionItem value="item-6" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
             <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
               Is there a mobile app available?
