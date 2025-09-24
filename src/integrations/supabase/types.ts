@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_administrators: {
+        Row: {
+          account_id: string
+          created_at: string | null
+          email: string
+          full_name: string
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          mobile_number: string | null
+          permissions: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string | null
+          email: string
+          full_name: string
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          mobile_number?: string | null
+          permissions?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          mobile_number?: string | null
+          permissions?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_administrators_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accounts: {
         Row: {
           billing_status: string | null
@@ -1260,6 +1313,56 @@ export type Database = {
         }
         Relationships: []
       }
+      super_administrators: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          mobile_number: string | null
+          permissions: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          mobile_number?: string | null
+          permissions?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          mobile_number?: string | null
+          permissions?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_administrators_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "super_administrators"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       superadmin: {
         Row: {
           created_at: string | null
@@ -1802,6 +1905,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: string
       }
+      get_user_effective_role: {
+        Args: { checking_user_id: string }
+        Returns: string
+      }
       get_user_profile: {
         Args: { user_id: string }
         Returns: Database["public"]["CompositeTypes"]["user_profile_type"]
@@ -1853,6 +1960,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_account_admin: {
+        Args: { checking_user_id: string; target_account_id?: string }
+        Returns: boolean
+      }
       is_admin: {
         Args: { checking_user_id: string }
         Returns: boolean
@@ -1867,6 +1978,10 @@ export type Database = {
       }
       is_primary_dealer: {
         Args: { checking_user_id: string; dealership_id: string }
+        Returns: boolean
+      }
+      is_super_admin: {
+        Args: { checking_user_id: string }
         Returns: boolean
       }
       is_superadmin: {
