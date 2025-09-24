@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BidRequest } from "../types";
 import VehicleDetails from "./VehicleDetails";
 import VehicleCondition from "./VehicleCondition";
@@ -8,12 +9,26 @@ import { Car, Eye, Wrench, DollarSign } from "lucide-react";
 
 interface BidRequestTabsProps {
   request: BidRequest;
+  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
+  onBidRequestStatusUpdate?: (requestId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
-const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
+const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: BidRequestTabsProps) => {
   // Helper function to capitalize first letter
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  // Helper function to get display text for status
+  const getStatusDisplayText = (status: string) => {
+    if (status.toLowerCase() === 'declined') return 'Not Selected';
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
+  const handleStatusUpdate = (offerId: string, value: "pending" | "accepted" | "declined") => {
+    if (onStatusUpdate) {
+      onStatusUpdate(offerId, value);
+    }
   };
   return (
     <Tabs defaultValue="details" className="mt-2">
@@ -80,25 +95,36 @@ const BidRequestTabs = ({ request }: BidRequestTabsProps) => {
               {request.offers.map((offer, index) => (
                 <div key={offer.id} className="border rounded-lg p-3 bg-gray-50">
                   <div className="flex justify-between items-start mb-2">
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-medium">{offer.buyerName}</h4>
                       <p className="text-sm text-gray-600">
                         Submitted on {new Date(offer.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-semibold text-green-600">
-                        ${offer.amount.toLocaleString()}
-                      </p>
-                      <Badge 
-                        variant={
-                          offer.status === 'accepted' ? 'default' : 
-                          offer.status === 'declined' ? 'destructive' : 
-                          'secondary'
-                        }
-                      >
-                        {capitalizeFirstLetter(offer.status)}
-                      </Badge>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-lg font-semibold text-green-600">
+                          ${offer.amount.toLocaleString()}
+                        </p>
+                      </div>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <Select
+                          value={offer.status.toLowerCase()}
+                          onValueChange={(value: "pending" | "accepted" | "declined") => handleStatusUpdate(offer.id, value)}
+                        >
+                          <SelectTrigger className={`w-[110px] h-8 text-sm focus:ring-0 focus:ring-offset-0
+                            ${offer.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
+                            ${offer.status.toLowerCase() === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
+                          `}>
+                            <SelectValue>{getStatusDisplayText(offer.status)}</SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending" className="data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-700 focus:!bg-gray-100 focus:!text-gray-700 [&>span:first-child]:hidden">Pending</SelectItem>
+                            <SelectItem value="accepted" className="data-[highlighted]:!bg-green-100 data-[highlighted]:!text-green-700 focus:!bg-green-100 focus:!text-green-700 [&>span:first-child]:hidden">Accepted</SelectItem>
+                            <SelectItem value="declined" className="data-[highlighted]:!bg-red-100 data-[highlighted]:!text-red-700 focus:!bg-red-100 focus:!text-red-700 [&>span:first-child]:hidden">Not Selected</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
                 </div>

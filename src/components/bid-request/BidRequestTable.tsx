@@ -77,6 +77,8 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
           request={selectedRequest}
           isOpen={isDialogOpen}
           onOpenChange={setIsDialogOpen}
+          onStatusUpdate={handleStatusUpdate}
+          onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
         />
       </>
     );
@@ -156,6 +158,8 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
         request={selectedRequest}
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        onStatusUpdate={handleStatusUpdate}
+        onBidRequestStatusUpdate={handleBidRequestStatusUpdate}
       />
     </>
   );

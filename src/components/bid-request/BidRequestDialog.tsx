@@ -12,9 +12,11 @@ interface BidRequestDialogProps {
   request: BidRequest | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
+  onBidRequestStatusUpdate?: (requestId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
-const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogProps) => {
+const BidRequestDialog = ({ request, isOpen, onOpenChange, onStatusUpdate, onBidRequestStatusUpdate }: BidRequestDialogProps) => {
   const [images, setImages] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -62,7 +64,11 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange }: BidRequestDialogPro
           </div>
 
           <div className="pb-4">
-            <BidRequestTabs request={request} />
+            <BidRequestTabs 
+              request={request} 
+              onStatusUpdate={onStatusUpdate}
+              onBidRequestStatusUpdate={onBidRequestStatusUpdate}
+            />
           </div>
           
           {/* Footer for visual breathing room */}
