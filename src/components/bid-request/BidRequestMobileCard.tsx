@@ -27,10 +27,12 @@ export const BidRequestMobileCard = ({
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
+      case 'approved':
         return 'default';
       case 'completed':
         return 'secondary';
       case 'cancelled':
+      case 'declined':
         return 'destructive';
       case 'pending':
       default:

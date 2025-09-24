@@ -80,9 +80,9 @@ export const transformBidRequest = (
   item: BidRequestDetails,
   offers: BidOffer[]
 ): BidRequest => {
-  const status = ["pending", "accepted", "declined"].includes(item.status.toLowerCase()) 
+  const status = ["pending", "accepted", "declined", "approved"].includes(item.status.toLowerCase()) 
     ? (item.status.toLowerCase() === "pending" ? "Pending" :
-       item.status.toLowerCase() === "accepted" ? "Active" : 
+       item.status.toLowerCase() === "approved" ? "Active" : 
        item.status.toLowerCase() === "declined" ? "Cancelled" : "Pending") as "Pending" | "Active" | "Completed" | "Cancelled"
     : "Pending";
 

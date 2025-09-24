@@ -41,6 +41,14 @@ export const useBidResponseMutation = () => {
           .neq('status', 'declined'); // Only update non-declined responses
 
         if (declineError) throw declineError;
+
+        // Update the bid request status to "Approved" when an offer is accepted
+        const { error: bidRequestUpdateError } = await supabase
+          .from('bid_requests')
+          .update({ status: 'Approved' })
+          .eq('id', currentResponse.bid_request_id);
+
+        if (bidRequestUpdateError) throw bidRequestUpdateError;
       }
     },
     onSuccess: (_, { status }) => {
