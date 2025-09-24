@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSecurityEvents } from "@/hooks/useSecurityEvents";
-import { SessionManager } from "./SessionManager";
 import { Shield, Activity, AlertTriangle, CheckCircle2, Clock, MapPin, Monitor } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -104,8 +103,6 @@ export const SecurityDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Active Sessions */}
-      <SessionManager />
 
       {/* Recent Security Events */}
       <Card>
