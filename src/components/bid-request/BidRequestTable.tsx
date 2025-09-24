@@ -79,7 +79,7 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <td colSpan={9} className="text-center py-8 text-muted-foreground">
                     No bid requests found
                   </td>
                 </tr>

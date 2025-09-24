@@ -1,5 +1,6 @@
 
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { BidRequest } from "../types";
 import carPlaceholder from "@/assets/car-placeholder.png";
@@ -28,22 +29,28 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
     }
     
     const highestOffer = summary.highestOffer ? `$${summary.highestOffer.toLocaleString()}` : 'N/A';
-    const statusText = summary.hasAcceptedOffer ? 'Accepted' : 
-                     summary.pendingCount > 0 ? 'Pending' : 'Declined';
     
     return (
       <div className="flex flex-col">
         <span className="font-medium">{summary.count} offer{summary.count !== 1 ? 's' : ''}</span>
         <span className="text-sm text-gray-600">High: {highestOffer}</span>
-        <span className={`text-xs px-1 py-0.5 rounded ${
-          summary.hasAcceptedOffer ? 'bg-green-100 text-green-700' :
-          summary.pendingCount > 0 ? 'bg-yellow-100 text-yellow-700' :
-          'bg-red-100 text-red-700'
-        }`}>
-          {statusText}
-        </span>
       </div>
     );
+  };
+
+  // Get status badge variant
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'default';
+      case 'completed':
+        return 'secondary';
+      case 'cancelled':
+        return 'destructive';
+      case 'pending':
+      default:
+        return 'outline';
+    }
   };
 
   return (
@@ -86,6 +93,11 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
         {formatOfferSummary()}
+      </TableCell>
+      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+        <Badge variant={getStatusBadgeVariant(request.status)}>
+          {request.status}
+        </Badge>
       </TableCell>
     </UITableRow>
   );

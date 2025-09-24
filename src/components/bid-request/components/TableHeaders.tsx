@@ -59,6 +59,7 @@ export const TableHeaders = ({ sortConfig, onSort }: TableHeadersProps) => (
       <TableHead className="text-sm">VIN</TableHead>
       <SortableHeader field="mileage" sortConfig={sortConfig} onSort={onSort}>Mileage</SortableHeader>
       <TableHead className="text-sm">Offers Summary</TableHead>
+      <TableHead className="text-sm">Status</TableHead>
     </TableRow>
   </TableHeader>
 );

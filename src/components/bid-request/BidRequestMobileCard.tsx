@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Car, Calendar, Users, Eye } from "lucide-react";
 import { BidRequest } from "./types";
@@ -22,14 +23,34 @@ export const BidRequestMobileCard = ({
     return `${summary.count} offer${summary.count !== 1 ? 's' : ''} • High: ${highestOffer}`;
   };
 
+  // Get status badge variant
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'default';
+      case 'completed':
+        return 'secondary';
+      case 'cancelled':
+        return 'destructive';
+      case 'pending':
+      default:
+        return 'outline';
+    }
+  };
+
   return (
     <Card className="mb-4">
       <CardContent className="p-4">
-        <div className="mb-3">
-          <h3 className="font-semibold text-base">
-            {request.year} {request.make} {request.model}
-          </h3>
-          <p className="text-sm text-muted-foreground">{request.trim}</p>
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <h3 className="font-semibold text-base">
+              {request.year} {request.make} {request.model}
+            </h3>
+            <p className="text-sm text-muted-foreground">{request.trim}</p>
+          </div>
+          <Badge variant={getStatusBadgeVariant(request.status)}>
+            {request.status}
+          </Badge>
         </div>
 
         <div className="space-y-2 mb-4">
