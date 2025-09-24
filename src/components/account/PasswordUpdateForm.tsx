@@ -58,23 +58,20 @@ export const PasswordUpdateForm = () => {
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button
-          type="submit"
-          size="sm"
-          className="bg-accent hover:bg-accent/90 text-accent-foreground"
-          disabled={isUpdatingPassword || showMismatchError}
-        >
-          {isUpdatingPassword ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Updating...
-            </>
-          ) : (
-            "Update Password"
-          )}
-        </Button>
-      </div>
+      <Button
+        type="submit"
+        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+        disabled={isUpdatingPassword || showMismatchError}
+      >
+        {isUpdatingPassword ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Updating...
+          </>
+        ) : (
+          "Update Password"
+        )}
+      </Button>
     </form>
   );
 };
