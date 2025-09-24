@@ -14,17 +14,6 @@ export const SubscriptionTab = () => {
   const { account, isLoading } = useAccount();
   const { currentUser } = useCurrentUser();
 
-  // Show message for admin and dealer users
-  if (currentUser?.role === 'dealer' || currentUser?.role === 'admin') {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-gray-600">
-          Subscription management is not available for {currentUser?.role} users.
-        </p>
-      </div>
-    );
-  }
-
   const handleManageSubscription = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('create-stripe-portal', {
