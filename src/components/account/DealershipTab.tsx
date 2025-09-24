@@ -25,9 +25,6 @@ const states = [
 export const DealershipTab = () => {
   const { formData, setFormData, handleChange, isLoading } = useAccountForm();
   const { toast } = useToast();
-  const { currentUser } = useCurrentUser();
-
-  const isAssociate = currentUser?.role === 'associate';
 
   const handleStateChange = (value: string) => {
     setFormData((prev) => ({
@@ -38,15 +35,6 @@ export const DealershipTab = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (isAssociate) {
-      toast({
-        title: "Unauthorized",
-        description: "Associates cannot modify dealership information.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     try {
       const { error } = await supabase
@@ -98,8 +86,6 @@ export const DealershipTab = () => {
               required
               value={formData.dealershipName}
               onChange={handleChange}
-              disabled={isAssociate}
-              className={isAssociate ? "bg-gray-100" : ""}
             />
           </div>
           <div>
@@ -113,8 +99,6 @@ export const DealershipTab = () => {
               placeholder="(Optional)"
               value={formData.licenseNumber}
               onChange={handleChange}
-              disabled={isAssociate}
-              className={isAssociate ? "bg-gray-100" : ""}
             />
           </div>
           <div>
@@ -128,8 +112,6 @@ export const DealershipTab = () => {
               required
               value={formData.dealershipAddress}
               onChange={handleChange}
-              disabled={isAssociate}
-              className={isAssociate ? "bg-gray-100" : ""}
             />
           </div>
           <div>
@@ -143,8 +125,6 @@ export const DealershipTab = () => {
               required
               value={formData.city}
               onChange={handleChange}
-              disabled={isAssociate}
-              className={isAssociate ? "bg-gray-100" : ""}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -155,9 +135,8 @@ export const DealershipTab = () => {
               <Select 
                 onValueChange={handleStateChange} 
                 value={formData.state}
-                disabled={isAssociate}
               >
-                <SelectTrigger className={isAssociate ? "bg-gray-100" : ""}>
+                <SelectTrigger>
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -183,8 +162,6 @@ export const DealershipTab = () => {
                 pattern="[0-9]{5}"
                 maxLength={5}
                 placeholder="12345"
-                disabled={isAssociate}
-                className={isAssociate ? "bg-gray-100" : ""}
               />
             </div>
           </div>
@@ -195,16 +172,10 @@ export const DealershipTab = () => {
         <Button
           type="submit"
           className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
-          disabled={isAssociate}
         >
           Save Changes
         </Button>
       </div>
-      {isAssociate && (
-        <p className="text-sm text-gray-500 text-center mt-2">
-          Only dealers can modify dealership information.
-        </p>
-      )}
       <div className="h-8 border-t mt-6"></div>
     </form>
   );
