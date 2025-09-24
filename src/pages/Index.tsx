@@ -5,6 +5,7 @@ import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
 import AnonymousBiddingFeature from "@/components/AnonymousBiddingFeature";
 import Pricing from "@/components/Pricing";
+import FAQ from "@/components/FAQ";
 import ContactUs from "@/components/ContactUs";
 import AppDownload from "@/components/AppDownload";
 import Footer from "@/components/Footer";
@@ -29,6 +30,7 @@ const Index = () => {
         <Features />
         {/* <AnonymousBiddingFeature /> */}
         <Pricing />
+        <FAQ />
         <ContactUs />
         <AppDownload />
         <Footer />
