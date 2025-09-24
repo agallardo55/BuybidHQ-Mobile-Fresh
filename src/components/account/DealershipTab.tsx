@@ -89,6 +89,37 @@ export const DealershipTab = () => {
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
+            <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700 mb-1">
+              Dealership Name
+            </label>
+            <Input
+              id="dealershipName"
+              name="dealershipName"
+              type="text"
+              value={formData.dealershipName}
+              onChange={handleChange}
+              placeholder="Business/Dealership name"
+              disabled
+              className="bg-gray-50"
+            />
+            <p className="text-xs text-gray-500 mt-1">Contact support to change dealership information</p>
+          </div>
+          <div>
+            <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
+              License Number
+            </label>
+            <Input
+              id="licenseNumber"
+              name="licenseNumber"
+              type="text"
+              value={formData.licenseNumber}
+              onChange={handleChange}
+              placeholder="Dealer license number"
+              disabled
+              className="bg-gray-50"
+            />
+          </div>
+          <div>
             <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">
               Address <span className="text-red-500">*</span>
             </label>

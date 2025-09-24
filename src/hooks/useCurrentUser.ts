@@ -25,6 +25,7 @@ export interface UserData {
   profile_photo: string | null;
   bid_request_email_enabled: boolean;
   bid_request_sms_enabled: boolean;
+  license_number?: string | null;
 }
 
 export const useCurrentUser = () => {
@@ -47,10 +48,18 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // Get user data from buybidhq_users table
+        // Get user data from buybidhq_users table with dealership info
         const { data: userDataArray, error: userError } = await supabase
           .from('buybidhq_users')
-          .select('*')
+          .select(`
+            *,
+            dealerships (
+              dealer_name,
+              business_phone,
+              business_email,
+              license_number
+            )
+          `)
           .eq('id', session.user.id)
           .single();
 
@@ -91,9 +100,10 @@ export const useCurrentUser = () => {
           state: userData.state,
           zip_code: userData.zip_code,
           dealership_id: userData.dealership_id,
-          dealer_name: null, // Will be populated from account if needed
-          business_phone: null,
-          business_email: null,
+          dealer_name: userData.dealerships?.dealer_name || null,
+          business_phone: userData.dealerships?.business_phone || null,
+          business_email: userData.dealerships?.business_email || null,
+          license_number: userData.dealerships?.license_number || null,
           phone_carrier: userData.phone_carrier,
           profile_photo: userData.profile_photo || null,
           bid_request_email_enabled: userData.bid_request_email_enabled ?? true,
