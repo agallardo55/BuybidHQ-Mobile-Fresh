@@ -48,10 +48,10 @@ const FAQ = () => {
 
           <AccordionItem value="item-4" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
             <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
-              How do I manage different user roles in my dealership?
+              How are my BuybidHQ different than auctions
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              BuyBidHQ offers multiple user roles: Basic (free trial), Independent (single-user), Associates (employees under Dealer control), Dealers (dealer employees), and Admin (dealer admins). Each role has appropriate permissions for managing bid requests and accessing dealership data.
+              Unlike traditional auctions with fees, time constraints, and public bidding, BuyBidHQ lets you send private bid requests directly to your trusted network of buyers. You control who sees your vehicles, negotiate directly with buyers you know, and avoid auction fees while getting competitive offers on your timeline.
             </AccordionContent>
           </AccordionItem>
 
