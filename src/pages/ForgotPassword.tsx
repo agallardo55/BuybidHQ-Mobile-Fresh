@@ -33,10 +33,6 @@ const ForgotPassword = () => {
         // User has MFA - show MFA verification form
         setMfaMethods(mfaCheck.methods || []);
         setShowMFAForm(true);
-        toast({
-          title: "MFA Required",
-          description: "Your account has multi-factor authentication enabled. Please verify your identity to reset your password.",
-        });
       } else {
         // No MFA - proceed with standard reset
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -46,10 +42,6 @@ const ForgotPassword = () => {
         if (error) throw error;
 
         setEmailSent(true);
-        toast({
-          title: "Check your email",
-          description: "If an account exists with this email, you will receive password reset instructions.",
-        });
       }
     } catch (error: any) {
       toast({

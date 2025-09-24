@@ -56,11 +56,6 @@ export const usePasswordUpdate = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Your password has been successfully updated.",
-      });
-
       setPasswordData({
         newPassword: "",
         confirmPassword: "",

@@ -53,10 +53,6 @@ export const SubscriptionTab = () => {
       if (currentPlan === "free") {
         const contactSection = document.getElementById('contact');
         if (contactSection) {
-          toast({
-            title: "Contact Sales",
-            description: "Please contact our sales team to upgrade your plan.",
-          });
           contactSection.scrollIntoView({ behavior: 'smooth' });
           return;
         } else {

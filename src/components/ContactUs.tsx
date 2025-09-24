@@ -86,11 +86,6 @@ const ContactUs = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Message sent successfully",
-        description: "We'll get back to you as soon as possible.",
-      });
-
       // Reset form
       setName("");
       setEmail("");

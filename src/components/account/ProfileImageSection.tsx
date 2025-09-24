@@ -86,11 +86,6 @@ export const ProfileImageSection = () => {
 
       // Invalidate current user query to refresh data
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-
-      toast({
-        title: "Success",
-        description: "Profile image updated successfully.",
-      });
     } catch (error: any) {
       console.error('Error uploading profile image:', error);
       toast({

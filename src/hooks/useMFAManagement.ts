@@ -56,11 +56,6 @@ export const useMFAManagement = () => {
       
       await enableMFA('email');
       
-      toast({
-        title: "Success",
-        description: "Email MFA has been enabled successfully",
-      });
-      
       checkMFAStatus();
     } catch (error: any) {
       console.error('Error enabling email MFA:', error);
@@ -113,11 +108,6 @@ export const useMFAManagement = () => {
       
       await enableMFA('sms');
       
-      toast({
-        title: "Success",
-        description: "SMS MFA has been enabled successfully",
-      });
-      
       checkMFAStatus();
     } catch (error: any) {
       console.error('Error enabling SMS MFA:', error);
@@ -137,10 +127,6 @@ export const useMFAManagement = () => {
   const handleDisableEmailMFA = async () => {
     try {
       await disableMFA('email');
-      toast({
-        title: "Success",
-        description: "Email MFA has been disabled successfully",
-      });
       checkMFAStatus();
     } catch (error: any) {
       console.error('Error disabling email MFA:', error);
@@ -155,10 +141,6 @@ export const useMFAManagement = () => {
   const handleDisableSMSMFA = async () => {
     try {
       await disableMFA('sms');
-      toast({
-        title: "Success",
-        description: "SMS MFA has been disabled successfully",
-      });
       checkMFAStatus();
     } catch (error: any) {
       console.error('Error disabling SMS MFA:', error);

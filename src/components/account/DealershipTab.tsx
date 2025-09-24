@@ -48,11 +48,6 @@ export const DealershipTab = () => {
         .eq('id', (await supabase.auth.getUser()).data.user?.id);
 
       if (error) throw error;
-
-      toast({
-        title: "Dealership updated",
-        description: "Your dealership details have been successfully updated.",
-      });
     } catch (error) {
       console.error('Error updating dealership:', error);
       toast({

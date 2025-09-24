@@ -22,19 +22,10 @@ const SecuritySection = ({ userEmail }: SecuritySectionProps) => {
       if (error) {
         // If the error is "User already registered", we can ignore it as it's expected
         if (error.message.includes("User already registered")) {
-          toast({
-            title: "Password reset email sent",
-            description: "Please check your email for the password reset link.",
-          });
           return;
         }
         throw error;
       }
-
-      toast({
-        title: "Password reset email sent",
-        description: "Please check your email for the password reset link.",
-      });
     } catch (error: any) {
       // Only show error toast for unexpected errors
       if (!error.message.includes("User already registered")) {

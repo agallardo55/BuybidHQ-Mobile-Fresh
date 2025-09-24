@@ -72,15 +72,9 @@ export const useNotifications = () => {
 
       if (error) throw error;
 
-      // Remove from local state
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (error) {
       console.error('Error clearing notification:', error);
-      toast({
-        title: "Error",
-        description: "Failed to clear notification",
-        variant: "destructive",
-      });
     }
   };
 

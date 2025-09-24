@@ -83,10 +83,6 @@ export const useMFAChallenge = (
 
       setVerificationCode(''); // Reset to show input
       setCodeSent(true); // Show verification code section
-      toast({
-        title: "Code Sent",
-        description: `Verification code sent via ${method === 'email' ? 'email' : 'SMS'}`,
-      });
 
       return true;
     } catch (err: any) {
@@ -124,11 +120,7 @@ export const useMFAChallenge = (
       }
 
       // MFA verification successful - user is now authenticated
-      toast({
-        title: "Success",
-        description: "Multi-factor authentication verified successfully",
-      });
-
+      
       return true;
     } catch (err: any) {
       console.error('Error verifying MFA challenge:', err);

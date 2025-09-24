@@ -39,11 +39,6 @@ export const usePasswordReset = (): PasswordResetHook => {
       });
 
       if (error) throw error;
-
-      toast({
-        title: "Code Sent",
-        description: `Verification code sent via ${method === 'email' ? 'email' : 'SMS'}`,
-      });
     } catch (error: any) {
       console.error('Error sending MFA challenge:', error);
       throw error;

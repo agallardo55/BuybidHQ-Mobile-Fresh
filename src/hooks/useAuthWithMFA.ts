@@ -82,10 +82,6 @@ export const useAuthWithMFA = () => {
             if (!sendError) {
               // Code sent successfully
               params.set('codeSent', 'true');
-              toast({
-                title: "Code Sent",
-                description: "Verification code sent via email",
-              });
             } else {
               console.error('Error auto-sending MFA code:', sendError);
               // Fall back to manual sending
@@ -108,11 +104,7 @@ export const useAuthWithMFA = () => {
       }
 
       // No MFA enabled, normal sign in successful
-      toast({
-        title: "Success",
-        description: "Signed in successfully",
-      });
-
+      
       // Navigate to intended destination
       navigate(redirectTo || '/dashboard');
       return true;
@@ -136,10 +128,6 @@ export const useAuthWithMFA = () => {
 
       // With native Supabase OTP, the user is already authenticated after verifyOtp
       // We just need to navigate to the intended destination
-      toast({
-        title: "Success",
-        description: "Login completed successfully",
-      });
 
       navigate(redirectTo || '/dashboard');
       return true;
