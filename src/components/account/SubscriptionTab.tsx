@@ -191,56 +191,54 @@ export const SubscriptionTab = () => {
       {/* Available Plans */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900">Available Plans</h3>
-        <div className="flex flex-wrap gap-4 justify-center">
+        <div className="space-y-3">
           {mainPlans.map((plan) => (
-            <Card key={plan.id} className={`flex flex-col w-full sm:w-64 ${plan.id === 'annual' ? 'relative border-accent' : ''}`}>
-              {plan.badge && (
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-medium">
-                    {plan.badge}
-                  </span>
+            <div key={plan.id} className={`flex items-center justify-between p-4 border rounded-lg ${plan.id === 'annual' ? 'border-accent bg-accent/5' : 'border-border'}`}>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-medium text-gray-900">{plan.name}</h4>
+                  {plan.badge && (
+                    <span className="bg-accent text-accent-foreground px-2 py-1 rounded-full text-xs font-medium">
+                      {plan.badge}
+                    </span>
+                  )}
                 </div>
-              )}
-              <CardHeader className={`text-center ${plan.badge ? "pt-8" : ""}`}>
-                <CardTitle className="text-lg">{plan.name}</CardTitle>
-                <CardDescription className="text-sm">{plan.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow text-center">
-                <div className="flex items-baseline justify-center">
-                  <span className="text-2xl font-bold">{plan.price}</span>
-                  <span className="ml-1 text-sm text-gray-500">{plan.period}</span>
+                <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
+                <div className="flex items-baseline gap-1 mt-2">
+                  <span className="text-xl font-bold text-gray-900">{plan.price}</span>
+                  <span className="text-sm text-gray-500">{plan.period}</span>
+                  {plan.note && (
+                    <span className="ml-2 text-xs text-accent font-medium">• {plan.note}</span>
+                  )}
                 </div>
-                {plan.note && (
-                  <p className="mt-2 text-xs text-accent font-medium">{plan.note}</p>
-                )}
-              </CardContent>
-              <CardFooter className="pt-0">
+              </div>
+              <div className="ml-4">
                 {(currentUser?.app_role === 'super_admin' || currentUser?.app_role === 'account_admin') ? (
-                  <Button disabled className="w-full bg-gray-100 text-gray-500">
+                  <Button disabled variant="outline" className="bg-gray-100 text-gray-500">
                     Admin Access
                   </Button>
                 ) : account?.plan === plan.id ? (
-                  <Button disabled className="w-full bg-green-100 text-green-700 hover:bg-green-100">
+                  <Button disabled variant="outline" className="bg-green-100 text-green-700 hover:bg-green-100">
                     <Check className="h-4 w-4 mr-2" />
                     Current Plan
                   </Button>
                 ) : plan.isCustom ? (
                   <Button
                     onClick={() => navigate('/#contact')}
-                    className="w-full bg-accent hover:bg-accent/90"
+                    className="bg-accent hover:bg-accent/90"
                   >
                     Contact Sales
                   </Button>
                 ) : (
                   <Button
                     onClick={() => handleUpgradeSubscription(plan.id as PlanType)}
-                    className="w-full bg-accent hover:bg-accent/90"
+                    className="bg-accent hover:bg-accent/90"
                   >
                     {plan.id === 'free' ? 'Start Free Trial' : 'Get Started'}
                   </Button>
                 )}
-              </CardFooter>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       </div>
