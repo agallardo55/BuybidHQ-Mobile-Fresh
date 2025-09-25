@@ -155,17 +155,21 @@ export const useMFAChallenge = (
         }
 
         // For SMS MFA, we need to complete the login manually since Supabase native auth isn't used
-        const { error: signInError } = await supabase.functions.invoke('complete-mfa-login', {
+        const { data: loginData, error: signInError } = await supabase.functions.invoke('complete-mfa-login', {
           body: { 
             email
           }
         });
 
-        if (signInError) {
+        if (signInError || !loginData?.loginUrl) {
           console.error('Error completing SMS MFA login:', signInError);
           setError('Login completion failed');
           return false;
         }
+
+        // Redirect to the magic link to complete authentication
+        window.location.href = loginData.loginUrl;
+        return true;
       } else {
         setError(`${method} verification is not supported`);
         return false;
