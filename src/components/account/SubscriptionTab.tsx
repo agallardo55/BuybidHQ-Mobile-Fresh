@@ -115,57 +115,32 @@ export const SubscriptionTab = () => {
     {
       id: 'free',
       name: 'Free Plan',
-      description: 'Perfect for the individual members',
+      description: '10 buybids per month',
       price: '$0',
-      period: '/per mo.',
-      features: [
-        '10 buybids per mo.',
-        'Unlimited buyer connections',
-        'Dashboard Access'
-      ],
+      period: '/mo',
     },
     {
       id: 'connect',
       name: 'Connect Plan',
-      description: 'For buyers looking to expand their network',
+      description: 'Unlimited buybids monthly',
       price: '$99',
-      period: '/per mo',
-      features: [
-        'Unlimited buybids per mo.',
-        'Billed Monthly',
-        'Dashboard Access',
-        'All Basic features'
-      ],
+      period: '/mo',
     },
     {
       id: 'annual',
       name: 'Annual Plan',
-      description: 'Best value for committed users',
+      description: 'Best value - unlimited buybids',
       price: '$599',
-      period: '/per yr',
+      period: '/yr',
       badge: 'Limited Time Offer',
       note: 'Less than $50 per mo.',
-      features: [
-        'Unlimited buybids per mo.',
-        'Billed Annually',
-        'Dashboard Access',
-        'All Connect features',
-        'Lifetime Rate Lock'
-      ],
     },
     {
       id: 'dealership',
       name: 'Dealership Plan',
-      description: 'For multi-store group members',
+      description: 'Multi-user access & analytics',
       price: 'Custom',
       period: '/month',
-      features: [
-        'Unlimited buybids per mo.',
-        'Multi-user access',
-        'Dashboard Access',
-        'Buybid Analytics',
-        'Marketplace Access'
-      ],
       isCustom: true,
     },
   ];
@@ -216,9 +191,9 @@ export const SubscriptionTab = () => {
       {/* Available Plans */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900">Available Plans</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex flex-wrap gap-4 justify-center">
           {mainPlans.map((plan) => (
-            <Card key={plan.id} className={`flex flex-col ${plan.id === 'annual' ? 'relative border-accent' : ''}`}>
+            <Card key={plan.id} className={`flex flex-col w-full sm:w-64 ${plan.id === 'annual' ? 'relative border-accent' : ''}`}>
               {plan.badge && (
                 <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
                   <span className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-medium">
@@ -226,28 +201,20 @@ export const SubscriptionTab = () => {
                   </span>
                 </div>
               )}
-              <CardHeader className={plan.badge ? "pt-8" : ""}>
-                <CardTitle className="text-xl sm:text-2xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
+              <CardHeader className={`text-center ${plan.badge ? "pt-8" : ""}`}>
+                <CardTitle className="text-lg">{plan.name}</CardTitle>
+                <CardDescription className="text-sm">{plan.description}</CardDescription>
               </CardHeader>
-              <CardContent className="flex-grow">
-                <div className="mt-2 flex items-baseline">
-                  <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
-                  <span className="ml-1 text-sm sm:text-base text-gray-500">{plan.period}</span>
+              <CardContent className="flex-grow text-center">
+                <div className="flex items-baseline justify-center">
+                  <span className="text-2xl font-bold">{plan.price}</span>
+                  <span className="ml-1 text-sm text-gray-500">{plan.period}</span>
                 </div>
                 {plan.note && (
-                  <p className="mt-1 text-xs sm:text-sm text-accent font-medium">{plan.note}</p>
+                  <p className="mt-2 text-xs text-accent font-medium">{plan.note}</p>
                 )}
-                <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center">
-                      <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                      <span className="text-sm sm:text-base">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="pt-0">
                 {(currentUser?.app_role === 'super_admin' || currentUser?.app_role === 'account_admin') ? (
                   <Button disabled className="w-full bg-gray-100 text-gray-500">
                     Admin Access
