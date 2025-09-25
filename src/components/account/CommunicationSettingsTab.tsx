@@ -76,7 +76,7 @@ export const CommunicationSettingsTab = () => {
             Communication Preferences
           </CardTitle>
           <CardDescription>
-            Choose how you want to receive bid request notifications
+            Choose how you want to send bid requests to buyers
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -86,7 +86,7 @@ export const CommunicationSettingsTab = () => {
             <div className="flex-1 space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="email-notifications" className="text-base font-medium">
-                  Email Notifications
+                  Send via Email
                 </Label>
                 <Switch
                   id="email-notifications"
@@ -95,7 +95,7 @@ export const CommunicationSettingsTab = () => {
                 />
               </div>
               <p className="text-sm text-muted-foreground">
-                Receive bid request notifications via email. This includes new bids, responses, and updates.
+                Send bid requests to buyers via email. This includes new bid requests and updates.
               </p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export const CommunicationSettingsTab = () => {
             <div className="flex-1 space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="sms-notifications" className="text-base font-medium">
-                  SMS Notifications
+                  Send via SMS
                 </Label>
                 <Switch
                   id="sms-notifications"
@@ -117,10 +117,10 @@ export const CommunicationSettingsTab = () => {
                 />
               </div>
               <p className="text-sm text-muted-foreground">
-                Receive bid request notifications via SMS to your mobile number. 
+                Send bid requests to buyers via SMS to their mobile numbers. 
                 {!currentUser?.mobile_number && (
                   <span className="text-destructive">
-                    {" "}You need to add a mobile number in your personal information to enable SMS notifications.
+                    {" "}You need to add a mobile number in your personal information to enable SMS sending.
                   </span>
                 )}
               </p>
@@ -141,7 +141,7 @@ export const CommunicationSettingsTab = () => {
             
             {!smsEnabled && !emailEnabled && (
               <p className="text-sm text-destructive mt-2">
-                At least one notification method must be enabled.
+                At least one sending method must be enabled.
               </p>
             )}
           </div>
@@ -153,10 +153,10 @@ export const CommunicationSettingsTab = () => {
           <CardTitle>Important Notes</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>• Email notifications are sent instantly when bid responses are received.</p>
-          <p>• SMS notifications require a verified mobile number.</p>
+          <p>• Bid requests are sent instantly to selected buyers.</p>
+          <p>• SMS sending requires valid mobile numbers for buyers.</p>
           <p>• You can change these preferences at any time.</p>
-          <p>• Critical account notifications will still be sent via email regardless of these settings.</p>
+          <p>• Account notifications will still be sent via email regardless of these settings.</p>
         </CardContent>
       </Card>
     </div>
