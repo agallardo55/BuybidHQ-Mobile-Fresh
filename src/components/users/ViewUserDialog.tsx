@@ -27,7 +27,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] min-h-[400px]">
         <DialogHeader>
           <DialogTitle>User Details</DialogTitle>
         </DialogHeader>
@@ -37,7 +37,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
             <TabsTrigger value="dealership">Dealership</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="personal" className="mt-4 space-y-0">
+          <TabsContent value="personal" className="mt-4 space-y-0 min-h-[300px]">
             <InfoRow label="Full Name" value={user.full_name} />
             <InfoRow label="Email" value={user.email} />
             <InfoRow label="Role" value={user.role} />
@@ -58,7 +58,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
             </div>
           </TabsContent>
           
-          <TabsContent value="dealership" className="mt-4 space-y-0">
+          <TabsContent value="dealership" className="mt-4 space-y-0 min-h-[300px]">
             {user.dealership ? (
               <>
                 <InfoRow label="Dealership Name" value={user.dealership.dealer_name} />
