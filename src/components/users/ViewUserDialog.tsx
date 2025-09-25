@@ -37,7 +37,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
             <TabsTrigger value="dealership">Dealership</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="personal" className="space-y-0 overflow-y-auto">
+          <TabsContent value="personal" className="space-y-0 overflow-y-auto min-h-[320px]">
             <InfoRow label="Full Name" value={user.full_name} />
             <InfoRow label="Email" value={user.email} />
             <InfoRow label="Role" value={user.role} />
@@ -49,7 +49,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
             <InfoRow label="ZIP Code" value={user.zip_code} />
           </TabsContent>
           
-          <TabsContent value="dealership" className="space-y-0 overflow-y-auto">
+          <TabsContent value="dealership" className="space-y-0 overflow-y-auto min-h-[320px] flex flex-col">
             {user.dealership ? (
               <>
                 <InfoRow label="Dealership Name" value={user.dealership.dealer_name} />
