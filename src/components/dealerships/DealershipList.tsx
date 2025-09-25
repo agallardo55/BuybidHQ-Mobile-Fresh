@@ -73,7 +73,7 @@ const DealershipList = ({
             <TableHead className="whitespace-nowrap text-xs">Dealer ID</TableHead>
             <TableHead className="whitespace-nowrap text-xs">Contact</TableHead>
             <TableHead className="whitespace-nowrap text-xs">Location</TableHead>
-            <TableHead className="whitespace-nowrap text-xs">Primary Dealer</TableHead>
+            <TableHead className="whitespace-nowrap text-xs">Account Admin</TableHead>
             <TableHead className="whitespace-nowrap text-xs">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -91,8 +91,8 @@ const DealershipList = ({
                 <div className="text-sm text-gray-500">{dealership.state}</div>
               </TableCell>
               <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                <div>{dealership.primary_dealer?.full_name}</div>
-                <div className="text-sm text-gray-500">{dealership.primary_dealer?.email}</div>
+                <div>{dealership.account_admin?.full_name || 'Not Assigned'}</div>
+                <div className="text-sm text-gray-500">{dealership.account_admin?.email || 'N/A'}</div>
               </TableCell>
               <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                 <div className="flex items-center gap-2">

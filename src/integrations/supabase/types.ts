@@ -780,6 +780,8 @@ export type Database = {
           last_updated_at: string | null
           last_updated_by: string | null
           license_number: string | null
+          migrated_to_account_admin: boolean | null
+          migration_date: string | null
           notes: string | null
           primary_assigned_at: string | null
           primary_dealer_email: string | null
@@ -804,6 +806,8 @@ export type Database = {
           last_updated_at?: string | null
           last_updated_by?: string | null
           license_number?: string | null
+          migrated_to_account_admin?: boolean | null
+          migration_date?: string | null
           notes?: string | null
           primary_assigned_at?: string | null
           primary_dealer_email?: string | null
@@ -828,6 +832,8 @@ export type Database = {
           last_updated_at?: string | null
           last_updated_by?: string | null
           license_number?: string | null
+          migrated_to_account_admin?: boolean | null
+          migration_date?: string | null
           notes?: string | null
           primary_assigned_at?: string | null
           primary_dealer_email?: string | null
@@ -1697,6 +1703,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: Json
       }
+      can_manage_dealership: {
+        Args: { checking_user_id: string; target_dealership_id: string }
+        Returns: boolean
+      }
       can_manage_user: {
         Args: { manager_id: string; target_user_id: string }
         Returns: boolean
@@ -1974,6 +1984,10 @@ export type Database = {
       }
       is_dealer: {
         Args: { checking_user_id: string }
+        Returns: boolean
+      }
+      is_dealership_admin: {
+        Args: { checking_user_id: string; target_dealership_id: string }
         Returns: boolean
       }
       is_primary_dealer: {

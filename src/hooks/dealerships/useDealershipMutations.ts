@@ -63,17 +63,33 @@ export const useDealershipMutations = () => {
         throw new Error(`Failed to create admin user: ${userError.message}`);
       }
 
-      // Update dealership with primary user
-      const { error: updateError } = await supabase
-        .from('dealerships')
-        .update({ 
-          primary_user_id: userResult.id,
-          primary_assigned_at: new Date().toISOString()
-        })
-        .eq('id', dealershipResult.id);
+      // Create account administrator entry
+      const { error: accountAdminError } = await supabase
+        .from('account_administrators')
+        .insert([{
+          user_id: userResult.id,
+          account_id: userResult.account_id,
+          email: userResult.email,
+          full_name: userResult.full_name,
+          mobile_number: userResult.mobile_number,
+          status: 'active',
+          granted_by: userResult.id, // Self-granted during creation
+          granted_at: new Date().toISOString()
+        }]);
 
-      if (updateError) {
-        console.error('Primary user assignment error:', updateError);
+      if (accountAdminError) {
+        console.error('Account admin creation error:', accountAdminError);
+        // Don't fail the whole operation for this
+      }
+
+      // Update user app_role to account_admin
+      const { error: roleUpdateError } = await supabase
+        .from('buybidhq_users')
+        .update({ app_role: 'account_admin' })
+        .eq('id', userResult.id);
+
+      if (roleUpdateError) {
+        console.error('Role update error:', roleUpdateError);
         // Don't fail the whole operation for this
       }
 

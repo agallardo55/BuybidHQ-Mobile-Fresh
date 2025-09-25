@@ -43,29 +43,56 @@ export const useDealershipsQuery = ({ pageSize, currentPage, searchTerm }: Deale
           throw dealershipsError;
         }
 
-        // Then get the primary dealer information separately
-        const primaryUserIds = dealerships
-          ?.filter(d => d.primary_user_id)
-          .map(d => d.primary_user_id) || [];
+        // Then get the account admin information for each dealership
+        const dealershipIds = dealerships?.map(d => d.id) || [];
+        
+        // Get account admins for these dealerships using a simpler approach
+        const { data: accountAdmins, error: accountAdminsError } = await supabase
+          .from('account_administrators')
+          .select(`
+            user_id,
+            full_name,
+            email,
+            mobile_number,
+            account_id
+          `)
+          .eq('status', 'active');
 
-        const { data: primaryDealers, error: primaryDealersError } = await supabase
-          .from('buybidhq_users')
-          .select('id, full_name, email, mobile_number')
-          .in('id', primaryUserIds);
-
-        if (primaryDealersError) {
-          console.error('Error fetching primary dealers:', primaryDealersError);
-          throw primaryDealersError;
+        if (accountAdminsError) {
+          console.error('Error fetching account admins:', accountAdminsError);
+          throw accountAdminsError;
         }
 
-        // Map primary dealers to dealerships
-        const dealershipsWithPrimaryDealer = dealerships?.map(dealership => ({
-          ...dealership,
-          primary_dealer: primaryDealers?.find(pd => pd.id === dealership.primary_user_id) || null
-        })) || [];
+        // Get user dealership mappings
+        const userIds = accountAdmins?.map(admin => admin.user_id) || [];
+        const { data: users, error: usersError } = await supabase
+          .from('buybidhq_users')
+          .select('id, dealership_id')
+          .in('id', userIds);
+
+        if (usersError) {
+          console.error('Error fetching users:', usersError);
+          throw usersError;
+        }
+
+        // Map account admins to dealerships
+        const dealershipsWithAccountAdmin = dealerships?.map(dealership => {
+          const user = users?.find(u => u.dealership_id === dealership.id);
+          const admin = user ? accountAdmins?.find(admin => admin.user_id === user.id) : null;
+          
+          return {
+            ...dealership,
+            account_admin: admin ? {
+              id: admin.user_id,
+              full_name: admin.full_name,
+              email: admin.email,
+              mobile_number: admin.mobile_number
+            } : null
+          };
+        }) || [];
 
         return {
-          dealerships: dealershipsWithPrimaryDealer as Dealership[],
+          dealerships: dealershipsWithAccountAdmin as Dealership[],
           total: count || 0
         };
       } catch (error: any) {

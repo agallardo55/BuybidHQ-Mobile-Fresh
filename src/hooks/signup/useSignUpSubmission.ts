@@ -88,10 +88,6 @@ export const useSignUpSubmission = ({
               city: formData.city,
               state: formData.state,
               zip_code: formData.zipCode,
-              primary_user_id: authData.user.id,
-              primary_dealer_name: formData.fullName,
-              primary_dealer_email: formData.email,
-              primary_dealer_phone: formData.mobileNumber,
               dealer_type: 'multi_user',
               is_active: true,
             }
@@ -107,7 +103,7 @@ export const useSignUpSubmission = ({
       }
 
       // Step 4: Update the user record - both individual and pay-per-bid get 'individual' role
-      const { error: userError } = await supabase
+      const { data: updatedUser, error: userError } = await supabase
         .from('buybidhq_users')
         .update({
           full_name: formData.fullName,
@@ -122,12 +118,35 @@ export const useSignUpSubmission = ({
           is_active: true,
           status: ['individual', 'pay-per-bid'].includes(formData.planType) ? 'pending_payment' : 'active',
           sms_consent: formData.smsConsent,
+          app_role: dealershipId ? 'account_admin' : 'member', // First user in dealership becomes account admin
           ...(formData.carrier ? { phone_carrier: formData.carrier } : {})
         })
-        .eq('id', authData.user.id);
+        .eq('id', authData.user.id)
+        .select()
+        .single();
 
       if (userError) {
         throw userError;
+      }
+
+      // Step 4.5: If this is a multi-user dealership, make the user an account admin
+      if (dealershipId && updatedUser.account_id) {
+        const { error: accountAdminError } = await supabase
+          .from('account_administrators')
+          .insert({
+            user_id: authData.user.id,
+            account_id: updatedUser.account_id,
+            email: formData.email,
+            full_name: formData.fullName,
+            mobile_number: formData.mobileNumber,
+            status: 'active',
+            granted_by: authData.user.id, // Self-granted during signup
+            granted_at: new Date().toISOString()
+          });
+
+        if (accountAdminError && !accountAdminError.message.includes('duplicate key')) {
+          console.error('Account admin creation error:', accountAdminError);
+        }
       }
 
       // Step 5: Create subscription record with appropriate payment type

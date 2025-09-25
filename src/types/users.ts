@@ -46,7 +46,7 @@ export interface Dealership {
 // Extended user interface with dealership information
 export interface User extends BaseUser {
   dealership?: Dealership | null;
-  isPrimaryDealer?: boolean;
+  isAccountAdmin?: boolean;
 }
 
 // Form data interfaces for consistent shape across components
@@ -61,7 +61,7 @@ export interface UserFormData {
   zipCode?: string;
   dealershipId?: string;
   isActive: boolean;
-  isPrimaryDealer?: boolean;
+  isAccountAdmin?: boolean;
   phoneCarrier?: string;
   phoneValidated?: boolean;
 }

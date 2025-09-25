@@ -54,17 +54,9 @@ const DealershipInformationSection = ({
     onDealershipDataChange({ businessPhone: formattedNumber });
   };
 
-  const handlePrimaryDealerChange = (checked: boolean) => {
-    // Update the isPrimaryDealer state
-    onFormDataChange({ isPrimaryDealer: checked });
-    
-    // If becoming primary dealer, update the primaryUserId
-    if (checked) {
-      onDealershipDataChange({ primaryUserId: formData.dealershipId });
-    } else {
-      // If unchecking, clear the primaryUserId
-      onDealershipDataChange({ primaryUserId: undefined });
-    }
+  const handleAccountAdminChange = (checked: boolean) => {
+    // Update the isAccountAdmin state
+    onFormDataChange({ isAccountAdmin: checked });
   };
 
   return (
@@ -117,12 +109,12 @@ const DealershipInformationSection = ({
           {formData.role === 'dealer' && (
             <div className="flex items-center space-x-2">
               <Switch
-                id="isPrimaryDealer"
-                checked={formData.isPrimaryDealer}
-                onCheckedChange={handlePrimaryDealerChange}
+                id="isAccountAdmin"
+                checked={formData.isAccountAdmin}
+                onCheckedChange={handleAccountAdminChange}
                 className="data-[state=checked]:bg-custom-blue data-[state=unchecked]:bg-input"
               />
-              <Label htmlFor="isPrimaryDealer">Dealer Admin</Label>
+              <Label htmlFor="isAccountAdmin">Account Admin</Label>
             </div>
           )}
         </div>

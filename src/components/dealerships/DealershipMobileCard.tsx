@@ -39,12 +39,12 @@ export const DealershipMobileCard = ({
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <span>{dealership.city}, {dealership.state}</span>
           </div>
-          {dealership.primary_dealer && (
+          {dealership.account_admin && (
             <div className="flex items-center gap-2 text-sm">
               <User className="h-4 w-4 text-muted-foreground" />
               <div>
-                <div>{dealership.primary_dealer.full_name}</div>
-                <div className="text-xs text-muted-foreground">{dealership.primary_dealer.email}</div>
+                <div>{dealership.account_admin.full_name || 'Account Admin'}</div>
+                <div className="text-xs text-muted-foreground">{dealership.account_admin.email}</div>
               </div>
             </div>
           )}

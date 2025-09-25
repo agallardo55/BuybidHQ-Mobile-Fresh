@@ -13,12 +13,12 @@ export interface Dealership {
   license_number: string | null;
   website: string | null;
   notes: string | null;
-  primary_user_id: string | null;
-  primary_assigned_at: string | null;
+  primary_user_id: string | null; // Deprecated - will be removed after migration
+  primary_assigned_at: string | null; // Deprecated - will be removed after migration
   last_updated_at: string | null;
   last_updated_by: string | null;
   created_at: string;
-  primary_dealer?: {
+  account_admin?: {
     id: string;
     full_name: string | null;
     email: string;

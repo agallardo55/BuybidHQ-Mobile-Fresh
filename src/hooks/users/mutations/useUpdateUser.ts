@@ -23,8 +23,6 @@ export const useUpdateUser = () => {
           city: dealershipData.city,
           state: dealershipData.state,
           zip_code: dealershipData.zipCode,
-          // Update primary_user_id if applicable
-          ...(userData.isPrimaryDealer && { primary_user_id: userId })
         };
 
         if (dealershipId) {
@@ -46,16 +44,6 @@ export const useUpdateUser = () => {
           if (createError) throw createError;
           dealershipId = newDealership.id;
         }
-
-        // If this user is no longer the primary dealer, remove their primary_user_id
-        if (!userData.isPrimaryDealer) {
-          const { error: clearPrimaryError } = await supabase
-            .from('dealerships')
-            .update({ primary_user_id: null })
-            .eq('primary_user_id', userId);
-
-          if (clearPrimaryError) throw clearPrimaryError;
-        }
       }
 
       // Update user
@@ -65,12 +53,45 @@ export const useUpdateUser = () => {
         .update({
           ...transformedUser,
           dealership_id: dealershipId,
+          app_role: userData.isAccountAdmin ? 'account_admin' : 'member'
         })
         .eq('id', userId)
         .select()
         .single();
 
       if (userError) throw userError;
+
+      // Handle account admin status
+      if (userData.isAccountAdmin && user.account_id) {
+        // Create or update account administrator record
+        const { error: accountAdminError } = await supabase
+          .from('account_administrators')
+          .upsert({
+            user_id: userId,
+            account_id: user.account_id,
+            email: user.email,
+            full_name: user.full_name,
+            mobile_number: user.mobile_number,
+            status: 'active',
+            granted_by: (await supabase.auth.getSession()).data.session?.user?.id,
+            granted_at: new Date().toISOString()
+          });
+
+        if (accountAdminError) {
+          console.error('Account admin upsert error:', accountAdminError);
+        }
+      } else {
+        // Remove account admin status if unchecked
+        const { error: removeAdminError } = await supabase
+          .from('account_administrators')
+          .update({ status: 'inactive' })
+          .eq('user_id', userId);
+
+        if (removeAdminError) {
+          console.error('Remove admin error:', removeAdminError);
+        }
+      }
+
       return user;
     },
     onSuccess: () => {

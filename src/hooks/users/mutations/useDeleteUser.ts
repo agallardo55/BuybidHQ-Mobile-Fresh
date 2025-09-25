@@ -18,27 +18,14 @@ export const useDeleteUser = () => {
 
       if (fetchError) throw fetchError;
 
-      // If user is a primary dealer, we need to handle that first
-      if (user.role === 'dealer') {
-        const { data: dealership, error: dealershipError } = await supabase
-          .from('dealerships')
-          .select('primary_user_id')
-          .eq('primary_user_id', userId)
-          .single();
+      // Remove account admin status if this user was an account admin
+      const { error: removeAdminError } = await supabase
+        .from('account_administrators')
+        .update({ status: 'inactive' })
+        .eq('user_id', userId);
 
-        if (dealershipError && !dealershipError.message.includes('No rows found')) {
-          throw dealershipError;
-        }
-
-        if (dealership) {
-          // Clear the primary_user_id before deleting
-          const { error: clearPrimaryError } = await supabase
-            .from('dealerships')
-            .update({ primary_user_id: null })
-            .eq('primary_user_id', userId);
-
-          if (clearPrimaryError) throw clearPrimaryError;
-        }
+      if (removeAdminError) {
+        console.error('Remove admin error:', removeAdminError);
       }
 
       // Move user to deleted_users table

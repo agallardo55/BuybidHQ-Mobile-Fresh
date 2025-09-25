@@ -41,8 +41,6 @@ export const useCreateUser = () => {
           city: dealershipData.city,
           state: dealershipData.state,
           zip_code: dealershipData.zipCode,
-          // Only set primary_user_id if this is a primary dealer
-          ...(userData.isPrimaryDealer && { primary_user_id: existingUser?.id })
         };
 
         if (existingDealership) {
@@ -107,13 +105,37 @@ export const useCreateUser = () => {
         .update({
           ...transformedUser,
           dealership_id: dealershipId,
-          email: normalizedEmail
+          email: normalizedEmail,
+          app_role: userData.isAccountAdmin ? 'account_admin' : 'member'
         })
         .eq('id', user.id)
         .select()
         .single();
 
       if (updateError) throw updateError;
+
+      // If this user is an account admin, create account administrator record
+      if (userData.isAccountAdmin && updatedUser.account_id) {
+        const { error: accountAdminError } = await supabase
+          .from('account_administrators')
+          .insert({
+            user_id: updatedUser.id,
+            account_id: updatedUser.account_id,
+            email: updatedUser.email,
+            full_name: updatedUser.full_name,
+            mobile_number: updatedUser.mobile_number,
+            status: 'active',
+            granted_by: (await supabase.auth.getSession()).data.session?.user?.id,
+            granted_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (accountAdminError && !accountAdminError.message.includes('duplicate key')) {
+          console.error('Account admin creation error:', accountAdminError);
+        }
+      }
+
       return updatedUser;
     },
     onSuccess: () => {

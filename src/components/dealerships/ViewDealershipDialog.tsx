@@ -48,24 +48,24 @@ const ViewDealershipDialog = ({
             </div>
 
             <div>
-              <h3 className="font-semibold mb-1">Dealer Admin</h3>
+              <h3 className="font-semibold mb-1">Account Admin</h3>
               <div className="grid grid-cols-1 gap-2">
                 <div>
                   <p className="text-sm text-gray-500">Name</p>
                   <p className="text-sm">
-                    {dealership.primary_dealer?.full_name || 'Not Assigned'}
+                    {dealership.account_admin?.full_name || 'Not Assigned'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
                   <p className="text-sm">
-                    {dealership.primary_dealer?.email || 'N/A'}
+                    {dealership.account_admin?.email || 'N/A'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Phone</p>
                   <p className="text-sm">
-                    {dealership.primary_dealer?.mobile_number || 'N/A'}
+                    {dealership.account_admin?.mobile_number || 'N/A'}
                   </p>
                 </div>
               </div>
