@@ -47,15 +47,6 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
             <InfoRow label="City" value={user.city} />
             <InfoRow label="State" value={user.state} />
             <InfoRow label="ZIP Code" value={user.zip_code} />
-            
-            <div className={cn(
-              "mt-4 px-2 py-1 text-xs font-medium rounded-full w-fit",
-              user.is_active
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            )}>
-              {user.is_active ? "Active" : "Inactive"}
-            </div>
           </TabsContent>
           
           <TabsContent value="dealership" className="space-y-0 overflow-y-auto">
