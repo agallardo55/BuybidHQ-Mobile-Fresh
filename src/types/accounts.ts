@@ -45,7 +45,7 @@ export const PLAN_INFO = {
 
 // Role permissions
 export const ROLE_PERMISSIONS = {
-  member: ['view_own_data', 'create_bid_requests', 'manage_buyers'],
+  member: ['view_own_data', 'create_bid_requests', 'manage_own_buyers', 'manage_own_dealership'],
   manager: ['view_own_data', 'create_bid_requests', 'manage_own_buyers'],
   account_admin: ['view_account_data', 'create_bid_requests', 'manage_all_buyers', 'manage_users', 'manage_billing'],
   super_admin: ['view_all_data', 'manage_all_accounts', 'system_admin']

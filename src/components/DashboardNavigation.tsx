@@ -19,8 +19,11 @@ const DashboardNavigation = () => {
   // Initialize notification toasts
   useNotificationToasts();
 
-  const canAccessUsers = currentUser?.role === 'admin' || currentUser?.role === 'dealer';
-  const canAccessDealerships = currentUser?.role !== 'associate' && currentUser?.role !== 'basic';
+  // Use app_role for new system, fallback to legacy role for backwards compatibility
+  const userAppRole = currentUser?.app_role || (currentUser?.role === 'admin' ? 'account_admin' : 'member');
+  
+  const canAccessUsers = userAppRole === 'account_admin' || userAppRole === 'super_admin';
+  const canAccessDealerships = userAppRole === 'account_admin' || userAppRole === 'super_admin' || userAppRole === 'manager';
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
