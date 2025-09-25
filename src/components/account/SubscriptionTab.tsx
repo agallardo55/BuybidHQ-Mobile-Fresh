@@ -95,7 +95,7 @@ export const SubscriptionTab = () => {
       id: 'connect',
       name: 'Buybid Connect',
       description: 'For buyers looking to expand their network',
-      price: '$100',
+      price: '$99',
       period: '/per mo.',
       features: [
         'Unlimited Buybids',
