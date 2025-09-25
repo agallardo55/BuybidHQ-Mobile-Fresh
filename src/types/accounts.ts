@@ -1,5 +1,5 @@
 // Account and subscription types for the new plan system
-export type PlanType = 'free' | 'connect' | 'group';
+export type PlanType = 'free' | 'connect' | 'annual' | 'dealership' | 'group';
 export type AppRole = 'member' | 'manager' | 'account_admin' | 'super_admin';
 
 export interface Account {

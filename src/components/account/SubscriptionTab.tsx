@@ -115,28 +115,58 @@ export const SubscriptionTab = () => {
     {
       id: 'free',
       name: 'Free Plan',
-      description: 'Perfect for the individual dealer',
+      description: 'Perfect for the individual members',
       price: '$0',
-      period: '/per user/per mo.',
+      period: '/per mo.',
       features: [
-        '10 Buybids per mo.',
+        '10 buybids per mo.',
         'Unlimited buyer connections',
-        'Buybid dashboard'
+        'Dashboard Access'
       ],
     },
     {
       id: 'connect',
-      name: 'Buybid Connect',
+      name: 'Connect Plan',
       description: 'For buyers looking to expand their network',
       price: '$99',
-      period: '/per mo.',
+      period: '/per mo',
       features: [
-        'Unlimited Buybids',
-        'No monthly commitment',
+        'Unlimited buybids per mo.',
         'Billed Monthly',
-        'Buybid dashboard',
+        'Dashboard Access',
         'All Basic features'
       ],
+    },
+    {
+      id: 'annual',
+      name: 'Annual Plan',
+      description: 'Best value for committed users',
+      price: '$599',
+      period: '/per yr',
+      badge: 'Limited Time Offer',
+      note: 'Less than $50 per mo.',
+      features: [
+        'Unlimited buybids per mo.',
+        'Billed Annually',
+        'Dashboard Access',
+        'All Connect features',
+        'Lifetime Rate Lock'
+      ],
+    },
+    {
+      id: 'dealership',
+      name: 'Dealership Plan',
+      description: 'For multi-store group members',
+      price: 'Custom',
+      period: '/month',
+      features: [
+        'Unlimited buybids per mo.',
+        'Multi-user access',
+        'Dashboard Access',
+        'Buybid Analytics',
+        'Marketplace Access'
+      ],
+      isCustom: true,
     },
   ];
 
@@ -186,23 +216,33 @@ export const SubscriptionTab = () => {
       {/* Available Plans */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900">Available Plans</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {mainPlans.map((plan) => (
-            <Card key={plan.id} className="flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
+            <Card key={plan.id} className={`flex flex-col ${plan.id === 'annual' ? 'relative border-accent' : ''}`}>
+              {plan.badge && (
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-medium">
+                    {plan.badge}
+                  </span>
+                </div>
+              )}
+              <CardHeader className={plan.badge ? "pt-8" : ""}>
+                <CardTitle className="text-xl sm:text-2xl">{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow">
                 <div className="mt-2 flex items-baseline">
-                  <span className="text-3xl font-bold">{plan.price}</span>
-                  <span className="ml-1 text-gray-500">{plan.period}</span>
+                  <span className="text-2xl sm:text-3xl font-bold">{plan.price}</span>
+                  <span className="ml-1 text-sm sm:text-base text-gray-500">{plan.period}</span>
                 </div>
-                <ul className="mt-6 space-y-4">
+                {plan.note && (
+                  <p className="mt-1 text-xs sm:text-sm text-accent font-medium">{plan.note}</p>
+                )}
+                <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-center">
-                      <Check className="h-5 w-5 text-accent mr-2" />
-                      <span>{feature}</span>
+                      <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                      <span className="text-sm sm:text-base">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -217,31 +257,25 @@ export const SubscriptionTab = () => {
                     <Check className="h-4 w-4 mr-2" />
                     Current Plan
                   </Button>
+                ) : plan.isCustom ? (
+                  <Button
+                    onClick={() => navigate('/#contact')}
+                    className="w-full bg-accent hover:bg-accent/90"
+                  >
+                    Contact Sales
+                  </Button>
                 ) : (
                   <Button
                     onClick={() => handleUpgradeSubscription(plan.id as PlanType)}
                     className="w-full bg-accent hover:bg-accent/90"
                   >
-                    {plan.id === 'connect' ? 'Get Started' : 'Get Started'}
+                    {plan.id === 'free' ? 'Start Free Trial' : 'Get Started'}
                   </Button>
                 )}
               </CardFooter>
             </Card>
           ))}
         </div>
-      </div>
-
-      {/* Group Plan Contact */}
-      <div className="text-center">
-        <p className="text-sm text-gray-600">
-          Need multi-user dealership management?{' '}
-          <button 
-            onClick={() => navigate('/#contact')} 
-            className="text-accent hover:text-accent/90 font-medium"
-          >
-            Contact us about our Group Plan
-          </button>
-        </p>
       </div>
 
       {/* Management Section */}
