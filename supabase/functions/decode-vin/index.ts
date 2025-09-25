@@ -78,8 +78,31 @@ Deno.serve(async (req) => {
       return true;
     }) || [];
 
-    // Special handling for Porsche vehicles AFTER deduplication
+    // Universal fallback: If no trims available but we have trim data in specs, create fallback trim
     let finalTrims = [...uniqueTrims];
+    if (finalTrims.length === 0 && vehicleData.specs?.trim) {
+      console.log('No trims available, creating fallback from specs.trim:', vehicleData.specs.trim);
+      
+      // Create fallback trim from available specs
+      const fallbackTrimName = vehicleData.specs.trim;
+      const seriesInfo = vehicleData.specs.series ? ` ${vehicleData.specs.series}` : '';
+      const engineInfo = vehicleData.specs.displacement_l && vehicleData.specs.engine_number_of_cylinders 
+        ? `(${vehicleData.specs.displacement_l}L ${vehicleData.specs.engine_number_of_cylinders}cyl${vehicleData.specs.turbo ? ' Turbo' : ''})`
+        : '';
+      
+      const fallbackDescription = `${fallbackTrimName}${seriesInfo} ${engineInfo}`.trim();
+      
+      finalTrims = [{
+        name: fallbackTrimName,
+        description: fallbackDescription,
+        year: Number(vehicleData.year)
+      }];
+      
+      console.log('Created fallback trim:', finalTrims[0]);
+    }
+
+    // Special handling for Porsche vehicles AFTER deduplication and fallback
+    let processedTrims = [...finalTrims];
     if (vehicleData.make?.toLowerCase() === 'porsche') {
       // Log all relevant specs for GT3 RS detection
       console.log('Checking Porsche GT3 RS specs:', {
@@ -105,7 +128,7 @@ Deno.serve(async (req) => {
       );
 
       // Check if GT3 RS is already in the trims
-      const hasGT3RS = uniqueTrims.some(trim => {
+      const hasGT3RS = processedTrims.some(trim => {
         const name = (trim.name || '').toLowerCase();
         const desc = (trim.description || '').toLowerCase();
         const isGT3RS = name.includes('gt3') && name.includes('rs') ||
@@ -121,21 +144,21 @@ Deno.serve(async (req) => {
       // Force add GT3 RS for testing
       if (!hasGT3RS) {
         console.log('Adding GT3 RS trim to list');
-        finalTrims = [
+        processedTrims = [
           {
             name: 'GT3 RS',
             description: 'GT3 RS 2dr Coupe (4.0L 6cyl 7AM)',
             year: Number(vehicleData.year)
           },
-          ...uniqueTrims
+          ...processedTrims
         ];
       }
     }
 
-    console.log('Final trims after GT3 RS handling:', finalTrims);
+    console.log('Final trims after processing:', processedTrims);
 
     const bestTrim = findBestTrimMatch(
-      finalTrims,
+      processedTrims,
       vehicleData.year,
       {
         make: vehicleData.make,
@@ -153,7 +176,7 @@ Deno.serve(async (req) => {
       turbo: vehicleData.specs?.turbo || false
     };
 
-    const availableTrims = finalTrims.map((trim) => {
+    const availableTrims = processedTrims.map((trim) => {
       const engineDesc = trim.description?.match(/\(([\d.]+L\s+\d+cyl(?:\s+Turbo)?)[^)]*\)/i)?.[1] || 
         `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`;
 
@@ -177,7 +200,7 @@ Deno.serve(async (req) => {
       year: vehicleData.year,
       make: vehicleData.make,
       model: vehicleData.model,
-      trim: bestTrim || (finalTrims[0]?.name || ''),
+      trim: bestTrim || (processedTrims[0]?.name || ''),
       engineCylinders: availableTrims[0]?.specs?.engine || `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`,
       transmission: availableTrims[0]?.specs?.transmission || "7-Speed Automatic",
       drivetrain: availableTrims[0]?.specs?.drivetrain || "AWD",
