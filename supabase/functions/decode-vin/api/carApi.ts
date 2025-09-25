@@ -10,19 +10,28 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
       return null;
     }
 
+    // Get API key from environment
+    const apiKey = Deno.env.get('VIN_API_KEY');
+    if (!apiKey) {
+      console.error('VIN_API_KEY not found in environment variables');
+      return null;
+    }
+
     const API_URL = `https://carapi.app/api/vin/${vin}`;
 
-    // Log the request details
-    console.log('Making CarAPI request:', {
+    // Log the request details (without exposing the API key)
+    console.log('Making authenticated CarAPI request:', {
       url: API_URL,
-      vin
+      vin,
+      hasApiKey: !!apiKey
     });
 
-    // Make the direct API request without auth
+    // Make the API request with authentication
     const response = await fetchData<any>(API_URL, {
       method: 'GET',
       headers: {
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'X-API-Key': apiKey
       }
     });
 
