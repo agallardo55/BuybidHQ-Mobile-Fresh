@@ -17,6 +17,7 @@ export interface UserData {
   city: string | null;
   state: string | null;
   zip_code: string | null;
+  account_id: string | null;
   dealership_id: string | null;
   dealer_name: string | null;
   business_phone: string | null;
@@ -99,6 +100,7 @@ export const useCurrentUser = () => {
           city: userData.city,
           state: userData.state,
           zip_code: userData.zip_code,
+          account_id: userData.account_id,
           dealership_id: userData.dealership_id,
           dealer_name: userData.dealerships?.dealer_name || null,
           business_phone: userData.dealerships?.business_phone || null,

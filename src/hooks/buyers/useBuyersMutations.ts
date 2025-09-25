@@ -5,10 +5,12 @@ import { BuyerFormData } from "@/types/buyers";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { UpdateBuyerParams } from "./types";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export const useBuyersMutations = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { currentUser } = useCurrentUser();
 
   const createBuyerMutation = useMutation({
     mutationFn: async (buyerData: BuyerFormData) => {
@@ -18,11 +20,14 @@ export const useBuyersMutations = () => {
         throw new Error('No valid session');
       }
 
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
+      if (!currentUser?.account_id) {
+        throw new Error('User account information not available');
+      }
 
       console.log("Creating buyer with data:", {
-        user_id: userData.user.id,
+        user_id: currentUser.id,
+        account_id: currentUser.account_id,
+        owner_user_id: currentUser.id,
         ...buyerData
       });
 
@@ -30,7 +35,9 @@ export const useBuyersMutations = () => {
         .from('buyers')
         .insert([
           {
-            user_id: userData.user.id,
+            user_id: currentUser.id,
+            account_id: currentUser.account_id,
+            owner_user_id: currentUser.id,
             buyer_name: buyerData.fullName,
             email: buyerData.email,
             buyer_mobile: buyerData.mobileNumber,
