@@ -8,12 +8,36 @@ import { Loader2, Check } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PlanType } from "@/types/accounts";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+
+interface BidRequestLimits {
+  allowed: boolean;
+  remaining?: number;
+  reason?: string;
+}
 
 export const SubscriptionTab = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { account, isLoading } = useAccount();
   const { currentUser } = useCurrentUser();
+
+  // Fetch bid request limits for free users
+  const { data: bidRequestLimits } = useQuery({
+    queryKey: ['bid-request-limits', currentUser?.id],
+    queryFn: async (): Promise<BidRequestLimits | null> => {
+      if (!currentUser?.id || account?.plan !== 'free') return null;
+      
+      const { data, error } = await supabase.rpc('can_create_bid_request', {
+        user_id: currentUser.id
+      });
+      
+      if (error) throw error;
+      return data as unknown as BidRequestLimits;
+    },
+    enabled: !!currentUser?.id && account?.plan === 'free',
+  });
 
   const handleManageSubscription = async () => {
     try {
@@ -130,6 +154,22 @@ export const SubscriptionTab = () => {
             <p className="text-sm text-gray-500">
               Status: {account?.billing_status?.charAt(0).toUpperCase() + account?.billing_status?.slice(1) || 'Active'}
             </p>
+            {/* Show bid request limits for free users */}
+            {account?.plan === 'free' && bidRequestLimits && (
+              <div className="mt-2 space-y-1">
+                {bidRequestLimits.allowed ? (
+                  <p className="text-sm text-green-600">
+                    {bidRequestLimits.remaining !== undefined 
+                      ? `${bidRequestLimits.remaining} bid requests remaining this month`
+                      : 'Bid requests available'}
+                  </p>
+                ) : (
+                  <p className="text-sm text-red-600">
+                    Monthly limit reached (10/10). Upgrade to continue submitting bid requests.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
