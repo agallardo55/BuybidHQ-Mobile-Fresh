@@ -58,7 +58,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
             </div>
           </TabsContent>
           
-          <TabsContent value="dealership" className="space-y-0 h-[400px] flex flex-col overflow-y-auto">
+          <TabsContent value="dealership" className="space-y-0 h-[400px] overflow-y-auto">
             {user.dealership ? (
               <>
                 <InfoRow label="Dealership Name" value={user.dealership.dealer_name} />
@@ -69,9 +69,6 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
                 <InfoRow label="City" value={user.dealership.city} />
                 <InfoRow label="State" value={user.dealership.state} />
                 <InfoRow label="ZIP Code" value={user.dealership.zip_code} />
-                
-                {/* Spacer to match Personal tab height */}
-                <div className="mt-4 h-8"></div>
               </>
             ) : (
               <div className="text-center py-8 text-gray-500">
