@@ -15,10 +15,10 @@ export const CommunicationSettingsTab = () => {
   const [isSaving, setIsSaving] = useState(false);
   
   const [emailEnabled, setEmailEnabled] = useState(
-    currentUser?.bid_request_email_enabled ?? true
+    currentUser?.bid_request_email_enabled ?? false
   );
   const [smsEnabled, setSmsEnabled] = useState(
-    currentUser?.bid_request_sms_enabled ?? false
+    currentUser?.bid_request_sms_enabled ?? true
   );
 
   const handleSave = async () => {
