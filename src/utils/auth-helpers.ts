@@ -177,7 +177,7 @@ export const getUserAvatarUrl = (user: AuthUser | null): string | null => {
 const ROLE_HIERARCHY: Record<UserRole, number> = {
   basic: 1,
   individual: 2,
-  associate: 3,
+  salesperson: 3,
   dealer: 4,
   admin: 5,
   super_admin: 6,
