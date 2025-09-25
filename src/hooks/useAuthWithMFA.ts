@@ -58,11 +58,14 @@ export const useAuthWithMFA = () => {
         await supabase.auth.signOut();
         
         try {
-          // For now, we'll only support email MFA with native Supabase OTP
-          // Check if user has email MFA enabled
+          // Check available MFA methods
           const hasEmailMFA = mfaSettings.some(setting => setting.method === 'email');
+          const hasSMSMFA = mfaSettings.some(setting => setting.method === 'sms');
           
-          if (hasEmailMFA) {
+          // Prepare available methods for MFA challenge
+          const availableMethods = mfaSettings.map(setting => setting.method);
+          
+          if (hasEmailMFA && availableMethods.length === 1) {
             // Auto-send email OTP using Supabase native method
             const { error: sendError } = await supabase.auth.signInWithOtp({
               email,
@@ -89,9 +92,46 @@ export const useAuthWithMFA = () => {
 
             navigate(`/auth/mfa-challenge?${params.toString()}`);
             return true;
+          } else if (hasSMSMFA && availableMethods.length === 1) {
+            // Auto-send SMS challenge for SMS-only users
+            const { error: sendError } = await supabase.functions.invoke('send-mfa-challenge-sms', {
+              body: { 
+                email,
+                method: 'sms'
+              }
+            });
+
+            // Build URL params
+            const params = new URLSearchParams();
+            params.set('email', email);
+            params.set('method', 'sms');
+            if (redirectTo) {
+              params.set('redirect', redirectTo);
+            }
+
+            if (!sendError) {
+              // Code sent successfully
+              params.set('codeSent', 'true');
+            } else {
+              console.error('Error auto-sending SMS MFA code:', sendError);
+              // Fall back to manual sending
+            }
+
+            navigate(`/auth/mfa-challenge?${params.toString()}`);
+            return true;
+          } else {
+            // Multiple methods available, let user choose
+            const params = new URLSearchParams();
+            params.set('email', email);
+            params.set('methods', availableMethods.join(','));
+            if (redirectTo) {
+              params.set('redirect', redirectTo);
+            }
+            navigate(`/auth/mfa-challenge?${params.toString()}`);
+            return true;
           }
         } catch (error) {
-          console.error('Error in auto-send MFA flow:', error);
+          console.error('Error in MFA flow:', error);
           // Fall back to manual flow
           const params = new URLSearchParams();
           params.set('email', email);
