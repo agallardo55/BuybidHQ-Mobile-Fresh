@@ -31,7 +31,7 @@ const ViewUserDialog = ({ user, isOpen, onOpenChange }: ViewUserDialogProps) => 
         <DialogHeader>
           <DialogTitle>User Details</DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="personal" className="mt-4">
+        <Tabs defaultValue="personal" className="mt-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="personal">Personal</TabsTrigger>
             <TabsTrigger value="dealership">Dealership</TabsTrigger>
