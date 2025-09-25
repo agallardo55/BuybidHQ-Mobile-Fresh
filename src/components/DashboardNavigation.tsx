@@ -20,7 +20,7 @@ const DashboardNavigation = () => {
   useNotificationToasts();
 
   const canAccessUsers = currentUser?.role === 'admin' || currentUser?.role === 'dealer';
-  const canAccessDealerships = currentUser?.role !== 'associate';
+  const canAccessDealerships = currentUser?.role !== 'associate' && currentUser?.role !== 'basic';
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
