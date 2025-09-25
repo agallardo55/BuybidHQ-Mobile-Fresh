@@ -27,16 +27,25 @@ export const SubscriptionTab = () => {
   const { data: bidRequestLimits } = useQuery({
     queryKey: ['bid-request-limits', currentUser?.id],
     queryFn: async (): Promise<BidRequestLimits | null> => {
-      if (!currentUser?.id || account?.plan !== 'free') return null;
+      if (!currentUser?.id) return null;
+      
+      // Show limits for basic users and free plan users
+      const shouldShowLimits = currentUser.role === 'basic' || account?.plan === 'free';
+      if (!shouldShowLimits) return null;
       
       const { data, error } = await supabase.rpc('can_create_bid_request', {
         user_id: currentUser.id
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching bid request limits:', error);
+        throw error;
+      }
+      
+      console.info('Bid request limits response:', data);
       return data as unknown as BidRequestLimits;
     },
-    enabled: !!currentUser?.id && account?.plan === 'free',
+    enabled: !!currentUser?.id && (currentUser?.role === 'basic' || account?.plan === 'free'),
   });
 
   const handleManageSubscription = async () => {
@@ -155,7 +164,7 @@ export const SubscriptionTab = () => {
               Status: {account?.billing_status?.charAt(0).toUpperCase() + account?.billing_status?.slice(1) || 'Active'}
             </p>
             {/* Show bid request limits for free users */}
-            {account?.plan === 'free' && bidRequestLimits && (
+            {(currentUser?.role === 'basic' || account?.plan === 'free') && bidRequestLimits && (
               <div className="mt-2 space-y-1">
                 {bidRequestLimits.allowed ? (
                   <p className="text-sm text-green-600">
