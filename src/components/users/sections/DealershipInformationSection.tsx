@@ -122,7 +122,7 @@ const DealershipInformationSection = ({
                 onCheckedChange={handlePrimaryDealerChange}
                 className="data-[state=checked]:bg-custom-blue data-[state=unchecked]:bg-input"
               />
-              <Label htmlFor="isPrimaryDealer">Primary Dealer</Label>
+              <Label htmlFor="isPrimaryDealer">Dealer Admin</Label>
             </div>
           )}
         </div>
