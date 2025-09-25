@@ -91,24 +91,29 @@ export const getUserAppPermissions = (user: AuthUser | null): Permission[] => {
 };
 
 /**
- * Check if user is admin (any admin role)
+ * Check if user is admin (super admin - global BuyBidHQ admin)
  */
 export const isAdmin = (user: AuthUser | null): boolean => {
-  return hasAnyRole(user, ['admin', 'super_admin']);
+  // Super admin has global platform access
+  return hasRole(user, 'admin') || hasAppRole(user, 'super_admin');
 };
 
 /**
- * Check if user is account admin (new system)
+ * Check if user is account admin (dealership-level admin)
  */
 export const isAccountAdmin = (user: AuthUser | null): boolean => {
-  return hasAnyAppRole(user, ['account_admin', 'super_admin']);
+  // Account admin has account-level access only
+  return hasAppRole(user, 'account_admin');
 };
 
 /**
  * Check if user can manage other users
  */
 export const canManageUsers = (user: AuthUser | null): boolean => {
-  return hasAnyPermission(user, ['manage_users', 'system_admin']);
+  // Super admin can manage all users globally
+  // Account admin can manage users within their account
+  // Dealers can manage associates within their dealership
+  return isAdmin(user) || isAccountAdmin(user) || hasRole(user, 'dealer');
 };
 
 /**

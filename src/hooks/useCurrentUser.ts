@@ -92,7 +92,7 @@ export const useCurrentUser = () => {
         const formattedUser: UserData = {
           id: userData.id,
           email: userData.email,
-          role: isSuperAdmin ? 'admin' as UserRole : userData.role,
+          role: isSuperAdmin ? 'admin' as UserRole : userData.role as UserRole,
           app_role: isSuperAdmin ? 'super_admin' : (userData.app_role as AppRole),
           full_name: userData.full_name,
           mobile_number: userData.mobile_number,
