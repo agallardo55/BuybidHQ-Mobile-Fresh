@@ -17,7 +17,8 @@ async function generateJWTToken(): Promise<string | null> {
 
     console.log('Generating JWT token with CarAPI auth endpoint');
 
-    const authResponse = await fetchData<{ access_token: string; expires_in: number }>('https://carapi.app/api/auth/login', {
+    // CarAPI returns a plain JWT token as text, not JSON
+    const response = await fetch('https://carapi.app/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -28,20 +29,29 @@ async function generateJWTToken(): Promise<string | null> {
       })
     });
 
-    if (!authResponse || !authResponse.access_token) {
-      console.error('Failed to generate JWT token:', authResponse);
+    if (!response.ok) {
+      console.error(`CarAPI auth failed with status ${response.status}`);
       return null;
     }
 
-    // Cache the token with expiration (subtract 5 minutes for safety)
-    const expiresAt = Date.now() + ((authResponse.expires_in - 300) * 1000);
+    // Get the JWT token as plain text
+    const jwtToken = await response.text();
+    console.log('CarAPI auth response received:', jwtToken.substring(0, 20) + '...');
+
+    if (!jwtToken || jwtToken.length < 10) {
+      console.error('Invalid JWT token received from CarAPI');
+      return null;
+    }
+
+    // Cache the token with expiration (set to 1 hour, subtract 5 minutes for safety)
+    const expiresAt = Date.now() + (55 * 60 * 1000); // 55 minutes
     cachedJWT = {
-      token: authResponse.access_token,
+      token: jwtToken.trim(),
       expiresAt
     };
 
     console.log('JWT token generated successfully, expires at:', new Date(expiresAt));
-    return authResponse.access_token;
+    return jwtToken.trim();
   } catch (error) {
     console.error('Error generating JWT token:', error);
     return null;
