@@ -2091,7 +2091,13 @@ export type Database = {
         | "unknown"
       phone_validation_status: "pending" | "valid" | "invalid"
       subscription_plan_type: "beta-access" | "pay-per-bid" | "individual"
-      user_role: "basic" | "individual" | "dealer" | "associate" | "admin"
+      user_role:
+        | "basic"
+        | "individual"
+        | "dealer"
+        | "associate"
+        | "admin"
+        | "salesperson"
       user_role_old: "admin" | "dealer" | "associate"
       waitlist_status: "pending" | "approved" | "rejected"
     }
@@ -2257,7 +2263,14 @@ export const Constants = {
       phone_number_type: ["mobile", "landline", "voip", "toll_free", "unknown"],
       phone_validation_status: ["pending", "valid", "invalid"],
       subscription_plan_type: ["beta-access", "pay-per-bid", "individual"],
-      user_role: ["basic", "individual", "dealer", "associate", "admin"],
+      user_role: [
+        "basic",
+        "individual",
+        "dealer",
+        "associate",
+        "admin",
+        "salesperson",
+      ],
       user_role_old: ["admin", "dealer", "associate"],
       waitlist_status: ["pending", "approved", "rejected"],
     },
