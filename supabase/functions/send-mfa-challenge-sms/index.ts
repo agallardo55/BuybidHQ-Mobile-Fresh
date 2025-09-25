@@ -85,7 +85,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const verificationCode = verificationData?.[0]?.verification_code;
+    const verificationCode = verificationData?.[0]?.code;
     
     if (!verificationCode) {
       return new Response(
