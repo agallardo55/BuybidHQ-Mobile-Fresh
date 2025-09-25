@@ -138,7 +138,7 @@ const Pricing = () => {
           {/* Dealership Plan */}
           <Card className="flex flex-col h-full">
             <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-xl sm:text-2xl">Limited Time Offer</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">Dealership Plan</CardTitle>
               <CardDescription className="text-sm sm:text-base">For multi-store group members</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow px-4 sm:px-6">
