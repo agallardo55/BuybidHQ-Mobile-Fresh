@@ -116,7 +116,7 @@ serve(async (req) => {
     console.error('Error in validate-phone function:', error);
     return new Response(
       JSON.stringify({
-        error: error.message || 'An error occurred during phone validation',
+        error: error instanceof Error ? error.message : 'An error occurred during phone validation',
         is_valid: false
       }),
       {

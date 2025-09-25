@@ -46,7 +46,7 @@ serve(async (req) => {
             token: `${token.substring(0, 8)}...`
           });
         } catch (urlError) {
-          throw new Error(`Invalid bid request URL: ${urlError.message}`);
+          throw new Error(`Invalid bid request URL: ${urlError instanceof Error ? urlError.message : 'Invalid URL format'}`);
         }
       }
     } catch (error) {
@@ -124,7 +124,7 @@ serve(async (req) => {
       });
 
       console.log(`[${requestId}] Notification triggered successfully:`, {
-        runId: result.id,
+        runId: (result as any).id,
         recipientNumber: formattedRecipientNumber,
         workflowKey,
         data: workflowData
@@ -134,7 +134,7 @@ serve(async (req) => {
         JSON.stringify({
           success: true,
           requestId,
-          messageId: result.id,
+          messageId: (result as any).id,
           recipientNumber: formattedRecipientNumber
         }),
         {
@@ -149,21 +149,21 @@ serve(async (req) => {
       );
     } catch (knockError) {
       console.error(`[${requestId}] Knock API Error:`, {
-        message: knockError.message,
-        status: knockError.status,
-        details: knockError.details
+        message: knockError instanceof Error ? knockError.message : 'Unknown error',
+        status: (knockError as any).status,
+        details: (knockError as any).details
       });
-      throw new Error(`Knock API Error: ${knockError.message}`);
+      throw new Error(`Knock API Error: ${knockError instanceof Error ? knockError.message : 'Unknown error'}`);
     }
   } catch (error) {
     console.error(`[${requestId}] Error:`, {
-      message: error.message,
-      stack: error.stack
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace'
     });
     
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
         requestId,
         timestamp: new Date().toISOString()
       }),

@@ -43,7 +43,7 @@ serve(async (req) => {
             token: `${token.substring(0, 8)}...`
           });
         } catch (urlError) {
-          throw new Error(`Invalid bid request URL: ${urlError.message}`);
+          throw new Error(`Invalid bid request URL: ${urlError instanceof Error ? urlError.message : 'Invalid URL format'}`);
         }
       }
     } catch (error) {
@@ -146,13 +146,13 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error(`[${requestId}] Error:`, {
-      message: error.message,
-      stack: error.stack
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace'
     });
     
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
         requestId,
         timestamp: new Date().toISOString()
       }),

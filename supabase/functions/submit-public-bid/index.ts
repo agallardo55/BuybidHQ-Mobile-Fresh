@@ -148,8 +148,8 @@ serve(async (req) => {
     console.error('Error in submit-public-bid function:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to submit bid',
-        details: error.message 
+        error: error instanceof Error ? error.message : 'Failed to submit bid',
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
       }), 
       { 
         status: 400,

@@ -70,7 +70,7 @@ serve(async (req) => {
     console.error('Error in validate-carrier function:', error)
     return new Response(
       JSON.stringify({
-        error: error.message || 'An error occurred during carrier validation'
+        error: error instanceof Error ? error.message : 'An error occurred during carrier validation'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
