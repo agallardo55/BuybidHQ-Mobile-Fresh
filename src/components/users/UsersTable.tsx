@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Edit, Trash, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { User } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -17,7 +17,6 @@ interface UsersTableProps {
   users: User[];
   onEdit: (user: User) => void;
   onDelete: (userId: string) => void;
-  onView: (user: User) => void;
   sortConfig: {
     field: keyof User | null;
     direction: 'asc' | 'desc' | null;
@@ -25,7 +24,7 @@ interface UsersTableProps {
   onSort: (field: keyof User) => void;
 }
 
-const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: UsersTableProps) => {
+const UsersTable = ({ users, onEdit, onDelete, sortConfig, onSort }: UsersTableProps) => {
   const { currentUser } = useCurrentUser();
 
   const canManageUser = (user: User) => {
@@ -44,21 +43,6 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
     return false;
   };
 
-  const canViewUser = (user: User) => {
-    if (!currentUser) return false;
-
-    // Admin can view all users
-    if (currentUser.role === 'admin') {
-      return true;
-    }
-
-    // Dealer can only view users in their dealership
-    if (currentUser.role === 'dealer') {
-      return user.dealership_id === currentUser.dealership_id;
-    }
-
-    return false;
-  };
 
   const SortIcon = ({ field }: { field: keyof User }) => {
     if (sortConfig.field !== field) {
@@ -108,16 +92,6 @@ const UsersTable = ({ users, onEdit, onDelete, onView, sortConfig, onSort }: Use
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{user.dealership?.dealer_name || 'N/A'}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
               <div className="flex items-center gap-2">
-                {canViewUser(user) && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onView(user)}
-                    className="h-7 w-7"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                )}
                 {canManageUser(user) && (
                   <>
                     <Button

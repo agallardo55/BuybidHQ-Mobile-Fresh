@@ -15,7 +15,6 @@ interface UsersTableWrapperProps {
   onPageSizeChange: (size: number) => void;
   onEdit: (user: User) => void;
   onDelete: (userId: string) => void;
-  onView: (user: User) => void;
   sortConfig: {
     field: keyof User | null;
     direction: 'asc' | 'desc' | null;
@@ -33,7 +32,6 @@ const UsersTableWrapper = ({
   onPageSizeChange,
   onEdit,
   onDelete,
-  onView,
   sortConfig,
   onSort,
 }: UsersTableWrapperProps) => {
@@ -59,7 +57,6 @@ const UsersTableWrapper = ({
             <UserMobileCard
               key={user.id}
               user={user}
-              onView={onView}
               onEdit={onEdit}
               onDelete={onDelete}
             />
@@ -85,7 +82,6 @@ const UsersTableWrapper = ({
           users={users}
           onEdit={onEdit}
           onDelete={onDelete}
-          onView={onView}
           sortConfig={sortConfig}
           onSort={onSort}
         />

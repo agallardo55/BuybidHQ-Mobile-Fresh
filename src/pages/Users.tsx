@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { User } from "@/types/users";
 import AddUserDialog from "@/components/users/AddUserDialog";
 import DeleteUserDialog from "@/components/users/DeleteUserDialog";
-import ViewUserDialog from "@/components/users/ViewUserDialog";
+
 import EditUserDialog from "@/components/users/EditUserDialog";
 import { useUsers } from "@/hooks/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -18,7 +18,7 @@ type SortConfig = {
 
 const Users = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -74,10 +74,6 @@ const Users = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleView = (user: User) => {
-    setSelectedUser(user);
-    setIsViewDialogOpen(true);
-  };
 
   const handleEdit = (user: User) => {
     setSelectedUser(user);
@@ -147,7 +143,7 @@ const Users = () => {
               onPageSizeChange={handlePageSizeChange}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onView={handleView}
+              
               sortConfig={sortConfig}
               onSort={handleSort}
             />
@@ -161,11 +157,6 @@ const Users = () => {
         onConfirm={confirmDelete}
       />
 
-      <ViewUserDialog
-        user={selectedUser}
-        isOpen={isViewDialogOpen}
-        onOpenChange={setIsViewDialogOpen}
-      />
 
       <EditUserDialog
         user={selectedUser}

@@ -1,20 +1,18 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, User, Building, Eye, Edit, Trash } from "lucide-react";
+import { Mail, User, Building, Edit, Trash } from "lucide-react";
 import { User as UserType } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface UserMobileCardProps {
   user: UserType;
-  onView: (user: UserType) => void;
   onEdit: (user: UserType) => void;
   onDelete: (userId: string) => void;
 }
 
 export const UserMobileCard = ({
   user,
-  onView,
   onEdit,
   onDelete
 }: UserMobileCardProps) => {
@@ -29,14 +27,6 @@ export const UserMobileCard = ({
     return false;
   };
 
-  const canViewUser = (user: UserType) => {
-    if (!currentUser) return false;
-    if (currentUser.role === 'admin') return true;
-    if (currentUser.role === 'dealer') {
-      return user.dealership_id === currentUser.dealership_id;
-    }
-    return false;
-  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -89,18 +79,6 @@ export const UserMobileCard = ({
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          {canViewUser(user) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onView(user)}
-              className="flex-1"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View
-            </Button>
-          )}
-
           {canManageUser(user) && (
             <>
               <Button
