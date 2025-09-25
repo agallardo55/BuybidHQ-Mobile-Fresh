@@ -2,6 +2,64 @@
 import { fetchData } from "./fetchData.ts";
 import { CarApiResult } from "../types.ts";
 
+// JWT token cache
+let cachedJWT: { token: string; expiresAt: number } | null = null;
+
+async function generateJWTToken(): Promise<string | null> {
+  try {
+    const apiToken = Deno.env.get('VIN_API_TOKEN') || Deno.env.get('VIN_API_KEY');
+    const apiSecret = Deno.env.get('VIN_API_SECRET');
+    
+    if (!apiToken || !apiSecret) {
+      console.error('VIN_API_TOKEN and VIN_API_SECRET are required for JWT authentication');
+      return null;
+    }
+
+    console.log('Generating JWT token with CarAPI auth endpoint');
+
+    const authResponse = await fetchData<{ access_token: string; expires_in: number }>('https://carapi.app/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        api_token: apiToken,
+        api_secret: apiSecret
+      })
+    });
+
+    if (!authResponse || !authResponse.access_token) {
+      console.error('Failed to generate JWT token:', authResponse);
+      return null;
+    }
+
+    // Cache the token with expiration (subtract 5 minutes for safety)
+    const expiresAt = Date.now() + ((authResponse.expires_in - 300) * 1000);
+    cachedJWT = {
+      token: authResponse.access_token,
+      expiresAt
+    };
+
+    console.log('JWT token generated successfully, expires at:', new Date(expiresAt));
+    return authResponse.access_token;
+  } catch (error) {
+    console.error('Error generating JWT token:', error);
+    return null;
+  }
+}
+
+async function getValidJWTToken(): Promise<string | null> {
+  // Check if we have a valid cached token
+  if (cachedJWT && Date.now() < cachedJWT.expiresAt) {
+    console.log('Using cached JWT token');
+    return cachedJWT.token;
+  }
+
+  // Generate new token
+  console.log('Generating new JWT token (cache expired or empty)');
+  return await generateJWTToken();
+}
+
 export async function fetchCarApiData(vin: string): Promise<CarApiResult | null> {
   try {
     // First, validate input
@@ -10,28 +68,28 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
       return null;
     }
 
-    // Get API key from environment
-    const apiKey = Deno.env.get('VIN_API_KEY');
-    if (!apiKey) {
-      console.error('VIN_API_KEY not found in environment variables');
+    // Get JWT token
+    const jwtToken = await getValidJWTToken();
+    if (!jwtToken) {
+      console.error('Failed to obtain JWT token for CarAPI authentication');
       return null;
     }
 
     const API_URL = `https://carapi.app/api/vin/${vin}`;
 
-    // Log the request details (without exposing the API key)
+    // Log the request details (using JWT authentication)
     console.log('Making authenticated CarAPI request:', {
       url: API_URL,
       vin,
-      hasApiKey: !!apiKey
+      hasJWTToken: !!jwtToken
     });
 
-    // Make the API request with authentication
+    // Make the API request with JWT authentication
     const response = await fetchData<any>(API_URL, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'X-API-Key': apiKey
+        'Authorization': `Bearer ${jwtToken}`
       }
     });
 
