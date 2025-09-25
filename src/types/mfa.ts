@@ -1,17 +1,14 @@
 
-export interface MFAFormData {
-  verifyCode: string;
-}
-
 export interface MFAMethodState {
   enabled: boolean;
   enrolling: boolean;
   showDialog: boolean;
 }
 
-export interface MFAState {
-  emailMFA: MFAMethodState;
-  smsMFA: MFAMethodState;
+export interface SMSMFAState {
+  enabled: boolean;
+  enrolling: boolean;
+  showDialog: boolean;
 }
 
 export interface MFAVerificationResult {
@@ -19,4 +16,4 @@ export interface MFAVerificationResult {
   error?: string;
 }
 
-export type MFAMethod = 'email' | 'sms';
+export type MFAMethod = 'sms';

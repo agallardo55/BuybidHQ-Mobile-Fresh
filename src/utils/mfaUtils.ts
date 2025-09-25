@@ -21,27 +21,10 @@ export const checkMFAStatus = async (method: MFAMethod): Promise<boolean> => {
   return data?.status === 'enabled';
 };
 
-export const checkEmailMFAStatus = async (): Promise<boolean> => {
-  return checkMFAStatus('email');
-};
-
 export const checkSMSMFAStatus = async (): Promise<boolean> => {
   return checkMFAStatus('sms');
 };
 
-export const sendMFAEnrollmentEmail = async (): Promise<void> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) {
-    throw new Error("No user email found");
-  }
-
-  // Create MFA verification record
-  const { error: verificationError } = await supabase.functions.invoke('create-mfa-verification', {
-    body: { method: 'email' }
-  });
-
-  if (verificationError) throw verificationError;
-};
 
 export const sendMFAEnrollmentSMS = async (phoneNumber: string): Promise<void> => {
   const { data: { user } } = await supabase.auth.getUser();
@@ -65,7 +48,7 @@ export const sendMFAEnrollmentSMS = async (phoneNumber: string): Promise<void> =
   if (verificationError) throw verificationError;
 };
 
-export const verifyMFACode = async (method: MFAMethod, token: string, phoneNumber?: string): Promise<MFAVerificationResult> => {
+export const verifyMFACode = async (token: string, phoneNumber?: string): Promise<MFAVerificationResult> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -98,14 +81,14 @@ export const verifyMFACode = async (method: MFAMethod, token: string, phoneNumbe
       .from('mfa_settings')
       .upsert({
         user_id: user.id,
-        method,
+        method: 'sms',
         status: 'enabled'
       }, {
         onConflict: 'user_id,method'
       });
 
     // If SMS, update user's mobile number
-    if (method === 'sms' && phoneNumber) {
+    if (phoneNumber) {
       await supabase
         .from('buybidhq_users')
         .update({ mobile_number: phoneNumber })
@@ -123,7 +106,7 @@ export const verifyMFACode = async (method: MFAMethod, token: string, phoneNumbe
   }
 };
 
-export const enableMFA = async (method: MFAMethod): Promise<void> => {
+export const enableMFA = async (): Promise<void> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     throw new Error("No user found");
@@ -133,7 +116,7 @@ export const enableMFA = async (method: MFAMethod): Promise<void> => {
     .from('mfa_settings')
     .upsert({
       user_id: user.id,
-      method,
+      method: 'sms',
       status: 'enabled'
     }, {
       onConflict: 'user_id,method'
@@ -142,7 +125,7 @@ export const enableMFA = async (method: MFAMethod): Promise<void> => {
   if (error) throw error;
 };
 
-export const disableMFA = async (method: MFAMethod): Promise<void> => {
+export const disableMFA = async (): Promise<void> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     throw new Error("No user found");
@@ -152,7 +135,7 @@ export const disableMFA = async (method: MFAMethod): Promise<void> => {
     .from('mfa_settings')
     .update({ status: 'disabled' })
     .eq('user_id', user.id)
-    .eq('method', method);
+    .eq('method', 'sms');
 
   if (error) throw error;
 };

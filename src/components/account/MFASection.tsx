@@ -4,28 +4,17 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMFAManagement } from "@/hooks/useMFAManagement";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Loader2, Mail, Phone, Shield } from "lucide-react";
+import { Loader2, Phone, Shield } from "lucide-react";
 
 export const MFASection = () => {
   const { currentUser } = useCurrentUser();
   const {
-    emailMFA,
     smsMFA,
-    handleEnableEmailMFA,
     handleEnableSMSMFA,
-    handleDisableEmailMFA,
     handleDisableSMSMFA,
   } = useMFAManagement();
 
   const userMobileNumber = currentUser?.mobile_number;
-
-  const handleEmailMFAToggle = (checked: boolean) => {
-    if (checked) {
-      handleEnableEmailMFA();
-    } else {
-      handleDisableEmailMFA();
-    }
-  };
 
   const handleSMSMFAToggle = (checked: boolean) => {
     if (checked) {
@@ -51,39 +40,6 @@ export const MFASection = () => {
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Email MFA Section */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <Label htmlFor="email-mfa" className="text-sm font-medium">
-                  Email Authentication
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Receive verification codes via email
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              {emailMFA.enrolling && (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              )}
-              <Switch
-                id="email-mfa"
-                checked={emailMFA.enabled}
-                onCheckedChange={handleEmailMFAToggle}
-                disabled={emailMFA.enrolling}
-              />
-            </div>
-          </div>
-          {emailMFA.enabled && (
-            <div className="ml-7 text-xs text-green-600 dark:text-green-400">
-              ✓ Email MFA is active
-            </div>
-          )}
-        </div>
-
         {/* SMS MFA Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">

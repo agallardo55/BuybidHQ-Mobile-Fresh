@@ -58,42 +58,11 @@ export const useAuthWithMFA = () => {
         await supabase.auth.signOut();
         
         try {
-          // Check available MFA methods
-          const hasEmailMFA = mfaSettings.some(setting => setting.method === 'email');
+          // Check available MFA methods - only SMS is supported now
           const hasSMSMFA = mfaSettings.some(setting => setting.method === 'sms');
           
-          // Prepare available methods for MFA challenge
-          const availableMethods = mfaSettings.map(setting => setting.method);
-          
-          if (hasEmailMFA && availableMethods.length === 1) {
-            // Auto-send email OTP using Supabase native method
-            const { error: sendError } = await supabase.auth.signInWithOtp({
-              email,
-              options: {
-                shouldCreateUser: false, // Don't create new users during MFA
-              }
-            });
-
-            // Build URL params with method and code-sent status
-            const params = new URLSearchParams();
-            params.set('email', email);
-            params.set('method', 'email');
-            if (redirectTo) {
-              params.set('redirect', redirectTo);
-            }
-
-            if (!sendError) {
-              // Code sent successfully
-              params.set('codeSent', 'true');
-            } else {
-              console.error('Error auto-sending MFA code:', sendError);
-              // Fall back to manual sending
-            }
-
-            navigate(`/auth/mfa-challenge?${params.toString()}`);
-            return true;
-          } else if (hasSMSMFA && availableMethods.length === 1) {
-            // Auto-send SMS challenge for SMS-only users
+          if (hasSMSMFA) {
+            // Auto-send SMS challenge for SMS users
             const { error: sendError } = await supabase.functions.invoke('send-mfa-challenge-sms', {
               body: { 
                 email,
@@ -104,7 +73,6 @@ export const useAuthWithMFA = () => {
             // Build URL params
             const params = new URLSearchParams();
             params.set('email', email);
-            params.set('method', 'sms');
             if (redirectTo) {
               params.set('redirect', redirectTo);
             }
@@ -120,15 +88,8 @@ export const useAuthWithMFA = () => {
             navigate(`/auth/mfa-challenge?${params.toString()}`);
             return true;
           } else {
-            // Multiple methods available, let user choose
-            const params = new URLSearchParams();
-            params.set('email', email);
-            params.set('methods', availableMethods.join(','));
-            if (redirectTo) {
-              params.set('redirect', redirectTo);
-            }
-            navigate(`/auth/mfa-challenge?${params.toString()}`);
-            return true;
+            // No SMS MFA enabled, should not happen but fallback to normal login
+            console.warn('User has MFA enabled but no SMS method found');
           }
         } catch (error) {
           console.error('Error in MFA flow:', error);

@@ -3,40 +3,24 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
-  checkEmailMFAStatus,
   checkSMSMFAStatus,
   enableMFA,
   disableMFA 
 } from "@/utils/mfaUtils";
-import { MFAState, MFAMethod } from "@/types/mfa";
+import { SMSMFAState } from "@/types/mfa";
 
 export const useMFAManagement = () => {
   const { toast } = useToast();
-  const [state, setState] = useState<MFAState>({
-    emailMFA: {
-      enabled: false,
-      enrolling: false,
-      showDialog: false,
-    },
-    smsMFA: {
-      enabled: false,
-      enrolling: false,
-      showDialog: false,
-    },
+  const [smsMFA, setSmsMFA] = useState<SMSMFAState>({
+    enabled: false,
+    enrolling: false,
+    showDialog: false,
   });
 
   const checkMFAStatus = async () => {
     try {
-      const [emailEnabled, smsEnabled] = await Promise.all([
-        checkEmailMFAStatus(),
-        checkSMSMFAStatus()
-      ]);
-      
-      setState(prev => ({
-        ...prev,
-        emailMFA: { ...prev.emailMFA, enabled: emailEnabled },
-        smsMFA: { ...prev.smsMFA, enabled: smsEnabled }
-      }));
+      const smsEnabled = await checkSMSMFAStatus();
+      setSmsMFA(prev => ({ ...prev, enabled: smsEnabled }));
     } catch (error: any) {
       console.error('Error checking MFA status:', error);
       toast({
@@ -44,31 +28,6 @@ export const useMFAManagement = () => {
         description: "Failed to check MFA status",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleEnableEmailMFA = async () => {
-    try {
-      setState(prev => ({
-        ...prev,
-        emailMFA: { ...prev.emailMFA, enrolling: true }
-      }));
-      
-      await enableMFA('email');
-      
-      checkMFAStatus();
-    } catch (error: any) {
-      console.error('Error enabling email MFA:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to enable email MFA",
-        variant: "destructive",
-      });
-    } finally {
-      setState(prev => ({
-        ...prev,
-        emailMFA: { ...prev.emailMFA, enrolling: false }
-      }));
     }
   };
 
@@ -101,12 +60,9 @@ export const useMFAManagement = () => {
     }
 
     try {
-      setState(prev => ({
-        ...prev,
-        smsMFA: { ...prev.smsMFA, enrolling: true }
-      }));
+      setSmsMFA(prev => ({ ...prev, enrolling: true }));
       
-      await enableMFA('sms');
+      await enableMFA();
       
       checkMFAStatus();
     } catch (error: any) {
@@ -117,30 +73,13 @@ export const useMFAManagement = () => {
         variant: "destructive",
       });
     } finally {
-      setState(prev => ({
-        ...prev,
-        smsMFA: { ...prev.smsMFA, enrolling: false }
-      }));
-    }
-  };
-
-  const handleDisableEmailMFA = async () => {
-    try {
-      await disableMFA('email');
-      checkMFAStatus();
-    } catch (error: any) {
-      console.error('Error disabling email MFA:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to disable email MFA",
-        variant: "destructive",
-      });
+      setSmsMFA(prev => ({ ...prev, enrolling: false }));
     }
   };
 
   const handleDisableSMSMFA = async () => {
     try {
-      await disableMFA('sms');
+      await disableMFA();
       checkMFAStatus();
     } catch (error: any) {
       console.error('Error disabling SMS MFA:', error);
@@ -157,10 +96,8 @@ export const useMFAManagement = () => {
   }, []);
 
   return {
-    ...state,
-    handleEnableEmailMFA,
+    smsMFA,
     handleEnableSMSMFA,
-    handleDisableEmailMFA,
     handleDisableSMSMFA,
   };
 };

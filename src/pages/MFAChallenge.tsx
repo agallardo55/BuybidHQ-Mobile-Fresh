@@ -5,10 +5,8 @@ import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@/components/ui/input-otp";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Mail, Phone, Shield, ArrowLeft } from "lucide-react";
+import { Loader2, Phone, Shield, ArrowLeft } from "lucide-react";
 import { useMFAChallenge } from "@/hooks/useMFAChallenge";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { MFAMethod } from "@/types/mfa";
 
 import { useAuthWithMFA } from "@/hooks/useAuthWithMFA";
 
@@ -17,15 +15,11 @@ export default function MFAChallenge() {
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
   const redirectTo = searchParams.get('redirect') || '/dashboard';
-  const urlMethod = searchParams.get('method') as MFAMethod | null;
   const urlCodeSent = searchParams.get('codeSent') === 'true';
   
   const { completeMFALogin } = useAuthWithMFA();
 
   const {
-    availableMethods,
-    selectedMethod,
-    setSelectedMethod,
     verificationCode,
     setVerificationCode,
     isLoading,
@@ -35,23 +29,17 @@ export default function MFAChallenge() {
     sendMFAChallenge,
     verifyMFAChallenge,
     resendCode,
-  } = useMFAChallenge(email, urlMethod, urlCodeSent);
+  } = useMFAChallenge(email, urlCodeSent);
 
   useEffect(() => {
     if (!email) {
       navigate('/signin');
       return;
     }
-    
-    // Auto-select method if only one is available
-    if (availableMethods.length === 1) {
-      setSelectedMethod(availableMethods[0]);
-    }
-  }, [email, availableMethods, navigate, setSelectedMethod]);
+  }, [email, navigate]);
 
   const handleSendCode = async () => {
-    if (!selectedMethod) return;
-    const success = await sendMFAChallenge(selectedMethod);
+    const success = await sendMFAChallenge();
     if (!success && error?.includes('invalid') || error?.includes('not found')) {
       // If user/session is invalid, redirect back to login
       navigate('/signin');
@@ -59,8 +47,8 @@ export default function MFAChallenge() {
   };
 
   const handleVerifyCode = async () => {
-    if (!selectedMethod || !verificationCode) return;
-    const success = await verifyMFAChallenge(selectedMethod, verificationCode);
+    if (!verificationCode) return;
+    const success = await verifyMFAChallenge(verificationCode);
     if (success) {
       // Complete the MFA login process
       const loginSuccess = await completeMFALogin(email!, redirectTo);
@@ -85,7 +73,7 @@ export default function MFAChallenge() {
     );
   }
 
-  if (!email || availableMethods.length === 0) {
+  if (!email) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/50">
         <Card className="w-full max-w-md">
@@ -93,7 +81,7 @@ export default function MFAChallenge() {
             <Shield className="h-12 w-12 mx-auto text-destructive mb-4" />
             <CardTitle>MFA Not Available</CardTitle>
             <CardDescription>
-              No MFA methods are configured for this account.
+              SMS MFA is not available for this account.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -123,42 +111,8 @@ export default function MFAChallenge() {
             </Alert>
           )}
 
-          {/* Method Selection */}
-          {availableMethods.length > 1 && (
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Choose verification method:</Label>
-              <RadioGroup 
-                value={selectedMethod || ''} 
-                onValueChange={(value) => setSelectedMethod(value as MFAMethod)}
-                className="space-y-3"
-              >
-                {availableMethods.map((method) => (
-                  <div key={method} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50">
-                    <RadioGroupItem value={method} id={method} />
-                    {method === 'email' ? (
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <div className="flex-1">
-                      <Label htmlFor={method} className="font-medium cursor-pointer">
-                        {method === 'email' ? 'Email' : 'SMS'}
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        {method === 'email' 
-                          ? 'Receive code via email'
-                          : 'Receive code via text message'
-                        }
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          )}
-
           {/* Send Code Button */}
-          {selectedMethod && !codeSent && (
+          {!codeSent && (
             <Button 
               onClick={handleSendCode} 
               disabled={isLoading}
@@ -170,16 +124,19 @@ export default function MFAChallenge() {
                   Sending Code...
                 </>
               ) : (
-                `Send ${selectedMethod === 'email' ? 'Email' : 'SMS'} Code`
+                <>
+                  <Phone className="mr-2 h-4 w-4" />
+                  Send SMS Code
+                </>
               )}
             </Button>
           )}
 
           {/* Code Input */}
-          {selectedMethod && codeSent && (
+          {codeSent && (
             <div className="space-y-4">
               <div className="text-center text-sm text-muted-foreground">
-                We sent a verification code to your {selectedMethod === 'email' ? 'email' : 'phone'}.
+                We sent a verification code to your phone number.
               </div>
               
               <div className="space-y-2">
