@@ -1,9 +1,10 @@
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { toast } from "sonner"
+import ReCAPTCHA from "react-google-recaptcha"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,22 +19,57 @@ import { Input } from "@/components/ui/input"
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   name: z.string().optional(),
+  recaptchaToken: z.string().min(1, "Please complete the reCAPTCHA verification"),
 })
 
 export function WaitlistForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const [siteKey, setSiteKey] = useState<string>("")
+  const recaptchaRef = useRef<ReCAPTCHA>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       name: "",
+      recaptchaToken: "",
     },
   })
+
+  useEffect(() => {
+    const fetchSiteKey = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-recaptcha-key')
+        if (error) throw error
+        setSiteKey(data.siteKey)
+      } catch (error) {
+        console.error('Error fetching reCAPTCHA site key:', error)
+        toast.error("Failed to load security verification")
+      }
+    }
+    fetchSiteKey()
+  }, [])
+
+  const handleRecaptchaChange = (token: string | null) => {
+    form.setValue('recaptchaToken', token || '')
+    if (token) {
+      form.clearErrors('recaptchaToken')
+    }
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     try {
+      // Verify reCAPTCHA first
+      const { data: recaptchaData, error: recaptchaError } = await supabase.functions.invoke('verify-recaptcha', {
+        body: { token: values.recaptchaToken }
+      })
+
+      if (recaptchaError || !recaptchaData?.success) {
+        throw new Error('reCAPTCHA verification failed')
+      }
+
+      // Submit to waitlist
       const { error } = await supabase
         .from('waitlist')
         .insert([{ 
@@ -46,9 +82,14 @@ export function WaitlistForm() {
 
       toast.success("Thank you for joining our waitlist!")
       form.reset()
+      recaptchaRef.current?.reset()
     } catch (error) {
       console.error('Error submitting to waitlist:', error)
-      if (error.code === '23505') { // Unique violation
+      if (error.message?.includes('reCAPTCHA')) {
+        toast.error("Security verification failed. Please try again.")
+        recaptchaRef.current?.reset()
+        form.setValue('recaptchaToken', '')
+      } else if (error.code === '23505') { // Unique violation
         toast.error("This email is already on our waitlist")
       } else {
         toast.error("Failed to join waitlist. Please try again.")
@@ -89,6 +130,27 @@ export function WaitlistForm() {
                   className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60"
                   {...field}
                 />
+              </FormControl>
+              <FormMessage className="text-red-200" />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="recaptchaToken"
+          render={() => (
+            <FormItem>
+              <FormControl>
+                <div className="flex justify-center">
+                  {siteKey && (
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey={siteKey}
+                      onChange={handleRecaptchaChange}
+                      theme="dark"
+                    />
+                  )}
+                </div>
               </FormControl>
               <FormMessage className="text-red-200" />
             </FormItem>
