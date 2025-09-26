@@ -67,13 +67,12 @@ const PersonalInfoSection = ({ formData, onFormDataChange, formatPhoneNumber }: 
       </div>
       <div>
         <label htmlFor="businessNumber" className="block text-sm font-medium text-gray-700">
-          Business Number
+          Business Number (Optional)
         </label>
         <Input
           id="businessNumber"
           name="businessNumber"
           type="tel"
-          required
           value={formData.businessNumber}
           onChange={handleChange}
           placeholder="(123) 456-7890"

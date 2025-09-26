@@ -28,13 +28,12 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
     <div className="space-y-6">
       <div>
         <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-2">
-          Dealership Address
+          Dealership Address (Optional)
         </label>
         <Input
           id="dealershipAddress"
           name="dealershipAddress"
           type="text"
-          required
           value={formData.dealershipAddress}
           onChange={handleChange}
           className="mb-6"
@@ -43,13 +42,12 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
           <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-            City
+            City (Optional)
           </label>
           <Input
             id="city"
             name="city"
             type="text"
-            required
             value={formData.city}
             onChange={handleChange}
           />
@@ -57,11 +55,11 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
         <div className="grid grid-cols-2 gap-6">
           <div>
             <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-2">
-              State
+              State (Optional)
             </label>
             <Select onValueChange={(value) => onFormDataChange({ state: value })} value={formData.state}>
               <SelectTrigger>
-                <SelectValue placeholder="Select state" />
+                <SelectValue placeholder="Select state (optional)" />
               </SelectTrigger>
               <SelectContent>
                 {states.map((state) => (
@@ -74,13 +72,12 @@ const AddressSection = ({ formData, onFormDataChange }: AddressSectionProps) => 
           </div>
           <div>
             <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-2">
-              ZIP Code
+              ZIP Code (Optional)
             </label>
             <Input
               id="zipCode"
               name="zipCode"
               type="text"
-              required
               value={formData.zipCode}
               onChange={handleChange}
               pattern="[0-9]{5}"
