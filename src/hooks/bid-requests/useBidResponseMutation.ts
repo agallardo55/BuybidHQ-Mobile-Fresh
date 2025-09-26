@@ -14,12 +14,16 @@ export const useBidResponseMutation = () => {
       responseId: string; 
       status: "pending" | "accepted" | "declined"
     }) => {
+      console.log('🔄 BidResponseMutation called with:', { responseId, status });
+      
       // First, get the bid_request_id for this response
       const { data: currentResponse, error: fetchError } = await supabase
         .from('bid_responses')
-        .select('bid_request_id')
+        .select('bid_request_id, status')
         .eq('id', responseId)
         .single();
+
+      console.log('📋 Current response data:', currentResponse);
 
       if (fetchError) throw fetchError;
 
@@ -28,6 +32,8 @@ export const useBidResponseMutation = () => {
         .from('bid_responses')
         .update({ status })
         .eq('id', responseId);
+
+      console.log('✅ Response updated in DB:', { responseId, status, updateError });
 
       if (updateError) throw updateError;
 
@@ -52,7 +58,9 @@ export const useBidResponseMutation = () => {
       }
     },
     onSuccess: (_, { status }) => {
+      console.log('🎉 Mutation successful, invalidating queries...');
       queryClient.invalidateQueries({ queryKey: ['bidRequests'] });
+      console.log('🔄 Cache invalidated');
       if (status === "accepted") {
         toast.success("Buybid offer Accepted all other offers will be declined");
       } else {

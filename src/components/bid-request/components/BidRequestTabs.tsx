@@ -26,6 +26,7 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
   };
 
   const handleStatusUpdate = (offerId: string, value: "pending" | "accepted" | "declined") => {
+    console.log('🔄 BidRequestTabs handleStatusUpdate called:', { offerId, value });
     if (onStatusUpdate) {
       onStatusUpdate(offerId, value);
     }
@@ -110,7 +111,10 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
                       <div onClick={(e) => e.stopPropagation()}>
                         <Select
                           value={offer.status.toLowerCase()}
-                          onValueChange={(value: "pending" | "accepted" | "declined") => handleStatusUpdate(offer.id, value)}
+                          onValueChange={(value: "pending" | "accepted" | "declined") => {
+                            console.log('🎯 Select onValueChange:', { offerId: offer.id, currentStatus: offer.status, newValue: value });
+                            handleStatusUpdate(offer.id, value);
+                          }}
                         >
                           <SelectTrigger className={`w-[110px] h-8 text-sm focus:ring-0 focus:ring-offset-0
                             ${offer.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}

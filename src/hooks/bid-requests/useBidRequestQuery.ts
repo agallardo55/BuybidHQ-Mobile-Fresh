@@ -115,13 +115,15 @@ export const useBidRequestQuery = (enabled: boolean) => {
           throw responsesError;
         }
 
-        console.log('Fetched responses:', responses);
+        console.log('📋 Raw responses from DB:', responses);
 
         // Transform responses to ensure status is of correct type
         const typedResponses = responses?.map(response => ({
           ...response,
           status: convertFromDbStatus(response.status)
         }));
+
+        console.log('🔄 Responses after status conversion:', typedResponses);
 
         // Map responses to their requests
         const responsesMap = mapResponsesToOffers(typedResponses);
