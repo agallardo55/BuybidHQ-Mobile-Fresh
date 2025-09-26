@@ -1,132 +1,183 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-
-// Placeholder data - this would come from actual API
-const mockAccountAdmins = [
-  {
-    id: "1",
-    full_name: "John Smith",
-    email: "john.smith@dealership.com",
-    phone: "(555) 123-4567",
-    account_name: "Premium Auto Group",
-    status: "active",
-    created_at: "2024-01-15",
-  },
-  {
-    id: "2", 
-    full_name: "Sarah Wilson",
-    email: "sarah.wilson@motors.com",
-    phone: "(555) 987-6543",
-    account_name: "Wilson Motors",
-    status: "active",
-    created_at: "2024-02-20",
-  },
-];
+import { Dealership } from "@/types/dealerships";
+import { User } from "lucide-react";
 
 interface AccountAdminSectionProps {
-  searchTerm: string;
+  dealership?: Dealership;
 }
 
-export const AccountAdminSection = ({ searchTerm }: AccountAdminSectionProps) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+const AccountAdminSection = ({ dealership }: AccountAdminSectionProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedAdminId, setSelectedAdminId] = useState<string>("");
 
-  // Filter admins based on search term
-  const filteredAdmins = mockAccountAdmins.filter(admin =>
-    admin.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    admin.account_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Mock data - in a real app, this would come from your API
+  const availableUsers = [
+    { id: "1", name: "John Smith", email: "john@example.com" },
+    { id: "2", name: "Jane Doe", email: "jane@example.com" },
+    { id: "3", name: "Mike Johnson", email: "mike@example.com" },
+  ];
 
-  const handleCreateAdmin = () => {
-    console.log("Create new account admin");
+  const currentAdmin = dealership?.account_admin;
+
+  useEffect(() => {
+    if (currentAdmin) {
+      setSelectedAdminId(currentAdmin.id);
+    }
+  }, [currentAdmin]);
+
+  const handleSaveAdmin = () => {
+    // TODO: Implement API call to update account admin
+    console.log("Updating admin to user ID:", selectedAdminId);
+    setIsEditing(false);
+  };
+
+  const handleRemoveAdmin = () => {
+    // TODO: Implement API call to remove account admin
+    console.log("Removing current admin");
+    setSelectedAdminId("");
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-semibold">Account Administrators</h2>
-          <p className="text-sm text-muted-foreground">
-            Manage account administrators and their permissions
-          </p>
-        </div>
-        <Button onClick={handleCreateAdmin} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Add Account Admin
-        </Button>
+      <div>
+        <h3 className="text-lg font-semibold mb-2">Account Administrator</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Manage the account administrator for this dealership. The account admin has full access to manage users and settings.
+        </p>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Account</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredAdmins.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  <div className="text-muted-foreground">
-                    {searchTerm ? "No account admins found matching your search." : "No account admins found."}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredAdmins.map((admin) => (
-                <TableRow key={admin.id}>
-                  <TableCell className="font-medium">{admin.full_name}</TableCell>
-                  <TableCell>{admin.email}</TableCell>
-                  <TableCell>{admin.phone}</TableCell>
-                  <TableCell>{admin.account_name}</TableCell>
-                  <TableCell>
-                    <Badge variant={admin.status === 'active' ? 'default' : 'secondary'}>
-                      {admin.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{new Date(admin.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-destructive">
-                        Remove
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Current Account Admin
+          </CardTitle>
+          <CardDescription>
+            The user assigned as the account administrator for this dealership
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {currentAdmin ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Full Name</Label>
+                  <Input 
+                    value={currentAdmin.full_name || "N/A"} 
+                    disabled 
+                    className="bg-muted"
+                  />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input 
+                    value={currentAdmin.email || "N/A"} 
+                    disabled 
+                    className="bg-muted"
+                  />
+                </div>
+                <div>
+                  <Label>Mobile Number</Label>
+                  <Input 
+                    value={currentAdmin.mobile_number || "N/A"} 
+                    disabled 
+                    className="bg-muted"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Badge variant="outline" className="text-green-600 border-green-600">
+                    Active Admin
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  onClick={() => setIsEditing(true)}
+                >
+                  Change Admin
+                </Button>
+                <Button 
+                  type="button"
+                  variant="destructive" 
+                  onClick={handleRemoveAdmin}
+                >
+                  Remove Admin
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-4">No account administrator assigned</p>
+              <Button 
+                type="button"
+                onClick={() => setIsEditing(true)}
+              >
+                Assign Admin
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Pagination placeholder */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Showing {filteredAdmins.length} of {mockAccountAdmins.length} account admins
-        </div>
-      </div>
+      {isEditing && (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {currentAdmin ? "Change Account Admin" : "Assign Account Admin"}
+            </CardTitle>
+            <CardDescription>
+              Select a user to be the account administrator for this dealership
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Select User</Label>
+              <Select value={selectedAdminId} onValueChange={setSelectedAdminId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a user to assign as admin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableUsers.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      <div className="flex flex-col">
+                        <span>{user.name}</span>
+                        <span className="text-sm text-muted-foreground">{user.email}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                type="button"
+                onClick={handleSaveAdmin}
+                disabled={!selectedAdminId}
+              >
+                {currentAdmin ? "Update Admin" : "Assign Admin"}
+              </Button>
+              <Button 
+                type="button"
+                variant="outline" 
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

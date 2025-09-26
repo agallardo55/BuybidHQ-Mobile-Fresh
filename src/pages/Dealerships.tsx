@@ -10,7 +10,7 @@ import DealershipDialogs from "@/components/dealerships/DealershipDialogs";
 import DealershipHeader from "@/components/dealerships/DealershipHeader";
 import DealershipTableFooter from "@/components/dealerships/DealershipTableFooter";
 import TableNavigation from "@/components/dealerships/TableNavigation";
-import AccountAdminSection from "@/components/dealerships/AccountAdminSection";
+import AccountAdminTable from "@/components/dealerships/AccountAdminTable";
 
 const Dealerships = () => {
   const [activeTab, setActiveTab] = useState<'dealerships' | 'account-admins'>('dealerships');
@@ -129,7 +129,7 @@ const Dealerships = () => {
                 />
               </>
             ) : (
-              <AccountAdminSection searchTerm={searchTerm} />
+              <AccountAdminTable searchTerm={searchTerm} />
             )}
           </div>
         </div>

@@ -1,7 +1,7 @@
 
 import { Dealership, DealershipFormData } from "@/types/dealerships";
 import { DealershipWizardData } from "@/types/dealership-wizard";
-import DealershipForm from "./DealershipForm";
+import EditDealershipForm from "./EditDealershipForm";
 import DealershipWizardForm from "./wizard/DealershipWizardForm";
 
 import {
@@ -66,12 +66,12 @@ const DealershipDialogs = ({
       </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Dealership</DialogTitle>
           </DialogHeader>
           {selectedDealership && (
-            <DealershipForm
+            <EditDealershipForm
               initialData={{
                 dealerName: selectedDealership.dealer_name,
                 dealerId: selectedDealership.dealer_id || "",
@@ -82,6 +82,7 @@ const DealershipDialogs = ({
                 state: selectedDealership.state || "",
                 zipCode: selectedDealership.zip_code || "",
               }}
+              dealership={selectedDealership}
               onSubmit={onUpdateSubmit}
               onCancel={() => setIsEditDialogOpen(false)}
               isSubmitting={isUpdating}
