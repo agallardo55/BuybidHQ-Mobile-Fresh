@@ -49,68 +49,57 @@ export const useSignUpSubmission = ({
       // Step 2: Wait briefly for the trigger to create the initial user record
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      let dealershipId: string | undefined;
+      // Step 2: Create individual dealer record for all signup users
+      const { data: individualDealerData, error: individualDealerError } = await supabase
+        .from('individual_dealers')
+        .insert([
+          {
+            user_id: authData.user.id,
+            business_name: formData.dealershipName,
+            business_phone: formData.businessNumber,
+            business_email: formData.email,
+            license_number: formData.licenseNumber,
+            address: formData.dealershipAddress,
+            city: formData.city,
+            state: formData.state,
+            zip_code: formData.zipCode
+          }
+        ])
+        .select()
+        .single();
 
-      // Both individual and pay-per-bid plans use individual_dealers table
-      if (formData.planType === 'individual' || formData.planType === 'pay-per-bid') {
-        const { data: individualDealerData, error: individualDealerError } = await supabase
-          .from('individual_dealers')
-          .insert([
-            {
-              user_id: authData.user.id,
-              business_name: formData.dealershipName,
-              business_phone: formData.businessNumber,
-              business_email: formData.email,
-              license_number: formData.licenseNumber,
-              address: formData.dealershipAddress,
-              city: formData.city,
-              state: formData.state,
-              zip_code: formData.zipCode
-            }
-          ])
-          .select()
-          .single();
-
-        if (individualDealerError) {
-          throw individualDealerError;
-        }
-      } else {
-        // Only multi-user dealerships use the dealerships table
-        const { data: dealershipData, error: dealershipError } = await supabase
-          .from('dealerships')
-          .insert([
-            {
-              dealer_name: formData.dealershipName,
-              ...(formData.licenseNumber ? { dealer_id: formData.licenseNumber } : {}),
-              business_phone: formData.businessNumber,
-              business_email: formData.email,
-              address: formData.dealershipAddress,
-              city: formData.city,
-              state: formData.state,
-              zip_code: formData.zipCode,
-              dealer_type: 'multi_user',
-              is_active: true,
-            }
-          ])
-          .select()
-          .single();
-
-        if (dealershipError) {
-          throw dealershipError;
-        }
-
-        dealershipId = dealershipData.id;
+      if (individualDealerError) {
+        throw individualDealerError;
       }
 
-      // Step 4: Update the user record - both individual and pay-per-bid get 'individual' role
+      // Step 3: Create individual account for this user
+      const { data: accountData, error: accountError } = await supabase
+        .from('accounts')
+        .insert([
+          {
+            name: formData.dealershipName,
+            plan: formData.planType === 'beta-access' ? 'free' : 
+                  formData.planType === 'individual' ? 'connect' : 'free',
+            seat_limit: 1,
+            feature_group_enabled: false
+          }
+        ])
+        .select()
+        .single();
+
+      if (accountError) {
+        throw accountError;
+      }
+
+      // Step 4: Update the user record - all signup users get basic role and member app_role
       const { data: updatedUser, error: userError } = await supabase
         .from('buybidhq_users')
         .update({
           full_name: formData.fullName,
           mobile_number: formData.mobileNumber,
           email: formData.email,
-          role: formData.planType === 'beta-access' ? 'basic' : 'individual',
-          dealership_id: dealershipId,
+          role: 'basic', // All signup users get basic role
+          account_id: accountData.id, // Link to their individual account
           address: formData.dealershipAddress,
           city: formData.city,
           state: formData.state,
@@ -118,7 +107,7 @@ export const useSignUpSubmission = ({
           is_active: true,
           status: ['individual', 'pay-per-bid'].includes(formData.planType) ? 'pending_payment' : 'active',
           sms_consent: formData.smsConsent,
-          app_role: dealershipId ? 'account_admin' : 'member', // First user in dealership becomes account admin
+          app_role: 'member', // All signup users are individual dealers with member role
           ...(formData.carrier ? { phone_carrier: formData.carrier } : {})
         })
         .eq('id', authData.user.id)
@@ -127,26 +116,6 @@ export const useSignUpSubmission = ({
 
       if (userError) {
         throw userError;
-      }
-
-      // Step 4.5: If this is a multi-user dealership, make the user an account admin
-      if (dealershipId && updatedUser.account_id) {
-        const { error: accountAdminError } = await supabase
-          .from('account_administrators')
-          .insert({
-            user_id: authData.user.id,
-            account_id: updatedUser.account_id,
-            email: formData.email,
-            full_name: formData.fullName,
-            mobile_number: formData.mobileNumber,
-            status: 'active',
-            granted_by: authData.user.id, // Self-granted during signup
-            granted_at: new Date().toISOString()
-          });
-
-        if (accountAdminError && !accountAdminError.message.includes('duplicate key')) {
-          console.error('Account admin creation error:', accountAdminError);
-        }
       }
 
       // Step 5: Create subscription record with appropriate payment type
