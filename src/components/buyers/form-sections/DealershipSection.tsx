@@ -24,7 +24,7 @@ const DealershipSection = ({
   return <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
-          Dealership Name
+          Dealership Name <span className="text-red-500">*</span>
         </label>
         <Input id="dealershipName" name="dealershipName" type="text" required value={formData.dealershipName} onChange={handleChange} placeholder="Enter dealership name" />
       </div>

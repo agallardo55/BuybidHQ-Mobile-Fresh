@@ -26,7 +26,7 @@ const PersonalInfoSection = ({ formData, onFormDataChange, formatPhoneNumber }: 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-          Full Name
+          Full Name <span className="text-red-500">*</span>
         </label>
         <Input
           id="fullName"
@@ -39,7 +39,7 @@ const PersonalInfoSection = ({ formData, onFormDataChange, formatPhoneNumber }: 
       </div>
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email address
+          Email address <span className="text-red-500">*</span>
         </label>
         <Input
           id="email"
@@ -52,7 +52,7 @@ const PersonalInfoSection = ({ formData, onFormDataChange, formatPhoneNumber }: 
       </div>
       <div>
         <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
-          Mobile Number
+          Mobile Number <span className="text-red-500">*</span>
         </label>
         <Input
           id="mobileNumber"
