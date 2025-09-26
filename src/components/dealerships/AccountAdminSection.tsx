@@ -151,7 +151,7 @@ const AccountAdminSection = ({ dealership }: AccountAdminSectionProps) => {
                     <SelectItem key={user.id} value={user.id}>
                       <div className="flex flex-col">
                         <span>{user.name}</span>
-                        <span className="text-sm text-muted-foreground">{user.email}</span>
+                        <span className="text-sm text-muted-foreground group-data-[highlighted]:text-white">{user.email}</span>
                       </div>
                     </SelectItem>
                   ))}
