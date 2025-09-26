@@ -11,6 +11,7 @@ import DealershipHeader from "@/components/dealerships/DealershipHeader";
 import DealershipTableFooter from "@/components/dealerships/DealershipTableFooter";
 
 const Dealerships = () => {
+  // Dealerships management page
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
