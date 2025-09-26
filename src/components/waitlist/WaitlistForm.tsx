@@ -143,12 +143,14 @@ export function WaitlistForm() {
               <FormControl>
                 <div className="flex justify-center">
                   {siteKey && (
-                    <ReCAPTCHA
-                      ref={recaptchaRef}
-                      sitekey={siteKey}
-                      onChange={handleRecaptchaChange}
-                      theme="dark"
-                    />
+                    <div className="bg-white/10 border border-white/20 rounded-lg p-4 backdrop-blur-sm">
+                      <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey={siteKey}
+                        onChange={handleRecaptchaChange}
+                        theme="light"
+                      />
+                    </div>
                   )}
                 </div>
               </FormControl>
