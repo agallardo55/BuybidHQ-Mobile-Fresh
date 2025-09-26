@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { hasRequiredRole } from "@/config/features";
-import { supabase } from "@/integrations/supabase/client";
+import { enhancedLogout } from "@/utils/enhanced-auth";
 import {
   Tooltip,
   TooltipContent,
@@ -16,8 +16,14 @@ const BidRequestNavigation = () => {
   const { currentUser, isLoading } = useCurrentUser();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+    try {
+      await enhancedLogout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Force navigation even if logout fails
+      navigate('/');
+    }
   };
 
   return (
