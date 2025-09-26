@@ -62,9 +62,25 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
 
   // Get the display status - show "Accepted" if any offer is accepted
   const getDisplayStatus = () => {
+    console.log('🔍 Status Debug:', {
+      requestId: request.id,
+      requestStatus: request.status, 
+      offerCount: request.offerSummary?.count || 0,
+      hasAcceptedOffer: request.offerSummary?.hasAcceptedOffer,
+      offers: request.offers?.map(o => ({ id: o.id, status: o.status }))
+    });
+
+    // If there are no offers yet, always show "Pending"
+    if (!request.offerSummary?.count || request.offerSummary.count === 0) {
+      return 'Pending';
+    }
+    
+    // If any offer is accepted, show "Accepted"
     if (request.offerSummary?.hasAcceptedOffer) {
       return 'Accepted';
     }
+    
+    // Otherwise show the actual bid request status
     return request.status;
   };
 
