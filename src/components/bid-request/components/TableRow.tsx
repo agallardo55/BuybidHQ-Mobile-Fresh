@@ -46,6 +46,8 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
   // Get status badge variant
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
+      case 'accepted':
+        return 'default';
       case 'approved':
         return 'default';
       case 'completed':
@@ -56,6 +58,14 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
       default:
         return 'outline';
     }
+  };
+
+  // Get the display status - show "Accepted" if any offer is accepted
+  const getDisplayStatus = () => {
+    if (request.offerSummary?.hasAcceptedOffer) {
+      return 'Accepted';
+    }
+    return request.status;
   };
 
   return (
@@ -103,8 +113,8 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
         {formatOfferSummary()}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-        <Badge variant={getStatusBadgeVariant(request.status)}>
-          {request.status}
+        <Badge variant={getStatusBadgeVariant(getDisplayStatus())}>
+          {getDisplayStatus()}
         </Badge>
       </TableCell>
     </UITableRow>
