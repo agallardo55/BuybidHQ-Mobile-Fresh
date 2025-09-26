@@ -11,6 +11,7 @@ interface EditDealershipFormProps {
   dealership?: Dealership;
   onSubmit: (data: DealershipFormData) => void;
   onCancel: () => void;
+  onDelete?: () => void;
   isSubmitting: boolean;
 }
 
@@ -19,6 +20,7 @@ const EditDealershipForm = ({
   dealership,
   onSubmit,
   onCancel,
+  onDelete,
   isSubmitting
 }: EditDealershipFormProps) => {
   const [formData, setFormData] = useState<DealershipFormData>({
@@ -93,21 +95,33 @@ const EditDealershipForm = ({
         </TabsContent>
       </Tabs>
 
-      <div className="flex justify-end space-x-4 pt-4 border-t">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Saving..." : "Save"}
-        </Button>
+      <div className="flex justify-between items-center pt-4 border-t">
+        {onDelete && (
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={onDelete}
+            disabled={isSubmitting}
+          >
+            Delete Account
+          </Button>
+        )}
+        <div className="flex space-x-4 ml-auto">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Save"}
+          </Button>
+        </div>
       </div>
     </form>
   );
