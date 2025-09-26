@@ -49,18 +49,10 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        // Get user data from buybidhq_users table with dealership info
+        // Get user data from buybidhq_users table
         const { data: userDataArray, error: userError } = await supabase
           .from('buybidhq_users')
-          .select(`
-            *,
-            dealerships!buybidhq_users_dealership_id_fkey (
-              dealer_name,
-              business_phone,
-              business_email,
-              license_number
-            )
-          `)
+          .select('*')
           .eq('id', session.user.id)
           .single();
 
@@ -77,6 +69,43 @@ export const useCurrentUser = () => {
         }
 
         const userData = userDataArray;
+
+        // Get dealership info based on user role
+        let dealershipInfo = {
+          dealer_name: null,
+          business_phone: null,
+          business_email: null,
+          license_number: null
+        };
+
+        if (userData.app_role === 'member') {
+          // For Members, get info from individual_dealers table
+          const { data: individualDealer } = await supabase
+            .from('individual_dealers')
+            .select('business_name, business_phone, business_email, license_number')
+            .eq('user_id', userData.id)
+            .maybeSingle();
+          
+          if (individualDealer) {
+            dealershipInfo = {
+              dealer_name: individualDealer.business_name,
+              business_phone: individualDealer.business_phone,
+              business_email: individualDealer.business_email,
+              license_number: individualDealer.license_number
+            };
+          }
+        } else if (userData.dealership_id) {
+          // For Account Admins/Super Admins, get info from dealerships table
+          const { data: dealership } = await supabase
+            .from('dealerships')
+            .select('dealer_name, business_phone, business_email, license_number')
+            .eq('id', userData.dealership_id)
+            .maybeSingle();
+          
+          if (dealership) {
+            dealershipInfo = dealership;
+          }
+        }
 
         // Check if user is a superadmin
         const { data: isSuperAdmin, error: superAdminError } = await supabase
@@ -102,10 +131,10 @@ export const useCurrentUser = () => {
           zip_code: userData.zip_code,
           account_id: userData.account_id,
           dealership_id: userData.dealership_id,
-          dealer_name: userData.dealerships?.dealer_name || null,
-          business_phone: userData.dealerships?.business_phone || null,
-          business_email: userData.dealerships?.business_email || null,
-          license_number: userData.dealerships?.license_number || null,
+          dealer_name: dealershipInfo.dealer_name,
+          business_phone: dealershipInfo.business_phone,
+          business_email: dealershipInfo.business_email,
+          license_number: dealershipInfo.license_number,
           phone_carrier: userData.phone_carrier,
           profile_photo: userData.profile_photo || null,
           bid_request_email_enabled: userData.bid_request_email_enabled ?? true,

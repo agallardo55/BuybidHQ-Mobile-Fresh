@@ -24,6 +24,7 @@ const states = [
 
 export const DealershipTab = () => {
   const { formData, setFormData, handleChange, isLoading } = useAccountForm();
+  const { currentUser } = useCurrentUser();
   const { toast } = useToast();
 
   const handleStateChange = (value: string) => {
@@ -36,11 +37,23 @@ export const DealershipTab = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const isMember = currentUser?.app_role === 'member';
+
     // Validate required fields
-    if (!formData.dealershipAddress || !formData.city || !formData.state || !formData.zipCode) {
+    let validationFields = ['dealershipAddress', 'city', 'state', 'zipCode'];
+    if (isMember) {
+      validationFields.push('dealershipName');
+    }
+
+    const missingFields = validationFields.filter(field => {
+      const value = formData[field as keyof typeof formData];
+      return !value || value.toString().trim() === '';
+    });
+
+    if (missingFields.length > 0) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required address fields.",
+        description: `Please fill in all required fields: ${missingFields.join(', ')}.`,
         variant: "destructive",
       });
       return;
@@ -50,7 +63,8 @@ export const DealershipTab = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { error } = await supabase
+      // Always update user address in buybidhq_users
+      const { error: userError } = await supabase
         .from('buybidhq_users')
         .update({
           address: formData.dealershipAddress,
@@ -60,23 +74,49 @@ export const DealershipTab = () => {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (userError) throw userError;
+
+      // For Members, also update/create individual_dealers record
+      if (isMember) {
+        const { error: dealerError } = await supabase
+          .from('individual_dealers')
+          .upsert({
+            user_id: user.id,
+            business_name: formData.dealershipName,
+            license_number: formData.licenseNumber || null,
+            address: formData.dealershipAddress,
+            city: formData.city,
+            state: formData.state,
+            zip_code: formData.zipCode,
+            business_email: currentUser?.email || '',
+            business_phone: currentUser?.mobile_number || null,
+          }, {
+            onConflict: 'user_id'
+          });
+
+        if (dealerError) throw dealerError;
+      }
 
       toast({
         title: "Success",
-        description: "Address information updated successfully.",
+        description: isMember 
+          ? "Dealership information updated successfully."
+          : "Address information updated successfully.",
       });
+
+      // Invalidate currentUser query to refresh the data
+      window.location.reload();
     } catch (error) {
-      console.error('Error updating address:', error);
+      console.error('Error updating information:', error);
       toast({
         title: "Error",
-        description: "Failed to update address details. Please try again.",
+        description: "Failed to update details. Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !currentUser) {
     return (
       <div className="flex justify-center items-center h-48">
         <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
@@ -84,13 +124,16 @@ export const DealershipTab = () => {
     );
   }
 
+  const isMember = currentUser.app_role === 'member';
+  const canEditDealershipInfo = isMember;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
             <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700 mb-1">
-              Dealership Name
+              Dealership Name {canEditDealershipInfo && <span className="text-red-500">*</span>}
             </label>
             <Input
               id="dealershipName"
@@ -99,10 +142,13 @@ export const DealershipTab = () => {
               value={formData.dealershipName}
               onChange={handleChange}
               placeholder="Business/Dealership name"
-              disabled
-              className="bg-gray-50"
+              disabled={!canEditDealershipInfo}
+              className={!canEditDealershipInfo ? "bg-gray-50" : ""}
+              required={canEditDealershipInfo}
             />
-            <p className="text-xs text-gray-500 mt-1">Contact support to change dealership information</p>
+            {!canEditDealershipInfo && (
+              <p className="text-xs text-gray-500 mt-1">Contact support to change dealership information</p>
+            )}
           </div>
           <div>
             <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
@@ -115,8 +161,8 @@ export const DealershipTab = () => {
               value={formData.licenseNumber}
               onChange={handleChange}
               placeholder="Dealer license number"
-              disabled
-              className="bg-gray-50"
+              disabled={!canEditDealershipInfo}
+              className={!canEditDealershipInfo ? "bg-gray-50" : ""}
             />
           </div>
           <div>
@@ -192,7 +238,7 @@ export const DealershipTab = () => {
           type="submit"
           className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
         >
-          Save Address
+          {isMember ? 'Save Dealership Information' : 'Save Address'}
         </Button>
       </div>
       <div className="h-8 border-t mt-6"></div>
