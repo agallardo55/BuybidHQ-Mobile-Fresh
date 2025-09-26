@@ -9,13 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { DealershipMobileCard } from "./DealershipMobileCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DealershipListProps {
   dealerships: Dealership[];
-  onView: (dealership: Dealership) => void;
   onEdit: (dealership: Dealership) => void;
   onDelete: (dealership: Dealership) => void;
 }
@@ -26,7 +25,7 @@ const ActionButton = ({
   variant = "ghost",
   className = "",
 }: { 
-  icon: typeof Eye | typeof Pencil | typeof Trash2;
+  icon: typeof Pencil | typeof Trash2;
   onClick: () => void;
   variant?: "ghost";
   className?: string;
@@ -43,7 +42,6 @@ const ActionButton = ({
 
 const DealershipList = ({ 
   dealerships,
-  onView,
   onEdit,
   onDelete
 }: DealershipListProps) => {
@@ -55,7 +53,6 @@ const DealershipList = ({
           <DealershipMobileCard
             key={dealership.id}
             dealership={dealership}
-            onView={onView}
             onEdit={onEdit}
             onDelete={onDelete}
           />
@@ -96,10 +93,6 @@ const DealershipList = ({
               </TableCell>
               <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
                 <div className="flex items-center gap-2">
-                  <ActionButton
-                    icon={Eye}
-                    onClick={() => onView(dealership)}
-                  />
                   <ActionButton
                     icon={Pencil}
                     onClick={() => onEdit(dealership)}

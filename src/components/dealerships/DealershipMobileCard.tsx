@@ -1,18 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building, Phone, Mail, MapPin, User, Eye, Pencil, Trash2 } from "lucide-react";
+import { Building, Phone, Mail, MapPin, User, Pencil, Trash2 } from "lucide-react";
 import { Dealership } from "@/types/dealerships";
 
 interface DealershipMobileCardProps {
   dealership: Dealership;
-  onView: (dealership: Dealership) => void;
   onEdit: (dealership: Dealership) => void;
   onDelete: (dealership: Dealership) => void;
 }
 
 export const DealershipMobileCard = ({
   dealership,
-  onView,
   onEdit,
   onDelete
 }: DealershipMobileCardProps) => {
@@ -51,15 +49,6 @@ export const DealershipMobileCard = ({
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onView(dealership)}
-            className="flex-1"
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            View
-          </Button>
           <Button
             variant="outline"
             size="sm"
