@@ -38,12 +38,6 @@ const BidRequestNavigation = () => {
             >
               Dashboard
             </Link>
-            <Link 
-              to="/buyers" 
-              className="text-gray-700 hover:text-accent transition-colors"
-            >
-              Buyers
-            </Link>
             {(!isLoading && hasRequiredRole(currentUser?.role)) && (
               <Link 
                 to="/users" 
@@ -52,6 +46,12 @@ const BidRequestNavigation = () => {
                 Users
               </Link>
             )}
+            <Link 
+              to="/buyers" 
+              className="text-gray-700 hover:text-accent transition-colors"
+            >
+              Buyers
+            </Link>
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
