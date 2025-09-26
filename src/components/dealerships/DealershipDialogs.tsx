@@ -85,6 +85,7 @@ const DealershipDialogs = ({
               dealership={selectedDealership}
               onSubmit={onUpdateSubmit}
               onCancel={() => setIsEditDialogOpen(false)}
+              onDelete={() => setIsDeleteDialogOpen(true)}
               isSubmitting={isUpdating}
             />
           )}
