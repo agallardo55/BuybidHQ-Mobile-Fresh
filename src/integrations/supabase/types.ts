@@ -1870,6 +1870,10 @@ export type Database = {
           number_type: Database["public"]["Enums"]["phone_number_type"]
         }[]
       }
+      get_current_user_account_admin_status: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       get_public_bid_request_details: {
         Args: { p_token: string }
         Returns: {
