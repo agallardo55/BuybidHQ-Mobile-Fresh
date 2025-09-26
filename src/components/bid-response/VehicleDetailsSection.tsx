@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X, Share2 } from "lucide-react";
+import { X, Share2, Copy } from "lucide-react";
 import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -41,6 +41,16 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
     } catch (error) {
       console.error('Error sharing:', error);
       toast.error('Failed to share');
+    }
+  };
+
+  const handleCopyVin = async () => {
+    try {
+      await navigator.clipboard.writeText(vehicle.vin);
+      toast.success('VIN copied to clipboard');
+    } catch (error) {
+      console.error('Error copying VIN:', error);
+      toast.error('Failed to copy VIN');
     }
   };
 
@@ -137,9 +147,18 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
           <Separator className="mb-6" />
           <CardContent>
             <div className="grid gap-1.5">
-              <div className="grid grid-cols-5 gap-1.5 py-0.5">
-                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">VIN :</p>
-                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.vin}</p>
+              <div className="flex items-center justify-between py-0.5">
+                <div className="flex-1 grid grid-cols-5 gap-1.5">
+                  <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">VIN :</p>
+                  <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.vin}</p>
+                </div>
+                <button
+                  onClick={handleCopyVin}
+                  className="ml-2 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                  title="Copy VIN"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
               </div>
               <div className="grid grid-cols-5 gap-1.5 py-0.5">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Mileage :</p>
