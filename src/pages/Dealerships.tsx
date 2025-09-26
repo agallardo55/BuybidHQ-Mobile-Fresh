@@ -9,11 +9,8 @@ import DealershipList from "@/components/dealerships/DealershipList";
 import DealershipDialogs from "@/components/dealerships/DealershipDialogs";
 import DealershipHeader from "@/components/dealerships/DealershipHeader";
 import DealershipTableFooter from "@/components/dealerships/DealershipTableFooter";
-import TableNavigation from "@/components/dealerships/TableNavigation";
-import AccountAdminTable from "@/components/dealerships/AccountAdminTable";
 
 const Dealerships = () => {
-  const [activeTab, setActiveTab] = useState<'dealerships' | 'account-admins'>('dealerships');
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -94,43 +91,32 @@ const Dealerships = () => {
       <div className="pt-24 px-4 sm:px-8 pb-8 flex-grow">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <TableNavigation 
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
+            <DealershipHeader
+              searchTerm={searchTerm}
+              onSearchChange={handleSearchChange}
+              setIsCreateDialogOpen={setIsCreateDialogOpen}
             />
 
-            {activeTab === 'dealerships' ? (
-              <>
-                <DealershipHeader
-                  searchTerm={searchTerm}
-                  onSearchChange={handleSearchChange}
-                  setIsCreateDialogOpen={setIsCreateDialogOpen}
-                />
+            <DealershipList
+              dealerships={dealerships}
+              onEdit={(dealership) => {
+                setSelectedDealership(dealership);
+                setIsEditDialogOpen(true);
+              }}
+              onDelete={(dealership) => {
+                setSelectedDealership(dealership);
+                setIsDeleteDialogOpen(true);
+              }}
+            />
 
-                <DealershipList
-                  dealerships={dealerships}
-                  onEdit={(dealership) => {
-                    setSelectedDealership(dealership);
-                    setIsEditDialogOpen(true);
-                  }}
-                  onDelete={(dealership) => {
-                    setSelectedDealership(dealership);
-                    setIsDeleteDialogOpen(true);
-                  }}
-                />
-
-                <DealershipTableFooter
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  pageSize={pageSize}
-                  total={total}
-                  onPageChange={setCurrentPage}
-                  onPageSizeChange={setPageSize}
-                />
-              </>
-            ) : (
-              <AccountAdminTable searchTerm={searchTerm} />
-            )}
+            <DealershipTableFooter
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              total={total}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
           </div>
         </div>
       </div>
