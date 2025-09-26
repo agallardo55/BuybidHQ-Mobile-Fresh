@@ -11,6 +11,7 @@ const convertFromDbStatus = (status: string): BidStatus => {
   const normalizedStatus = status.toLowerCase();
   switch (normalizedStatus) {
     case "approved":
+    case "accepted":
       return "accepted";
     case "pending":
       return "pending";
