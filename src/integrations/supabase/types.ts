@@ -1874,6 +1874,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      get_current_user_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          account_id: string
+          app_role: string
+          dealership_id: string
+          is_admin: boolean
+          user_id: string
+          user_role: Database["public"]["Enums"]["user_role"]
+        }[]
+      }
+      get_current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_public_bid_request_details: {
         Args: { p_token: string }
         Returns: {
