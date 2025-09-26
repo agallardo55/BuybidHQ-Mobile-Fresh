@@ -47,7 +47,7 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
       case 'accepted':
-        return 'default';
+        return 'success';
       case 'approved':
         return 'default';
       case 'completed':
