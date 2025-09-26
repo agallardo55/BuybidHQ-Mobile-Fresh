@@ -37,11 +37,11 @@ export const DealershipTab = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const isMember = currentUser?.app_role === 'member';
+    const canEditDealership = currentUser?.app_role === 'member' || currentUser?.app_role === 'account_admin';
 
     // Validate required fields
     let validationFields = ['dealershipAddress', 'city', 'state', 'zipCode'];
-    if (isMember) {
+    if (canEditDealership) {
       validationFields.push('dealershipName');
     }
 
@@ -76,8 +76,8 @@ export const DealershipTab = () => {
 
       if (userError) throw userError;
 
-      // For Members, also update/create individual_dealers record
-      if (isMember) {
+      // For Members and Account Admins, also update/create dealership record
+      if (canEditDealership) {
         const { error: dealerError } = await supabase
           .from('individual_dealers')
           .upsert({
@@ -99,7 +99,7 @@ export const DealershipTab = () => {
 
       toast({
         title: "Success",
-        description: isMember 
+        description: canEditDealership 
           ? "Dealership information updated successfully."
           : "Address information updated successfully.",
       });
@@ -124,8 +124,7 @@ export const DealershipTab = () => {
     );
   }
 
-  const isMember = currentUser.app_role === 'member';
-  const canEditDealershipInfo = isMember;
+  const canEditDealershipInfo = currentUser.app_role === 'member' || currentUser.app_role === 'account_admin';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
@@ -238,7 +237,7 @@ export const DealershipTab = () => {
           type="submit"
           className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
         >
-          {isMember ? 'Save Dealership Information' : 'Save Address'}
+          {canEditDealershipInfo ? 'Save Dealership Information' : 'Save Address'}
         </Button>
       </div>
       <div className="h-8 border-t mt-6"></div>
