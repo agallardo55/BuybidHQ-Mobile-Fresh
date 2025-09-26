@@ -14,6 +14,7 @@ import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import carPlaceholder from "@/assets/car-placeholder.png";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -90,7 +91,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
         </CardContent>
       </Card>
 
-      {images.length > 0 && (
+      {images.length > 0 ? (
         <>
           <div className="relative w-full max-w-2xl mx-auto">
             <Carousel opts={{ startIndex: 0 }}>
@@ -135,6 +136,16 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
             </DialogContent>
           </Dialog>
         </>
+      ) : (
+        <div className="relative w-full max-w-2xl mx-auto">
+          <div className="aspect-video w-full bg-gray-100 rounded-lg flex items-center justify-center">
+            <img
+              src={carPlaceholder}
+              alt="Vehicle placeholder"
+              className="w-32 h-32 object-contain opacity-50"
+            />
+          </div>
+        </div>
       )}
 
       <div className="space-y-4">
