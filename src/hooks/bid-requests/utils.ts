@@ -82,8 +82,8 @@ export const transformBidRequest = (
 ): BidRequest => {
   const status = ["pending", "accepted", "declined", "approved"].includes(item.status.toLowerCase()) 
     ? (item.status.toLowerCase() === "pending" ? "Pending" :
-       item.status.toLowerCase() === "approved" ? "Active" : 
-       item.status.toLowerCase() === "declined" ? "Cancelled" : "Pending") as "Pending" | "Active" | "Completed" | "Cancelled"
+       item.status.toLowerCase() === "approved" ? "Approved" : 
+       item.status.toLowerCase() === "declined" ? "Declined" : "Pending") as "Pending" | "Approved" | "Completed" | "Declined"
     : "Pending";
 
   // Calculate offer summary

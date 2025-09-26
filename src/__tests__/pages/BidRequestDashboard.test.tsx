@@ -116,7 +116,7 @@ const mockBidRequests: BidRequest[] = [
   {
     id: '2',
     createdAt: '2024-01-10T10:00:00Z',
-    status: 'Active',
+    status: 'Approved',
     userId: 'test-user-id',
     accountId: 'test-account-id',
     vehicleId: 'vehicle-2',

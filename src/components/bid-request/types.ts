@@ -2,7 +2,7 @@
 export interface BidRequest {
   id: string;
   createdAt: string;
-  status: "Pending" | "Active" | "Completed" | "Cancelled";
+  status: "Pending" | "Approved" | "Completed" | "Declined";
   userId: string;
   accountId: string;
   vehicleId: string;
