@@ -149,15 +149,11 @@ const AccountAdminSection = ({ dealership }: AccountAdminSectionProps) => {
                 <SelectContent>
                   {availableUsers.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{user.name}</span>
-                          <span className="text-sm text-muted-foreground group-data-[highlighted]:text-white">{user.dealership}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground group-data-[highlighted]:text-white">
-                          <span>{user.mobile_number}</span>
-                          <span>{user.email}</span>
-                        </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium">{user.name}</span>
+                        <span className="text-sm text-muted-foreground group-data-[highlighted]:text-white">{user.dealership}</span>
+                        <span className="text-sm text-muted-foreground group-data-[highlighted]:text-white">{user.mobile_number}</span>
+                        <span className="text-sm text-muted-foreground group-data-[highlighted]:text-white">{user.email}</span>
                       </div>
                     </SelectItem>
                   ))}
