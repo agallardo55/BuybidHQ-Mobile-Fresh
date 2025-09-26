@@ -43,7 +43,7 @@ describe("useUpdateUser", () => {
   const mockUserData: UserFormData = {
     fullName: "Updated User",
     email: "test@example.com",
-    role: "dealer",
+    role: "basic",
     mobileNumber: "1234567890",
     isActive: true,
   };

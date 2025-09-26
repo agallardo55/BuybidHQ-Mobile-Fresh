@@ -35,8 +35,8 @@ const UsersTable = ({ users, onEdit, onDelete, sortConfig, onSort }: UsersTableP
       return true;
     }
 
-    // Dealer can only manage users in their dealership
-    if (currentUser.role === 'dealer') {
+    // Account admins (former dealers) can only manage users in their dealership
+    if (currentUser.role === 'basic' && currentUser.dealership_id) {
       return user.dealership_id === currentUser.dealership_id;
     }
 

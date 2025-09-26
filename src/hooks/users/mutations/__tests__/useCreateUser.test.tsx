@@ -55,7 +55,7 @@ describe("useCreateUser", () => {
   const mockUserData: UserFormData = {
     fullName: "Test User",
     email: "test@example.com",
-    role: "dealer",
+    role: "basic",
     mobileNumber: "1234567890",
     isActive: true,
   };

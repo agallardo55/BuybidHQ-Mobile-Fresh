@@ -112,8 +112,8 @@ export const isAccountAdmin = (user: AuthUser | null): boolean => {
 export const canManageUsers = (user: AuthUser | null): boolean => {
   // Super admin can manage all users globally
   // Account admin can manage users within their account
-  // Dealers can manage associates within their dealership
-  return isAdmin(user) || isAccountAdmin(user) || hasRole(user, 'dealer');
+  // Former dealers (now basic+account_admin) can manage members within their dealership
+  return isAdmin(user) || isAccountAdmin(user);
 };
 
 /**
@@ -178,12 +178,14 @@ export const getUserAvatarUrl = (user: AuthUser | null): string | null => {
 
 /**
  * Role hierarchy for comparison (higher number = higher privilege)
+ * Note: dealer role consolidated to basic+account_admin
  */
 const ROLE_HIERARCHY: Record<UserRole, number> = {
   basic: 1,
   individual: 2,
+  associate: 2,
   salesperson: 3,
-  dealer: 4,
+  manager: 4,
   admin: 5,
   super_admin: 6,
 };

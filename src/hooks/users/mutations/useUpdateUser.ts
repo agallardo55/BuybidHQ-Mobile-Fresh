@@ -54,7 +54,7 @@ export const useUpdateUser = () => {
           ...transformedUser,
           dealership_id: dealershipId,
           app_role: userData.isAccountAdmin ? 'account_admin' : 'member'
-        })
+        } as any) // Type assertion to handle enum mismatch
         .eq('id', userId)
         .select()
         .single();

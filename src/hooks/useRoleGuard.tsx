@@ -219,9 +219,9 @@ export const useAccountAdminGuard = (redirectTo?: string) => {
 
 export const useDealerGuard = (redirectTo?: string) => {
   return useRoleGuard({
-    minRole: 'dealer',
+    anyOfAppRoles: ['account_admin', 'super_admin'],
     redirectTo,
-    accessDeniedMessage: 'Dealer access required.'
+    accessDeniedMessage: 'Account admin access required.'
   });
 };
 

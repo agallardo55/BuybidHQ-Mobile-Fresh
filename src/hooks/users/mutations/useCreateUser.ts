@@ -107,7 +107,7 @@ export const useCreateUser = () => {
           dealership_id: dealershipId,
           email: normalizedEmail,
           app_role: userData.isAccountAdmin ? 'account_admin' : 'member'
-        })
+        } as any) // Type assertion to handle enum mismatch
         .eq('id', user.id)
         .select()
         .single();

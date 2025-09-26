@@ -103,14 +103,14 @@ const UserInformationSection = ({
             <Label htmlFor="role">Role</Label>
             <Select
               value={formData.role}
-              onValueChange={(value: "basic" | "individual" | "dealer" | "associate") => 
+              onValueChange={(value: "basic" | "individual" | "associate" | "salesperson" | "manager" | "admin") => 
                 onFormDataChange({ role: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                {['basic', 'individual', 'dealer', 'associate'].map(role => (
+                {['basic', 'individual', 'associate', 'salesperson', 'manager', 'admin'].map(role => (
                   <SelectItem key={role} value={role}>
                     {capitalizeFirstLetter(role)}
                   </SelectItem>

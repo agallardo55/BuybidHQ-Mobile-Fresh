@@ -8,8 +8,8 @@
 // Base auth types extending Supabase auth
 import { User, Session } from '@supabase/supabase-js';
 
-// Application-specific user roles
-export type UserRole = 'basic' | 'individual' | 'dealer' | 'salesperson' | 'admin' | 'super_admin';
+// Application-specific user roles (dealer consolidated to basic+account_admin)
+export type UserRole = 'basic' | 'individual' | 'associate' | 'salesperson' | 'manager' | 'admin' | 'super_admin';
 
 // Application-specific app roles for new system
 export type AppRole = 'member' | 'manager' | 'account_admin' | 'super_admin';
@@ -61,8 +61,9 @@ export interface RolePermissions {
 export const ROLE_PERMISSIONS: RolePermissions = {
   basic: ['view_own_data', 'create_bid_requests'],
   individual: ['view_own_data', 'create_bid_requests', 'manage_buyers'],
-  dealer: ['view_own_data', 'create_bid_requests', 'manage_buyers'],
+  associate: ['view_own_data', 'create_bid_requests'],
   salesperson: ['view_own_data', 'create_bid_requests'],
+  manager: ['view_own_data', 'create_bid_requests', 'manage_buyers'],
   admin: ['view_account_data', 'create_bid_requests', 'manage_all_buyers', 'manage_users'],
   super_admin: ['view_all_data', 'manage_all_accounts', 'system_admin']
 } as const;

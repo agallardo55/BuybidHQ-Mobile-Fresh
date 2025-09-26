@@ -106,7 +106,8 @@ const DealershipInformationSection = ({
             />
           </div>
 
-          {formData.role === 'dealer' && (
+          {/* Show account admin toggle for basic users (former dealers) */}
+          {formData.role === 'basic' && (
             <div className="flex items-center space-x-2">
               <Switch
                 id="isAccountAdmin"

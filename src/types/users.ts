@@ -1,6 +1,6 @@
 
-// Database User Role type matching Supabase enum
-export type UserRole = 'basic' | 'individual' | 'dealer' | 'associate' | 'admin';
+// Database User Role type matching Supabase enum (dealer consolidated to basic+account_admin)
+export type UserRole = 'basic' | 'individual' | 'associate' | 'salesperson' | 'manager' | 'admin';
 
 // Carrier type for mobile providers
 export type CarrierType = 'Verizon Wireless' | 'AT&T' | 'T-Mobile' | 'Sprint' | 'US Cellular' | 'Metro PCS' | 'Boost Mobile' | 'Cricket' | 'Virgin Mobile';
@@ -80,7 +80,7 @@ export interface DealershipFormData {
 
 // Type guard for UserRole
 export const isUserRole = (role: string): role is UserRole => {
-  return ['basic', 'individual', 'dealer', 'associate', 'admin'].includes(role);
+  return ['basic', 'individual', 'associate', 'salesperson', 'manager', 'admin'].includes(role);
 };
 
 // Utility type for transforming snake_case to camelCase

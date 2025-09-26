@@ -21,7 +21,8 @@ export const UserMobileCard = ({
   const canManageUser = (user: UserType) => {
     if (!currentUser) return false;
     if (currentUser.role === 'admin') return true;
-    if (currentUser.role === 'dealer') {
+    // Account admins (former dealers) can manage users in their dealership
+    if (currentUser.role === 'basic' && currentUser.dealership_id) {
       return user.dealership_id === currentUser.dealership_id;
     }
     return false;
