@@ -71,11 +71,12 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
             <TableBody>
               {requests && requests.length > 0 ? (
                 requests.map((request) => (
-                  <TableRowComponent
-                    key={request.id}
-                    request={request}
-                    onClick={() => handleRowClick(request)}
-                  />
+                <TableRowComponent
+                  key={request.id}
+                  request={request}
+                  onClick={() => handleRowClick(request)}
+                  onStatusUpdate={handleStatusUpdate}
+                />
                 ))
               ) : (
                 <tr>

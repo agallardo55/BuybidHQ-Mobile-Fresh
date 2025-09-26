@@ -1,6 +1,7 @@
 
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, parseISO } from "date-fns";
 import { BidRequest } from "../types";
 import carPlaceholder from "@/assets/car-placeholder.png";
@@ -8,9 +9,10 @@ import carPlaceholder from "@/assets/car-placeholder.png";
 interface TableRowProps {
   request: BidRequest;
   onClick: () => void;
+  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
-export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
+export const TableRowComponent = ({ request, onClick, onStatusUpdate }: TableRowProps) => {
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), 'MM/dd/yyyy');
@@ -103,9 +105,44 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
         {formatOfferSummary()}
       </TableCell>
       <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-        <Badge variant={getStatusBadgeVariant(request.status)}>
-          {request.status}
-        </Badge>
+        {request.offers.length > 0 && onStatusUpdate ? (
+          <div className="space-y-1">
+            {request.offers.map((offer) => (
+              <div key={offer.id} className="flex items-center gap-2">
+                <span className="text-xs text-gray-600 min-w-0 truncate">{offer.buyerName}:</span>
+                <Select
+                  value={offer.status.toLowerCase()}
+                  onValueChange={(value: "pending" | "accepted" | "declined") => {
+                    console.log('🎯 TableRow status update:', { offerId: offer.id, newStatus: value });
+                    onStatusUpdate(offer.id, value);
+                  }}
+                >
+                  <SelectTrigger 
+                    className={`w-[90px] h-6 text-xs focus:ring-0 focus:ring-offset-0
+                      ${offer.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                      ${offer.status.toLowerCase() === 'declined' ? 'bg-red-100 text-red-800 border-red-200' : ''}
+                    `}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <SelectValue>
+                      {offer.status.toLowerCase() === 'declined' ? 'Not Selected' : 
+                       offer.status.charAt(0).toUpperCase() + offer.status.slice(1)}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="accepted">Accepted</SelectItem>
+                    <SelectItem value="declined">Not Selected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Badge variant={getStatusBadgeVariant(request.status)}>
+            {request.status}
+          </Badge>
+        )}
       </TableCell>
     </UITableRow>
   );
