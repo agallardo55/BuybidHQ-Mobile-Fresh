@@ -18,9 +18,9 @@ const AccountAdminSection = ({ dealership }: AccountAdminSectionProps) => {
 
   // Mock data - in a real app, this would come from your API
   const availableUsers = [
-    { id: "1", name: "John Smith", email: "john@example.com" },
-    { id: "2", name: "Jane Doe", email: "jane@example.com" },
-    { id: "3", name: "Mike Johnson", email: "mike@example.com" },
+    { id: "1", name: "John Smith", email: "john@example.com", dealership: "ABC Motors", mobile_number: "(555) 123-4567" },
+    { id: "2", name: "Jane Doe", email: "jane@example.com", dealership: "XYZ Auto", mobile_number: "(555) 987-6543" },
+    { id: "3", name: "Mike Johnson", email: "mike@example.com", dealership: "Premier Cars", mobile_number: "(555) 456-7890" },
   ];
 
   const currentAdmin = dealership?.account_admin;
@@ -149,9 +149,15 @@ const AccountAdminSection = ({ dealership }: AccountAdminSectionProps) => {
                 <SelectContent>
                   {availableUsers.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
-                      <div className="flex items-center gap-2">
-                        <span>{user.name}</span>
-                        <span className="text-sm text-muted-foreground group-data-[highlighted]:text-white">{user.email}</span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{user.name}</span>
+                          <span className="text-sm text-muted-foreground group-data-[highlighted]:text-white">{user.dealership}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground group-data-[highlighted]:text-white">
+                          <span>{user.mobile_number}</span>
+                          <span>{user.email}</span>
+                        </div>
                       </div>
                     </SelectItem>
                   ))}
