@@ -75,7 +75,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                   key={request.id}
                   request={request}
                   onClick={() => handleRowClick(request)}
-                  onStatusUpdate={handleStatusUpdate}
                 />
                 ))
               ) : (
