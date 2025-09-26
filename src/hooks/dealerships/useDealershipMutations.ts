@@ -145,12 +145,27 @@ export const useDealershipMutations = () => {
 
   const deleteDealership = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      // First, soft delete all users associated with this dealership
+      const { error: usersError } = await supabase
+        .from('buybidhq_users')
+        .update({ is_active: false })
+        .eq('dealership_id', id);
+
+      if (usersError) {
+        console.error('Error soft deleting associated users:', usersError);
+        throw new Error(`Failed to delete associated users: ${usersError.message}`);
+      }
+
+      // Then, soft delete the dealership itself
+      const { error: dealershipError } = await supabase
         .from('dealerships')
         .update({ is_active: false })
         .eq('id', id);
 
-      if (error) throw error;
+      if (dealershipError) {
+        console.error('Error soft deleting dealership:', dealershipError);
+        throw new Error(`Failed to delete dealership: ${dealershipError.message}`);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dealerships'] });
