@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X, Share2, Copy } from "lucide-react";
+import { X, Copy } from "lucide-react";
 import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,23 +28,6 @@ interface VehicleDetailsSectionProps {
 const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'BuyBid Vehicle Bid Request',
-          url: window.location.href,
-        });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast.success('Link copied to clipboard');
-      }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      toast.error('Failed to share');
-    }
-  };
-
   const handleCopyVin = async () => {
     try {
       await navigator.clipboard.writeText(vehicle.vin);
@@ -60,17 +43,8 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="pb-4 flex flex-row items-center justify-between">
+        <CardHeader className="pb-4">
           <CardTitle className="text-2xl">New Bid Request</CardTitle>
-          <Button 
-            variant="outline"
-            size="sm"
-            onClick={handleShare}
-            className="bg-white hover:bg-gray-50 shadow-sm rounded-lg"
-          >
-            <Share2 className="h-4 w-4 text-gray-700 mr-1" />
-            <span className="text-sm text-gray-700">Share</span>
-          </Button>
         </CardHeader>
         <Separator className="mb-6" />
         <CardContent>
