@@ -28,7 +28,7 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
-      <div className={`${currentStep === 'plan' ? 'max-w-5xl' : currentStep === 'personal' ? 'max-w-xl' : 'max-w-2xl'} w-full space-y-6 bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-md`}>
+      <div className={`${currentStep === 'plan' ? 'max-w-5xl' : 'max-w-2xl'} w-full space-y-6 bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-md`}>
         <div className="text-center">
           <img 
             src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
