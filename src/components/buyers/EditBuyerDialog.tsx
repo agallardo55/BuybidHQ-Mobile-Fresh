@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Buyer, BuyerFormData } from "@/types/buyers";
 import { useState, useEffect } from "react";
+import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
 import AddBuyerForm from "./AddBuyerForm";
 
 interface EditBuyerDialogProps {
@@ -17,6 +18,8 @@ interface EditBuyerDialogProps {
 }
 
 const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDialogProps) => {
+  const { formatPhoneNumber } = usePhoneFormat();
+  
   const [formData, setFormData] = useState<BuyerFormData>({
     fullName: "",
     email: "",
@@ -36,8 +39,8 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
       setFormData({
         fullName: buyer.name || "",
         email: buyer.email || "",
-        mobileNumber: buyer.mobileNumber || "",
-        businessNumber: buyer.businessNumber || "",
+        mobileNumber: formatPhoneNumber(buyer.mobileNumber || ""),
+        businessNumber: formatPhoneNumber(buyer.businessNumber || ""),
         dealershipName: buyer.dealership || "",
         licenseNumber: buyer.dealerId || "",
         dealershipAddress: buyer.address || "",
@@ -47,7 +50,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         phoneCarrier: buyer.phoneCarrier || "",
       });
     }
-  }, [buyer]);
+  }, [buyer, formatPhoneNumber]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
