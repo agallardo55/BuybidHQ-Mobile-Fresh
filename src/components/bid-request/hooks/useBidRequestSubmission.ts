@@ -109,7 +109,13 @@ export const useBidRequestSubmission = () => {
         }
 
         // Generate bid submission URL with secure token
-        const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+        const baseUrl = import.meta.env.VITE_APP_URL;
+        
+        if (!baseUrl) {
+          console.error(`[${requestId}] VITE_APP_URL environment variable not set`);
+          toast.error(`Configuration error: Unable to generate bid URL for ${buyerData.buyer_name}`);
+          continue;
+        }
         const bidRequestUrl = `${baseUrl}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenResponse)}`;
 
         // Send notification via Twilio

@@ -101,7 +101,11 @@ export function useQuickPostSubmission(
         }
 
         // Prepare SMS notification
-        const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+        const baseUrl = import.meta.env.VITE_APP_URL;
+        
+        if (!baseUrl) {
+          throw new Error('VITE_APP_URL environment variable not set');
+        }
         const bidRequestUrl = `${baseUrl}/quick-bid/${bidRequestData.id}?token=${tokenData.token}`;
         
         smsPromises.push(
