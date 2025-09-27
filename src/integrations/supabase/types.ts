@@ -1905,7 +1905,6 @@ export type Database = {
           buyer_mobile: string
           buyer_name: string
           created_at: string
-          notes: string
           request_id: string
           status: string
           vehicle_drivetrain: string

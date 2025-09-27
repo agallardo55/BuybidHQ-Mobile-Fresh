@@ -137,7 +137,7 @@ const useQuickBidDetails = () => {
         request: {
           id: request.request_id,
           seller_name: 'Seller', // Use a default value since this isn't in the response
-          seller_notes: request.notes,
+          seller_notes: '', // No seller notes available
           seller_email: '',
           seller_phone: '',
         },
