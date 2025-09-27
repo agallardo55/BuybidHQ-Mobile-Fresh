@@ -25,9 +25,6 @@ const DeleteBuyerDialog = ({
             This action will permanently delete the buyer and cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="py-4">
-          
-        </div>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setReason("")}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
