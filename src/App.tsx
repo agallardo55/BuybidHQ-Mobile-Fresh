@@ -21,7 +21,6 @@ import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import SmsTest from "./pages/SmsTest";
 import MFAChallenge from "./pages/MFAChallenge";
 import { StrictMode } from "react";
 
@@ -120,14 +119,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Account />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/sms-test"
-              element={
-                <ProtectedRoute>
-                  <SmsTest />
                 </ProtectedRoute>
               }
             />
