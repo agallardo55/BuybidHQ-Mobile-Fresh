@@ -34,23 +34,22 @@ const AddBuyerForm = ({
         onChange={onChange}
       />
       <div className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Email</label>
-          <Input
-            placeholder="Enter buyer email"
-            name="email"
-            type="email"
-            required
-            value={formData.email}
-            onChange={onChange}
-          />
-        </div>
         <ContactInfoSection
           mobile={formData.mobile}
           carrier={formData.carrier}
           onChange={onChange}
           onCarrierChange={onCarrierChange}
         />
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Email (Optional)</label>
+          <Input
+            placeholder="Enter buyer email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={onChange}
+          />
+        </div>
       </div>
       <Button 
         type="submit"
