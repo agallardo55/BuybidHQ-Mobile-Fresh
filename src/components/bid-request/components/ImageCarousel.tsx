@@ -18,7 +18,7 @@ const ImageCarousel = ({
   onDeleteImage,
   isDeleting 
 }: ImageCarouselProps) => {
-  const sortedUploadedImages = [...uploadedImages].reverse();
+  const sortedUploadedImages = [...uploadedImages];
 
   // Show placeholder if no images are available
   if (sortedUploadedImages.length === 0 && selectedFileUrls.length === 0) {
