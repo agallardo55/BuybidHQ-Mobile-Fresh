@@ -53,7 +53,7 @@ const DealershipDialogs = ({
   return (
     <>
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="w-[800px] h-[900px] max-h-[90vh] md:max-h-[95vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-[95vw] sm:max-w-[600px] lg:max-w-[650px] h-[900px] max-h-[90vh] md:max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Dealership</DialogTitle>
           </DialogHeader>
@@ -66,7 +66,7 @@ const DealershipDialogs = ({
       </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-full max-w-[95vw] sm:max-w-[700px] lg:max-w-[750px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Dealership</DialogTitle>
           </DialogHeader>
