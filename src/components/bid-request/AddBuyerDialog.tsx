@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { CarrierType } from "@/types/buyers";
 import AddBuyerForm from "./form-sections/AddBuyerForm";
 import { CARRIER_OPTIONS } from "./form-sections/ContactInfoSection";
+import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
 
 interface AddBuyerDialogProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface AddBuyerDialogProps {
 const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
   const { currentUser } = useCurrentUser();
   const { createBuyer } = useBuyers();
+  const { formatPhoneNumber: formatPhoneForDisplay } = usePhoneFormat();
   const [formData, setFormData] = useState({
     name: "",
     dealership: "",
@@ -82,10 +84,20 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Format phone number for mobile field
+    if (name === 'mobile') {
+      const formattedValue = formatPhoneForDisplay(value);
+      setFormData(prev => ({
+        ...prev,
+        [name]: formattedValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleCarrierChange = (value: string) => {
