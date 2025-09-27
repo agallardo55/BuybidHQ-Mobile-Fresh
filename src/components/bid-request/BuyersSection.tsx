@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, UserRound } from "lucide-react";
 import { MappedBuyer } from "@/hooks/buyers/types";
+import { formatPhoneForDisplay } from "@/utils/buyerUtils";
 
 interface BuyersSectionProps {
   errors: { buyers?: string };
@@ -94,9 +95,9 @@ const BuyersSection = ({
                   <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
                     {buyer.dealership || '-'}
                   </div>
-                  <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
-                    {buyer.mobile || '-'}
-                  </div>
+                   <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
+                     {formatPhoneForDisplay(buyer.mobile)}
+                   </div>
                   <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
                     {buyer.email || '-'}
                   </div>

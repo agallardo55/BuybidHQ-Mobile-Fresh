@@ -37,6 +37,25 @@ export const filterBuyers = (buyers: Buyer[], searchTerm: string) => {
   ));
 };
 
+export const formatPhoneForDisplay = (phone: string | null | undefined): string => {
+  if (!phone) return '-';
+  
+  // Remove all non-digit characters
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  // Handle US phone numbers (10 or 11 digits)
+  if (digitsOnly.length === 11 && digitsOnly.startsWith('1')) {
+    // Remove leading 1 for US numbers
+    const phoneNumber = digitsOnly.substring(1);
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  } else if (digitsOnly.length === 10) {
+    return `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
+  }
+  
+  // Return original if not a standard format
+  return phone;
+};
+
 export const handleSort = (
   field: keyof Buyer,
   currentConfig: SortConfig,

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Buyer } from "@/types/buyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { cn } from "@/lib/utils";
+import { formatPhoneForDisplay } from "@/utils/buyerUtils";
 
 interface BuyersTableProps {
   buyers: Buyer[];
@@ -91,7 +92,7 @@ const BuyersTable = ({ buyers, onDelete, onEdit, sortConfig, onSort }: BuyersTab
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.name}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.email}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.dealership}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.mobileNumber}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{formatPhoneForDisplay(buyer.mobileNumber)}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.location}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.acceptedBids}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.pendingBids}</TableCell>
