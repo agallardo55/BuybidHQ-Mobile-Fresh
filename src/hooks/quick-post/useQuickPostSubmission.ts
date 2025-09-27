@@ -101,7 +101,8 @@ export function useQuickPostSubmission(
         }
 
         // Prepare SMS notification
-        const bidRequestUrl = `${window.location.origin}/quick-bid/${bidRequestData.id}?token=${tokenData.token}`;
+        const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+        const bidRequestUrl = `${baseUrl}/quick-bid/${bidRequestData.id}?token=${tokenData.token}`;
         
         smsPromises.push(
           supabase.functions.invoke('send-twilio-sms', {

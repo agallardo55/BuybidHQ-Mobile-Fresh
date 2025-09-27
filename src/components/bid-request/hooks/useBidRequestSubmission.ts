@@ -109,7 +109,8 @@ export const useBidRequestSubmission = () => {
         }
 
         // Generate bid submission URL with secure token
-        const bidRequestUrl = `${window.location.origin}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenResponse)}`;
+        const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+        const bidRequestUrl = `${baseUrl}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenResponse)}`;
 
         // Send notification via Twilio
         const { error: twilioError } = await supabase.functions.invoke('send-twilio-sms', {
