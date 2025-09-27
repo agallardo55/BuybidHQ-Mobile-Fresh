@@ -45,11 +45,7 @@ const App = () => (
             />
             <Route 
               path="/signup" 
-              element={
-                <AuthRoute>
-                  <SignUp />
-                </AuthRoute>
-              } 
+              element={<SignUp />} 
             />
             <Route 
               path="/forgot-password" 
