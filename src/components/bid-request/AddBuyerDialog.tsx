@@ -4,9 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useBuyers } from "@/hooks/useBuyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
-import { CarrierType } from "@/types/buyers";
 import AddBuyerForm from "./form-sections/AddBuyerForm";
-import { CARRIER_OPTIONS } from "./form-sections/ContactInfoSection";
 import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
 
 interface AddBuyerDialogProps {
@@ -23,7 +21,6 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     dealership: "",
     mobile: "",
     email: "",
-    carrier: "" as CarrierType | "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,7 +57,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         fullName: formData.name,
         dealershipName: formData.dealership,
         mobileNumber: formatPhoneNumber(formData.mobile),
-        phoneCarrier: formData.carrier || "",
+        phoneCarrier: "",
         email: formData.email,
         businessNumber: "",
         licenseNumber: "",
@@ -71,7 +68,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       };
 
       await createBuyer(buyerData);
-      setFormData({ name: "", dealership: "", mobile: "", email: "", carrier: "" });
+      setFormData({ name: "", dealership: "", mobile: "", email: "" });
       onOpenChange(false);
       toast.success("Buyer added successfully");
     } catch (error) {
@@ -100,13 +97,6 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
     }
   };
 
-  const handleCarrierChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      carrier: value as CarrierType
-    }));
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="w-[400px] max-w-[95vw]">
@@ -117,7 +107,6 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
           formData={formData}
           isValidating={false}
           onChange={handleChange}
-          onCarrierChange={handleCarrierChange}
           onSubmit={handleSubmit}
         />
       </DialogContent>
