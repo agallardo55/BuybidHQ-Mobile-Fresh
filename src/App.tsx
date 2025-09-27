@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { PublicAppWrapper } from "@/components/PublicAppWrapper";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute, AuthRoute } from "@/components/ProtectedRoute";
 import { PasswordResetRoute } from "@/components/PasswordResetRoute";
 import { RecoveryRedirector } from "@/components/RecoveryRedirector";
@@ -29,7 +29,7 @@ const App = () => (
   <StrictMode>
     <TooltipProvider>
       <BrowserRouter>
-        <PublicAppWrapper>
+        <AuthProvider>
           <RecoveryRedirector />
           <Toaster />
           <Sonner position="top-center" />
@@ -141,7 +141,7 @@ const App = () => (
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </PublicAppWrapper>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </StrictMode>

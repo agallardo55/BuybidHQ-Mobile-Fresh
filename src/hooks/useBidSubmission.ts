@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { publicSupabase } from "@/integrations/supabase/publicClient";
+import { supabase } from "@/integrations/supabase/client";
 import { BidResponseFormData } from "@/components/bid-response/types";
 import { AlertType } from './useAlertDialog';
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ export const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmi
         throw new Error("Offer amount must be greater than 0");
       }
 
-      const { data, error } = await publicSupabase.functions.invoke('submit-public-bid', {
+      const { data, error } = await supabase.functions.invoke('submit-public-bid', {
         body: {
           token,
           offerAmount: cleanAmount
