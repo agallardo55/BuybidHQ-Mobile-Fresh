@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { publicSupabase } from "@/integrations/supabase/publicClient";
 import VehicleDetailsSection from "@/components/bid-response/VehicleDetailsSection";
@@ -109,12 +109,14 @@ const useBidSubmission = ({ token, showAlert, setSubmitted }: UseBidSubmissionPr
 
 const useQuickBidDetails = () => {
   const [searchParams] = useSearchParams();
+  const { id } = useParams<{ id: string }>();
   const token = searchParams.get('token');
 
   return useQuery<QuickBidDetails>({
-    queryKey: ['quickBidDetails', token],
+    queryKey: ['quickBidDetails', id, token],
     queryFn: async () => {
       if (!token) throw new Error('No bid token provided');
+      if (!id) throw new Error('No bid request ID provided');
 
       // Use the new secure RPC to get bid request details with public client
       const { data: requestDetails, error: requestError } = await publicSupabase
@@ -163,12 +165,13 @@ const useQuickBidDetails = () => {
         }
       };
     },
-    enabled: !!token,
+    enabled: !!(id && token),
   });
 };
 
 const PublicBidResponse = () => {
   const [searchParams] = useSearchParams();
+  const { id } = useParams<{ id: string }>();
   const [submitted, setSubmitted] = useState(false);
 
   const token = searchParams.get('token');
@@ -181,8 +184,8 @@ const PublicBidResponse = () => {
     setSubmitted
   });
 
-  // Show error if no token is provided
-  if (!token) {
+  // Show error if no token or ID is provided
+  if (!token || !id) {
     return (
       <BidResponseLayout>
         <ErrorState message="Invalid bid submission link. Please check your email and try again." />
