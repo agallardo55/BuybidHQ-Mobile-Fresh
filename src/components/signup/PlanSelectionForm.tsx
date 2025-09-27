@@ -39,10 +39,7 @@ const PlanSelectionForm = ({
             </ul>
           </CardContent>
           <CardFooter>
-            <Button 
-              onClick={() => onSelect('beta-access')} 
-              className="w-full bg-accent hover:bg-accent/90"
-            >
+            <Button onClick={() => onSelect('beta-access')} className="w-full bg-accent hover:bg-accent/90">
               Get Started
             </Button>
           </CardFooter>
@@ -55,7 +52,7 @@ const PlanSelectionForm = ({
           </CardHeader>
           <CardContent className="flex-grow">
             <div className="mt-2 flex items-baseline">
-              <span className="text-3xl font-bold">$100</span>
+              <span className="text-3xl font-bold">$199</span>
               <span className="ml-1 text-gray-500">/per mo.</span>
             </div>
             <ul className="mt-6 space-y-4">
@@ -82,10 +79,7 @@ const PlanSelectionForm = ({
             </ul>
           </CardContent>
           <CardFooter>
-            <Button 
-              onClick={() => onSelect('pay-per-bid')} 
-              className="w-full bg-accent hover:bg-accent/90"
-            >
+            <Button onClick={() => onSelect('pay-per-bid')} className="w-full bg-accent hover:bg-accent/90">
               Get Started
             </Button>
           </CardFooter>
