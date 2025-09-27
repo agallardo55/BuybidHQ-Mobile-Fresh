@@ -6,7 +6,7 @@ import BidForm from "@/components/bid-response/BidForm";
 import BidResponseLayout from "@/components/bid-response/BidResponseLayout";
 import { ErrorState, LoadingState, SubmittedState } from "@/components/bid-response/BidResponseStates";
 import BidResponseMarketing from "@/components/bid-response/BidResponseMarketing";
-import { useBidResponseDetails } from "@/hooks/useBidResponseDetails";
+import { useQuickBidDetails } from "@/hooks/quick-bid/useQuickBidDetails";
 import { supabase } from "@/integrations/supabase/client";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { AlertDialogCustom } from "@/components/bid-response/AlertDialogCustom";
@@ -22,7 +22,7 @@ const BidResponse = () => {
   const token = searchParams.get('token');
   const { id } = useParams();
   
-  const { data, isLoading, error } = useBidResponseDetails();
+  const { data, isLoading, error } = useQuickBidDetails();
   const { alert, showAlert, setAlert } = useAlertDialog();
   const { isSubmitting, handleSubmit } = useBidSubmission({
     token,
@@ -90,8 +90,8 @@ const BidResponse = () => {
     }
   }, [token, showAlert, initialValidationDone, submitted]);
 
-  // Show error if no id is provided
-  if (!id) {
+  // Show error if no token is provided
+  if (!token) {
     return (
       <BidResponseLayout>
         <ErrorState message="Invalid bid submission link. Please check your email and try again." />
@@ -136,7 +136,7 @@ const BidResponse = () => {
               ...data.vehicle,
               year: String(data.vehicle.year),
               mileage: String(data.vehicle.mileage),
-              images: data.vehicle.images ? [...data.vehicle.images].reverse() : []
+              images: []
             }}
             buyer={data.buyer}
           />
