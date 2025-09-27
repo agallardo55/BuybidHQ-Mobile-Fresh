@@ -9,7 +9,7 @@ export const useCreateBidRequest = () => {
   const { validateForm } = useFormValidation();
   const { submitBidRequest } = useBidRequestSubmission();
 
-  const handleSubmit = async (userId: string) => {
+  const handleSubmit = async (userId: string, accountId: string) => {
     const newErrors = validateForm(formState.formData, formState.selectedBuyers);
     formState.setErrors(newErrors);
     
@@ -28,6 +28,7 @@ export const useCreateBidRequest = () => {
       await submitBidRequest({
         formState,
         userId,
+        accountId,
       });
     } catch (error) {
       // Error is already handled in submitBidRequest

@@ -47,10 +47,10 @@ const CreateBidRequest = () => {
   );
 
   const onSubmit = () => {
-    if (!currentUser?.id) {
+    if (!currentUser?.id || !currentUser?.account_id) {
       return;
     }
-    handleSubmit(currentUser.id);
+    handleSubmit(currentUser.id, currentUser.account_id);
   };
 
   // Handler for image deletion

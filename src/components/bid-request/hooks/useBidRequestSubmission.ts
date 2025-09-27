@@ -7,12 +7,13 @@ import { toast } from "sonner";
 interface BidRequestSubmissionProps {
   formState: FormState;
   userId: string;
+  accountId: string;
 }
 
 export const useBidRequestSubmission = () => {
   const navigate = useNavigate();
 
-  const submitBidRequest = async ({ formState, userId }: BidRequestSubmissionProps) => {
+  const submitBidRequest = async ({ formState, userId, accountId }: BidRequestSubmissionProps) => {
     const { selectedBuyers, uploadedImageUrls, formData } = formState;
     const requestId = crypto.randomUUID();
 
@@ -66,7 +67,8 @@ export const useBidRequestSubmission = () => {
         recon_data: reconData,
         image_urls: uploadedImageUrls,
         buyer_ids: selectedBuyers,
-        creator_id: userId
+        creator_id: userId,
+        account_id: accountId
       });
 
       if (bidRequestError) {

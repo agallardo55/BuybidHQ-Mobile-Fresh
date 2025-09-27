@@ -1744,13 +1744,22 @@ export type Database = {
         Returns: undefined
       }
       create_complete_bid_request: {
-        Args: {
-          buyer_ids: string[]
-          creator_id: string
-          image_urls: string[]
-          recon_data: Json
-          vehicle_data: Json
-        }
+        Args:
+          | {
+              account_id: string
+              buyer_ids: string[]
+              creator_id: string
+              image_urls: string[]
+              recon_data: Json
+              vehicle_data: Json
+            }
+          | {
+              buyer_ids: string[]
+              creator_id: string
+              image_urls: string[]
+              recon_data: Json
+              vehicle_data: Json
+            }
         Returns: string
       }
       create_mfa_verification: {
