@@ -11,123 +11,123 @@ const PlanSelectionForm = ({
   onSelect,
   onBack
 }: PlanSelectionFormProps) => {
-    return <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle className="text-2xl">Free Plan</CardTitle>
-            <CardDescription>Perfect for the individual dealer</CardDescription>
+    return <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <Card className="flex flex-col h-full">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl">Free Plan</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Perfect for the individual dealer</CardDescription>
           </CardHeader>
-          <CardContent className="flex-grow">
+          <CardContent className="flex-grow p-4 sm:p-6 pt-0">
             <div className="mt-2 flex items-baseline">
-              <span className="text-3xl font-bold">$0</span>
-              <span className="ml-1 text-gray-500">/per user/per mo.</span>
+              <span className="text-2xl sm:text-3xl font-bold">$0</span>
+              <span className="ml-1 text-gray-500 text-sm sm:text-base">/per user/per mo.</span>
             </div>
-            <ul className="mt-6 space-y-4">
+            <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>10 Buybids per mo.</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">10 Buybids per mo.</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Unlimited buyer connections</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Unlimited buyer connections</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Buybid dashboard</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Buybid dashboard</span>
               </li>
             </ul>
           </CardContent>
-          <CardFooter>
-            <Button onClick={() => onSelect('beta-access')} className="w-full bg-accent hover:bg-accent/90">
+          <CardFooter className="p-4 sm:p-6 pt-0">
+            <Button onClick={() => onSelect('beta-access')} className="w-full bg-accent hover:bg-accent/90 h-10 sm:h-11">
               Get Started
             </Button>
           </CardFooter>
         </Card>
 
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle className="text-2xl">Buybid Connect</CardTitle>
-            <CardDescription>For buyers looking to expand their network</CardDescription>
+        <Card className="flex flex-col h-full">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl">Buybid Connect</CardTitle>
+            <CardDescription className="text-sm sm:text-base">For buyers looking to expand their network</CardDescription>
           </CardHeader>
-          <CardContent className="flex-grow">
+          <CardContent className="flex-grow p-4 sm:p-6 pt-0">
             <div className="mt-2 flex items-baseline">
-              <span className="text-3xl font-bold">$199</span>
-              <span className="ml-1 text-gray-500">/per mo.</span>
+              <span className="text-2xl sm:text-3xl font-bold">$199</span>
+              <span className="ml-1 text-gray-500 text-sm sm:text-base">/per mo.</span>
             </div>
-            <ul className="mt-6 space-y-4">
+            <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Unlimited Buybids</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Unlimited Buybids</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>No monthly commitment</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">No monthly commitment</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Billed Monthly</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Billed Monthly</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Buybid dashboard</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Buybid dashboard</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>All Basic features</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">All Basic features</span>
               </li>
             </ul>
           </CardContent>
-          <CardFooter>
-            <Button onClick={() => onSelect('pay-per-bid')} className="w-full bg-accent hover:bg-accent/90">
+          <CardFooter className="p-4 sm:p-6 pt-0">
+            <Button onClick={() => onSelect('pay-per-bid')} className="w-full bg-accent hover:bg-accent/90 h-10 sm:h-11">
               Get Started
             </Button>
           </CardFooter>
         </Card>
 
-        <Card className="flex flex-col relative border-accent">
-          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-            <span className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-semibold">
+        <Card className="flex flex-col h-full relative border-accent sm:col-span-2 lg:col-span-1">
+          <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
+            <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 rounded-full text-xs font-semibold">
               Limited Time Offer
             </span>
           </div>
-          <CardHeader>
-            <CardTitle className="text-2xl">Annual Plan</CardTitle>
-            <CardDescription>Best value for committed users</CardDescription>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl">Annual Plan</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Best value for committed users</CardDescription>
           </CardHeader>
-          <CardContent className="flex-grow">
+          <CardContent className="flex-grow p-4 sm:p-6 pt-0">
             <div className="mt-2 flex items-baseline">
-              <span className="text-3xl font-bold">$599</span>
-              <span className="ml-1 text-gray-500">/per yr</span>
+              <span className="text-2xl sm:text-3xl font-bold">$599</span>
+              <span className="ml-1 text-gray-500 text-sm sm:text-base">/per yr</span>
             </div>
             <div className="text-sm text-accent font-semibold mt-1">
               Less than $50 per mo.
             </div>
-            <ul className="mt-6 space-y-4">
+            <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Unlimited Buybids</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Unlimited Buybids</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Billed Annually</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Billed Annually</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Buybid dashboard</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Buybid dashboard</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>All Connect features</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">All Connect features</span>
               </li>
               <li className="flex items-center">
-                <Check className="h-5 w-5 text-accent mr-2" />
-                <span>Lifetime Rate Lock</span>
+                <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                <span className="text-sm sm:text-base">Lifetime Rate Lock</span>
               </li>
             </ul>
           </CardContent>
-          <CardFooter>
-            <Button onClick={() => onSelect('annual')} className="w-full bg-accent hover:bg-accent/90">
+          <CardFooter className="p-4 sm:p-6 pt-0">
+            <Button onClick={() => onSelect('annual')} className="w-full bg-accent hover:bg-accent/90 h-10 sm:h-11">
               Get Started
             </Button>
           </CardFooter>

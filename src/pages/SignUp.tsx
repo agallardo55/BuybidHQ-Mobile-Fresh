@@ -27,21 +27,21 @@ const SignUp = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-[896px] w-full space-y-6 bg-white p-6 sm:p-8 rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl w-full space-y-6 bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-md">
         <div className="text-center">
           <img 
             src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
             alt="BuyBidHQ Logo" 
-            className="mx-auto h-12 w-auto"
+            className="mx-auto h-10 sm:h-12 w-auto"
           />
-          <h2 className="mt-6 text-2xl sm:text-3xl font-bold text-gray-900">Create your account</h2>
-          <div className="flex justify-center space-x-4 mt-4">
-            <div className={`h-2 w-16 rounded ${currentStep === 'plan' ? 'bg-accent' : 'bg-gray-200'}`} />
-            <div className={`h-2 w-16 rounded ${currentStep === 'personal' ? 'bg-accent' : 'bg-gray-200'}`} />
-            <div className={`h-2 w-16 rounded ${currentStep === 'dealership' ? 'bg-accent' : 'bg-gray-200'}`} />
+          <h2 className="mt-4 sm:mt-6 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Create your account</h2>
+          <div className="flex justify-center space-x-2 sm:space-x-4 mt-4">
+            <div className={`h-2 w-12 sm:w-16 rounded ${currentStep === 'plan' ? 'bg-accent' : 'bg-gray-200'}`} />
+            <div className={`h-2 w-12 sm:w-16 rounded ${currentStep === 'personal' ? 'bg-accent' : 'bg-gray-200'}`} />
+            <div className={`h-2 w-12 sm:w-16 rounded ${currentStep === 'dealership' ? 'bg-accent' : 'bg-gray-200'}`} />
           </div>
-          <p className="mt-4 text-sm text-gray-600">
+          <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600">
             {currentStep === 'plan' ? 'Step 1: Select Your Plan' : 
              currentStep === 'personal' ? 'Step 2: Personal Information' :
              'Step 3: Dealership Information'}
