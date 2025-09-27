@@ -77,7 +77,11 @@ serve(async (req) => {
     
     if (requestData.type === 'bid_request') {
       const { bidRequestUrl, senderName, vehicleDetails } = requestData as BidRequestSMS;
-      message = `New bid request from ${senderName} for ${vehicleDetails.year} ${vehicleDetails.make} ${vehicleDetails.model}. Click: ${bidRequestUrl}`;
+      // Format message to prevent rich text preview by spacing out the URL
+      const formattedUrl = bidRequestUrl.replace('https://', 'https:// ').replace('.com', '. com');
+      message = `New bid request from ${senderName} for ${vehicleDetails.year} ${vehicleDetails.make} ${vehicleDetails.model}. 
+
+Tap to respond: ${formattedUrl}`;
     } else if (requestData.type === 'bid_response') {
       const { offerAmount, buyerName, vehicleDetails } = requestData as BidResponseSMS;
       message = `${buyerName} bid $${offerAmount} for your ${vehicleDetails.year} ${vehicleDetails.make} ${vehicleDetails.model}`;

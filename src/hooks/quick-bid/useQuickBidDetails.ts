@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { publicSupabase } from "@/integrations/supabase/publicClient";
 import { useSearchParams } from "react-router-dom";
 
 // Define an interface for the return type
@@ -47,7 +47,7 @@ export const useQuickBidDetails = () => {
       if (!token) throw new Error('No bid token provided');
 
       // Use the new secure RPC to get bid request details with public client
-      const { data: requestDetails, error: requestError } = await supabase
+      const { data: requestDetails, error: requestError } = await publicSupabase
         .rpc('get_public_bid_request_details', { p_token: token });
 
       if (requestError) {

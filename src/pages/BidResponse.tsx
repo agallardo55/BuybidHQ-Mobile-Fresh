@@ -10,6 +10,7 @@ import { useQuickBidDetails } from "@/hooks/quick-bid/useQuickBidDetails";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { AlertDialogCustom } from "@/components/bid-response/AlertDialogCustom";
 import { useBidSubmission } from "@/hooks/useBidSubmission";
+import { publicSupabase } from "@/integrations/supabase/publicClient";
 
 const BidResponse = () => {
   const [searchParams] = useSearchParams();
