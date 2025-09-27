@@ -13,7 +13,7 @@ const BuyerInfoSection = ({ name, dealership, onChange }: BuyerInfoSectionProps)
       <div className="space-y-2">
         <label className="text-sm font-medium">Name</label>
         <Input 
-          placeholder="Enter buyer name"
+          placeholder="Enter buyer full name"
           name="name"
           value={name}
           onChange={onChange}
