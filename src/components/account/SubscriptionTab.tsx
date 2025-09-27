@@ -168,8 +168,8 @@ export const SubscriptionTab = () => {
             <p className="text-sm text-gray-500">
               Status: {account?.billing_status?.charAt(0).toUpperCase() + account?.billing_status?.slice(1) || 'Active'}
             </p>
-            {/* Show bid request limits for free users */}
-            {(currentUser?.role === 'basic' || account?.plan === 'free') && currentUser?.app_role !== 'super_admin' && currentUser?.app_role !== 'account_admin' && bidRequestLimits && (
+            {/* Show bid request limits only for free plan users */}
+            {account?.plan === 'free' && currentUser?.app_role !== 'super_admin' && currentUser?.app_role !== 'account_admin' && bidRequestLimits && (
               <div className="mt-2 space-y-1">
                 {bidRequestLimits.allowed ? (
                   <p className="text-sm text-green-600">
