@@ -50,7 +50,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         phoneCarrier: buyer.phoneCarrier || "",
       });
     }
-  }, [buyer, formatPhoneNumber]);
+  }, [buyer]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
