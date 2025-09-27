@@ -39,13 +39,12 @@ const PersonalInfoSection = ({ formData, onFormDataChange, formatPhoneNumber }: 
       </div>
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email address <span className="text-red-500">*</span>
+          Email address (Optional)
         </label>
         <Input
           id="email"
           name="email"
           type="email"
-          required
           value={formData.email}
           onChange={handleChange}
         />
