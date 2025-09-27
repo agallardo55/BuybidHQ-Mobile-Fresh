@@ -23,7 +23,7 @@ const AddBuyerForm = ({
   onSubmit
 }: AddBuyerFormProps) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-4 py-4">
+    <form onSubmit={onSubmit} className="space-y-4 py-4 pb-6">
       <BuyerInfoSection
         name={formData.name}
         dealership={formData.dealership}
