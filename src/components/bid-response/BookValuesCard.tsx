@@ -35,43 +35,64 @@ const BookValuesCard = ({
       </CardHeader>
       <Separator className="mb-6" />
       <CardContent>
-        <div className="grid gap-1.5">
-          <div className="grid grid-cols-5 gap-1.5 py-0.5">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
+        <div className="overflow-hidden rounded-lg border border-border">
+          {/* Header Row */}
+          <div className="grid grid-cols-3 bg-muted/50 border-b border-border">
+            <div className="p-3 font-semibold text-sm">Service</div>
+            <div className="p-3 font-semibold text-sm text-center border-l border-border">Wholesale</div>
+            <div className="p-3 font-semibold text-sm text-center border-l border-border">Retail</div>
+          </div>
+          
+          {/* MMR Row */}
+          <div className="grid grid-cols-3 border-b border-border">
+            <div className="p-3 flex items-center">
               <img src={manheimLogo} alt="MMR" className="h-6 w-auto" />
-            </p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">
-              W: {formatCurrencyDisplay(mmrWholesale)} | 
-              R: {formatCurrencyDisplay(mmrRetail)}
-            </p>
+            </div>
+            <div className="p-3 text-center border-l border-border font-medium">
+              {formatCurrencyDisplay(mmrWholesale)}
+            </div>
+            <div className="p-3 text-center border-l border-border font-medium">
+              {formatCurrencyDisplay(mmrRetail)}
+            </div>
           </div>
           
-          <div className="grid grid-cols-5 gap-1.5 py-0.5">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
+          {/* KBB Row */}
+          <div className="grid grid-cols-3 border-b border-border">
+            <div className="p-3 flex items-center">
               <img src={kbbLogo} alt="Kelley Blue Book" className="h-7 w-auto" />
-            </p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">
-              W: {formatCurrencyDisplay(kbbWholesale)} | 
-              R: {formatCurrencyDisplay(kbbRetail)}
-            </p>
+            </div>
+            <div className="p-3 text-center border-l border-border font-medium">
+              {formatCurrencyDisplay(kbbWholesale)}
+            </div>
+            <div className="p-3 text-center border-l border-border font-medium">
+              {formatCurrencyDisplay(kbbRetail)}
+            </div>
           </div>
           
-          <div className="grid grid-cols-5 gap-1.5 py-0.5">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
+          {/* J.D. Power Row */}
+          <div className="grid grid-cols-3 border-b border-border">
+            <div className="p-3 flex items-center">
               <img src={jdpLogo} alt="J.D. Power" className="h-4 w-auto" />
-            </p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">
-              W: {formatCurrencyDisplay(jdPowerWholesale)} | 
-              R: {formatCurrencyDisplay(jdPowerRetail)}
-            </p>
+            </div>
+            <div className="p-3 text-center border-l border-border font-medium">
+              {formatCurrencyDisplay(jdPowerWholesale)}
+            </div>
+            <div className="p-3 text-center border-l border-border font-medium">
+              {formatCurrencyDisplay(jdPowerRetail)}
+            </div>
           </div>
           
-          <div className="grid grid-cols-5 gap-1.5 py-0.5">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Auction :</p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">
-              W: {formatCurrencyDisplay(auctionWholesale)} | 
-              R: {formatCurrencyDisplay(auctionRetail)}
-            </p>
+          {/* Auction Row */}
+          <div className="grid grid-cols-3">
+            <div className="p-3 font-semibold">
+              Auction
+            </div>
+            <div className="p-3 text-center border-l border-border font-medium">
+              {formatCurrencyDisplay(auctionWholesale)}
+            </div>
+            <div className="p-3 text-center border-l border-border font-medium">
+              {formatCurrencyDisplay(auctionRetail)}
+            </div>
           </div>
         </div>
       </CardContent>
