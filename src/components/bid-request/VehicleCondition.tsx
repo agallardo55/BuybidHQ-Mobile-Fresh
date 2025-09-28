@@ -252,7 +252,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       <AlertDialog open={alert.open} onOpenChange={closeAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{alert.title}</AlertDialogTitle>
+            <AlertDialogTitle className="text-center">{alert.title}</AlertDialogTitle>
           </AlertDialogHeader>
           
           {/* Large Logo Section */}
