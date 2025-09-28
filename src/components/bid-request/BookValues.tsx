@@ -50,24 +50,22 @@ const BookValues = ({
       </div>
 
       <div className="bg-gray-50 p-4 rounded-lg">
-        <div className="flex items-center gap-4">
-          <Label className="font-medium min-w-[80px]">Condition:</Label>
-          <div className="flex-1">
-            <Select
-              value={formData.bookValuesCondition || ''}
-              onValueChange={(value) => handleSelectChange('bookValuesCondition', value)}
-            >
-              <SelectTrigger className="w-full max-w-xs">
-                <SelectValue placeholder="Select condition" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="excellent">Excellent</SelectItem>
-                <SelectItem value="veryGood">Very Good</SelectItem>
-                <SelectItem value="good">Good</SelectItem>
-                <SelectItem value="fair">Fair</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="flex items-center justify-center gap-4">
+          <Label className="font-medium">Condition:</Label>
+          <Select
+            value={formData.bookValuesCondition || ''}
+            onValueChange={(value) => handleSelectChange('bookValuesCondition', value)}
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select condition" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="excellent">Excellent</SelectItem>
+              <SelectItem value="veryGood">Very Good</SelectItem>
+              <SelectItem value="good">Good</SelectItem>
+              <SelectItem value="fair">Fair</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
