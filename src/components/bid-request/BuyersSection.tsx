@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, UserRound } from "lucide-react";
+import { Plus } from "lucide-react";
 import { MappedBuyer } from "@/hooks/buyers/types";
 import { formatPhoneForDisplay } from "@/utils/buyerUtils";
 
@@ -67,7 +67,6 @@ const BuyersSection = ({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[40px] text-center"></TableHead>
-                <TableHead className="w-[32px] text-center"></TableHead>
                 <TableHead className="py-2 px-4 whitespace-nowrap">Name</TableHead>
                 <TableHead className="py-2 px-4 whitespace-nowrap">Dealership</TableHead>
                 <TableHead className="py-2 px-4 whitespace-nowrap">Phone</TableHead>
@@ -91,9 +90,6 @@ const BuyersSection = ({
                         onClick={(e) => e.stopPropagation()}
                       />
                     </TableCell>
-                    <TableCell className="py-2 px-4 text-center">
-                      <UserRound className="h-4 w-4 text-muted-foreground" />
-                    </TableCell>
                     <TableCell className="py-2 px-4 font-medium whitespace-nowrap">
                       {buyer.name}
                     </TableCell>
@@ -110,7 +106,7 @@ const BuyersSection = ({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     No buyers found. Try adjusting your search or add a new buyer.
                   </TableCell>
                 </TableRow>
