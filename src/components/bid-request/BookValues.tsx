@@ -5,6 +5,7 @@ import { BidRequestFormData, FormErrors } from "./types";
 import { formatCurrencyDisplay, extractNumericValue } from "@/utils/currencyUtils";
 import manheimLogo from "@/assets/manheimLogo.svg";
 import kbbLogo from "@/assets/kbbLogo.webp";
+import jdpLogo from "@/assets/jdpLogo.svg";
 
 interface BookValuesProps {
   formData: BidRequestFormData;
@@ -129,7 +130,9 @@ const BookValues = ({
             </tr>
             
             <tr>
-              <td className="py-4 px-4 font-medium">J.D. Power</td>
+              <td className="py-4 px-4 font-medium">
+                <img src={jdpLogo} alt="J.D. Power" className="h-6 w-auto" />
+              </td>
               <td className="py-4 px-4">
                 <Input
                   name="jdPowerWholesale"
