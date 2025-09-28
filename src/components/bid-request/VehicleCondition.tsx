@@ -111,7 +111,6 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     <div className="space-y-4">
       {/* Vehicle History Report Integrations */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">AutoCheck Coming Soon !!!</h3>
         <div className="flex gap-4">
           <Button
             type="button"
