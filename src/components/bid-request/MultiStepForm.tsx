@@ -3,6 +3,7 @@ import { BidRequestFormData, FormErrors } from "./types";
 import BasicVehicleInfo from "./BasicVehicleInfo";
 import ColorsAndAccessories from "./ColorsAndAccessories";
 import VehicleCondition from "./VehicleCondition";
+import BookValues from "./BookValues";
 import FormProgress from "./FormProgress";
 import BuyersSection from "./BuyersSection";
 import AddBuyerDialog from "./AddBuyerDialog";
@@ -94,7 +95,7 @@ const MultiStepForm = ({
     <Tabs 
       value={currentStep}
       className="w-full"
-      onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "buyers")}
+      onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "book-values" | "buyers")}
     >
       <FormProgress currentStep={currentStep} progressMap={progressMap} />
       <FormTabs />
@@ -134,6 +135,19 @@ const MultiStepForm = ({
             formData={formData}
             onChange={onChange}
             onSelectChange={onSelectChange}
+          />
+          <StepNavigation 
+            onBack={handleBack}
+            onNext={handleNext}
+          />
+        </TabsContent>
+
+        <TabsContent value="book-values">
+          <BookValues 
+            formData={formData}
+            errors={errors}
+            onChange={onChange}
+            showValidation={showValidation}
           />
           <StepNavigation 
             onBack={handleBack}

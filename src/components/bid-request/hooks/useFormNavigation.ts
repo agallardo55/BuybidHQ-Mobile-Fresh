@@ -1,16 +1,17 @@
 
 import { useState } from "react";
 
-export type FormStep = "basic-info" | "appearance" | "condition" | "buyers";
+export type FormStep = "basic-info" | "appearance" | "condition" | "book-values" | "buyers";
 
 export const useFormNavigation = () => {
   const [currentStep, setCurrentStep] = useState<FormStep>("basic-info");
   const [isAddBuyerOpen, setIsAddBuyerOpen] = useState(false);
   
   const progressMap = {
-    "basic-info": 25,
-    "appearance": 50,
-    "condition": 75,
+    "basic-info": 20,
+    "appearance": 40,
+    "condition": 60,
+    "book-values": 80,
     "buyers": 100
   };
 
@@ -23,6 +24,9 @@ export const useFormNavigation = () => {
         setCurrentStep("condition");
         break;
       case "condition":
+        setCurrentStep("book-values");
+        break;
+      case "book-values":
         setCurrentStep("buyers");
         break;
       default:
@@ -38,8 +42,11 @@ export const useFormNavigation = () => {
       case "condition":
         setCurrentStep("appearance");
         break;
-      case "buyers":
+      case "book-values":
         setCurrentStep("condition");
+        break;
+      case "buyers":
+        setCurrentStep("book-values");
         break;
       default:
         break;

@@ -408,30 +408,54 @@ export type Database = {
       }
       bookValues: {
         Row: {
+          auction_retail: number | null
+          auction_wholesale: number | null
           blackbook: string | null
           created_at: string
           id: number
           jd_power: string | null
+          jd_power_retail: number | null
+          jd_power_wholesale: number | null
+          kbb_retail: number | null
+          kbb_wholesale: number | null
           kelly_bluebook: string | null
           manheim: string | null
+          mmr_retail: number | null
+          mmr_wholesale: number | null
           vehicle_id: string | null
         }
         Insert: {
+          auction_retail?: number | null
+          auction_wholesale?: number | null
           blackbook?: string | null
           created_at?: string
           id?: number
           jd_power?: string | null
+          jd_power_retail?: number | null
+          jd_power_wholesale?: number | null
+          kbb_retail?: number | null
+          kbb_wholesale?: number | null
           kelly_bluebook?: string | null
           manheim?: string | null
+          mmr_retail?: number | null
+          mmr_wholesale?: number | null
           vehicle_id?: string | null
         }
         Update: {
+          auction_retail?: number | null
+          auction_wholesale?: number | null
           blackbook?: string | null
           created_at?: string
           id?: number
           jd_power?: string | null
+          jd_power_retail?: number | null
+          jd_power_wholesale?: number | null
+          kbb_retail?: number | null
+          kbb_wholesale?: number | null
           kelly_bluebook?: string | null
           manheim?: string | null
+          mmr_retail?: number | null
+          mmr_wholesale?: number | null
           vehicle_id?: string | null
         }
         Relationships: [

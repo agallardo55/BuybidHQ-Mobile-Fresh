@@ -121,6 +121,15 @@ export interface BidRequestFormData {
   engineCylinders: string;
   transmission: string;
   drivetrain: string;
+  // Book Values
+  mmrWholesale: string;
+  mmrRetail: string;
+  kbbWholesale: string;
+  kbbRetail: string;
+  jdPowerWholesale: string;
+  jdPowerRetail: string;
+  auctionWholesale: string;
+  auctionRetail: string;
 }
 
 export interface FormErrors {

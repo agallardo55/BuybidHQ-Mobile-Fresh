@@ -24,6 +24,15 @@ const initialFormData: BidRequestFormData = {
   engineCylinders: "",
   transmission: "",
   drivetrain: "",
+  // Book Values
+  mmrWholesale: "",
+  mmrRetail: "",
+  kbbWholesale: "",
+  kbbRetail: "",
+  jdPowerWholesale: "",
+  jdPowerRetail: "",
+  auctionWholesale: "",
+  auctionRetail: "",
 };
 
 export const useFormState = (): FormState & FormStateActions => {
