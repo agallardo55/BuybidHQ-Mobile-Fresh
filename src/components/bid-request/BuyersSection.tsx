@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus } from "lucide-react";
+import { Plus, Check } from "lucide-react";
 import { MappedBuyer } from "@/hooks/buyers/types";
 import { formatPhoneForDisplay } from "@/utils/buyerUtils";
 
@@ -66,7 +66,9 @@ const BuyersSection = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[40px] text-center"></TableHead>
+                <TableHead className="w-[40px] text-center">
+                  <Check className="h-4 w-4 mx-auto" />
+                </TableHead>
                 <TableHead className="py-2 px-4 whitespace-nowrap">Name</TableHead>
                 <TableHead className="py-2 px-4 whitespace-nowrap">Dealership</TableHead>
                 <TableHead className="py-2 px-4 whitespace-nowrap">Phone</TableHead>
