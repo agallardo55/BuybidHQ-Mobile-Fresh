@@ -31,6 +31,7 @@ export interface VehicleDetails extends Vehicle {
   mmrRetail?: number;
   auctionWholesale?: number;
   auctionRetail?: number;
+  bookValuesCondition?: string;
 }
 
 export interface BidResponseFormData {

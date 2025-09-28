@@ -231,16 +231,17 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
           </CardContent>
         </Card>
 
-        <BookValuesCard
-          kbbWholesale={vehicle.kbbWholesale}
-          kbbRetail={vehicle.kbbRetail}
-          jdPowerWholesale={vehicle.jdPowerWholesale}
-          jdPowerRetail={vehicle.jdPowerRetail}
-          mmrWholesale={vehicle.mmrWholesale}
-          mmrRetail={vehicle.mmrRetail}
-          auctionWholesale={vehicle.auctionWholesale}
-          auctionRetail={vehicle.auctionRetail}
-        />
+          <BookValuesCard
+            kbbWholesale={vehicle.kbbWholesale}
+            kbbRetail={vehicle.kbbRetail}
+            jdPowerWholesale={vehicle.jdPowerWholesale}
+            jdPowerRetail={vehicle.jdPowerRetail}
+            mmrWholesale={vehicle.mmrWholesale}
+            mmrRetail={vehicle.mmrRetail}
+            auctionWholesale={vehicle.auctionWholesale}
+            auctionRetail={vehicle.auctionRetail}
+            bookValuesCondition={vehicle.bookValuesCondition}
+          />
       </div>
     </div>
   );

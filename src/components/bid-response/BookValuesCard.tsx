@@ -14,6 +14,7 @@ interface BookValuesCardProps {
   mmrRetail?: number;
   auctionWholesale?: number;
   auctionRetail?: number;
+  bookValuesCondition?: string;
 }
 
 const BookValuesCard = ({
@@ -25,15 +26,38 @@ const BookValuesCard = ({
   mmrRetail,
   auctionWholesale,
   auctionRetail,
+  bookValuesCondition,
 }: BookValuesCardProps) => {
-  // Always show the card - formatCurrencyDisplay handles null/undefined by showing $0
+  const getConditionDisplay = (condition?: string): string => {
+    if (!condition) return 'Not specified';
+    
+    const conditionMap: Record<string, string> = {
+      excellent: 'Excellent',
+      veryGood: 'Very Good',
+      good: 'Good',
+      fair: 'Fair'
+    };
+    
+    return conditionMap[condition] || condition;
+  };
 
   return (
     <Card>
       <CardHeader className="pb-4">
         <CardTitle className="text-2xl">Book Values</CardTitle>
       </CardHeader>
-      <Separator className="mb-6" />
+      <Separator className="mb-4" />
+      
+      {/* Condition Value Row */}
+      <div className="px-6 pb-4">
+        <div className="bg-muted/50 rounded-md p-3 border border-border">
+          <div className="flex items-center justify-between">
+            <span className="font-medium text-sm">Condition:</span>
+            <span className="text-sm font-semibold">{getConditionDisplay(bookValuesCondition)}</span>
+          </div>
+        </div>
+      </div>
+      
       <CardContent>
         <div className="overflow-hidden rounded-lg border border-border">
           {/* Header Row */}
