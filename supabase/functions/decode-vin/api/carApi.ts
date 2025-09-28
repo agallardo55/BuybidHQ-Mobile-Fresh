@@ -132,7 +132,8 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
         transmission_style: vehicle.specs?.transmission_style,
         drive_type: vehicle.specs?.drive_type,
         turbo: vehicle.specs?.turbo,
-        trim: vehicle.specs?.trim
+        trim: vehicle.specs?.trim,
+        series: vehicle.specs?.series
       },
       trims: Array.isArray(vehicle.trims) ? vehicle.trims : []
     };
