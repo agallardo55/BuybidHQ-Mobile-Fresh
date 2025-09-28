@@ -43,7 +43,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         formatted
       });
     } else {
-      setDisplayValue('');
+      setDisplayValue('$00');
     }
   }, [formData.reconEstimate]);
 
