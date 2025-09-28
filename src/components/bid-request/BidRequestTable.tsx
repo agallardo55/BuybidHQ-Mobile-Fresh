@@ -21,7 +21,7 @@ interface BidRequestTableProps {
 const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps) => {
   const [selectedRequest, setSelectedRequest] = useState<BidRequest | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { mutate: updateBidResponseStatus } = useBidResponseMutation();
+  const { mutateAsync: updateBidResponseStatus } = useBidResponseMutation();
   const isMobile = useIsMobile();
 
   const handleRowClick = (request: BidRequest) => {
@@ -29,8 +29,8 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
     setIsDialogOpen(true);
   };
 
-  const handleStatusUpdate = (responseId: string, status: "pending" | "accepted" | "declined") => {
-    updateBidResponseStatus({ responseId, status });
+  const handleStatusUpdate = async (responseId: string, status: "pending" | "accepted" | "declined") => {
+    return updateBidResponseStatus({ responseId, status });
   };
 
   if (isMobile) {

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -5,19 +6,23 @@ import { BidRequest } from "../types";
 import VehicleDetails from "./VehicleDetails";
 import VehicleCondition from "./VehicleCondition";
 import Reconditioning from "./Reconditioning";
-import { Car, Eye, Wrench, DollarSign } from "lucide-react";
+import { Car, Eye, Wrench, DollarSign, Loader2 } from "lucide-react";
 
 interface BidRequestTabsProps {
   request: BidRequest;
-  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
+  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => Promise<void>;
   onBidRequestStatusUpdate?: (requestId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
 const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: BidRequestTabsProps) => {
-  // Helper function to capitalize first letter
-  const capitalizeFirstLetter = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
+  // Local state for optimistic UI updates
+  const [localOfferStatuses, setLocalOfferStatuses] = useState<Record<string, "pending" | "accepted" | "declined">>({});
+  const [loadingOffers, setLoadingOffers] = useState<Set<string>>(new Set());
+
+  // Clear local state when request data changes (after successful update)
+  useEffect(() => {
+    setLocalOfferStatuses({});
+  }, [request.id, request.offers]);
 
   // Helper function to get display text for status
   const getStatusDisplayText = (status: string) => {
@@ -25,10 +30,42 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
-  const handleStatusUpdate = (offerId: string, value: "pending" | "accepted" | "declined") => {
+  // Get current status (local state first, then server data)
+  const getCurrentStatus = (offerId: string, serverStatus: string) => {
+    return localOfferStatuses[offerId] || serverStatus.toLowerCase();
+  };
+
+  const handleStatusUpdate = async (offerId: string, value: "pending" | "accepted" | "declined") => {
     console.log('🔄 BidRequestTabs handleStatusUpdate called:', { offerId, value });
-    if (onStatusUpdate) {
-      onStatusUpdate(offerId, value);
+    
+    // Immediately update local state for optimistic UI
+    setLocalOfferStatuses(prev => ({ ...prev, [offerId]: value }));
+    setLoadingOffers(prev => new Set([...prev, offerId]));
+    
+    try {
+      if (onStatusUpdate) {
+        await onStatusUpdate(offerId, value);
+        // On success, clear local state (server data will be fresh)
+        setLocalOfferStatuses(prev => {
+          const newState = { ...prev };
+          delete newState[offerId];
+          return newState;
+        });
+      }
+    } catch (error) {
+      // On error, revert local state to original
+      setLocalOfferStatuses(prev => {
+        const newState = { ...prev };
+        delete newState[offerId];
+        return newState;
+      });
+      console.error('Failed to update offer status:', error);
+    } finally {
+      setLoadingOffers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(offerId);
+        return newSet;
+      });
     }
   };
   return (
@@ -110,17 +147,25 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
                       </div>
                       <div onClick={(e) => e.stopPropagation()}>
                         <Select
-                          value={offer.status.toLowerCase()}
+                          value={getCurrentStatus(offer.id, offer.status)}
                           onValueChange={(value: "pending" | "accepted" | "declined") => {
                             console.log('🎯 Select onValueChange:', { offerId: offer.id, currentStatus: offer.status, newValue: value });
                             handleStatusUpdate(offer.id, value);
                           }}
+                          disabled={loadingOffers.has(offer.id)}
                         >
-                          <SelectTrigger className={`w-[110px] h-8 text-sm focus:ring-0 focus:ring-offset-0
-                            ${offer.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
-                            ${offer.status.toLowerCase() === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
+                          <SelectTrigger className={`w-[110px] h-8 text-sm focus:ring-0 focus:ring-offset-0 ${loadingOffers.has(offer.id) ? 'opacity-50' : ''}
+                            ${getCurrentStatus(offer.id, offer.status) === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
+                            ${getCurrentStatus(offer.id, offer.status) === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
                           `}>
-                            <SelectValue>{getStatusDisplayText(offer.status)}</SelectValue>
+                            {loadingOffers.has(offer.id) ? (
+                              <div className="flex items-center gap-1">
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <span className="text-xs">Updating...</span>
+                              </div>
+                            ) : (
+                              <SelectValue>{getStatusDisplayText(getCurrentStatus(offer.id, offer.status))}</SelectValue>
+                            )}
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="pending" className="data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-700 focus:!bg-gray-100 focus:!text-gray-700 [&>span:first-child]:hidden">Pending</SelectItem>

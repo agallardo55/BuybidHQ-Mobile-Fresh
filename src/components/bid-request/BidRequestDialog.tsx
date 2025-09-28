@@ -12,7 +12,7 @@ interface BidRequestDialogProps {
   request: BidRequest | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => void;
+  onStatusUpdate?: (responseId: string, status: "pending" | "accepted" | "declined") => Promise<void>;
   onBidRequestStatusUpdate?: (requestId: string, status: "pending" | "accepted" | "declined") => void;
 }
 
