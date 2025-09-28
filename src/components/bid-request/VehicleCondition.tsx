@@ -21,24 +21,50 @@ interface VehicleConditionProps {
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
   const [displayValue, setDisplayValue] = useState('$0');
 
-  const formatDollarAmount = (value: string) => {
-    const numericValue = value.replace(/\D/g, '');
-    if (!numericValue || numericValue === '0') return '$0';
+  const formatDollarAmount = (value: string | undefined | null) => {
+    console.log('formatDollarAmount called with:', { value, type: typeof value });
+    
+    // Handle undefined, null, or empty cases
+    if (value === undefined || value === null || value === '') {
+      console.log('formatDollarAmount returning $0 for empty/null/undefined');
+      return '$0';
+    }
+    
+    const numericValue = String(value).replace(/\D/g, '');
+    console.log('formatDollarAmount numeric extraction:', { original: value, numeric: numericValue });
+    
+    if (!numericValue || numericValue === '0') {
+      console.log('formatDollarAmount returning $0 for zero/empty numeric');
+      return '$0';
+    }
     
     const parsedValue = Number(numericValue);
-    if (isNaN(parsedValue)) return '$0';
+    console.log('formatDollarAmount parsed number:', { numeric: numericValue, parsed: parsedValue, isNaN: isNaN(parsedValue) });
     
-    return new Intl.NumberFormat('en-US', {
+    if (isNaN(parsedValue)) {
+      console.log('formatDollarAmount returning $0 for NaN');
+      return '$0';
+    }
+    
+    const formatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(parsedValue);
+    
+    console.log('formatDollarAmount final result:', formatted);
+    return formatted;
   };
 
   // Update display value whenever formData.reconEstimate changes
   useEffect(() => {
-    const formatted = formatDollarAmount(formData.reconEstimate || '');
+    console.log('useEffect triggered with formData.reconEstimate:', { 
+      value: formData.reconEstimate, 
+      type: typeof formData.reconEstimate 
+    });
+    const formatted = formatDollarAmount(formData.reconEstimate);
+    console.log('useEffect setting displayValue to:', formatted);
     setDisplayValue(formatted);
   }, [formData.reconEstimate]);
 

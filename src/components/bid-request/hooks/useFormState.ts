@@ -19,7 +19,7 @@ const initialFormData: BidRequestFormData = {
   brakes: "acceptable",
   tire: "acceptable",
   maintenance: "upToDate",
-  reconEstimate: "",
+  reconEstimate: "0",
   reconDetails: "",
   engineCylinders: "",
   transmission: "",
