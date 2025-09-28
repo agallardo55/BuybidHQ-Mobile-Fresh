@@ -237,7 +237,7 @@ export const DealershipTab = () => {
           type="submit"
           className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
         >
-          {canEditDealershipInfo ? 'Save Dealership Information' : 'Save Address'}
+          Update
         </Button>
       </div>
       <div className="h-8 border-t mt-6"></div>
