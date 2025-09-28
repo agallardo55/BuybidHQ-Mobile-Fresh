@@ -26,6 +26,9 @@ interface QuickBidDetails {
   vehicle_engine: string;
   vehicle_transmission: string;
   vehicle_drivetrain: string;
+  vehicle_exterior_color: string;
+  vehicle_interior_color: string;
+  vehicle_accessories: string;
   buyer_name: string;
   buyer_dealership: string;
   buyer_mobile: string;
@@ -145,6 +148,9 @@ const useQuickBidDetails = () => {
         vehicle_images: Array.isArray(request.vehicle_images) 
           ? request.vehicle_images as string[]
           : [],
+        vehicle_exterior_color: request.vehicle_exterior_color,
+        vehicle_interior_color: request.vehicle_interior_color,
+        vehicle_accessories: request.vehicle_accessories,
       };
     },
     enabled: !!(id && token),
@@ -203,12 +209,12 @@ const PublicBidResponse = () => {
               trim: data.vehicle_trim || '',
               vin: data.vehicle_vin || '',
               mileage: data.vehicle_mileage,
-              exteriorColor: '',
-              interiorColor: '',
+              exteriorColor: data.vehicle_exterior_color || '',
+              interiorColor: data.vehicle_interior_color || '',
               engineCylinders: data.vehicle_engine || '',
               transmission: data.vehicle_transmission || '',
               drivetrain: data.vehicle_drivetrain || '',
-              accessories: '',
+              accessories: data.vehicle_accessories || '',
               windshield: 'clear',
               engineLights: 'none',
               brakes: 'acceptable',

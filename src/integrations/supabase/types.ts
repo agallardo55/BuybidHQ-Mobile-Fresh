@@ -1910,9 +1910,12 @@ export type Database = {
           status: string
           submitted_at: string
           submitted_offer_amount: number
+          vehicle_accessories: string
           vehicle_drivetrain: string
           vehicle_engine: string
+          vehicle_exterior_color: string
           vehicle_images: Json
+          vehicle_interior_color: string
           vehicle_make: string
           vehicle_mileage: string
           vehicle_model: string
