@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BidRequestFormData, FormErrors } from "./types";
 import { formatCurrencyDisplay, extractNumericValue } from "@/utils/currencyUtils";
+import manheimLogo from "@/assets/manheimLogo.svg";
 
 interface BookValuesProps {
   formData: BidRequestFormData;
@@ -52,7 +53,9 @@ const BookValues = ({
           </thead>
           <tbody className="divide-y">
             <tr>
-              <td className="py-4 px-4 font-medium">MMR</td>
+              <td className="py-4 px-4 font-medium">
+                <img src={manheimLogo} alt="MMR" className="h-6 w-auto" />
+              </td>
               <td className="py-4 px-4">
                 <Input
                   name="mmrWholesale"
