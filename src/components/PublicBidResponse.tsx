@@ -14,35 +14,24 @@ import { AlertType } from '@/hooks/useAlertDialog';
 import { toast } from "sonner";
 
 interface QuickBidDetails {
-  request: {
-    id: string;
-    seller_name: string;
-    seller_notes?: string;
-    seller_email?: string;
-    seller_phone?: string;
-  };
-  vehicle: {
-    year: number;
-    make: string;
-    model: string;
-    trim_level?: string;
-    vin?: string;
-    mileage: number;
-    exterior_color?: string;
-    interior_color?: string;
-    engine_cylinders?: string;
-    transmission?: string;
-    drivetrain?: string;
-    accessories?: string;
-    recon_estimate?: string;
-    recon_details?: string;
-  };
-  buyer: {
-    id: string;
-    buyer_name: string;
-    dealer_name?: string;
-    email: string;
-  };
+  request_id: string;
+  created_at: string;
+  status: string;
+  vehicle_year: string;
+  vehicle_make: string;
+  vehicle_model: string;
+  vehicle_trim: string;
+  vehicle_vin: string;
+  vehicle_mileage: string;
+  vehicle_engine: string;
+  vehicle_transmission: string;
+  vehicle_drivetrain: string;
+  buyer_name: string;
+  buyer_dealership: string;
+  buyer_mobile: string;
+  is_used: boolean;
+  submitted_offer_amount: number | null;
+  submitted_at: string | null;
 }
 
 interface UseBidSubmissionProps {
@@ -134,35 +123,24 @@ const useQuickBidDetails = () => {
       const request = requestDetails[0];
       
       return {
-        request: {
-          id: request.request_id,
-          seller_name: 'Seller', // Use a default value since this isn't in the response
-          seller_notes: '', // No seller notes available
-          seller_email: '',
-          seller_phone: '',
-        },
-        vehicle: {
-          year: parseInt(request.vehicle_year) || 0,
-          make: request.vehicle_make || '',
-          model: request.vehicle_model || '',
-          trim_level: request.vehicle_trim,
-          vin: request.vehicle_vin,
-          mileage: parseInt(request.vehicle_mileage) || 0,
-          exterior_color: '', // Not available in this response
-          interior_color: '', // Not available in this response
-          engine_cylinders: request.vehicle_engine,
-          transmission: request.vehicle_transmission,
-          drivetrain: request.vehicle_drivetrain,
-          accessories: '', // Not available in this response
-          recon_estimate: '',
-          recon_details: '',
-        },
-        buyer: {
-          id: '', // Not available in this response
-          buyer_name: request.buyer_name || '',
-          dealer_name: request.buyer_dealership || '',
-          email: '', // Not available in this response
-        }
+        request_id: request.request_id,
+        created_at: request.created_at,
+        status: request.status,
+        vehicle_year: request.vehicle_year,
+        vehicle_make: request.vehicle_make,
+        vehicle_model: request.vehicle_model,
+        vehicle_trim: request.vehicle_trim,
+        vehicle_vin: request.vehicle_vin,
+        vehicle_mileage: request.vehicle_mileage,
+        vehicle_engine: request.vehicle_engine,
+        vehicle_transmission: request.vehicle_transmission,
+        vehicle_drivetrain: request.vehicle_drivetrain,
+        buyer_name: request.buyer_name,
+        buyer_dealership: request.buyer_dealership,
+        buyer_mobile: request.buyer_mobile,
+        is_used: request.is_used,
+        submitted_offer_amount: request.submitted_offer_amount,
+        submitted_at: request.submitted_at,
       };
     },
     enabled: !!(id && token),
@@ -215,37 +193,37 @@ const PublicBidResponse = () => {
         <div className="max-w-2xl mx-auto p-4 space-y-6 flex-grow">
           <VehicleDetailsSection 
             vehicle={{
-              year: String(data.vehicle.year),
-              make: data.vehicle.make,
-              model: data.vehicle.model,
-              trim: data.vehicle.trim_level || '',
-              vin: data.vehicle.vin || '',
-              mileage: String(data.vehicle.mileage),
-              exteriorColor: data.vehicle.exterior_color || '',
-              interiorColor: data.vehicle.interior_color || '',
-              engineCylinders: data.vehicle.engine_cylinders || '',
-              transmission: data.vehicle.transmission || '',
-              drivetrain: data.vehicle.drivetrain || '',
-              accessories: data.vehicle.accessories || '',
+              year: data.vehicle_year,
+              make: data.vehicle_make,
+              model: data.vehicle_model,
+              trim: data.vehicle_trim || '',
+              vin: data.vehicle_vin || '',
+              mileage: data.vehicle_mileage,
+              exteriorColor: '',
+              interiorColor: '',
+              engineCylinders: data.vehicle_engine || '',
+              transmission: data.vehicle_transmission || '',
+              drivetrain: data.vehicle_drivetrain || '',
+              accessories: '',
               windshield: 'clear',
               engineLights: 'none',
               brakes: 'acceptable',
               tire: 'acceptable',
               maintenance: 'upToDate',
-              reconEstimate: data.vehicle.recon_estimate || '',
-              reconDetails: data.vehicle.recon_details || '',
+              reconEstimate: '',
+              reconDetails: '',
               images: []
             }}
             buyer={{
-              name: data.buyer.buyer_name,
-              dealership: data.buyer.dealer_name || '',
-              mobileNumber: ''
+              name: data.buyer_name,
+              dealership: data.buyer_dealership || '',
+              mobileNumber: data.buyer_mobile || ''
             }}
           />
           <BidForm 
             onSubmit={handleSubmit} 
             isSubmitting={isSubmitting}
-            existingBidAmount={null}
+            existingBidAmount={data.submitted_offer_amount ? String(data.submitted_offer_amount) : null}
           />
           <BidResponseMarketing />
         </div>

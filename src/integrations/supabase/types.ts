@@ -1905,8 +1905,11 @@ export type Database = {
           buyer_mobile: string
           buyer_name: string
           created_at: string
+          is_used: boolean
           request_id: string
           status: string
+          submitted_at: string
+          submitted_offer_amount: number
           vehicle_drivetrain: string
           vehicle_engine: string
           vehicle_make: string
