@@ -114,7 +114,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     <div className="space-y-4">
       {/* Vehicle History Report Integrations */}
       <div className="mb-6">
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-8 justify-center">
           <Button
             type="button"
             variant="outline"
