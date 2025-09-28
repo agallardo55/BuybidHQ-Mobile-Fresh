@@ -29,7 +29,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
 
   const handleIntegrationClick = (service: string) => {
     showAlert(
-      "In Development",
+      "Autocheck Coming soon !!!",
       `${service} integration is coming soon! Stay tuned for more integrations.`,
       "info"
     );
