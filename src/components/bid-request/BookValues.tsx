@@ -107,7 +107,7 @@ const BookValues = ({
             
             <tr>
               <td className="py-4 px-4 font-medium">
-                <img src={kbbLogo} alt="Kelley Blue Book" className="h-6 w-auto" />
+                <img src={kbbLogo} alt="Kelley Blue Book" className="h-7 w-auto" />
               </td>
               <td className="py-4 px-4">
                 <Input
