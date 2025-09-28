@@ -101,8 +101,62 @@ Deno.serve(async (req) => {
       console.log('Created fallback trim:', finalTrims[0]);
     }
 
-    // Special handling for Porsche vehicles AFTER deduplication and fallback
+    // Special handling for manufacturer-specific trims AFTER deduplication and fallback
     let processedTrims = [...finalTrims];
+    
+    // Mercedes-Benz AMG handling
+    if (vehicleData.make?.toLowerCase() === 'mercedes-benz') {
+      console.log('Checking Mercedes-Benz AMG specs:', {
+        series: vehicleData.specs?.series,
+        trim: vehicleData.specs?.trim,
+        driveType: vehicleData.specs?.drive_type,
+        availableTrims: processedTrims.map(t => t.name)
+      });
+
+      // Check if we have an AMG series designation
+      const amgSeries = vehicleData.specs?.series;
+      if (amgSeries && amgSeries.toLowerCase().includes('amg')) {
+        console.log('Detected AMG series:', amgSeries);
+        
+        // Create AMG trim name from series
+        let amgTrimName = amgSeries;
+        
+        // Add drivetrain suffix if available (4MATIC for AWD Mercedes)
+        if (vehicleData.specs?.drive_type === 'AWD' || vehicleData.specs?.drive_type === '4WD') {
+          amgTrimName += ' 4MATIC';
+        }
+        
+        // Create engine description
+        const isTurbo = vehicleData.specs?.turbo === true || vehicleData.specs?.turbo === 'Yes';
+        const engineInfo = vehicleData.specs?.displacement_l && vehicleData.specs?.engine_number_of_cylinders 
+          ? `(${vehicleData.specs.displacement_l}L ${vehicleData.specs.engine_number_of_cylinders}cyl${isTurbo ? ' Turbo' : ''})`
+          : '';
+        
+        const amgDescription = `${amgTrimName} 4dr SUV ${engineInfo}`.trim();
+        
+        // Check if AMG trim already exists in processed trims
+        const hasAMGTrim = processedTrims.some(trim => {
+          const name = (trim.name || '').toLowerCase();
+          return name.includes('amg') || name.includes(amgSeries.toLowerCase().replace('amg ', ''));
+        });
+        
+        if (!hasAMGTrim) {
+          console.log('Adding AMG trim to list:', amgTrimName);
+          processedTrims = [
+            {
+              name: amgTrimName,
+              description: amgDescription,
+              year: Number(vehicleData.year)
+            },
+            ...processedTrims
+          ];
+        } else {
+          console.log('AMG trim already exists in trims');
+        }
+      }
+    }
+    
+    // Porsche handling
     if (vehicleData.make?.toLowerCase() === 'porsche') {
       // Log all relevant specs for GT3 RS detection
       console.log('Checking Porsche GT3 RS specs:', {

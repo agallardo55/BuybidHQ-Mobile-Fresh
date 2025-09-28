@@ -9,7 +9,7 @@ export interface CarApiResult {
     transmission_speeds?: string;
     transmission_style?: string;
     drive_type?: string;
-    turbo?: boolean;
+    turbo?: boolean | string;
     trim?: string;
     body_class?: string;
     doors?: string;
