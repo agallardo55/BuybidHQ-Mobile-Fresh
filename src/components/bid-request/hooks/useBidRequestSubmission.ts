@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { FormState } from "../types";
 import { toast } from "sonner";
+import { extractNumericValue } from "@/utils/currencyUtils";
 
 interface BidRequestSubmissionProps {
   formState: FormState;
@@ -57,7 +58,7 @@ export const useBidRequestSubmission = () => {
         brakes: formData.brakes || 'Good',
         tires: formData.tire || 'Good',
         maintenance: formData.maintenance || 'Up to date',
-        recon_estimate: formData.reconEstimate || '0',
+        recon_estimate: extractNumericValue(formData.reconEstimate),
         recon_details: formData.reconDetails || 'No additional details'
       };
 

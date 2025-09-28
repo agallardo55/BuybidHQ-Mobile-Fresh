@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import carPlaceholder from "@/assets/car-placeholder.png";
+import { formatCurrencyDisplay } from "@/utils/currencyUtils";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -217,7 +218,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
               </div>
               <div className="grid grid-cols-5 gap-1.5 py-0.5">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Recon Est. :</p>
-                <p className="col-span-3 text-base lg:text-base text-lg font-normal">${parseFloat(vehicle.reconEstimate).toLocaleString()}</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{formatCurrencyDisplay(vehicle.reconEstimate)}</p>
               </div>
               {vehicle.reconDetails && (
                 <div className="grid grid-cols-5 gap-1.5 py-0.5">
