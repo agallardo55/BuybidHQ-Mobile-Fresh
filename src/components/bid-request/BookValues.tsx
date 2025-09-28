@@ -49,6 +49,28 @@ const BookValues = ({
         </p>
       </div>
 
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="flex items-center gap-4">
+          <Label className="font-medium min-w-[80px]">Condition:</Label>
+          <div className="flex-1">
+            <Select
+              value={formData.bookValuesCondition || ''}
+              onValueChange={(value) => handleSelectChange('bookValuesCondition', value)}
+            >
+              <SelectTrigger className="w-full max-w-xs">
+                <SelectValue placeholder="Select condition" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="excellent">Excellent</SelectItem>
+                <SelectItem value="veryGood">Very Good</SelectItem>
+                <SelectItem value="good">Good</SelectItem>
+                <SelectItem value="fair">Fair</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -146,26 +168,6 @@ const BookValues = ({
                   placeholder="$0"
                   className="w-full"
                 />
-              </td>
-            </tr>
-            
-            <tr>
-              <td className="py-4 px-4 font-medium">Condition</td>
-              <td className="py-4 px-4" colSpan={2}>
-                <Select
-                  value={formData.bookValuesCondition || ''}
-                  onValueChange={(value) => handleSelectChange('bookValuesCondition', value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select condition" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="excellent">Excellent</SelectItem>
-                    <SelectItem value="veryGood">Very Good</SelectItem>
-                    <SelectItem value="good">Good</SelectItem>
-                    <SelectItem value="fair">Fair</SelectItem>
-                  </SelectContent>
-                </Select>
               </td>
             </tr>
           </tbody>
