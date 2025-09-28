@@ -30,8 +30,9 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
 
   const handleIntegrationClick = (service: string) => {
     setCurrentService(service);
+    const title = service === "AutoCheck" ? "Autocheck Coming soon !!!" : "Carfax Coming Soon !!!";
     showAlert(
-      "Autocheck Coming soon !!!",
+      title,
       `${service} integration is coming soon! Stay tuned for more integrations.`,
       "info"
     );
