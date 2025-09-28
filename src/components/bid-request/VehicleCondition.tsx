@@ -25,9 +25,11 @@ interface VehicleConditionProps {
 
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
   const [displayValue, setDisplayValue] = useState('$0');
+  const [currentService, setCurrentService] = useState<string>('');
   const { alert, showAlert, closeAlert } = useAlertDialog();
 
   const handleIntegrationClick = (service: string) => {
+    setCurrentService(service);
     showAlert(
       "Autocheck Coming soon !!!",
       `${service} integration is coming soon! Stay tuned for more integrations.`,
@@ -251,8 +253,21 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{alert.title}</AlertDialogTitle>
-            <AlertDialogDescription>{alert.message}</AlertDialogDescription>
           </AlertDialogHeader>
+          
+          {/* Large Logo Section */}
+          <div className="flex justify-center py-6">
+            <img 
+              src={currentService === "AutoCheck" ? autocheckImage : carfaxImage} 
+              alt={currentService} 
+              className="h-20 w-auto object-contain" 
+            />
+          </div>
+          
+          <AlertDialogDescription className="text-center px-6 pb-4">
+            {alert.message}
+          </AlertDialogDescription>
+          
           <AlertDialogFooter>
             <AlertDialogAction onClick={closeAlert}>OK</AlertDialogAction>
           </AlertDialogFooter>
