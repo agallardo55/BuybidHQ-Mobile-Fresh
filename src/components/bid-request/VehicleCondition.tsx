@@ -2,7 +2,12 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
+import { useAlertDialog } from "@/hooks/useAlertDialog";
+import autocheckImage from "@/assets/autocheck.png";
+import carfaxImage from "@/assets/carfax_logo.svg";
 
 interface VehicleConditionProps {
   formData: {
@@ -20,6 +25,15 @@ interface VehicleConditionProps {
 
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
   const [displayValue, setDisplayValue] = useState('$0');
+  const { alert, showAlert, closeAlert } = useAlertDialog();
+
+  const handleIntegrationClick = (service: string) => {
+    showAlert(
+      "In Development",
+      `${service} integration is coming soon! Stay tuned for more integrations.`,
+      "info"
+    );
+  };
 
   const formatDollarAmount = (value: string | undefined | null) => {
     console.log('formatDollarAmount called with:', { value, type: typeof value });
@@ -95,6 +109,29 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
 
   return (
     <div className="space-y-4">
+      {/* Vehicle History Report Integrations */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-gray-700 mb-2">Vehicle History Reports</h3>
+        <div className="flex gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleIntegrationClick("AutoCheck")}
+            className="flex items-center gap-2 px-4 py-2"
+          >
+            <img src={autocheckImage} alt="AutoCheck" className="h-6 w-auto" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleIntegrationClick("CarFax")}
+            className="flex items-center gap-2 px-4 py-2"
+          >
+            <img src={carfaxImage} alt="CarFax" className="h-6 w-auto" />
+          </Button>
+        </div>
+      </div>
+
       <div>
         <label htmlFor="windshield" className="block text-sm font-medium text-gray-700 mb-1">
           Windshield
@@ -209,6 +246,19 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           className="min-h-[100px] focus-visible:ring-custom-blue"
         />
       </div>
+
+      {/* Alert Dialog */}
+      <AlertDialog open={alert.open} onOpenChange={closeAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{alert.title}</AlertDialogTitle>
+            <AlertDialogDescription>{alert.message}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={closeAlert}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
