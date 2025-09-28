@@ -19,32 +19,27 @@ interface VehicleConditionProps {
 }
 
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
-  const [displayValue, setDisplayValue] = useState('');
+  const [displayValue, setDisplayValue] = useState('$0');
 
   const formatDollarAmount = (value: string) => {
     const numericValue = value.replace(/\D/g, '');
-    if (!numericValue) return '';
+    if (!numericValue || numericValue === '0') return '$0';
+    
+    const parsedValue = Number(numericValue);
+    if (isNaN(parsedValue)) return '$0';
     
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(Number(numericValue));
+    }).format(parsedValue);
   };
 
   // Update display value whenever formData.reconEstimate changes
   useEffect(() => {
-    if (formData.reconEstimate) {
-      const formatted = formatDollarAmount(formData.reconEstimate);
-      setDisplayValue(formatted);
-      console.log('Updating display value from formData:', {
-        reconEstimate: formData.reconEstimate,
-        formatted
-      });
-    } else {
-      setDisplayValue('$0');
-    }
+    const formatted = formatDollarAmount(formData.reconEstimate || '');
+    setDisplayValue(formatted);
   }, [formData.reconEstimate]);
 
   const handleReconEstimateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
