@@ -56,7 +56,7 @@ const BookValues = ({
             value={formData.bookValuesCondition || ''}
             onValueChange={(value) => handleSelectChange('bookValuesCondition', value)}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-64">
               <SelectValue placeholder="Select condition" />
             </SelectTrigger>
             <SelectContent>
