@@ -32,6 +32,7 @@ interface QuickBidDetails {
   is_used: boolean;
   submitted_offer_amount: number | null;
   submitted_at: string | null;
+  vehicle_images: string[];
 }
 
 interface UseBidSubmissionProps {
@@ -141,6 +142,9 @@ const useQuickBidDetails = () => {
         is_used: request.is_used,
         submitted_offer_amount: request.submitted_offer_amount,
         submitted_at: request.submitted_at,
+        vehicle_images: Array.isArray(request.vehicle_images) 
+          ? request.vehicle_images as string[]
+          : [],
       };
     },
     enabled: !!(id && token),
@@ -212,7 +216,7 @@ const PublicBidResponse = () => {
               maintenance: 'upToDate',
               reconEstimate: '',
               reconDetails: '',
-              images: []
+              images: data.vehicle_images || []
             }}
             buyer={{
               name: data.buyer_name,

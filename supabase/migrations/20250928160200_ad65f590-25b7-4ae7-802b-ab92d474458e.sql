@@ -1,0 +1,97 @@
+-- Drop and recreate get_public_bid_request_details function to include vehicle images
+DROP FUNCTION IF EXISTS public.get_public_bid_request_details(text);
+
+CREATE OR REPLACE FUNCTION public.get_public_bid_request_details(p_token text)
+ RETURNS TABLE(
+   request_id uuid, 
+   created_at timestamp with time zone, 
+   status text, 
+   vehicle_year text, 
+   vehicle_make text, 
+   vehicle_model text, 
+   vehicle_trim text, 
+   vehicle_vin text, 
+   vehicle_mileage text, 
+   vehicle_engine text, 
+   vehicle_transmission text, 
+   vehicle_drivetrain text, 
+   buyer_name text, 
+   buyer_dealership text, 
+   buyer_mobile text, 
+   is_used boolean, 
+   submitted_offer_amount numeric, 
+   submitted_at timestamp with time zone,
+   vehicle_images json
+ )
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+DECLARE
+  v_token_valid boolean := false;
+  v_bid_request_id uuid;
+  v_buyer_id uuid;
+BEGIN
+  -- Validate the token (removed expiration check)
+  SELECT 
+    (NOT t.is_used) as is_valid,
+    t.bid_request_id,
+    t.buyer_id,
+    t.is_used
+  INTO v_token_valid, v_bid_request_id, v_buyer_id
+  FROM bid_submission_tokens t
+  WHERE t.token = p_token
+  LIMIT 1;
+
+  -- If token doesn't exist, return empty result
+  IF v_bid_request_id IS NULL THEN
+    RETURN;
+  END IF;
+
+  -- Additional security check: verify the bid request exists
+  IF NOT EXISTS (
+    SELECT 1 FROM bid_requests br
+    WHERE br.id = v_bid_request_id
+  ) THEN
+    RETURN;
+  END IF;
+
+  -- Return sanitized bid request details for this specific token including images
+  RETURN QUERY
+  SELECT 
+    br.id as request_id,
+    br.created_at,
+    br.status::text,
+    COALESCE(v.year, 'N/A') as vehicle_year,
+    COALESCE(v.make, 'N/A') as vehicle_make,
+    COALESCE(v.model, 'N/A') as vehicle_model,
+    COALESCE(v.trim, 'N/A') as vehicle_trim,
+    COALESCE(v.vin, 'N/A') as vehicle_vin,
+    COALESCE(v.mileage, 'N/A') as vehicle_mileage,
+    COALESCE(v.engine, 'N/A') as vehicle_engine,
+    COALESCE(v.transmission, 'N/A') as vehicle_transmission,
+    COALESCE(v.drivetrain, 'N/A') as vehicle_drivetrain,
+    COALESCE(u.full_name, 'N/A') as buyer_name,
+    CASE 
+      WHEN d.dealer_name IS NOT NULL THEN d.dealer_name
+      ELSE 'Direct Buyer'
+    END as buyer_dealership,
+    COALESCE(u.mobile_number, 'N/A') as buyer_mobile,
+    bst.is_used,
+    bres.offer_amount as submitted_offer_amount,
+    bres.created_at as submitted_at,
+    COALESCE(
+      (SELECT json_agg(i.image_url ORDER BY i.sequence_order, i.created_at)
+       FROM images i 
+       WHERE i.bid_request_id = br.id), 
+      '[]'::json
+    ) as vehicle_images
+  FROM bid_requests br
+  JOIN vehicles v ON br.vehicle_id = v.id
+  JOIN buybidhq_users u ON br.user_id = u.id
+  LEFT JOIN dealerships d ON u.dealership_id = d.id
+  JOIN bid_submission_tokens bst ON bst.bid_request_id = br.id AND bst.token = p_token
+  LEFT JOIN bid_responses bres ON bres.bid_request_id = br.id AND bres.buyer_id = bst.buyer_id
+  WHERE br.id = v_bid_request_id;
+END;
+$function$
