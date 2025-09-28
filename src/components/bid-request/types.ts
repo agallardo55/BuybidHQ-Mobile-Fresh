@@ -130,6 +130,7 @@ export interface BidRequestFormData {
   jdPowerRetail: string;
   auctionWholesale: string;
   auctionRetail: string;
+  bookValuesCondition: string;
 }
 
 export interface FormErrors {

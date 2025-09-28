@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BidRequestFormData, FormErrors } from "./types";
 import { formatCurrencyDisplay, extractNumericValue } from "@/utils/currencyUtils";
 import manheimLogo from "@/assets/manheimLogo.svg";
@@ -31,6 +32,12 @@ const BookValues = ({
         value: formattedValue
       }
     });
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    onChange({
+      target: { name, value }
+    } as React.ChangeEvent<HTMLInputElement>);
   };
 
   return (
@@ -139,6 +146,26 @@ const BookValues = ({
                   placeholder="$0"
                   className="w-full"
                 />
+              </td>
+            </tr>
+            
+            <tr>
+              <td className="py-4 px-4 font-medium">Condition</td>
+              <td className="py-4 px-4" colSpan={2}>
+                <Select
+                  value={formData.bookValuesCondition || ''}
+                  onValueChange={(value) => handleSelectChange('bookValuesCondition', value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select condition" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excellent">Excellent</SelectItem>
+                    <SelectItem value="veryGood">Very Good</SelectItem>
+                    <SelectItem value="good">Good</SelectItem>
+                    <SelectItem value="fair">Fair</SelectItem>
+                  </SelectContent>
+                </Select>
               </td>
             </tr>
           </tbody>
