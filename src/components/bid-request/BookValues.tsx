@@ -75,7 +75,7 @@ const BookValues = ({
             <tr className="border-b">
               <th className="text-left py-3 px-4 font-medium">Service</th>
               <th className="text-center py-3 px-4 font-medium">Wholesale</th>
-              <th className="text-left py-3 px-4 font-medium">Retail</th>
+              <th className="text-center py-3 px-4 font-medium">Retail</th>
             </tr>
           </thead>
           <tbody className="divide-y">
