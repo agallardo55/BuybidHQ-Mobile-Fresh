@@ -38,7 +38,7 @@ const BookValuesCard = ({
         <div className="overflow-hidden rounded-lg border border-border">
           {/* Header Row */}
           <div className="grid grid-cols-3 bg-muted/50 border-b border-border">
-            <div className="p-3 font-semibold text-sm">Service</div>
+            <div className="p-3 font-semibold text-sm">Books</div>
             <div className="p-3 font-semibold text-sm text-center border-l border-border">Wholesale</div>
             <div className="p-3 font-semibold text-sm text-center border-l border-border">Retail</div>
           </div>
