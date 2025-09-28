@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, UserRound } from "lucide-react";
 import { MappedBuyer } from "@/hooks/buyers/types";
 import { formatPhoneForDisplay } from "@/utils/buyerUtils";
@@ -61,54 +62,61 @@ const BuyersSection = ({
             <span>Buyer</span>
           </Button>
         </div>
-        {/* Header Row */}
-        <div className="grid grid-cols-[40px_32px_170px_160px_120px_200px] items-center gap-3 py-2 px-1.5 bg-gray-50 border-b border-gray-200 font-medium text-sm text-gray-700">
-          <div></div>
-          <div></div>
-          <div>Name</div>
-          <div>Dealership</div>
-          <div>Phone</div>
-          <div>Email</div>
-        </div>
         <ScrollArea className="h-[400px]">
-          <div>
-            {buyers.length > 0 ? (
-              buyers.map((buyer, index) => (
-                <div
-                  key={buyer.id}
-                  className="grid grid-cols-[40px_32px_170px_160px_120px_200px] items-center gap-3 py-3 px-1.5 border border-gray-200 bg-white hover:bg-gray-100"
-                >
-                  <div className="flex justify-center">
-                    <Checkbox
-                      id={`buyer-${buyer.id}`}
-                      checked={selectedBuyers.includes(buyer.id)}
-                      onCheckedChange={() => toggleBuyer(buyer.id)}
-                      className="h-4 w-4"
-                    />
-                  </div>
-                  <div className="flex justify-center">
-                    <UserRound className="h-4 w-4 text-gray-500" />
-                  </div>
-                  <div className="text-sm font-medium cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
-                    {buyer.name}
-                  </div>
-                  <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
-                    {buyer.dealership || '-'}
-                  </div>
-                   <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
-                     {formatPhoneForDisplay(buyer.mobile)}
-                   </div>
-                  <div className="text-sm text-gray-500 cursor-pointer" onClick={() => toggleBuyer(buyer.id)}>
-                    {buyer.email || '-'}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-4 text-gray-500">
-                No buyers found. Try adjusting your search or add a new buyer.
-              </div>
-            )}
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[40px] text-center"></TableHead>
+                <TableHead className="w-[32px] text-center"></TableHead>
+                <TableHead className="py-2 px-4 whitespace-nowrap">Name</TableHead>
+                <TableHead className="py-2 px-4 whitespace-nowrap">Dealership</TableHead>
+                <TableHead className="py-2 px-4 whitespace-nowrap">Phone</TableHead>
+                <TableHead className="py-2 px-4 whitespace-nowrap">Email</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {buyers.length > 0 ? (
+                buyers.map((buyer) => (
+                  <TableRow
+                    key={buyer.id}
+                    className="h-[44px] hover:bg-muted/50 cursor-pointer"
+                    onClick={() => toggleBuyer(buyer.id)}
+                  >
+                    <TableCell className="py-2 px-4 text-center">
+                      <Checkbox
+                        id={`buyer-${buyer.id}`}
+                        checked={selectedBuyers.includes(buyer.id)}
+                        onCheckedChange={() => toggleBuyer(buyer.id)}
+                        className="h-4 w-4"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </TableCell>
+                    <TableCell className="py-2 px-4 text-center">
+                      <UserRound className="h-4 w-4 text-muted-foreground" />
+                    </TableCell>
+                    <TableCell className="py-2 px-4 font-medium whitespace-nowrap">
+                      {buyer.name}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 text-muted-foreground">
+                      {buyer.dealership || '-'}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 text-muted-foreground whitespace-nowrap">
+                      {formatPhoneForDisplay(buyer.mobile)}
+                    </TableCell>
+                    <TableCell className="py-2 px-4 text-muted-foreground">
+                      {buyer.email || '-'}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    No buyers found. Try adjusting your search or add a new buyer.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </ScrollArea>
       </div>
       <div className="mt-6 flex justify-between">
