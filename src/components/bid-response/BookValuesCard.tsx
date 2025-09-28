@@ -26,17 +26,7 @@ const BookValuesCard = ({
   auctionWholesale,
   auctionRetail,
 }: BookValuesCardProps) => {
-  // Check if any book values exist
-  const hasBookValues = !!(
-    kbbWholesale || kbbRetail || 
-    jdPowerWholesale || jdPowerRetail || 
-    mmrWholesale || mmrRetail || 
-    auctionWholesale || auctionRetail
-  );
-
-  if (!hasBookValues) {
-    return null;
-  }
+  // Always show the card - formatCurrencyDisplay handles null/undefined by showing $0
 
   return (
     <Card>
@@ -46,53 +36,43 @@ const BookValuesCard = ({
       <Separator className="mb-6" />
       <CardContent>
         <div className="grid gap-1.5">
-          {(mmrWholesale || mmrRetail) && (
-            <>
-              <div className="grid grid-cols-5 gap-1.5 py-0.5">
-                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
-                  <img src={manheimLogo} alt="MMR" className="h-6 w-auto" />
-                </p>
-                <p className="col-span-3 text-base lg:text-base text-lg font-normal">
-                  W: {mmrWholesale ? formatCurrencyDisplay(mmrWholesale) : 'N/A'} | 
-                  R: {mmrRetail ? formatCurrencyDisplay(mmrRetail) : 'N/A'}
-                </p>
-              </div>
-            </>
-          )}
+          <div className="grid grid-cols-5 gap-1.5 py-0.5">
+            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
+              <img src={manheimLogo} alt="MMR" className="h-6 w-auto" />
+            </p>
+            <p className="col-span-3 text-base lg:text-base text-lg font-normal">
+              W: {formatCurrencyDisplay(mmrWholesale)} | 
+              R: {formatCurrencyDisplay(mmrRetail)}
+            </p>
+          </div>
           
-          {(kbbWholesale || kbbRetail) && (
-            <div className="grid grid-cols-5 gap-1.5 py-0.5">
-              <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
-                <img src={kbbLogo} alt="Kelley Blue Book" className="h-7 w-auto" />
-              </p>
-              <p className="col-span-3 text-base lg:text-base text-lg font-normal">
-                W: {kbbWholesale ? formatCurrencyDisplay(kbbWholesale) : 'N/A'} | 
-                R: {kbbRetail ? formatCurrencyDisplay(kbbRetail) : 'N/A'}
-              </p>
-            </div>
-          )}
+          <div className="grid grid-cols-5 gap-1.5 py-0.5">
+            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
+              <img src={kbbLogo} alt="Kelley Blue Book" className="h-7 w-auto" />
+            </p>
+            <p className="col-span-3 text-base lg:text-base text-lg font-normal">
+              W: {formatCurrencyDisplay(kbbWholesale)} | 
+              R: {formatCurrencyDisplay(kbbRetail)}
+            </p>
+          </div>
           
-          {(jdPowerWholesale || jdPowerRetail) && (
-            <div className="grid grid-cols-5 gap-1.5 py-0.5">
-              <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
-                <img src={jdpLogo} alt="J.D. Power" className="h-4 w-auto" />
-              </p>
-              <p className="col-span-3 text-base lg:text-base text-lg font-normal">
-                W: {jdPowerWholesale ? formatCurrencyDisplay(jdPowerWholesale) : 'N/A'} | 
-                R: {jdPowerRetail ? formatCurrencyDisplay(jdPowerRetail) : 'N/A'}
-              </p>
-            </div>
-          )}
+          <div className="grid grid-cols-5 gap-1.5 py-0.5">
+            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black flex items-center">
+              <img src={jdpLogo} alt="J.D. Power" className="h-4 w-auto" />
+            </p>
+            <p className="col-span-3 text-base lg:text-base text-lg font-normal">
+              W: {formatCurrencyDisplay(jdPowerWholesale)} | 
+              R: {formatCurrencyDisplay(jdPowerRetail)}
+            </p>
+          </div>
           
-          {(auctionWholesale || auctionRetail) && (
-            <div className="grid grid-cols-5 gap-1.5 py-0.5">
-              <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Auction :</p>
-              <p className="col-span-3 text-base lg:text-base text-lg font-normal">
-                W: {auctionWholesale ? formatCurrencyDisplay(auctionWholesale) : 'N/A'} | 
-                R: {auctionRetail ? formatCurrencyDisplay(auctionRetail) : 'N/A'}
-              </p>
-            </div>
-          )}
+          <div className="grid grid-cols-5 gap-1.5 py-0.5">
+            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Auction :</p>
+            <p className="col-span-3 text-base lg:text-base text-lg font-normal">
+              W: {formatCurrencyDisplay(auctionWholesale)} | 
+              R: {formatCurrencyDisplay(auctionRetail)}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
