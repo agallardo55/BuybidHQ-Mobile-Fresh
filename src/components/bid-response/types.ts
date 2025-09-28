@@ -23,6 +23,14 @@ export interface VehicleDetails extends Vehicle {
   maintenance: string;
   reconEstimate: string;
   reconDetails?: string;
+  kbbWholesale?: number;
+  kbbRetail?: number;
+  jdPowerWholesale?: number;
+  jdPowerRetail?: number;
+  mmrWholesale?: number;
+  mmrRetail?: number;
+  auctionWholesale?: number;
+  auctionRetail?: number;
 }
 
 export interface BidResponseFormData {

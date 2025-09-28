@@ -1925,11 +1925,19 @@ export type Database = {
       get_public_bid_request_details: {
         Args: { p_token: string }
         Returns: {
+          auction_retail: number
+          auction_wholesale: number
           buyer_dealership: string
           buyer_mobile: string
           buyer_name: string
           created_at: string
           is_used: boolean
+          jd_power_retail: number
+          jd_power_wholesale: number
+          kbb_retail: number
+          kbb_wholesale: number
+          mmr_retail: number
+          mmr_wholesale: number
           request_id: string
           status: string
           submitted_at: string

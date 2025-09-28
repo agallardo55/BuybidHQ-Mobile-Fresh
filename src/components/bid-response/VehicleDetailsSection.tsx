@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import carPlaceholder from "@/assets/car-placeholder.png";
 import { formatCurrencyDisplay } from "@/utils/currencyUtils";
+import BookValuesCard from "./BookValuesCard";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -229,6 +230,17 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
             </div>
           </CardContent>
         </Card>
+
+        <BookValuesCard
+          kbbWholesale={vehicle.kbbWholesale}
+          kbbRetail={vehicle.kbbRetail}
+          jdPowerWholesale={vehicle.jdPowerWholesale}
+          jdPowerRetail={vehicle.jdPowerRetail}
+          mmrWholesale={vehicle.mmrWholesale}
+          mmrRetail={vehicle.mmrRetail}
+          auctionWholesale={vehicle.auctionWholesale}
+          auctionRetail={vehicle.auctionRetail}
+        />
       </div>
     </div>
   );

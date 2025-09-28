@@ -36,6 +36,14 @@ interface QuickBidDetails {
   submitted_offer_amount: number | null;
   submitted_at: string | null;
   vehicle_images: string[];
+  kbb_wholesale?: number;
+  kbb_retail?: number;
+  jd_power_wholesale?: number;
+  jd_power_retail?: number;
+  mmr_wholesale?: number;
+  mmr_retail?: number;
+  auction_wholesale?: number;
+  auction_retail?: number;
 }
 
 interface UseBidSubmissionProps {
@@ -151,6 +159,14 @@ const useQuickBidDetails = () => {
         vehicle_exterior_color: request.vehicle_exterior_color,
         vehicle_interior_color: request.vehicle_interior_color,
         vehicle_accessories: request.vehicle_accessories,
+        kbb_wholesale: request.kbb_wholesale,
+        kbb_retail: request.kbb_retail,
+        jd_power_wholesale: request.jd_power_wholesale,
+        jd_power_retail: request.jd_power_retail,
+        mmr_wholesale: request.mmr_wholesale,
+        mmr_retail: request.mmr_retail,
+        auction_wholesale: request.auction_wholesale,
+        auction_retail: request.auction_retail,
       };
     },
     enabled: !!(id && token),
@@ -222,7 +238,15 @@ const PublicBidResponse = () => {
               maintenance: 'upToDate',
               reconEstimate: '',
               reconDetails: '',
-              images: data.vehicle_images || []
+              images: data.vehicle_images || [],
+              kbbWholesale: data.kbb_wholesale,
+              kbbRetail: data.kbb_retail,
+              jdPowerWholesale: data.jd_power_wholesale,
+              jdPowerRetail: data.jd_power_retail,
+              mmrWholesale: data.mmr_wholesale,
+              mmrRetail: data.mmr_retail,
+              auctionWholesale: data.auction_wholesale,
+              auctionRetail: data.auction_retail,
             }}
             buyer={{
               name: data.buyer_name,
