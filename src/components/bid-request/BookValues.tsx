@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BidRequestFormData, FormErrors } from "./types";
 import { formatCurrencyDisplay, extractNumericValue } from "@/utils/currencyUtils";
 import manheimLogo from "@/assets/manheimLogo.svg";
+import kbbLogo from "@/assets/kbbLogo.webp";
 
 interface BookValuesProps {
   formData: BidRequestFormData;
@@ -104,7 +105,9 @@ const BookValues = ({
             </tr>
             
             <tr>
-              <td className="py-4 px-4 font-medium">KBB</td>
+              <td className="py-4 px-4 font-medium">
+                <img src={kbbLogo} alt="Kelley Blue Book" className="h-6 w-auto" />
+              </td>
               <td className="py-4 px-4">
                 <Input
                   name="kbbWholesale"
