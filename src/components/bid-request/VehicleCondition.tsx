@@ -119,7 +119,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             type="button"
             variant="outline"
             onClick={() => handleIntegrationClick("AutoCheck")}
-            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
+            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 min-w-[120px] justify-center"
           >
             <img src={autocheckImage} alt="AutoCheck" className="h-6 w-auto" />
           </Button>
@@ -127,7 +127,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             type="button"
             variant="outline"
             onClick={() => handleIntegrationClick("CarFax")}
-            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
+            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 min-w-[120px] justify-center"
           >
             <img src={carfaxImage} alt="CarFax" className="h-6 w-auto" />
           </Button>
