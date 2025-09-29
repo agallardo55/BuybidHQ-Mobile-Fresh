@@ -1,6 +1,7 @@
 
 import { VehicleDetails } from "./types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { getConditionDisplay } from "@/components/bid-request/utils/conditionFormatting";
 
 interface Props {
   vehicle: VehicleDetails;
@@ -16,23 +17,23 @@ const VehicleCondition = ({ vehicle }: Props) => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Windshield</p>
-            <p className="text-base lg:text-base text-lg">{vehicle.windshield}</p>
+            <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.windshield, 'windshield')}</p>
           </div>
           <div>
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Engine Lights</p>
-            <p className="text-base lg:text-base text-lg">{vehicle.engineLights}</p>
+            <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
           </div>
           <div>
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Brakes</p>
-            <p className="text-base lg:text-base text-lg">{vehicle.brakes}</p>
+            <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.brakes, 'brakesTires')}</p>
           </div>
           <div>
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Tires</p>
-            <p className="text-base lg:text-base text-lg">{vehicle.tire}</p>
+            <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.tire, 'brakesTires')}</p>
           </div>
           <div>
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Maintenance</p>
-            <p className="text-base lg:text-base text-lg">{vehicle.maintenance}</p>
+            <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.maintenance, 'maintenance')}</p>
           </div>
           <div>
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Recon Estimate</p>

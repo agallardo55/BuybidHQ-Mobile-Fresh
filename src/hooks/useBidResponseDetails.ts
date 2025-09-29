@@ -30,6 +30,14 @@ interface BidResponseDetailsType {
   dealership: string | null;
   mobile_number: string | null;
   images: string[];
+  kbb_wholesale: number | null;
+  kbb_retail: number | null;
+  jd_power_wholesale: number | null;
+  jd_power_retail: number | null;
+  mmr_wholesale: number | null;
+  mmr_retail: number | null;
+  auction_wholesale: number | null;
+  auction_retail: number | null;
 }
 
 export const useBidResponseDetails = () => {
@@ -130,7 +138,15 @@ export const useBidResponseDetails = () => {
             maintenance: details.maintenance,
             reconEstimate: details.recon_estimate,
             reconDetails: details.recon_details,
-            images: images || []
+            images: images || [],
+            kbbWholesale: details.kbb_wholesale,
+            kbbRetail: details.kbb_retail,
+            jdPowerWholesale: details.jd_power_wholesale,
+            jdPowerRetail: details.jd_power_retail,
+            mmrWholesale: details.mmr_wholesale,
+            mmrRetail: details.mmr_retail,
+            auctionWholesale: details.auction_wholesale,
+            auctionRetail: details.auction_retail
           },
           buyer: {
             name: details.user_full_name,

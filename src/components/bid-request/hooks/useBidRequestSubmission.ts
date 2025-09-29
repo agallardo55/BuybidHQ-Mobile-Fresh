@@ -80,32 +80,43 @@ export const useBidRequestSubmission = () => {
 
       console.log(`[${requestId}] Bid request created successfully:`, bidRequestData);
 
-      // Save book values if they exist
+      // Save book values if they exist - we need to get the vehicle_id from the created bid request
       const hasBookValues = formData.mmrWholesale || formData.mmrRetail || 
                            formData.kbbWholesale || formData.kbbRetail ||
                            formData.jdPowerWholesale || formData.jdPowerRetail ||
                            formData.auctionWholesale || formData.auctionRetail;
 
       if (hasBookValues) {
-        const { error: bookValuesError } = await supabase
-          .from('bookValues')
-          .insert({
-            vehicle_id: bidRequestData, // This should be the vehicle_id, need to get it from the RPC response
-            mmr_wholesale: formData.mmrWholesale ? parseFloat(extractNumericValue(formData.mmrWholesale)) : null,
-            mmr_retail: formData.mmrRetail ? parseFloat(extractNumericValue(formData.mmrRetail)) : null,
-            kbb_wholesale: formData.kbbWholesale ? parseFloat(extractNumericValue(formData.kbbWholesale)) : null,
-            kbb_retail: formData.kbbRetail ? parseFloat(extractNumericValue(formData.kbbRetail)) : null,
-            jd_power_wholesale: formData.jdPowerWholesale ? parseFloat(extractNumericValue(formData.jdPowerWholesale)) : null,
-            jd_power_retail: formData.jdPowerRetail ? parseFloat(extractNumericValue(formData.jdPowerRetail)) : null,
-            auction_wholesale: formData.auctionWholesale ? parseFloat(extractNumericValue(formData.auctionWholesale)) : null,
-            auction_retail: formData.auctionRetail ? parseFloat(extractNumericValue(formData.auctionRetail)) : null
-          });
+        // Get the vehicle_id from the created bid request
+        const { data: bidRequest, error: vehicleError } = await supabase
+          .from('bid_requests')
+          .select('vehicle_id')
+          .eq('id', bidRequestData)
+          .single();
 
-        if (bookValuesError) {
-          console.error(`[${requestId}] Error saving book values:`, bookValuesError);
-          // Don't throw - book values are optional, continue with the process
+        if (vehicleError || !bidRequest) {
+          console.error(`[${requestId}] Error getting vehicle ID:`, vehicleError);
         } else {
-          console.log(`[${requestId}] Book values saved successfully`);
+          const { error: bookValuesError } = await supabase
+            .from('bookValues')
+            .insert({
+              vehicle_id: bidRequest.vehicle_id,
+              mmr_wholesale: formData.mmrWholesale ? parseFloat(extractNumericValue(formData.mmrWholesale)) : null,
+              mmr_retail: formData.mmrRetail ? parseFloat(extractNumericValue(formData.mmrRetail)) : null,
+              kbb_wholesale: formData.kbbWholesale ? parseFloat(extractNumericValue(formData.kbbWholesale)) : null,
+              kbb_retail: formData.kbbRetail ? parseFloat(extractNumericValue(formData.kbbRetail)) : null,
+              jd_power_wholesale: formData.jdPowerWholesale ? parseFloat(extractNumericValue(formData.jdPowerWholesale)) : null,
+              jd_power_retail: formData.jdPowerRetail ? parseFloat(extractNumericValue(formData.jdPowerRetail)) : null,
+              auction_wholesale: formData.auctionWholesale ? parseFloat(extractNumericValue(formData.auctionWholesale)) : null,
+              auction_retail: formData.auctionRetail ? parseFloat(extractNumericValue(formData.auctionRetail)) : null
+            });
+
+          if (bookValuesError) {
+            console.error(`[${requestId}] Error saving book values:`, bookValuesError);
+            // Don't throw - book values are optional, continue with the process
+          } else {
+            console.log(`[${requestId}] Book values saved successfully`);
+          }
         }
       }
 

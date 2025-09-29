@@ -1927,21 +1927,27 @@ export type Database = {
         Returns: {
           auction_retail: number
           auction_wholesale: number
+          brakes: string
           buyer_dealership: string
           buyer_mobile: string
           buyer_name: string
           created_at: string
+          engine_lights: string
           is_used: boolean
           jd_power_retail: number
           jd_power_wholesale: number
           kbb_retail: number
           kbb_wholesale: number
+          maintenance: string
           mmr_retail: number
           mmr_wholesale: number
+          recon_details: string
+          recon_estimate: string
           request_id: string
           status: string
           submitted_at: string
           submitted_offer_amount: number
+          tire: string
           vehicle_accessories: string
           vehicle_drivetrain: string
           vehicle_engine: string
@@ -1955,6 +1961,7 @@ export type Database = {
           vehicle_trim: string
           vehicle_vin: string
           vehicle_year: string
+          windshield: string
         }[]
       }
       get_sms_gateway_email: {
