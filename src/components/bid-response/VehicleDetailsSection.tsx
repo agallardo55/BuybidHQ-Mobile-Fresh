@@ -8,15 +8,14 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import carPlaceholder from "@/assets/car-placeholder.png";
 import { formatCurrencyDisplay } from "@/utils/currencyUtils";
 import BookValuesCard from "./BookValuesCard";
+import ImageCarouselDialog from "./ImageCarouselDialog";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -28,7 +27,8 @@ interface VehicleDetailsSectionProps {
 }
 
 const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(-1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCopyVin = async () => {
     try {
@@ -74,9 +74,12 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
               <CarouselContent>
                 {images.map((image, index) => (
                   <CarouselItem key={index}>
-                    <div 
+                     <div 
                       className="aspect-video w-full cursor-pointer" 
-                      onClick={() => setSelectedImage(image)}
+                      onClick={() => {
+                        setSelectedImageIndex(index);
+                        setIsDialogOpen(true);
+                      }}
                     >
                       <img
                         src={image}
@@ -92,25 +95,15 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
             </Carousel>
           </div>
 
-          <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-            <DialogContent className="sm:max-w-3xl p-0 bg-black border-black">
-              <div className="relative w-full h-[80vh]">
-                {selectedImage && (
-                  <img 
-                    src={selectedImage} 
-                    alt="Selected vehicle" 
-                    className="w-full h-full object-contain"
-                  />
-                )}
-                <button
-                  className="absolute right-4 top-4 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white"
-                  onClick={() => setSelectedImage(null)}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <ImageCarouselDialog
+            images={images}
+            initialIndex={selectedImageIndex}
+            isOpen={isDialogOpen}
+            onClose={() => {
+              setIsDialogOpen(false);
+              setSelectedImageIndex(-1);
+            }}
+          />
         </>
       ) : (
         <div className="relative w-full max-w-2xl mx-auto">
