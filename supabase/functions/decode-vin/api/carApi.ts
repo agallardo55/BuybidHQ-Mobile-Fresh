@@ -145,3 +145,54 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
     return null;
   }
 }
+
+export async function fetchAllTrimsForModel(makeModelId: number, year: number): Promise<any[]> {
+  try {
+    // Get JWT token using existing auth function
+    const jwtToken = await getValidJWTToken();
+    if (!jwtToken) {
+      console.error('Failed to obtain JWT token for trims API');
+      return [];
+    }
+
+    const API_URL = `https://carapi.app/api/trims?make_model_id=${makeModelId}&year=${year}`;
+    
+    console.log('Fetching all trims for model:', {
+      url: API_URL,
+      makeModelId,
+      year
+    });
+
+    // Make the API request with JWT authentication
+    const response = await fetchData<any>(API_URL, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      }
+    });
+
+    console.log('Trims API raw response:', JSON.stringify(response, null, 2));
+
+    // The API can return either an array directly or an object with data property
+    let trimsArray = [];
+    if (Array.isArray(response)) {
+      trimsArray = response;
+    } else if (response && Array.isArray(response.data)) {
+      trimsArray = response.data;
+    } else if (response && response.collection && Array.isArray(response.collection)) {
+      trimsArray = response.collection;
+    }
+
+    if (!trimsArray || trimsArray.length === 0) {
+      console.log('No trims data returned from API');
+      return [];
+    }
+
+    console.log(`Found ${trimsArray.length} total trims for make_model_id ${makeModelId}, year ${year}`);
+    return trimsArray;
+  } catch (error) {
+    console.error('Error fetching all trims:', error);
+    return [];
+  }
+}

@@ -1,6 +1,6 @@
 
 import { cleanTrimValue, findBestTrimMatch, cleanEngineDescription } from "./utils/trimUtils.ts";
-import { fetchCarApiData } from "./api/carApi.ts";
+import { fetchCarApiData, fetchAllTrimsForModel } from "./api/carApi.ts";
 import { CarApiResult } from "./types.ts";
 import { corsHeaders } from "./config.ts";
 
@@ -40,6 +40,29 @@ Deno.serve(async (req) => {
 
     const vehicleData = apiResult;
     console.log('Raw vehicle data:', vehicleData);
+
+    // Fetch all available trims for this model if we have make_model_id
+    let allTrims = vehicleData.trims || [];
+    
+    if (allTrims.length > 0 && allTrims[0].make_model_id && vehicleData.year) {
+      const makeModelId = allTrims[0].make_model_id;
+      console.log(`Attempting to fetch all trims for make_model_id: ${makeModelId}, year: ${vehicleData.year}`);
+      
+      const comprehensiveTrims = await fetchAllTrimsForModel(makeModelId, Number(vehicleData.year));
+      
+      if (comprehensiveTrims.length > 0) {
+        console.log(`Successfully replaced ${allTrims.length} VIN-specific trims with ${comprehensiveTrims.length} comprehensive trims`);
+        vehicleData.trims = comprehensiveTrims;
+      } else {
+        console.log('Failed to fetch comprehensive trims, falling back to VIN-specific trims');
+      }
+    } else {
+      console.log('Skipping comprehensive trim fetch - insufficient data:', {
+        hasTrims: allTrims.length > 0,
+        hasMakeModelId: allTrims.length > 0 && !!allTrims[0]?.make_model_id,
+        hasYear: !!vehicleData.year
+      });
+    }
 
     // Special handling for Mercedes-Benz ML-Class
     if (vehicleData.make?.toUpperCase() === 'MERCEDES-BENZ' && vehicleData.model?.includes('ML')) {
