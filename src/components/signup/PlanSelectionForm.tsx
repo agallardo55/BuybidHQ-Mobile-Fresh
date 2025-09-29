@@ -52,7 +52,7 @@ const PlanSelectionForm = ({
           </CardHeader>
           <CardContent className="flex-grow p-4 sm:p-6 pt-0">
             <div className="mt-2 flex items-baseline">
-              <span className="text-2xl sm:text-3xl font-bold">$199</span>
+              <span className="text-2xl sm:text-3xl font-bold">$99</span>
               <span className="ml-1 text-gray-500 text-sm sm:text-base">/per mo.</span>
             </div>
             <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
