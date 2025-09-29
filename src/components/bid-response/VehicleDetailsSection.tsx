@@ -51,15 +51,17 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
         <Separator className="mb-6" />
         <CardContent>
           <div className="grid gap-1.5">
-            <div className="grid grid-cols-5 gap-1.5 py-0.5">
+            <div className="grid grid-cols-5 gap-1.5 py-2">
               <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">From :</p>
               <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.name}</p>
             </div>
-            <div className="grid grid-cols-5 gap-1.5 py-0.5">
+            <Separator />
+            <div className="grid grid-cols-5 gap-1.5 py-2">
               <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Dealership :</p>
               <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.dealership}</p>
             </div>
-            <div className="grid grid-cols-5 gap-1.5 py-0.5">
+            <Separator />
+            <div className="grid grid-cols-5 gap-1.5 py-2">
               <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Mobile # :</p>
               <p className="col-span-3 text-base lg:text-base text-lg font-normal">{buyer.mobileNumber}</p>
             </div>
