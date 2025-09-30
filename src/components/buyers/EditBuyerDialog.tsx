@@ -108,13 +108,13 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         onConfirm={handleConfirmDelete}
       />
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] h-[700px]">
           <DialogHeader>
             <DialogTitle>Edit Buyer</DialogTitle>
           </DialogHeader>
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Tabs defaultValue="buyer" className="w-full min-h-[400px]">
+            <Tabs defaultValue="buyer" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="buyer">Buyer Information</TabsTrigger>
                 <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
