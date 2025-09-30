@@ -113,34 +113,36 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
             <DialogTitle>Edit Buyer</DialogTitle>
           </DialogHeader>
           
-          <form onSubmit={handleSubmit} className="space-y-6 flex-1 overflow-y-auto">
-            <Tabs defaultValue="buyer" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="buyer">Buyer Information</TabsTrigger>
-                <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="buyer" className="space-y-4 mt-4">
-                <PersonalInfoSection 
-                  formData={formData} 
-                  onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-                  formatPhoneNumber={formatPhoneNumber}
-                />
-              </TabsContent>
-              
-              <TabsContent value="dealership" className="space-y-4 mt-4">
-                <DealershipSection 
-                  formData={formData} 
-                  onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-                />
-                <AddressSection 
-                  formData={formData} 
-                  onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-                />
-              </TabsContent>
-            </Tabs>
+          <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto px-1">
+              <Tabs defaultValue="buyer" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="buyer">Buyer Information</TabsTrigger>
+                  <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="buyer" className="space-y-4 mt-4">
+                  <PersonalInfoSection 
+                    formData={formData} 
+                    onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+                    formatPhoneNumber={formatPhoneNumber}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="dealership" className="space-y-4 mt-4">
+                  <DealershipSection 
+                    formData={formData} 
+                    onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+                  />
+                  <AddressSection 
+                    formData={formData} 
+                    onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
 
-            <DialogFooter className="border-t pt-4 mt-auto">
+            <DialogFooter className="border-t pt-4 flex-shrink-0">
               <div className="flex justify-between items-center w-full">
                 <Button
                   type="button"
