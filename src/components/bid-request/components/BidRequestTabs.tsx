@@ -112,7 +112,7 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
             </div>
             <div className="col-span-2">
               <label className="text-sm font-medium text-gray-600">Accessories & Options</label>
-              <p className="text-sm mt-1">{request.accessories || 'None listed'}</p>
+              <p className="text-sm mt-1 bg-gray-50 p-2 rounded">{request.accessories || 'None listed'}</p>
             </div>
           </div>
         </div>
