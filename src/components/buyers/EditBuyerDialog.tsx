@@ -109,7 +109,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
       />
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[600px] h-[700px]">
-          <DialogHeader className="pb-4">
+          <DialogHeader className="pb-2">
             <DialogTitle>Edit Buyer</DialogTitle>
           </DialogHeader>
           
