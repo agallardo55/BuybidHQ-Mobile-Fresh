@@ -602,6 +602,9 @@ export type Database = {
           dealer_id: string | null
           dealer_name: string | null
           declined_bids: number | null
+          deleted_at: string | null
+          deleted_by: string | null
+          deletion_reason: string | null
           email: string
           id: string
           last_validated_at: string | null
@@ -629,6 +632,9 @@ export type Database = {
           dealer_id?: string | null
           dealer_name?: string | null
           declined_bids?: number | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deletion_reason?: string | null
           email: string
           id?: string
           last_validated_at?: string | null
@@ -656,6 +662,9 @@ export type Database = {
           dealer_id?: string | null
           dealer_name?: string | null
           declined_bids?: number | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deletion_reason?: string | null
           email?: string
           id?: string
           last_validated_at?: string | null
@@ -677,6 +686,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "buyers_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "buybidhq_users"
             referencedColumns: ["id"]
           },
           {

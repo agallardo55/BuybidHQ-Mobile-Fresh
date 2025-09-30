@@ -22,9 +22,23 @@ const DeleteBuyerDialog = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action will permanently delete the buyer and cannot be undone.
+            This action will mark the buyer as deleted. You can restore them later if needed.
           </AlertDialogDescription>
         </AlertDialogHeader>
+        
+        <div className="py-4">
+          <label htmlFor="deletion-reason" className="text-sm font-medium mb-2 block">
+            Reason for deletion (optional)
+          </label>
+          <Textarea
+            id="deletion-reason"
+            placeholder="e.g., Duplicate entry, no longer in business..."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="min-h-[80px]"
+          />
+        </div>
+        
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setReason("")}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>

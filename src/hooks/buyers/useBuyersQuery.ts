@@ -42,6 +42,7 @@ export const useBuyersQuery = () => {
             phone_carrier,
             phone_validation_status
           `)
+          .is('deleted_at', null)
           .order('created_at', { ascending: false });
 
         if (buyersError) {

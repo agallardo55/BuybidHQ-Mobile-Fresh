@@ -128,19 +128,29 @@ export const useBuyersMutations = () => {
   });
 
   const deleteBuyerMutation = useMutation({
-    mutationFn: async (buyerId: string) => {
+    mutationFn: async ({ buyerId, reason }: { buyerId: string; reason?: string }) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate('/signin');
         throw new Error('No valid session');
       }
 
-      console.log("Deleting buyer:", buyerId);
+      if (!currentUser?.id) {
+        throw new Error('User information not available');
+      }
+
+      console.log("Soft deleting buyer:", buyerId, "Reason:", reason);
 
       const { error } = await supabase
         .from('buyers')
-        .delete()
-        .eq('id', buyerId);
+        .update({
+          deleted_at: new Date().toISOString(),
+          deleted_by: currentUser.id,
+          deletion_reason: reason || null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', buyerId)
+        .is('deleted_at', null);
 
       if (error) throw error;
     },

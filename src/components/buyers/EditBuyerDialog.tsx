@@ -74,7 +74,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
 
   const handleConfirmDelete = (reason?: string) => {
     if (buyer) {
-      deleteBuyer(buyer.id);
+      deleteBuyer({ buyerId: buyer.id, reason });
       onOpenChange(false);
     }
   };
