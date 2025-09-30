@@ -108,14 +108,13 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         onConfirm={handleConfirmDelete}
       />
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] h-[700px]">
-          <DialogHeader className="pb-2">
+        <DialogContent className="sm:max-w-[600px] h-[700px] p-4 gap-2">
+          <DialogHeader className="pb-0">
             <DialogTitle>Edit Buyer</DialogTitle>
           </DialogHeader>
           
           <form onSubmit={handleSubmit} className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto">
-              <Tabs defaultValue="buyer" className="w-full h-full">
+              <Tabs defaultValue="buyer" className="w-full overflow-y-auto">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="buyer">Buyer Information</TabsTrigger>
                   <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
@@ -140,7 +139,6 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
                   />
                 </TabsContent>
               </Tabs>
-            </div>
 
             <DialogFooter className="pt-4 mt-auto">
               <div className="flex justify-between items-center w-full">
