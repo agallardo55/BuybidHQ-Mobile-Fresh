@@ -23,7 +23,8 @@ export const useBuyersQuery = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        const { data, error } = await supabase
+        // Fetch buyers data
+        const { data: buyersData, error: buyersError } = await supabase
           .from('buyers')
           .select(`
             id,
@@ -38,13 +39,51 @@ export const useBuyersQuery = () => {
             state,
             zip_code,
             address,
-            accepted_bids,
-            pending_bids,
-            declined_bids,
             phone_carrier,
             phone_validation_status
           `)
           .order('created_at', { ascending: false });
+
+        if (buyersError) {
+          console.error("Buyer fetch error:", buyersError);
+          if (buyersError.code === 'PGRST116') {
+            navigate('/signin');
+            return [];
+          }
+          throw buyersError;
+        }
+
+        if (!buyersData) {
+          console.log("No data returned from query");
+          return [];
+        }
+
+        // Fetch bid response counts for all buyers
+        const { data: bidCounts, error: countsError } = await supabase
+          .from('bid_responses')
+          .select('buyer_id, status');
+
+        if (countsError) {
+          console.error("Bid counts fetch error:", countsError);
+        }
+
+        // Calculate counts per buyer
+        const countsMap = new Map<string, { accepted: number; pending: number; declined: number }>();
+
+        if (bidCounts) {
+          bidCounts.forEach(response => {
+            if (!countsMap.has(response.buyer_id)) {
+              countsMap.set(response.buyer_id, { accepted: 0, pending: 0, declined: 0 });
+            }
+            const counts = countsMap.get(response.buyer_id)!;
+            if (response.status === 'accepted') counts.accepted++;
+            else if (response.status === 'pending') counts.pending++;
+            else if (response.status === 'declined') counts.declined++;
+          });
+        }
+
+        const data = buyersData;
+        const error = buyersError;
 
         if (error) {
           console.error("Buyer fetch error:", error);
@@ -84,9 +123,9 @@ export const useBuyersQuery = () => {
             city: buyer.city || '',
             state: buyer.state || '',
             zipCode: buyer.zip_code || '',
-            acceptedBids: buyer.accepted_bids || 0,
-            pendingBids: buyer.pending_bids || 0,
-            declinedBids: buyer.declined_bids || 0,
+            acceptedBids: countsMap.get(buyer.id)?.accepted || 0,
+            pendingBids: countsMap.get(buyer.id)?.pending || 0,
+            declinedBids: countsMap.get(buyer.id)?.declined || 0,
             phoneCarrier: buyer.phone_carrier || 'N/A',
             phoneValidationStatus: buyer.phone_validation_status
           };
