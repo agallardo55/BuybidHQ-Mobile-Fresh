@@ -114,7 +114,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
           </DialogHeader>
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Tabs defaultValue="buyer" className="w-full">
+            <Tabs defaultValue="buyer" className="w-full min-h-[400px]">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="buyer">Buyer Information</TabsTrigger>
                 <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
