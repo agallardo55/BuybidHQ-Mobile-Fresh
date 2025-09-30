@@ -32,18 +32,18 @@ const RequestHeader = ({ request }: RequestHeaderProps) => {
       </div>
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
         <div>
-          <span className="text-gray-500">Date:</span>
-          <p className="font-medium">{formatDate(request.createdAt)}</p>
+          <span className="font-bold text-black">Date:</span>
+          <p className="font-normal bg-gray-50 p-2 rounded mt-1">{formatDate(request.createdAt)}</p>
         </div>
         <div>
-          <span className="text-gray-500">Buyer:</span>
-          <p className="font-medium">
+          <span className="font-bold text-black">Buyer:</span>
+          <p className="font-normal bg-gray-50 p-2 rounded mt-1">
             {highestOffer ? highestOffer.buyerName : request.buyer}
           </p>
         </div>
         <div>
-          <span className="text-gray-500">Highest Offer:</span>
-          <p className="font-medium">
+          <span className="font-bold text-black">Highest Offer:</span>
+          <p className="font-normal bg-gray-50 p-2 rounded mt-1">
             {highestOffer === null ? (
               <span className="text-gray-500">No offers yet</span>
             ) : (
