@@ -42,13 +42,15 @@ export const formatPhoneForDisplay = (phone: string | null | undefined): string 
   // Remove all non-digit characters
   const digitsOnly = phone.replace(/\D/g, '');
   
-  // Handle US phone numbers (10 or 11 digits)
+  // Handle 11-digit numbers with leading 1 (strip the country code)
+  let phoneNumber = digitsOnly;
   if (digitsOnly.length === 11 && digitsOnly.startsWith('1')) {
-    // Remove leading 1 for US numbers
-    const phoneNumber = digitsOnly.substring(1);
+    phoneNumber = digitsOnly.substring(1);
+  }
+  
+  // Format 10-digit numbers
+  if (phoneNumber.length === 10) {
     return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
-  } else if (digitsOnly.length === 10) {
-    return `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
   }
   
   // Return original if not a standard format

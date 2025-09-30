@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BuyerFormData } from "@/types/buyers";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { normalizePhoneNumber } from "@/utils/phoneUtils";
 import { UpdateBuyerParams } from "./types";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
@@ -40,8 +41,8 @@ export const useBuyersMutations = () => {
             owner_user_id: currentUser.id,
             buyer_name: buyerData.fullName,
             email: buyerData.email,
-            buyer_mobile: buyerData.mobileNumber,
-            buyer_phone: buyerData.businessNumber,
+            buyer_mobile: normalizePhoneNumber(buyerData.mobileNumber),
+            buyer_phone: normalizePhoneNumber(buyerData.businessNumber),
             dealer_name: buyerData.dealershipName,
             dealer_id: buyerData.licenseNumber,
             address: buyerData.dealershipAddress,
@@ -92,8 +93,8 @@ export const useBuyersMutations = () => {
         .update({
           buyer_name: buyerData.fullName,
           email: buyerData.email,
-          buyer_mobile: buyerData.mobileNumber,
-          buyer_phone: buyerData.businessNumber,
+          buyer_mobile: normalizePhoneNumber(buyerData.mobileNumber),
+          buyer_phone: normalizePhoneNumber(buyerData.businessNumber),
           dealer_name: buyerData.dealershipName,
           dealer_id: buyerData.licenseNumber,
           address: buyerData.dealershipAddress,

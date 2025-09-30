@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Buyer, BuyerFormData } from "@/types/buyers";
 import { useState, useEffect } from "react";
-import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
+import { formatPhoneForDisplay } from "@/utils/phoneUtils";
 import AddBuyerForm from "./AddBuyerForm";
 import DeleteBuyerDialog from "./DeleteBuyerDialog";
 import { useBuyers } from "@/hooks/useBuyers";
@@ -20,7 +20,6 @@ interface EditBuyerDialogProps {
 }
 
 const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDialogProps) => {
-  const { formatPhoneNumber } = usePhoneFormat();
   const { deleteBuyer } = useBuyers();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
@@ -43,8 +42,8 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
       setFormData({
         fullName: buyer.name || "",
         email: buyer.email || "",
-        mobileNumber: formatPhoneNumber(buyer.mobileNumber || ""),
-        businessNumber: formatPhoneNumber(buyer.businessNumber || ""),
+        mobileNumber: formatPhoneForDisplay(buyer.mobileNumber || ""),
+        businessNumber: formatPhoneForDisplay(buyer.businessNumber || ""),
         dealershipName: buyer.dealership || "",
         licenseNumber: buyer.dealerId || "",
         dealershipAddress: buyer.address || "",
