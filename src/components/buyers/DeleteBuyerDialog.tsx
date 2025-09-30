@@ -22,7 +22,7 @@ const DeleteBuyerDialog = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action will mark the buyer as deleted. You can restore them later if needed.
+            This action will mark the buyer as deleted.
           </AlertDialogDescription>
         </AlertDialogHeader>
         

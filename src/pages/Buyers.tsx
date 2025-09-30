@@ -65,7 +65,7 @@ const Buyers = () => {
 
   const confirmDelete = (reason?: string) => {
     if (buyerToDelete) {
-      deleteBuyer(buyerToDelete);
+      deleteBuyer({ buyerId: buyerToDelete, reason });
       setBuyerToDelete(null);
       setIsDeleteDialogOpen(false);
     }
