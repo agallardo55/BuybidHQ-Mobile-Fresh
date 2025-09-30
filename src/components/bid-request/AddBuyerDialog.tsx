@@ -45,7 +45,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       return;
     }
 
-    if (!formData.name || !formData.dealership || !formData.mobile || !formData.email) {
+    if (!formData.name || !formData.dealership || !formData.mobile) {
       toast.error("Please fill in all required fields");
       return;
     }
