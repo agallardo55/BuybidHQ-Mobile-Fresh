@@ -39,7 +39,7 @@ const AddBuyerForm = ({
           <Input
             placeholder="Enter buyer email"
             name="email"
-            type="email"
+            type="text"
             value={formData.email}
             onChange={onChange}
           />
