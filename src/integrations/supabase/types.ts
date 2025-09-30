@@ -1903,6 +1903,21 @@ export type Database = {
           year: string
         }[]
       }
+      get_buyer_for_token: {
+        Args: { p_token: string }
+        Returns: {
+          address: string
+          buyer_mobile: string
+          buyer_name: string
+          buyer_phone: string
+          city: string
+          dealer_name: string
+          email: string
+          id: string
+          state: string
+          zip_code: string
+        }[]
+      }
       get_buyer_user_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
