@@ -13,7 +13,7 @@ const Reconditioning = ({ request }: ReconditioningProps) => {
         <div className="space-y-2">
           <div className="text-sm">
             <div className="font-bold text-black mb-1">Estimate:</div>
-            <div className="font-normal text-lg">${request.reconEstimate || '0'}</div>
+            <div className="font-normal text-lg bg-gray-50 p-2 rounded">${request.reconEstimate || '0'}</div>
           </div>
           <div className="text-sm">
             <div className="font-bold text-black mb-1">Details:</div>

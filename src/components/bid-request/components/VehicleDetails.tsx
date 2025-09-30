@@ -13,17 +13,17 @@ const VehicleDetails = ({ request }: VehicleDetailsProps) => {
         <div className="space-y-1">
           <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
             <div className="font-bold text-black">Year:</div>
-            <div className="font-normal">{request.year}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded">{request.year}</div>
             <div className="font-bold text-black">Make:</div>
-            <div className="font-normal">{request.make}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded">{request.make}</div>
             <div className="font-bold text-black">Model:</div>
-            <div className="font-normal">{request.model}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded">{request.model}</div>
             <div className="font-bold text-black">Trim:</div>
-            <div className="font-normal">{request.trim}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded">{request.trim}</div>
             <div className="font-bold text-black">VIN:</div>
-            <div className="font-normal break-all">{request.vin}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded break-all">{request.vin}</div>
             <div className="font-bold text-black">Mileage:</div>
-            <div className="font-normal">{request.mileage.toLocaleString()}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded">{request.mileage.toLocaleString()}</div>
           </div>
         </div>
       </div>
@@ -33,11 +33,11 @@ const VehicleDetails = ({ request }: VehicleDetailsProps) => {
         <div className="space-y-1">
           <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
             <div className="font-bold text-black">Engine:</div>
-            <div className="font-normal">{request.engineCylinders}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded">{request.engineCylinders}</div>
             <div className="font-bold text-black">Transmission:</div>
-            <div className="font-normal">{request.transmission}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded">{request.transmission}</div>
             <div className="font-bold text-black">Drivetrain:</div>
-            <div className="font-normal">{request.drivetrain}</div>
+            <div className="font-normal bg-gray-50 p-2 rounded">{request.drivetrain}</div>
           </div>
         </div>
       </div>
