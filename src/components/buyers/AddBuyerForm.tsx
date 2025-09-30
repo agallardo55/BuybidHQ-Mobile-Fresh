@@ -12,13 +12,17 @@ interface AddBuyerFormProps {
   formData: BuyerFormData;
   onFormDataChange: (data: Partial<BuyerFormData>) => void;
   onCancel?: () => void;
+  onDelete?: () => void;
+  isEditMode?: boolean;
 }
 
 const AddBuyerForm = ({
   onSubmit,
   formData,
   onFormDataChange,
-  onCancel
+  onCancel,
+  onDelete,
+  isEditMode
 }: AddBuyerFormProps) => {
   const formatPhoneNumber = (value: string) => {
     const phoneNumber = value.replace(/\D/g, '');
@@ -68,20 +72,35 @@ const AddBuyerForm = ({
       </div>
 
       <DialogFooter>
-        <div className="flex justify-end space-x-4 mt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit"
-            className="bg-accent hover:bg-accent/90 text-accent-foreground"
-          >
-            {formData.fullName ? 'Update' : 'Add Buyer'}
-          </Button>
+        <div className="flex justify-between items-center w-full mt-6">
+          {/* Left side - Delete button (only in edit mode) */}
+          {isEditMode && onDelete && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={onDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </Button>
+          )}
+          
+          {/* Right side - Cancel and Submit buttons */}
+          <div className="flex gap-4 ml-auto">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit"
+              className="bg-accent hover:bg-accent/90 text-accent-foreground"
+            >
+              {isEditMode ? 'Update' : 'Add Buyer'}
+            </Button>
+          </div>
         </div>
       </DialogFooter>
     </form>

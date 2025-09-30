@@ -9,6 +9,8 @@ import { Buyer, BuyerFormData } from "@/types/buyers";
 import { useState, useEffect } from "react";
 import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
 import AddBuyerForm from "./AddBuyerForm";
+import DeleteBuyerDialog from "./DeleteBuyerDialog";
+import { useBuyers } from "@/hooks/useBuyers";
 
 interface EditBuyerDialogProps {
   buyer: Buyer | null;
@@ -19,6 +21,8 @@ interface EditBuyerDialogProps {
 
 const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDialogProps) => {
   const { formatPhoneNumber } = usePhoneFormat();
+  const { deleteBuyer } = useBuyers();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const [formData, setFormData] = useState<BuyerFormData>({
     fullName: "",
@@ -64,7 +68,24 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
     onOpenChange(false);
   };
 
+  const handleDelete = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = (reason?: string) => {
+    if (buyer) {
+      deleteBuyer(buyer.id);
+      onOpenChange(false);
+    }
+  };
+
   return (
+    <>
+      <DeleteBuyerDialog
+        isOpen={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleConfirmDelete}
+      />
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
@@ -75,9 +96,12 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
           formData={formData}
           onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
           onCancel={handleCancel}
+          onDelete={handleDelete}
+          isEditMode={true}
         />
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 
