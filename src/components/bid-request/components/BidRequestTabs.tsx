@@ -104,15 +104,15 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-bold text-black">Exterior Color</label>
-              <p className="text-sm mt-1 bg-gray-50 p-2 rounded">{request.exteriorColor || 'Not specified'}</p>
+              <p className="text-sm font-medium mt-1 bg-gray-50 p-2 rounded">{request.exteriorColor || 'Not specified'}</p>
             </div>
             <div>
               <label className="text-sm font-bold text-black">Interior Color</label>
-              <p className="text-sm mt-1 bg-gray-50 p-2 rounded">{request.interiorColor || 'Not specified'}</p>
+              <p className="text-sm font-medium mt-1 bg-gray-50 p-2 rounded">{request.interiorColor || 'Not specified'}</p>
             </div>
             <div className="col-span-2">
               <label className="text-sm font-bold text-black">Accessories & Options</label>
-              <p className="text-sm mt-1 bg-gray-50 p-2 rounded">{request.accessories || 'None listed'}</p>
+              <p className="text-sm font-medium mt-1 bg-gray-50 p-2 rounded">{request.accessories || 'None listed'}</p>
             </div>
           </div>
         </div>
