@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, MapPin, Building, Pencil, Trash, Check, AlertCircle, XCircle } from "lucide-react";
+import { Mail, Phone, Building, Pencil, Trash, Check, AlertCircle, XCircle } from "lucide-react";
 import { Buyer } from "@/types/buyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
@@ -40,10 +40,6 @@ export const BuyerMobileCard = ({
           <div className="flex items-center gap-2 text-sm">
             <Phone className="h-4 w-4 text-muted-foreground" />
             <span>{buyer.mobileNumber}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span>{buyer.location}</span>
           </div>
         </div>
 

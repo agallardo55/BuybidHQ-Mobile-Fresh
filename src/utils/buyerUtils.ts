@@ -32,8 +32,7 @@ export const filterBuyers = (buyers: Buyer[], searchTerm: string) => {
   const searchString = searchTerm.toLowerCase();
   return buyers.filter((buyer) => (
     buyer.name.toLowerCase().includes(searchString) ||
-    buyer.email.toLowerCase().includes(searchString) ||
-    buyer.location.toLowerCase().includes(searchString)
+    buyer.email.toLowerCase().includes(searchString)
   ));
 };
 
