@@ -140,7 +140,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
               </TabsContent>
             </Tabs>
 
-            <DialogFooter className="border-t pt-4">
+            <DialogFooter className="border-t pt-4 mt-auto">
               <div className="flex justify-between items-center w-full">
                 <Button
                   type="button"
