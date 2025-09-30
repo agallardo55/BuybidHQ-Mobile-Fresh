@@ -4,11 +4,16 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Buyer, BuyerFormData } from "@/types/buyers";
 import { useState, useEffect } from "react";
 import { formatPhoneForDisplay } from "@/utils/phoneUtils";
-import AddBuyerForm from "./AddBuyerForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import PersonalInfoSection from "./form-sections/PersonalInfoSection";
+import DealershipSection from "./form-sections/DealershipSection";
+import AddressSection from "./form-sections/AddressSection";
 import DeleteBuyerDialog from "./DeleteBuyerDialog";
 import { useBuyers } from "@/hooks/useBuyers";
 
@@ -78,6 +83,23 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
     }
   };
 
+  const formatPhoneNumber = (value: string) => {
+    const phoneNumber = value.replace(/\D/g, '');
+    if (phoneNumber.length >= 10) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+    }
+    if (phoneNumber.length > 6) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+    }
+    if (phoneNumber.length > 3) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+    }
+    if (phoneNumber.length > 0) {
+      return `(${phoneNumber}`;
+    }
+    return phoneNumber;
+  };
+
   return (
     <>
       <DeleteBuyerDialog
@@ -85,21 +107,70 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         onOpenChange={setShowDeleteDialog}
         onConfirm={handleConfirmDelete}
       />
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Edit Buyer</DialogTitle>
-        </DialogHeader>
-        <AddBuyerForm
-          onSubmit={handleSubmit}
-          formData={formData}
-          onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-          onCancel={handleCancel}
-          onDelete={handleDelete}
-          isEditMode={true}
-        />
-      </DialogContent>
-    </Dialog>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Buyer</DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <Tabs defaultValue="buyer" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="buyer">Buyer Information</TabsTrigger>
+                <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="buyer" className="space-y-4 mt-4">
+                <PersonalInfoSection 
+                  formData={formData} 
+                  onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+                  formatPhoneNumber={formatPhoneNumber}
+                />
+              </TabsContent>
+              
+              <TabsContent value="dealership" className="space-y-4 mt-4">
+                <DealershipSection 
+                  formData={formData} 
+                  onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+                />
+                <AddressSection 
+                  formData={formData} 
+                  onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+                />
+              </TabsContent>
+            </Tabs>
+
+            <DialogFooter>
+              <div className="flex justify-between items-center w-full mt-6">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleDelete}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete
+                </Button>
+                
+                <div className="flex gap-4 ml-auto">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit"
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                  >
+                    Update
+                  </Button>
+                </div>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
