@@ -108,7 +108,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         onConfirm={handleConfirmDelete}
       />
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] h-[450px] flex flex-col">
+        <DialogContent className="sm:max-w-[600px] h-[500px] flex flex-col">
           <DialogHeader>
             <DialogTitle>Edit Buyer</DialogTitle>
           </DialogHeader>
