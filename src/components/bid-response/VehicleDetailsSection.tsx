@@ -129,18 +129,16 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
           <Separator className="mb-6" />
           <CardContent>
             <div className="grid gap-1.5">
-              <div className="flex items-center justify-between py-2">
-                <div className="flex-1 grid grid-cols-5 gap-1.5">
-                  <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">VIN :</p>
-                  <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.vin}</p>
-                </div>
+              <div className="flex items-center gap-2 py-2">
+                <p className="text-base lg:text-base text-lg font-bold text-black min-w-[40%]">VIN :</p>
                 <button
                   onClick={handleCopyVin}
-                  className="ml-2 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                  className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
                   title="Copy VIN"
                 >
                   <Copy className="h-4 w-4" />
                 </button>
+                <p className="text-base lg:text-base text-lg font-normal flex-1">{vehicle.vin}</p>
               </div>
               <Separator />
               <div className="grid grid-cols-5 gap-1.5 py-2">
