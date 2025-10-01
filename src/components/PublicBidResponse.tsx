@@ -44,6 +44,13 @@ interface QuickBidDetails {
   mmr_retail?: number;
   auction_wholesale?: number;
   auction_retail?: number;
+  windshield?: string;
+  engine_lights?: string;
+  brakes?: string;
+  tire?: string;
+  maintenance?: string;
+  recon_estimate?: string;
+  recon_details?: string;
 }
 
 interface UseBidSubmissionProps {
@@ -167,6 +174,13 @@ const useQuickBidDetails = () => {
         mmr_retail: request.mmr_retail,
         auction_wholesale: request.auction_wholesale,
         auction_retail: request.auction_retail,
+        windshield: request.windshield,
+        engine_lights: request.engine_lights,
+        brakes: request.brakes,
+        tire: request.tire,
+        maintenance: request.maintenance,
+        recon_estimate: request.recon_estimate,
+        recon_details: request.recon_details,
       };
     },
     enabled: !!(id && token),
@@ -231,13 +245,13 @@ const PublicBidResponse = () => {
               transmission: data.vehicle_transmission || '',
               drivetrain: data.vehicle_drivetrain || '',
               accessories: data.vehicle_accessories || '',
-              windshield: 'clear',
-              engineLights: 'none',
-              brakes: 'acceptable',
-              tire: 'acceptable',
-              maintenance: 'upToDate',
-              reconEstimate: '',
-              reconDetails: '',
+            windshield: data.windshield || 'clear',
+            engineLights: data.engine_lights || 'none',
+            brakes: data.brakes || 'acceptable',
+            tire: data.tire || 'acceptable',
+            maintenance: data.maintenance || 'upToDate',
+            reconEstimate: data.recon_estimate || '',
+            reconDetails: data.recon_details || '',
               images: data.vehicle_images || [],
               kbbWholesale: data.kbb_wholesale,
               kbbRetail: data.kbb_retail,
