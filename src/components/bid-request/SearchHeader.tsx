@@ -1,10 +1,8 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Zap } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import QuickPostDrawer from "./QuickPostDrawer";
 
 interface SearchHeaderProps {
   searchTerm: string;
@@ -12,7 +10,6 @@ interface SearchHeaderProps {
 }
 
 const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -33,16 +30,6 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
 
         {/* Buttons container */}
         <div className="flex items-center gap-2">
-        
-        <Button 
-          variant="secondary" 
-          className="hidden items-center gap-1 h-9"
-          onClick={() => setIsDrawerOpen(true)}
-        >
-          <Zap className="h-4 w-4" />
-          <span>Quick Post</span>
-        </Button>
-        
         <Link to="/create-bid-request">
           <Button variant="default" className="hidden md:flex items-center gap-1 bg-accent hover:bg-accent/90 text-white h-9">
             <Plus className="h-4 w-4" />
@@ -62,8 +49,6 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
           <Plus className="h-6 w-6" />
         </Button>
       </Link>
-
-      <QuickPostDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </div>
   );
 };
