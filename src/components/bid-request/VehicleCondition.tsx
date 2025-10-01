@@ -138,11 +138,12 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="windshield" className="block text-sm font-medium text-gray-700 mb-1">
           Windshield
         </label>
-        <Select name="windshield" onValueChange={(value) => onSelectChange(value, "windshield")} value={formData.windshield || "clear"}>
+        <Select name="windshield" onValueChange={(value) => onSelectChange(value, "windshield")} value={formData.windshield || "unknown"}>
           <SelectTrigger>
-            <SelectValue placeholder="Clear" />
+            <SelectValue placeholder="Unknown" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="unknown">Unknown</SelectItem>
             <SelectItem value="clear">Clear</SelectItem>
             <SelectItem value="chips">Chips</SelectItem>
             <SelectItem value="smallCracks">Small cracks</SelectItem>
@@ -155,11 +156,12 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="engineLights" className="block text-sm font-medium text-gray-700 mb-1">
           Engine Lights
         </label>
-        <Select name="engineLights" onValueChange={(value) => onSelectChange(value, "engineLights")} value={formData.engineLights || "none"}>
+        <Select name="engineLights" onValueChange={(value) => onSelectChange(value, "engineLights")} value={formData.engineLights || "unknown"}>
           <SelectTrigger>
-            <SelectValue placeholder="None" />
+            <SelectValue placeholder="Unknown" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="unknown">Unknown</SelectItem>
             <SelectItem value="none">None</SelectItem>
             <SelectItem value="engine">Engine Light</SelectItem>
             <SelectItem value="maintenance">Maintenance Required</SelectItem>
@@ -172,11 +174,12 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="brakes" className="block text-sm font-medium text-gray-700 mb-1">
           Brakes
         </label>
-        <Select name="brakes" onValueChange={(value) => onSelectChange(value, "brakes")} value={formData.brakes || "acceptable"}>
+        <Select name="brakes" onValueChange={(value) => onSelectChange(value, "brakes")} value={formData.brakes || "unknown"}>
           <SelectTrigger>
-            <SelectValue placeholder="Acceptable" />
+            <SelectValue placeholder="Unknown" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="unknown">Unknown</SelectItem>
             <SelectItem value="acceptable">Acceptable</SelectItem>
             <SelectItem value="replaceFront">Replace front</SelectItem>
             <SelectItem value="replaceRear">Replace rear</SelectItem>
@@ -189,11 +192,12 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="tire" className="block text-sm font-medium text-gray-700 mb-1">
           Tire
         </label>
-        <Select name="tire" onValueChange={(value) => onSelectChange(value, "tire")} value={formData.tire || "acceptable"}>
+        <Select name="tire" onValueChange={(value) => onSelectChange(value, "tire")} value={formData.tire || "unknown"}>
           <SelectTrigger>
-            <SelectValue placeholder="Acceptable" />
+            <SelectValue placeholder="Unknown" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="unknown">Unknown</SelectItem>
             <SelectItem value="acceptable">Acceptable</SelectItem>
             <SelectItem value="replaceFront">Replace front</SelectItem>
             <SelectItem value="replaceRear">Replace rear</SelectItem>
@@ -206,11 +210,12 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         <label htmlFor="maintenance" className="block text-sm font-medium text-gray-700 mb-1">
           Maintenance
         </label>
-        <Select name="maintenance" onValueChange={(value) => onSelectChange(value, "maintenance")} value={formData.maintenance || "upToDate"}>
+        <Select name="maintenance" onValueChange={(value) => onSelectChange(value, "maintenance")} value={formData.maintenance || "unknown"}>
           <SelectTrigger>
-            <SelectValue placeholder="Up to date" />
+            <SelectValue placeholder="Unknown" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="unknown">Unknown</SelectItem>
             <SelectItem value="upToDate">Up to date</SelectItem>
             <SelectItem value="basicService">Basic service needed</SelectItem>
             <SelectItem value="minorService">Minor service needed</SelectItem>
