@@ -133,7 +133,7 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
                 <p className="text-base lg:text-base text-lg font-bold text-black">VIN :</p>
                 <button
                   onClick={handleCopyVin}
-                  className="ml-5 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                  className="ml-[50px] p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
                   title="Copy VIN"
                 >
                   <Copy className="h-4 w-4" />
