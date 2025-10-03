@@ -1,5 +1,5 @@
 // Account and subscription types for the new plan system
-export type PlanType = 'free' | 'connect' | 'annual' | 'dealership' | 'group';
+export type PlanType = 'free' | 'connect' | 'annual';
 export type AppRole = 'member' | 'manager' | 'account_admin' | 'super_admin';
 
 export interface Account {
@@ -31,15 +31,15 @@ export const PLAN_INFO = {
   },
   connect: {
     name: 'Connect',
-    price: 100,
+    price: 99,
     description: 'Unlimited bid requests',
     features: ['Unlimited bid requests', 'Create/edit/delete buyers', 'Priority support']
   },
-  group: {
-    name: 'Group',
-    price: 'Custom',
-    description: 'Multi-user dealership management',
-    features: ['Unlimited bid requests', 'Multi-user management', 'Role-based permissions', 'Dedicated support']
+  annual: {
+    name: 'Annual',
+    price: 599,
+    description: 'Unlimited bid requests - Annual billing',
+    features: ['Unlimited bid requests', 'Create/edit/delete buyers', 'Priority support', 'Annual billing discount']
   }
 } as const;
 

@@ -27,11 +27,12 @@ export const SubscriptionSection = () => {
     
     setIsUpgrading(true);
     try {
-      if (selectedPlan === "connect") {
+      if (selectedPlan === "connect" || selectedPlan === "annual") {
         // Create Stripe checkout session
         const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
           body: {
             currentPlan: account.plan,
+            selectedPlan: selectedPlan,
             successUrl: `${window.location.origin}/account?success=true`,
             cancelUrl: `${window.location.origin}/account?canceled=true`,
           }
@@ -42,11 +43,6 @@ export const SubscriptionSection = () => {
         if (data?.url) {
           window.location.href = data.url;
         }
-      } else if (selectedPlan === "group") {
-        toast({
-          title: "Group Plan",
-          description: "Contact sales to set up your Group plan with multi-user management.",
-        });
       }
     } catch (error) {
       console.error('Error upgrading plan:', error);
@@ -180,25 +176,23 @@ export const SubscriptionSection = () => {
               </div>
             </div>
 
-            {/* Group Plan (if feature enabled or super admin) */}
-            {isGroupPlanEnabled && (account?.feature_group_enabled || currentUser?.app_role === 'super_admin') && (
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <RadioGroupItem value="group" id="group" />
-                  <div>
-                    <Label htmlFor="group" className="font-medium">Group Plan</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {PLAN_INFO.group.description}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold">Custom</span>
-                  <p className="text-xs text-muted-foreground">contact sales</p>
-                  {currentPlan === "group" && <Badge variant="secondary" className="mt-1">Current</Badge>}
+            {/* Annual Plan */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="annual" id="annual" />
+                <div>
+                  <Label htmlFor="annual" className="font-medium">Annual Plan</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {PLAN_INFO.annual.description}
+                  </p>
                 </div>
               </div>
-            )}
+              <div className="text-right">
+                <span className="font-bold">${PLAN_INFO.annual.price}</span>
+                <p className="text-xs text-muted-foreground">per year</p>
+                {currentPlan === "annual" && <Badge variant="secondary" className="mt-1">Current</Badge>}
+              </div>
+            </div>
           </RadioGroup>
         </div>
 

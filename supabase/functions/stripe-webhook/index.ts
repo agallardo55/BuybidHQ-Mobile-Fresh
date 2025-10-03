@@ -82,8 +82,8 @@ Deno.serve(async (req) => {
 
         if (priceId === Deno.env.get('STRIPE_CONNECT_PRICE_ID')) {
           planType = 'connect';
-        } else if (priceId === Deno.env.get('STRIPE_GROUP_PRICE_ID')) {
-          planType = 'group';
+        } else if (priceId === Deno.env.get('STRIPE_ANNUAL_PRICE_ID')) {
+          planType = 'annual';
         }
 
         const isActive = ['active', 'trialing'].includes(subscription.status);
@@ -105,14 +105,6 @@ Deno.serve(async (req) => {
             status: 500, 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
           });
-        }
-
-        // Enable Group feature flag if it's a group plan
-        if (planType === 'group' && isActive) {
-          await supabaseAdmin
-            .from('accounts')
-            .update({ feature_group_enabled: true })
-            .eq('id', accountId);
         }
 
         console.log(`Successfully updated account ${accountId} to plan ${planType}`);
