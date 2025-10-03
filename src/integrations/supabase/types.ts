@@ -2150,6 +2150,24 @@ export type Database = {
         Args: { p_email: string }
         Returns: undefined
       }
+      restore_deleted_account: {
+        Args: {
+          p_address: string
+          p_carrier?: string
+          p_city: string
+          p_email: string
+          p_full_name: string
+          p_mobile_number: string
+          p_sms_consent: boolean
+          p_state: string
+          p_zip_code: string
+        }
+        Returns: {
+          auth_user_exists: boolean
+          user_id: string
+          was_restored: boolean
+        }[]
+      }
       standardize_buyer_phone: {
         Args: { phone_input: string }
         Returns: string

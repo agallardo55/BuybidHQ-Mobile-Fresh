@@ -26,28 +26,41 @@ export const useSignUpSubmission = ({
     }
 
     try {
-      // Step 1: Sign up the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-          data: {
-            full_name: formData.fullName,
-            plan_type: formData.planType,
+      // Step 1: Call edge function to handle signup or account restoration
+      const { data: signupResponse, error: signupError } = await supabase.functions.invoke(
+        'handle-signup-or-restore',
+        {
+          body: {
+            email: formData.email,
+            password: formData.password,
+            fullName: formData.fullName,
+            mobileNumber: formData.mobileNumber,
+            carrier: formData.carrier,
+            dealershipAddress: formData.dealershipAddress,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            planType: formData.planType,
+            smsConsent: formData.smsConsent,
           },
-        },
-      });
+        }
+      );
 
-      if (authError) {
-        throw authError;
+      if (signupError) {
+        throw signupError;
       }
 
-      if (!authData.user) {
+      if (!signupResponse?.user) {
         throw new Error('No user data returned');
       }
 
-      // Step 2: Wait briefly for the trigger to create the initial user record
+      const authData = {
+        user: signupResponse.user,
+        session: signupResponse.session,
+      };
+      const isRestored = signupResponse.type === 'restored';
+
+      // Step 2: Wait briefly for any triggers to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Step 2: Create individual dealer record for all signup users
@@ -138,7 +151,12 @@ export const useSignUpSubmission = ({
         throw subscriptionError;
       }
 
-      toast.success("Account created successfully!");
+      // Show appropriate success message
+      if (isRestored) {
+        toast.success("Welcome back! Your account has been restored.");
+      } else {
+        toast.success("Account created successfully!");
+      }
       
       if (['individual', 'pay-per-bid'].includes(formData.planType)) {
         // Both individual and pay-per-bid plans go through Stripe checkout
