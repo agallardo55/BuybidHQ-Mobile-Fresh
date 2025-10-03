@@ -53,11 +53,11 @@ export const useBidRequestSubmission = () => {
 
       // Prepare reconditioning data matching database schema
       const reconData = {
-        windshield: formData.windshield || 'None',
-        engine_light: formData.engineLights || 'No',
-        brakes: formData.brakes || 'Good',
-        tires: formData.tire || 'Good',
-        maintenance: formData.maintenance || 'Up to date',
+        windshield: formData.windshield || 'notSpecified',
+        engine_light: formData.engineLights || 'notSpecified',
+        brakes: formData.brakes || 'notSpecified',
+        tires: formData.tire || 'notSpecified',
+        maintenance: formData.maintenance || 'notSpecified',
         recon_estimate: extractNumericValue(formData.reconEstimate),
         recon_details: formData.reconDetails || 'No additional details'
       };

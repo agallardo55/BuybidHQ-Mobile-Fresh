@@ -3,28 +3,28 @@ type ConditionType = 'windshield' | 'engineLights' | 'brakesTires' | 'maintenanc
 
 const displayMaps = {
   windshield: {
-    unknown: "Unknown",
+    notSpecified: "Not Specified",
     clear: "Clear",
     chips: "Chips",
     smallCracks: "Small cracks",
     largeCracks: "Large cracks"
   },
   engineLights: {
-    unknown: "Unknown",
+    notSpecified: "Not Specified",
     none: "None",
     engine: "Engine Light",
     maintenance: "Maintenance Required",
     multiple: "Multiple"
   },
   brakesTires: {
-    unknown: "Unknown",
+    notSpecified: "Not Specified",
     acceptable: "Acceptable",
     replaceFront: "Replace front",
     replaceRear: "Replace rear",
     replaceAll: "Replace all"
   },
   maintenance: {
-    unknown: "Unknown",
+    notSpecified: "Not Specified",
     upToDate: "Up to date",
     basicService: "Basic service needed",
     minorService: "Minor service needed",
@@ -33,8 +33,8 @@ const displayMaps = {
 };
 
 export const getConditionDisplay = (value: string | undefined, type: ConditionType): string => {
-  if (!value) {
-    return "Unknown";
+  if (!value || value === '') {
+    return "Not Specified";
   }
 
   const map = type === 'brakesTires' ? displayMaps.brakesTires :
