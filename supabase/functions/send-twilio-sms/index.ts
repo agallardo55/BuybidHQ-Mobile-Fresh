@@ -85,7 +85,7 @@ Tap to respond: ${bidRequestUrl}`;
       message = `${buyerName} bid $${offerAmount} for your ${vehicleDetails.year} ${vehicleDetails.make} ${vehicleDetails.model}`;
     } else if (requestData.type === 'buyer_confirmation') {
       const { sellerFirstName } = requestData as BuyerConfirmationSMS;
-      message = `Thank you for your offer. ${sellerFirstName} will reach out if you have the winning bid`;
+      message = `Thank you for your offer. ${sellerFirstName} will reach out if you have the winning bid.`;
     } else {
       const { message: testMessage } = requestData as TestSMS;
       message = testMessage || 'Test message from BuyBidHQ';
