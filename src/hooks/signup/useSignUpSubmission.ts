@@ -31,6 +31,7 @@ export const useSignUpSubmission = ({
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             full_name: formData.fullName,
             plan_type: formData.planType,
@@ -165,9 +166,9 @@ export const useSignUpSubmission = ({
         // Redirect to Stripe checkout
         window.location.href = checkoutData.url;
       } else {
-        // For beta-access plans, go to signin
-        toast.success("Welcome to BuybidHQ! You can now sign in to your account.");
-        navigate('/signin');
+        // For beta-access plans, go to dashboard
+        toast.success("Welcome to BuybidHQ!");
+        navigate('/dashboard');
       }
     } catch (error: any) {
       console.error('Signup error:', error);
