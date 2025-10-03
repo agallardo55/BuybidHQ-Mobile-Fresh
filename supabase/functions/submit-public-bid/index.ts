@@ -132,6 +132,32 @@ serve(async (req) => {
       }
     }
 
+    // Send confirmation SMS to the buyer
+    try {
+      const { data: confirmationDetails, error: confirmError } = await supabase
+        .rpc('get_buyer_confirmation_details', { 
+          p_bid_response_id: bidResponse.id 
+        });
+
+      if (!confirmError && confirmationDetails?.[0]) {
+        const details = confirmationDetails[0];
+        
+        if (details.buyer_phone) {
+          await supabase.functions.invoke('send-twilio-sms', {
+            body: {
+              type: 'buyer_confirmation',
+              phoneNumber: details.buyer_phone,
+              sellerFirstName: details.seller_first_name
+            }
+          });
+          console.log('Buyer confirmation SMS sent successfully');
+        }
+      }
+    } catch (smsError) {
+      console.error('Error sending buyer confirmation SMS:', smsError);
+      // Don't fail the request if SMS fails
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true,

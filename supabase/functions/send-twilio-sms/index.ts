@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { SMSRequest, BidRequestSMS, BidResponseSMS, TestSMS } from "./types.ts"
+import type { SMSRequest, BidRequestSMS, BidResponseSMS, BuyerConfirmationSMS, TestSMS } from './types.ts';
 import { corsHeaders, formatPhoneNumber } from "./utils.ts"
 
 serve(async (req) => {
@@ -83,6 +83,9 @@ Tap to respond: ${bidRequestUrl}`;
     } else if (requestData.type === 'bid_response') {
       const { offerAmount, buyerName, vehicleDetails } = requestData as BidResponseSMS;
       message = `${buyerName} bid $${offerAmount} for your ${vehicleDetails.year} ${vehicleDetails.make} ${vehicleDetails.model}`;
+    } else if (requestData.type === 'buyer_confirmation') {
+      const { sellerFirstName } = requestData as BuyerConfirmationSMS;
+      message = `Thank you for your offer. ${sellerFirstName} will reach out if you have the winning bid`;
     } else {
       const { message: testMessage } = requestData as TestSMS;
       message = testMessage || 'Test message from BuyBidHQ';

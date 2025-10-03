@@ -1903,6 +1903,13 @@ export type Database = {
           year: string
         }[]
       }
+      get_buyer_confirmation_details: {
+        Args: { p_bid_response_id: string }
+        Returns: {
+          buyer_phone: string
+          seller_first_name: string
+        }[]
+      }
       get_buyer_for_token: {
         Args: { p_token: string }
         Returns: {

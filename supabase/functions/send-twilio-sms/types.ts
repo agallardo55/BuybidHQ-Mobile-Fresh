@@ -1,4 +1,4 @@
-export type SMSRequest = BidRequestSMS | BidResponseSMS | TestSMS;
+export type SMSRequest = BidRequestSMS | BidResponseSMS | BuyerConfirmationSMS | TestSMS;
 
 export interface BidRequestSMS {
   type: 'bid_request';
@@ -22,6 +22,12 @@ export interface BidResponseSMS {
     make: string;
     model: string;
   };
+}
+
+export interface BuyerConfirmationSMS {
+  type: 'buyer_confirmation';
+  phoneNumber: string;
+  sellerFirstName: string;
 }
 
 export interface TestSMS {
