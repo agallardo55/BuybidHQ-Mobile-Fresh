@@ -23,9 +23,10 @@ const DashboardNavigation = () => {
   // Use app_role for new system, fallback to legacy role for backwards compatibility
   const userAppRole = currentUser?.app_role || (currentUser?.role === 'admin' ? 'account_admin' : 'member');
   
-  // Temporarily hiding these links for testing - user role data inconsistency
-  const canAccessUsers = false; // userAppRole === 'account_admin' || userAppRole === 'super_admin';
-  const canAccessDealerships = false; // userAppRole === 'account_admin' || userAppRole === 'super_admin' || userAppRole === 'manager';
+  // Enable links for super admin users only
+  const isSuperAdmin = userAppRole === 'super_admin';
+  const canAccessUsers = isSuperAdmin;
+  const canAccessDealerships = isSuperAdmin;
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
