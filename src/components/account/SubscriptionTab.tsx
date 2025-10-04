@@ -192,7 +192,15 @@ export const SubscriptionTab = () => {
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900">Available Plans</h3>
         <div className="space-y-3">
-          {mainPlans.map((plan) => (
+          {mainPlans
+            .filter(plan => {
+              // Only show dealership plan to super_admin and account_admin
+              if (plan.id === 'dealership') {
+                return currentUser?.app_role === 'super_admin' || currentUser?.app_role === 'account_admin';
+              }
+              return true;
+            })
+            .map((plan) => (
             <div key={plan.id} className={`flex items-center justify-between p-4 border rounded-lg ${plan.id === 'annual' ? 'border-accent bg-accent/5' : 'border-border'}`}>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
