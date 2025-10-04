@@ -76,13 +76,22 @@ export const ProfileImageSection = () => {
         .from('profile-images')
         .getPublicUrl(fileName);
 
-      // Update user profile
+      // Add cache-busting timestamp to force browser refresh
+      const cacheBustedUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      // Update user profile with cache-busted URL
       const { error: updateError } = await supabase
         .from('buybidhq_users')
-        .update({ profile_photo: urlData.publicUrl })
+        .update({ profile_photo: cacheBustedUrl })
         .eq('id', currentUser.id);
 
       if (updateError) throw updateError;
+
+      // Show success toast
+      toast({
+        title: "Success!",
+        description: "Profile image updated successfully.",
+      });
 
       // Invalidate current user query to refresh data
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
@@ -105,7 +114,7 @@ export const ProfileImageSection = () => {
   return (
     <div className="flex flex-col items-center space-y-4 pb-6 border-b">
       <div className="relative">
-        <Avatar className="h-24 w-24">
+        <Avatar className="h-24 w-24" key={currentUser?.profile_photo}>
           <AvatarImage 
             src={currentUser?.profile_photo || undefined} 
             alt={currentUser?.full_name || "Profile"} 
