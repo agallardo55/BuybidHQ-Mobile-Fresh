@@ -143,7 +143,7 @@ export const ProfileImageSection = () => {
           {currentUser?.full_name || "User"}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {currentUser?.role?.charAt(0).toUpperCase() + currentUser?.role?.slice(1) || "User"}
+          {currentUser?.dealer_name || "No Dealership"}
         </p>
       </div>
 
