@@ -1,12 +1,14 @@
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, lazy, Suspense } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { toast } from "sonner"
-import ReCAPTCHA from "react-google-recaptcha"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
+
+// Lazy load ReCAPTCHA to reduce initial bundle size
+const ReCAPTCHA = lazy(() => import("react-google-recaptcha"))
 import {
   Form,
   FormControl,
@@ -25,7 +27,7 @@ const formSchema = z.object({
 export function WaitlistForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [siteKey, setSiteKey] = useState<string>("")
-  const recaptchaRef = useRef<ReCAPTCHA>(null)
+  const recaptchaRef = useRef<any>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -144,12 +146,14 @@ export function WaitlistForm() {
                 <div className="flex justify-center">
                   {siteKey && (
                     <div className="bg-white/10 border border-white/20 rounded-lg p-4 backdrop-blur-sm">
-                      <ReCAPTCHA
-                        ref={recaptchaRef}
-                        sitekey={siteKey}
-                        onChange={handleRecaptchaChange}
-                        theme="light"
-                      />
+                      <Suspense fallback={<div className="h-[78px] flex items-center justify-center text-white/60">Loading verification...</div>}>
+                        <ReCAPTCHA
+                          ref={recaptchaRef}
+                          sitekey={siteKey}
+                          onChange={handleRecaptchaChange}
+                          theme="light"
+                        />
+                      </Suspense>
                     </div>
                   )}
                 </div>

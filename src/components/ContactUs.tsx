@@ -1,11 +1,10 @@
 
 import { Mail, MessageSquare, Phone } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import ReCAPTCHA from "react-google-recaptcha";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -15,6 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+// Lazy load ReCAPTCHA to reduce initial bundle size
+const ReCAPTCHA = lazy(() => import("react-google-recaptcha"));
 
 const ContactUs = () => {
   const [name, setName] = useState("");
@@ -167,10 +169,12 @@ const ContactUs = () => {
               {isLoadingKey ? (
                 <div className="text-sm text-gray-500">Loading reCAPTCHA...</div>
               ) : siteKey ? (
-                <ReCAPTCHA
-                  sitekey={siteKey}
-                  onChange={handleCaptchaChange}
-                />
+                <Suspense fallback={<div className="h-[78px] flex items-center justify-center text-gray-500">Loading verification...</div>}>
+                  <ReCAPTCHA
+                    sitekey={siteKey}
+                    onChange={handleCaptchaChange}
+                  />
+                </Suspense>
               ) : (
                 <div className="text-sm text-red-500">Error loading reCAPTCHA</div>
               )}
