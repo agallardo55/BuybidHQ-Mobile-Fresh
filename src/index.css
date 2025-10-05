@@ -92,6 +92,15 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    /* Optimize font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Optimize web font loading to prevent render blocking */
+  @font-face {
+    font-display: swap;
   }
 
   /* Custom focus styles for form elements */
