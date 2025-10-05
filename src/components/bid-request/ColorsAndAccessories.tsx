@@ -35,10 +35,11 @@ const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silve
 const interiorColors = ["Black", "Blue", "Brown", "Grey", "Red", "Tan", "White"];
 
 const compressionOptions = {
-  maxSizeMB: 1,
+  maxSizeMB: 0.5,
   maxWidthOrHeight: 1920,
   useWebWorker: true,
-  initialQuality: 0.8,
+  initialQuality: 0.85,
+  fileType: 'image/webp' as const,
 };
 
 const ColorsAndAccessories = ({
@@ -97,8 +98,8 @@ const ColorsAndAccessories = ({
           
           const compressedFile = await compressImage(file);
           
-          const fileExt = file.name.split('.').pop();
-          const filePath = `${crypto.randomUUID()}.${fileExt}`;
+          // Use .webp extension since we're converting to WebP
+          const filePath = `${crypto.randomUUID()}.webp`;
           
           console.log(`Generated file path: ${filePath}`);
           

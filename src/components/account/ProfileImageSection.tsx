@@ -6,6 +6,15 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import imageCompression from "browser-image-compression";
+
+const compressionOptions = {
+  maxSizeMB: 0.3,
+  maxWidthOrHeight: 800,
+  useWebWorker: true,
+  initialQuality: 0.85,
+  fileType: 'image/webp' as const,
+};
 
 export const ProfileImageSection = () => {
   const { currentUser } = useCurrentUser();
@@ -57,16 +66,20 @@ export const ProfileImageSection = () => {
     setUploading(true);
 
     try {
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${currentUser.id}.${fileExt}`;
+      // Compress image to WebP format
+      console.log(`Compressing profile image: ${file.name} (${file.size} bytes)`);
+      const compressedFile = await imageCompression(file, compressionOptions);
+      console.log(`Compression complete: ${compressedFile.size} bytes`);
+
+      // Use .webp extension since we're converting to WebP
+      const fileName = `${currentUser.id}.webp`;
 
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('profile-images')
-        .upload(fileName, file, {
+        .upload(fileName, compressedFile, {
           upsert: true,
-          contentType: file.type,
+          contentType: 'image/webp',
         });
 
       if (uploadError) throw uploadError;
