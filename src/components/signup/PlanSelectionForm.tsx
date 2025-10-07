@@ -11,7 +11,7 @@ const PlanSelectionForm = ({
   onSelect,
   onBack
 }: PlanSelectionFormProps) => {
-    return <div className="space-y-4 sm:space-y-6">
+  return <div className="space-y-4 sm:space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         <Card className="flex flex-col h-full">
           <CardHeader className="p-4 sm:p-6">
@@ -58,7 +58,7 @@ const PlanSelectionForm = ({
             <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <li className="flex items-center">
                 <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                <span className="text-sm sm:text-base">Unlimited Buybids</span>
+                <span className="text-sm sm:text-base">Everything in the free plan</span>
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
