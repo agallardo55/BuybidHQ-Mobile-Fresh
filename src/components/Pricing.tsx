@@ -22,7 +22,8 @@ const Pricing = () => {
           <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-primary">Simple, Flexible Pricing</h2>
           <p className="mt-3 sm:mt-4 lg:mt-6 text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto">Choose the plan that's right for your business</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        {/* Note: Dealership Plan removed - can be restored from version control if needed */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
            {/* Beta Trial Plan */}
           <Card className="flex flex-col h-full relative border-accent">
             <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
@@ -135,49 +136,6 @@ const Pricing = () => {
             </CardFooter>
           </Card>
 
-          {/* Dealership Plan */}
-          <Card className="flex flex-col h-full">
-            <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-xl sm:text-2xl">Dealership Plan</CardTitle>
-              <CardDescription className="text-sm sm:text-base">For multi-store group members</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow px-4 sm:px-6">
-              <div className="mt-2 flex items-baseline">
-                <span className="text-2xl sm:text-3xl font-bold">Custom</span>
-                <span className="ml-1 text-sm sm:text-base text-gray-500">/month</span>
-              </div>
-              <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
-                <li className="flex items-center">
-                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Unlimited buybids per mo.</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Multi-user access</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Dashboard Access</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Buybid Analytics</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base flex items-center gap-2">
-                    Marketplace Access
-                    
-                  </span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter className="pt-4 sm:pt-6">
-              <Button onClick={scrollToContact} className="w-full bg-accent hover:bg-accent/90 text-sm sm:text-base py-2 sm:py-3">
-                Contact Sales
-              </Button>
-            </CardFooter>
-          </Card>
         </div>
       </div>
     </section>;
