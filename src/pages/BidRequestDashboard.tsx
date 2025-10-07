@@ -126,17 +126,15 @@ const BidRequestDashboard = () => {
                   onSort={handleSort}
                 />
 
-                {sortedRequests.length > 0 && (
-                  <TableFooter
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    pageSize={pageSize}
-                    totalItems={sortedRequests.length}
-                    onPageChange={setCurrentPage}
-                    onPageSizeChange={handlePageSizeChange}
-                    getPageNumbers={getPageNumbers}
-                  />
-                )}
+                <TableFooter
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  totalItems={sortedRequests.length}
+                  onPageChange={setCurrentPage}
+                  onPageSizeChange={handlePageSizeChange}
+                  getPageNumbers={getPageNumbers}
+                />
               </>
             )}
           </div>
