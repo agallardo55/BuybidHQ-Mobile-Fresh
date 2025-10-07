@@ -21,7 +21,7 @@ const Hero = () => {
     }} />
       
       {/* Dark overlay */}
-      <div className="absolute inset-0 z-10 w-full h-full bg-black/30 backface-hidden" />
+      <div className="absolute inset-0 z-10 w-full h-full bg-black/20 backface-hidden" />
       
       {/* Gradient overlay */}
       <div className="absolute inset-0 z-20 w-full h-full bg-gradient-to-b from-transparent via-black/40 to-black/60 backface-hidden" />
