@@ -26,7 +26,7 @@ const PlanSelectionForm = ({
             <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
               <li className="flex items-center">
                 <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                <span className="text-sm sm:text-base">10 Buybids per mo.</span>
+                <span className="text-sm sm:text-base">Free while in Beta</span>
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
