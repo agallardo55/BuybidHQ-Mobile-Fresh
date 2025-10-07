@@ -86,41 +86,49 @@ const BuyersTable = ({ buyers, onDelete, onEdit, sortConfig, onSort }: BuyersTab
         </TableRow>
       </TableHeader>
       <TableBody>
-        {buyers.map((buyer) => (
-          <TableRow key={buyer.id} className="text-sm hover:bg-muted/50">
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.name}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.email}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.dealership}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{formatPhoneForDisplay(buyer.mobileNumber)}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.acceptedBids}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.pendingBids}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.declinedBids}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-              <div className="flex items-center gap-2">
-                {canManageBuyer(buyer) && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(buyer)}
-                      className="h-7 w-7"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onDelete(buyer.id)}
-                      className="h-7 w-7 text-destructive hover:text-destructive"
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-              </div>
+        {buyers && buyers.length > 0 ? (
+          buyers.map((buyer) => (
+            <TableRow key={buyer.id} className="text-sm hover:bg-muted/50">
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.name}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.email}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.dealership}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{formatPhoneForDisplay(buyer.mobileNumber)}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.acceptedBids}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.pendingBids}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.declinedBids}</TableCell>
+              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+                <div className="flex items-center gap-2">
+                  {canManageBuyer(buyer) && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(buyer)}
+                        className="h-7 w-7"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDelete(buyer.id)}
+                        className="h-7 w-7 text-destructive hover:text-destructive"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+              No buyers found
             </TableCell>
           </TableRow>
-        ))}
+        )}
       </TableBody>
     </Table>
   );
