@@ -24,10 +24,15 @@ const Pricing = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
            {/* Beta Trial Plan */}
-          <Card className="flex flex-col h-full">
+          <Card className="flex flex-col h-full relative border-accent">
+            <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
+              <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 rounded-full text-xs font-semibold">
+                Limited Time Offer
+              </span>
+            </div>
             <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-xl sm:text-2xl">Free Plan</CardTitle>
-              <CardDescription className="text-sm sm:text-base">Perfect for the individual members</CardDescription>
+              <CardTitle className="text-xl sm:text-2xl">Free Beta Plan</CardTitle>
+              <CardDescription className="text-sm sm:text-base">Open to all while in Beta</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow px-4 sm:px-6">
               <div className="mt-2 flex items-baseline">
@@ -37,7 +42,7 @@ const Pricing = () => {
               <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">10 buybids per mo.</span>
+                  <span className="text-sm sm:text-base">Free while in Beta</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
@@ -91,13 +96,8 @@ const Pricing = () => {
           </Card>
 
           {/* Annual Plan */}
-          <Card className="flex flex-col h-full relative border-accent">
-            <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
-              <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 rounded-full text-xs font-medium">
-                Limited Time Offer
-              </span>
-            </div>
-            <CardHeader className="pb-4 sm:pb-6 pt-6 sm:pt-8">
+          <Card className="flex flex-col h-full">
+            <CardHeader className="pb-4 sm:pb-6">
               <CardTitle className="text-xl sm:text-2xl">Annual Plan</CardTitle>
               <CardDescription className="text-sm sm:text-base">Best value for committed users</CardDescription>
             </CardHeader>
