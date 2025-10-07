@@ -33,7 +33,7 @@ const FAQ = () => {
               What model years are available?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              BuyBidHQ supports vehicles from model year 1981 to the current year. Our VIN decoder and vehicle information system can retrieve detailed specifications for any vehicle within this range.
+              BuyBidHQ supports vehicles from model year 1900 to the current year. Our VIN decoder and vehicle information system can retrieve detailed specifications for any vehicle within this range.
             </AccordionContent>
           </AccordionItem>
 
