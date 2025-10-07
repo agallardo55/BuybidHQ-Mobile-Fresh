@@ -62,11 +62,6 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
     );
   }
 
-  // Calculate how many empty rows are needed to reach minimum of 10 rows
-  const getEmptyRowsCount = () => {
-    return Math.max(0, 10 - requests.length);
-  };
-
   return (
     <>
       <div className="overflow-x-auto -mx-4 sm:-mx-6 scrollbar-thin scrollbar-thumb-gray-300">
@@ -75,43 +70,19 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
             <TableHeaders sortConfig={sortConfig} onSort={onSort} />
             <TableBody>
               {requests && requests.length > 0 ? (
-                <>
-                  {requests.map((request) => (
-                    <TableRowComponent
-                      key={request.id}
-                      request={request}
-                      onClick={() => handleRowClick(request)}
-                    />
-                  ))}
-                  {/* Render empty placeholder rows */}
-                  {Array.from({ length: getEmptyRowsCount() }).map((_, index) => (
-                    <tr key={`empty-${index}`} className="h-[44px] border-b">
-                      {Array.from({ length: 10 }).map((_, cellIndex) => (
-                        <td key={`empty-cell-${cellIndex}`} className="h-[44px]">
-                          &nbsp;
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </>
+                requests.map((request) => (
+                <TableRowComponent
+                  key={request.id}
+                  request={request}
+                  onClick={() => handleRowClick(request)}
+                />
+                ))
               ) : (
-                <>
-                  <tr>
-                    <td colSpan={10} className="text-center py-8 text-muted-foreground">
-                      No bid requests found
-                    </td>
-                  </tr>
-                  {/* Render 9 empty placeholder rows when no requests */}
-                  {Array.from({ length: 9 }).map((_, index) => (
-                    <tr key={`empty-${index}`} className="h-[44px] border-b">
-                      {Array.from({ length: 10 }).map((_, cellIndex) => (
-                        <td key={`empty-cell-${cellIndex}`} className="h-[44px]">
-                          &nbsp;
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </>
+                <tr>
+                  <td colSpan={10} className="text-center py-8 text-muted-foreground">
+                    No bid requests found
+                  </td>
+                </tr>
               )}
             </TableBody>
           </Table>
