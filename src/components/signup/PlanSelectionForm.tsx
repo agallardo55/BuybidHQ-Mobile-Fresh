@@ -114,7 +114,8 @@ const PlanSelectionForm = ({
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                <span className="text-sm sm:text-base">Buybid dashboard</span>
+                <span className="text-sm sm:text-base">Billed Annually
+              </span>
               </li>
               <li className="flex items-center">
                 <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
