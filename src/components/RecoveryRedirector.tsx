@@ -17,24 +17,19 @@ export const RecoveryRedirector = () => {
                            hash.includes('access_token') ||
                            search.includes('access_token');
       
-      // Security: Remove sensitive token logging
-      console.log('Checking for password reset flow');
-      
       if (hasResetToken && location.pathname !== '/reset-password') {
-        console.log('Redirecting to password reset page');
+        console.log('Password recovery detected, redirecting to reset-password');
         navigate('/reset-password', { replace: true });
       }
     };
 
-    // Check immediately
+    // Check immediately on mount
     checkForPasswordReset();
 
-    // Also listen for auth state changes as backup
+    // Also listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event received:', event);
-      
-      if (event === 'PASSWORD_RECOVERY') {
-        console.log('Password recovery event detected, redirecting');
+      if (event === 'PASSWORD_RECOVERY' && location.pathname !== '/reset-password') {
+        console.log('PASSWORD_RECOVERY event detected, redirecting');
         navigate('/reset-password', { replace: true });
       }
     });

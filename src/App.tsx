@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PublicAppWrapper } from "@/components/PublicAppWrapper";
 import { ProtectedRoute, AuthRoute } from "@/components/ProtectedRoute";
-import { PasswordResetRoute } from "@/components/PasswordResetRoute";
+
 import { RecoveryRedirector } from "@/components/RecoveryRedirector";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
@@ -56,11 +56,7 @@ const App = () => (
             />
             <Route 
               path="/reset-password" 
-              element={
-                <PasswordResetRoute>
-                  <ResetPassword />
-                </PasswordResetRoute>
-              } 
+              element={<ResetPassword />} 
             />
             <Route 
               path="/password-reset" 

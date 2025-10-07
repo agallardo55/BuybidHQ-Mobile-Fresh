@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -11,38 +10,41 @@ const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecoveryFlow, setIsRecoveryFlow] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Check if we're in a recovery flow by looking for Supabase tokens
-  const isRecoveryFlow = location.hash.includes('type=recovery') || 
-                        location.search.includes('type=recovery') ||
-                        location.hash.includes('access_token') ||
-                        location.search.includes('access_token');
-  
-  // Debug logging (temporary)
-  console.log('ResetPassword:', {
-    pathname: location.pathname,
-    hash: location.hash,
-    search: location.search,
-    isRecoveryFlow
-  });
 
   const passwordsMatch = password === confirmPassword;
   const showMismatchError = confirmPassword.length > 0 && !passwordsMatch;
 
   useEffect(() => {
-    // If we're not in a recovery flow and there's no session, redirect to login
-    const checkSession = async () => {
+    // Listen for PASSWORD_RECOVERY event to detect recovery flow
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log('Password recovery detected');
+        setIsRecoveryFlow(true);
+      }
+    });
+
+    // Check for existing session and recovery tokens
+    const checkRecovery = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!isRecoveryFlow && !session) {
-        navigate('/signin');
+      const hash = window.location.hash;
+      
+      const hasRecoveryToken = hash.includes('type=recovery') || hash.includes('access_token');
+      
+      if (hasRecoveryToken || session) {
+        setIsRecoveryFlow(true);
+      } else {
+        // No recovery flow detected, redirect to signin
+        navigate('/signin', { replace: true });
       }
     };
     
-    checkSession();
-  }, [navigate, isRecoveryFlow]);
+    checkRecovery();
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const validatePassword = (password: string) => {
     if (password.length < 6) {
@@ -78,19 +80,6 @@ const ResetPassword = () => {
     }
 
     try {
-      // Enhanced security: Verify we're in a valid recovery session
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session && !isRecoveryFlow) {
-        toast({
-          title: "Invalid Session",
-          description: "Invalid or expired password reset session. Please request a new password reset.",
-          variant: "destructive",
-        });
-        navigate('/forgot-password');
-        return;
-      }
-
       const { error } = await supabase.auth.updateUser({
         password: password
       });
