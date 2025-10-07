@@ -36,11 +36,7 @@ const Navigation = () => {
   }, [location]);
 
   const handleSignIn = () => {
-    if (location.pathname === '/') {
-      setShowWaitlist(true);
-    } else {
-      navigate('/signin');
-    }
+    navigate('/signin');
   };
 
   const navItems = [
