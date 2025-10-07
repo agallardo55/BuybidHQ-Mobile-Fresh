@@ -33,12 +33,12 @@ const Pricing = () => {
             </div>
             <CardHeader className="pb-4 sm:pb-6">
               <CardTitle className="text-xl sm:text-2xl">Free Beta Plan</CardTitle>
-              <CardDescription className="text-sm sm:text-base">Open to all while in Beta</CardDescription>
+              <CardDescription className="text-sm sm:text-base">Open to all while in Beta testing</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow px-4 sm:px-6">
               <div className="mt-2 flex items-baseline">
                 <span className="text-2xl sm:text-3xl font-bold">$0</span>
-                <span className="ml-1 text-sm sm:text-base text-gray-500">/per mo.</span>
+                <span className="ml-1 text-sm sm:text-base text-gray-500">/per user/per mo.</span>
               </div>
               <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                 <li className="flex items-center">
@@ -47,11 +47,11 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Unlimited buyer connections</span>
+                  <span className="text-sm sm:text-base">Unlimited bid requests</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Dashboard Access</span>
+                  <span className="text-sm sm:text-base">Buybid dashboard</span>
                 </li>
               </ul>
             </CardContent>
@@ -60,34 +60,37 @@ const Pricing = () => {
             </CardFooter>
           </Card>
 
-          {/* Pay per Buybid Plan */}
+          {/* Buybid Connect Plan */}
           <Card className="flex flex-col h-full">
             <CardHeader className="pb-4 sm:pb-6">
-              <CardTitle className="text-xl sm:text-2xl">Connect Plan</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">Buybid Connect</CardTitle>
               <CardDescription className="text-sm sm:text-base">For buyers looking to expand their network</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow px-4 sm:px-6">
               <div className="mt-2 flex items-baseline">
                 <span className="text-2xl sm:text-3xl font-bold">$99</span>
-                <span className="ml-1 text-sm sm:text-base text-gray-500">/per mo</span>
+                <span className="ml-1 text-sm sm:text-base text-gray-500">/per mo.</span>
               </div>
               <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Unlimited buybids per mo.</span>
+                  <span className="text-sm sm:text-base">Includes Free Plan</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                  <span className="text-sm sm:text-base">No monthly commitment</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
                   <span className="text-sm sm:text-base">Billed Monthly</span>
                 </li>
-                
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Dashboard Access</span>
+                  <span className="text-sm sm:text-base">All Future Features</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">All Basic features</span>
+                  <span className="text-sm sm:text-base">Lifetime Price Lock</span>
                 </li>
               </ul>
             </CardContent>
@@ -111,7 +114,11 @@ const Pricing = () => {
               <ul className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Unlimited buybids per mo.</span>
+                  <span className="text-sm sm:text-base">Includes Free Plan</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                  <span className="text-sm sm:text-base">No annual commitment</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
@@ -119,15 +126,11 @@ const Pricing = () => {
                 </li>
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Dashboard Access</span>
+                  <span className="text-sm sm:text-base">All Future Features</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">All Connect features</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Lifetime Rate Lock</span>
+                  <span className="text-sm sm:text-base">Lifetime Price Lock</span>
                 </li>
               </ul>
             </CardContent>
