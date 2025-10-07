@@ -13,7 +13,12 @@ const PlanSelectionForm = ({
 }: PlanSelectionFormProps) => {
   return <div className="space-y-4 sm:space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        <Card className="flex flex-col h-full">
+        <Card className="flex flex-col h-full relative border-accent sm:col-span-2 lg:col-span-1">
+          <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
+            <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 rounded-full text-xs font-semibold">
+              Limited Time Offer
+            </span>
+          </div>
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-xl sm:text-2xl">Free Plan</CardTitle>
             <CardDescription className="text-sm sm:text-base">Open to all while in Beta</CardDescription>
@@ -86,12 +91,7 @@ const PlanSelectionForm = ({
           </CardFooter>
         </Card>
 
-        <Card className="flex flex-col h-full relative border-accent sm:col-span-2 lg:col-span-1">
-          <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
-            <span className="bg-accent text-accent-foreground px-2 sm:px-3 py-1 rounded-full text-xs font-semibold">
-              Limited Time Offer
-            </span>
-          </div>
+        <Card className="flex flex-col h-full">
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-xl sm:text-2xl">Annual Plan</CardTitle>
             <CardDescription className="text-sm sm:text-base">Best value for committed users</CardDescription>
