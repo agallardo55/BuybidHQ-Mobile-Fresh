@@ -28,6 +28,15 @@ const FAQ = () => {
             </AccordionContent>
           </AccordionItem>
 
+          <AccordionItem value="item-1b" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+              What model years are available?
+            </AccordionTrigger>
+            <AccordionContent className="text-gray-700">
+              BuyBidHQ supports vehicles from model year 1981 to the current year. Our VIN decoder and vehicle information system can retrieve detailed specifications for any vehicle within this range.
+            </AccordionContent>
+          </AccordionItem>
+
           <AccordionItem value="item-2" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
             <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
               Are there any additional fees?
