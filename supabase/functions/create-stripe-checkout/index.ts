@@ -98,13 +98,34 @@ serve(async (req) => {
         .eq('id', account.id);
     }
 
-    // Create checkout session
+    // Determine which price ID to use based on target plan
+    let priceId: string | undefined;
+    let planName: string;
+
+    if (currentPlan === 'annual') {
+      priceId = Deno.env.get('STRIPE_ANNUAL_PRICE_ID');
+      planName = 'annual';
+    } else {
+      priceId = Deno.env.get('STRIPE_CONNECT_PRICE_ID');
+      planName = 'connect';
+    }
+
+    if (!priceId) {
+      return new Response(
+        JSON.stringify({ error: `Price ID not configured for ${planName} plan` }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Creating checkout session for plan: ${planName}, price ID: ${priceId}`);
+
+    // Create checkout session with the selected plan
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
       line_items: [
         {
-          price: Deno.env.get('STRIPE_CONNECT_PRICE_ID'), // Connect plan price ID
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -113,12 +134,12 @@ serve(async (req) => {
       cancel_url: cancelUrl,
       metadata: {
         account_id: account.id,
-        requested_plan: 'connect',
+        requested_plan: planName,
       },
       subscription_data: {
         metadata: {
           account_id: account.id,
-          requested_plan: 'connect',
+          requested_plan: planName,
         },
       },
     });
