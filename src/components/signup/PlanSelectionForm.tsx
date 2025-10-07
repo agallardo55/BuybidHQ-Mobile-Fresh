@@ -16,7 +16,7 @@ const PlanSelectionForm = ({
         <Card className="flex flex-col h-full">
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-xl sm:text-2xl">Free Plan</CardTitle>
-            <CardDescription className="text-sm sm:text-base">Free while in Beta</CardDescription>
+            <CardDescription className="text-sm sm:text-base">Open to all while in Beta</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow p-4 sm:p-6 pt-0">
             <div className="mt-2 flex items-baseline">
