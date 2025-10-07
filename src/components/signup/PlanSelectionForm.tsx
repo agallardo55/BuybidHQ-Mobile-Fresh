@@ -20,7 +20,7 @@ const PlanSelectionForm = ({
             </span>
           </div>
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl">Free Plan</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">Free  Beta Plan</CardTitle>
             <CardDescription className="text-sm sm:text-base">Open to all while in Beta</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow p-4 sm:p-6 pt-0">
