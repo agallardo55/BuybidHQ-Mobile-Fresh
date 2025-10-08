@@ -23,6 +23,30 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
       
       {/* Filter Row - Responsive */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Year From */}
+        <div className="space-y-2">
+          <Label htmlFor="yearFrom">Year From</Label>
+          <Input
+            id="yearFrom"
+            type="number"
+            placeholder="2020"
+            value={filters.yearFrom}
+            onChange={(e) => setFilters({ ...filters, yearFrom: e.target.value })}
+          />
+        </div>
+
+        {/* Year To */}
+        <div className="space-y-2">
+          <Label htmlFor="yearTo">Year To</Label>
+          <Input
+            id="yearTo"
+            type="number"
+            placeholder="2024"
+            value={filters.yearTo}
+            onChange={(e) => setFilters({ ...filters, yearTo: e.target.value })}
+          />
+        </div>
+
         {/* Make */}
         <div className="space-y-2">
           <Label htmlFor="make">Make</Label>
@@ -49,30 +73,6 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
             placeholder="Enter model"
             value={filters.model}
             onChange={(e) => setFilters({ ...filters, model: e.target.value })}
-          />
-        </div>
-
-        {/* Year From */}
-        <div className="space-y-2">
-          <Label htmlFor="yearFrom">Year From</Label>
-          <Input
-            id="yearFrom"
-            type="number"
-            placeholder="2020"
-            value={filters.yearFrom}
-            onChange={(e) => setFilters({ ...filters, yearFrom: e.target.value })}
-          />
-        </div>
-
-        {/* Year To */}
-        <div className="space-y-2">
-          <Label htmlFor="yearTo">Year To</Label>
-          <Input
-            id="yearTo"
-            type="number"
-            placeholder="2024"
-            value={filters.yearTo}
-            onChange={(e) => setFilters({ ...filters, yearTo: e.target.value })}
           />
         </div>
 
