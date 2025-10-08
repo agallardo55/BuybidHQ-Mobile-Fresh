@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     // Get current user data using the user's JWT context
     const { data: currentUserData, error: userDataError } = await supabaseUser.rpc('get_current_user_data');
     
-    if (userDataError || !currentUserData) {
+    if (userDataError || !currentUserData || currentUserData.length === 0) {
       console.error('Error getting current user data:', userDataError);
       return new Response(
         JSON.stringify({ error: 'Failed to validate user permissions' }),
@@ -66,13 +66,16 @@ Deno.serve(async (req) => {
       );
     }
 
+    // get_current_user_data returns a table (array), get first row
+    const userData = currentUserData[0];
+
     console.log('Current user data:', { 
-      userId: currentUserData.user_id, 
-      isAdmin: currentUserData.is_admin 
+      userId: userData.user_id, 
+      isAdmin: userData.is_admin 
     });
 
     // Validate superadmin status
-    if (!currentUserData.is_admin) {
+    if (!userData.is_admin) {
       console.error('User is not a superadmin');
       return new Response(
         JSON.stringify({ error: 'Unauthorized: Only superadmins can delete users' }),
@@ -91,13 +94,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('Deleting user:', { userId, reason, deletedBy: currentUserData.user_id });
+    console.log('Deleting user:', { userId, reason, deletedBy: userData.user_id });
 
     // Step 1: Call existing database function for soft delete
     // This handles: buybidhq_users soft delete, deleted_users insert, account_administrators update
     const { error: dbError } = await supabaseAdmin.rpc('handle_user_deletion', {
       user_id: userId,
-      deleted_by_id: currentUserData.user_id,
+      deleted_by_id: userData.user_id,
       deletion_reason: reason || null
     });
 
