@@ -125,6 +125,15 @@ Deno.serve(async (req) => {
     // Not a deleted user, proceed with normal signup
     console.log('New user signup:', signupData.email);
 
+    // Check if user already exists in auth system
+    const { data: existingUsers } = await supabase.auth.admin.listUsers();
+    const userExists = existingUsers?.users.some(u => u.email === signupData.email);
+    
+    if (userExists) {
+      console.log('User already exists:', signupData.email);
+      throw new Error('An account with this email already exists. Please sign in instead or use a different email address.');
+    }
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: signupData.email,
       password: signupData.password,
