@@ -60,16 +60,41 @@ Deno.serve(async (req) => {
     // If user was restored
     if (restoredUser?.was_restored) {
       console.log('User restored successfully:', restoredUser.user_id);
+      console.log('Auth user exists:', restoredUser.auth_user_exists);
 
-      // Update the auth user's password
-      const { error: passwordError } = await supabase.auth.admin.updateUserById(
-        restoredUser.user_id,
-        { password: signupData.password }
-      );
+      // Check if auth user still exists
+      if (!restoredUser.auth_user_exists) {
+        // Auth user was deleted - create new auth user with same ID
+        console.log('Auth user not found, creating new auth user with ID:', restoredUser.user_id);
+        
+        const { error: createError } = await supabase.auth.admin.createUser({
+          id: restoredUser.user_id,
+          email: signupData.email,
+          password: signupData.password,
+          email_confirm: true,
+          user_metadata: {
+            full_name: signupData.fullName,
+            plan_type: signupData.planType,
+          },
+        });
 
-      if (passwordError) {
-        console.error('Password update error:', passwordError);
-        throw new Error(`Failed to update password: ${passwordError.message}`);
+        if (createError) {
+          console.error('Auth user creation error:', createError);
+          throw new Error(`Failed to create auth user: ${createError.message}`);
+        }
+      } else {
+        // Auth user exists - just update the password
+        console.log('Auth user exists, updating password');
+        
+        const { error: passwordError } = await supabase.auth.admin.updateUserById(
+          restoredUser.user_id,
+          { password: signupData.password }
+        );
+
+        if (passwordError) {
+          console.error('Password update error:', passwordError);
+          throw new Error(`Failed to update password: ${passwordError.message}`);
+        }
       }
 
       // Sign in the user to get a session
