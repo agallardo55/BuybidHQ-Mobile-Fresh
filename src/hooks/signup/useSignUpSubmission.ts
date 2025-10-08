@@ -60,6 +60,18 @@ export const useSignUpSubmission = ({
       };
       const isRestored = signupResponse.type === 'restored';
 
+      // Set the session in the Supabase client for proper authentication
+      if (authData.session) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: authData.session.access_token,
+          refresh_token: authData.session.refresh_token,
+        });
+
+        if (sessionError) {
+          throw new Error(`Failed to set session: ${sessionError.message}`);
+        }
+      }
+
       // Step 2: Wait briefly for any triggers to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
 
