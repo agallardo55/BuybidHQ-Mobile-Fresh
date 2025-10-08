@@ -75,7 +75,14 @@ export const useSignUpSubmission = ({
       // Step 2: Wait briefly for any triggers to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Step 2: Create or update individual dealer record for all signup users
+      // Check if user already has an account linked
+      const { data: existingUser } = await supabase
+        .from('buybidhq_users')
+        .select('account_id')
+        .eq('id', authData.user.id)
+        .single();
+
+      // Step 3: Create or update individual dealer record for all signup users
       const { data: individualDealerData, error: individualDealerError } = await supabase
         .from('individual_dealers')
         .upsert(
@@ -102,25 +109,60 @@ export const useSignUpSubmission = ({
         throw individualDealerError;
       }
 
-      // Step 3: Create individual account for this user
-      const { data: accountData, error: accountError } = await supabase
-        .from('accounts')
-        .insert([
-          {
+      // Step 4: Create or reuse account for this user
+      let accountData;
+      
+      if (existingUser?.account_id) {
+        // Restored user already has an account, fetch it
+        const { data: existingAccount, error: fetchError } = await supabase
+          .from('accounts')
+          .select()
+          .eq('id', existingUser.account_id)
+          .single();
+        
+        if (fetchError) {
+          throw fetchError;
+        }
+        
+        // Update the existing account with new plan info
+        const { data: updatedAccount, error: updateError } = await supabase
+          .from('accounts')
+          .update({
             name: formData.dealershipName,
             plan: formData.planType === 'beta-access' ? 'free' : formData.planType,
-            seat_limit: 1,
-            feature_group_enabled: false
-          }
-        ])
-        .select()
-        .single();
+          })
+          .eq('id', existingUser.account_id)
+          .select()
+          .single();
+        
+        if (updateError) {
+          throw updateError;
+        }
+        
+        accountData = updatedAccount;
+      } else {
+        // New user or restored user without account, create new account
+        const { data: newAccount, error: accountError } = await supabase
+          .from('accounts')
+          .insert([
+            {
+              name: formData.dealershipName,
+              plan: formData.planType === 'beta-access' ? 'free' : formData.planType,
+              seat_limit: 1,
+              feature_group_enabled: false
+            }
+          ])
+          .select()
+          .single();
 
-      if (accountError) {
-        throw accountError;
+        if (accountError) {
+          throw accountError;
+        }
+        
+        accountData = newAccount;
       }
 
-      // Step 4: Update the user record - all signup users get basic role and member app_role
+      // Step 5: Update the user record - all signup users get basic role and member app_role
       const { data: updatedUser, error: userError } = await supabase
         .from('buybidhq_users')
         .update({
@@ -147,7 +189,7 @@ export const useSignUpSubmission = ({
         throw userError;
       }
 
-      // Step 5: Create subscription record with appropriate payment type
+      // Step 6: Create subscription record with appropriate payment type
       const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert([
