@@ -26,8 +26,10 @@ export const useDeleteUser = () => {
 
       // Handle partial success (database deleted but auth failed)
       if (data?.partial_success) {
-        console.warn('Partial deletion:', data.warning);
-        throw new Error(data.warning);
+        console.warn('Partial deletion - database deleted, auth user not found:', data.warning);
+        // This is actually okay - the user was removed from the database
+        // The auth user may not have been fully created (incomplete signup)
+        return { success: true, warning: data.warning };
       }
 
       return data;

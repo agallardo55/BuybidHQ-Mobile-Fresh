@@ -115,23 +115,27 @@ Deno.serve(async (req) => {
     console.log('Database soft delete completed successfully');
 
     // Step 2: Delete from auth.users (hard delete)
-    // This is the critical step that was missing
-    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    // Check if auth user exists first
+    const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+    
+    if (authUser?.user) {
+      // Auth user exists, delete it
+      const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
-    if (authError) {
-      console.error('Auth deletion error:', authError);
-      // Database changes are already committed, but auth deletion failed
-      // Log this as a warning but don't rollback database changes
-      return new Response(
-        JSON.stringify({ 
-          warning: `User soft-deleted from database, but auth deletion failed: ${authError.message}`,
-          partial_success: true
-        }),
-        { status: 207, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      if (authError) {
+        console.error('Auth deletion error:', authError);
+        return new Response(
+          JSON.stringify({ 
+            warning: `User soft-deleted from database, but auth deletion failed: ${authError.message}`,
+            partial_success: true
+          }),
+          { status: 207, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      console.log('Auth user deleted successfully');
+    } else {
+      console.log('No auth user found - skipping auth deletion (this is normal for incomplete signups)');
     }
-
-    console.log('Auth user deleted successfully');
 
     // Success response
     return new Response(
