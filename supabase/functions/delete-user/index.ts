@@ -14,7 +14,36 @@ Deno.serve(async (req) => {
   try {
     console.log('Delete user function invoked');
 
-    // Create admin client with service role
+    // Get the JWT from Authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('No authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    // Create client with user's JWT to check permissions
+    const supabaseUser = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
+    );
+
+    // Create admin client with service role for deletion operations
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -26,18 +55,8 @@ Deno.serve(async (req) => {
       }
     );
 
-    // Get the current user from JWT
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      console.error('No authorization header');
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized: No authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Get current user data and validate superadmin status
-    const { data: currentUserData, error: userDataError } = await supabaseAdmin.rpc('get_current_user_data');
+    // Get current user data using the user's JWT context
+    const { data: currentUserData, error: userDataError } = await supabaseUser.rpc('get_current_user_data');
     
     if (userDataError || !currentUserData) {
       console.error('Error getting current user data:', userDataError);
