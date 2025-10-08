@@ -95,7 +95,7 @@ export const UserMobileCard = ({
                 variant="outline"
                 size="sm"
                 onClick={() => onDelete(user.id)}
-                className="text-destructive hover:text-destructive"
+                className="bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive border-destructive/20"
               >
                 <Trash className="h-4 w-4" />
               </Button>

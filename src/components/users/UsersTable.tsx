@@ -106,7 +106,7 @@ const UsersTable = ({ users, onEdit, onDelete, sortConfig, onSort }: UsersTableP
                       variant="ghost"
                       size="icon"
                       onClick={() => onDelete(user.id)}
-                      className="h-7 w-7 text-destructive hover:text-destructive"
+                      className="h-7 w-7 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
                     >
                       <Trash className="h-4 w-4" />
                     </Button>
