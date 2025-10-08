@@ -1,11 +1,5 @@
 
 import { Link } from "react-router-dom";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface NavItem {
   name: string;
@@ -32,22 +26,15 @@ const NavItems = ({ items, onClick, className = "" }: NavItemsProps) => {
           </Link>
         </div>
       ))}
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button 
-              className="text-gray-700 hover:text-accent transition-colors cursor-pointer"
-              type="button"
-              onClick={onClick}
-            >
-              Marketplace
-            </button>
-          </TooltipTrigger>
-          <TooltipContent sideOffset={5}>
-            <p className="font-bold whitespace-nowrap" style={{ color: '#325AE7' }}>Coming Soon!!!</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div>
+        <Link
+          to="/marketplace"
+          className="text-gray-700 hover:text-accent transition-colors"
+          onClick={onClick}
+        >
+          Marketplace
+        </Link>
+      </div>
     </div>
   );
 };

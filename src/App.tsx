@@ -17,6 +17,7 @@ import BidResponse from "./pages/BidResponse";
 import Buyers from "./pages/Buyers";
 import Users from "./pages/Users";
 import Dealerships from "./pages/Dealerships";
+import Marketplace from "./pages/Marketplace";
 import NotFound from "./pages/NotFound";
 import Account from "./pages/Account";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -115,6 +116,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Account />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/marketplace"
+              element={
+                <ProtectedRoute>
+                  <Marketplace />
                 </ProtectedRoute>
               }
             />
