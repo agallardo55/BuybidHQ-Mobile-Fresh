@@ -105,7 +105,7 @@ const Marketplace = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pt-24 pb-8">
         {/* White Card Container */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
           {/* Filters Row */}
