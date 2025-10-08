@@ -1,6 +1,6 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { useAccountAdminGuard } from "@/hooks/useRoleGuard";
+import { useRoleGuard } from "@/hooks/useRoleGuard";
 import MarketplaceFilters from "@/components/marketplace/MarketplaceFilters";
 import MarketplaceGrid from "@/components/marketplace/MarketplaceGrid";
 
@@ -69,7 +69,15 @@ const mockVehicles = [
 ];
 
 const Marketplace = () => {
-  const { isAuthorized, isLoading } = useAccountAdminGuard("/dashboard");
+  // Check for both legacy admin role and new app_role system
+  const { isAuthorized, isLoading } = useRoleGuard({
+    anyOfRoles: ['admin'],  // Legacy admin role
+    anyOfAppRoles: ['account_admin', 'super_admin'],  // New system roles
+    redirectTo: "/dashboard",
+    showToast: true,
+    accessDeniedMessage: 'Admin or super admin access required.'
+  });
+  
   const [filters, setFilters] = useState({
     make: "",
     model: "",
