@@ -83,3 +83,6 @@ verify_jwt = true
 
 [functions.complete-mfa-login]
 verify_jwt = false
+
+[functions.delete-user]
+verify_jwt = true

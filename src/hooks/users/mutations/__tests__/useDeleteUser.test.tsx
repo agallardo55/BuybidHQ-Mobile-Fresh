@@ -8,24 +8,8 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 // Mock supabase client
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: vi.fn(),
-        })),
-      })),
-      insert: vi.fn(),
-      update: vi.fn(() => ({
-        eq: vi.fn(),
-      })),
-      delete: vi.fn(() => ({
-        eq: vi.fn(),
-      })),
-    })),
-    auth: {
-      getSession: vi.fn(() => ({
-        data: { session: { user: { id: "test-user-id" } } },
-      })),
+    functions: {
+      invoke: vi.fn(),
     },
   },
 }));
@@ -48,41 +32,33 @@ describe("useDeleteUser", () => {
     vi.clearAllMocks();
   });
 
-  it("deletes user successfully", async () => {
+  it("deletes user successfully via Edge Function", async () => {
     const { result } = renderHook(() => useDeleteUser(), { wrapper });
 
-    // Mock successful responses
-    (supabase.from as any).mockImplementation(() => ({
-      select: () => ({
-        eq: () => ({
-          single: () => ({ data: { id: "test-id", role: "basic" }, error: null }),
-        }),
-      }),
-      insert: () => ({ error: null }),
-      delete: () => ({
-        eq: () => ({ error: null }),
-      }),
-    }));
+    // Mock successful Edge Function response
+    (supabase.functions.invoke as any).mockResolvedValue({
+      data: { success: true, message: "User deleted successfully", userId: "test-id" },
+      error: null,
+    });
 
     await result.current.mutateAsync({
       userId: "test-id",
       reason: "Test deletion",
     });
 
-    expect(supabase.from).toHaveBeenCalledWith("buybidhq_users");
+    expect(supabase.functions.invoke).toHaveBeenCalledWith("delete-user", {
+      body: { userId: "test-id", reason: "Test deletion" },
+    });
   });
 
-  it("handles deletion errors", async () => {
+  it("handles deletion errors from Edge Function", async () => {
     const { result } = renderHook(() => useDeleteUser(), { wrapper });
 
-    // Mock error response
-    (supabase.from as any).mockImplementation(() => ({
-      select: () => ({
-        eq: () => ({
-          single: () => ({ error: new Error("Deletion failed") }),
-        }),
-      }),
-    }));
+    // Mock error response from Edge Function
+    (supabase.functions.invoke as any).mockResolvedValue({
+      data: null,
+      error: { message: "Unauthorized: Only superadmins can delete users" },
+    });
 
     try {
       await result.current.mutateAsync({
@@ -94,48 +70,26 @@ describe("useDeleteUser", () => {
     }
   });
 
-  it("handles primary dealer deletion", async () => {
+  it("handles partial success scenario", async () => {
     const { result } = renderHook(() => useDeleteUser(), { wrapper });
 
-    // Mock responses for primary dealer scenario
-    const mockImplementation = {
-      select: () => ({
-        eq: () => ({
-          single: () => ({ data: { id: "test-id", role: "dealer" }, error: null }),
-        }),
-      }),
-      update: () => ({
-        eq: () => ({ error: null }),
-      }),
-      insert: () => ({ error: null }),
-      delete: () => ({
-        eq: () => ({ error: null }),
-      }),
-    };
-
-    (supabase.from as any)
-      .mockImplementationOnce(() => ({
-        ...mockImplementation,
-        select: () => ({
-          eq: () => ({
-            single: () => ({ data: { id: "test-id", role: "dealer" }, error: null }),
-          }),
-        }),
-      }))
-      .mockImplementationOnce(() => ({
-        ...mockImplementation,
-        select: () => ({
-          eq: () => ({
-            single: () => ({ data: { primary_user_id: "test-id" }, error: null }),
-          }),
-        }),
-      }));
-
-    await result.current.mutateAsync({
-      userId: "test-id",
-      reason: "Test deletion",
+    // Mock partial success (database deleted but auth failed)
+    (supabase.functions.invoke as any).mockResolvedValue({
+      data: {
+        partial_success: true,
+        warning: "User soft-deleted from database, but auth deletion failed",
+      },
+      error: null,
     });
 
-    expect(supabase.from).toHaveBeenCalledWith("dealerships");
+    try {
+      await result.current.mutateAsync({
+        userId: "test-id",
+        reason: "Test deletion",
+      });
+    } catch (error) {
+      expect(error).toBeDefined();
+      expect((error as Error).message).toContain("auth deletion failed");
+    }
   });
 });

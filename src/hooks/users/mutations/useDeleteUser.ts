@@ -9,43 +9,28 @@ export const useDeleteUser = () => {
 
   return useMutation({
     mutationFn: async ({ userId, reason }: DeleteUserParams) => {
-      // First get the user data
-      const { data: user, error: fetchError } = await supabase
-        .from('buybidhq_users')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      // Call the secure Edge Function that handles:
+      // 1. Superadmin validation
+      // 2. Soft delete in buybidhq_users (via handle_user_deletion DB function)
+      // 3. Insert into deleted_users
+      // 4. Update account_administrators
+      // 5. Delete from auth.users
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId, reason }
+      });
 
-      if (fetchError) throw fetchError;
-
-      // Remove account admin status if this user was an account admin
-      const { error: removeAdminError } = await supabase
-        .from('account_administrators')
-        .update({ status: 'inactive' })
-        .eq('user_id', userId);
-
-      if (removeAdminError) {
-        console.error('Remove admin error:', removeAdminError);
+      if (error) {
+        console.error('Delete user error:', error);
+        throw new Error(error.message || 'Failed to delete user');
       }
 
-      // Move user to deleted_users table
-      const { error: deleteError } = await supabase
-        .from('deleted_users')
-        .insert({
-          ...user,
-          deletion_reason: reason,
-          deleted_by: (await supabase.auth.getSession()).data.session?.user?.id
-        });
+      // Handle partial success (database deleted but auth failed)
+      if (data?.partial_success) {
+        console.warn('Partial deletion:', data.warning);
+        throw new Error(data.warning);
+      }
 
-      if (deleteError) throw deleteError;
-
-      // Delete user from buybidhq_users
-      const { error: userError } = await supabase
-        .from('buybidhq_users')
-        .delete()
-        .eq('id', userId);
-
-      if (userError) throw userError;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
