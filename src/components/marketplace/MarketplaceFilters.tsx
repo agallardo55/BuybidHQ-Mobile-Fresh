@@ -110,25 +110,39 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
         {/* Price From */}
         <div className="space-y-2">
           <Label htmlFor="priceFrom">Min Price</Label>
-          <Input
-            id="priceFrom"
-            type="number"
-            placeholder="20000"
-            value={filters.priceFrom}
-            onChange={(e) => setFilters({ ...filters, priceFrom: e.target.value })}
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+            <Input
+              id="priceFrom"
+              type="text"
+              placeholder="20,000"
+              value={filters.priceFrom ? parseInt(filters.priceFrom).toLocaleString('en-US') : ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '');
+                setFilters({ ...filters, priceFrom: value });
+              }}
+              className="pl-7"
+            />
+          </div>
         </div>
 
         {/* Price To */}
         <div className="space-y-2">
           <Label htmlFor="priceTo">Max Price</Label>
-          <Input
-            id="priceTo"
-            type="number"
-            placeholder="50000"
-            value={filters.priceTo}
-            onChange={(e) => setFilters({ ...filters, priceTo: e.target.value })}
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+            <Input
+              id="priceTo"
+              type="text"
+              placeholder="50,000"
+              value={filters.priceTo ? parseInt(filters.priceTo).toLocaleString('en-US') : ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '');
+                setFilters({ ...filters, priceTo: value });
+              }}
+              className="pl-7"
+            />
+          </div>
         </div>
 
         {/* Mileage From */}
