@@ -150,10 +150,13 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
           <Label htmlFor="mileageFrom">Min Mileage</Label>
           <Input
             id="mileageFrom"
-            type="number"
+            type="text"
             placeholder="0"
-            value={filters.mileageFrom}
-            onChange={(e) => setFilters({ ...filters, mileageFrom: e.target.value })}
+            value={filters.mileageFrom ? parseInt(filters.mileageFrom).toLocaleString('en-US') : ''}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9]/g, '');
+              setFilters({ ...filters, mileageFrom: value });
+            }}
           />
         </div>
 
@@ -162,10 +165,13 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
           <Label htmlFor="mileageTo">Max Mileage</Label>
           <Input
             id="mileageTo"
-            type="number"
-            placeholder="50000"
-            value={filters.mileageTo}
-            onChange={(e) => setFilters({ ...filters, mileageTo: e.target.value })}
+            type="text"
+            placeholder="50,000"
+            value={filters.mileageTo ? parseInt(filters.mileageTo).toLocaleString('en-US') : ''}
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^0-9]/g, '');
+              setFilters({ ...filters, mileageTo: value });
+            }}
           />
         </div>
       </div>
