@@ -130,8 +130,33 @@ Deno.serve(async (req) => {
     const userExists = existingUsers?.users.some(u => u.email === signupData.email);
     
     if (userExists) {
-      console.log('User already exists:', signupData.email);
-      throw new Error('An account with this email already exists. Please sign in instead or use a different email address.');
+      console.log('User already exists, attempting sign in:', signupData.email);
+      
+      // Try to sign in with provided credentials
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: signupData.email,
+        password: signupData.password,
+      });
+
+      if (signInError) {
+        console.error('Sign in failed for existing user:', signInError);
+        throw new Error('An account with this email already exists. Please use the sign in page instead.');
+      }
+
+      console.log('Existing user signed in successfully');
+      
+      return new Response(
+        JSON.stringify({
+          type: 'existing',
+          user: signInData.user,
+          session: signInData.session,
+          message: 'Signed in successfully',
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
     }
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
