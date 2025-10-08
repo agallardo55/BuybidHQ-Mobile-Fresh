@@ -26,25 +26,45 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
         {/* Year From */}
         <div className="space-y-2">
           <Label htmlFor="yearFrom">Year From</Label>
-          <Input
-            id="yearFrom"
-            type="number"
-            placeholder="2020"
-            value={filters.yearFrom}
-            onChange={(e) => setFilters({ ...filters, yearFrom: e.target.value })}
-          />
+          <Select value={filters.yearFrom} onValueChange={(value) => setFilters({ ...filters, yearFrom: value })}>
+            <SelectTrigger id="yearFrom">
+              <SelectValue placeholder="Select year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2023">2023</SelectItem>
+              <SelectItem value="2022">2022</SelectItem>
+              <SelectItem value="2021">2021</SelectItem>
+              <SelectItem value="2020">2020</SelectItem>
+              <SelectItem value="2019">2019</SelectItem>
+              <SelectItem value="2018">2018</SelectItem>
+              <SelectItem value="2017">2017</SelectItem>
+              <SelectItem value="2016">2016</SelectItem>
+              <SelectItem value="2015">2015</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Year To */}
         <div className="space-y-2">
           <Label htmlFor="yearTo">Year To</Label>
-          <Input
-            id="yearTo"
-            type="number"
-            placeholder="2024"
-            value={filters.yearTo}
-            onChange={(e) => setFilters({ ...filters, yearTo: e.target.value })}
-          />
+          <Select value={filters.yearTo} onValueChange={(value) => setFilters({ ...filters, yearTo: value })}>
+            <SelectTrigger id="yearTo">
+              <SelectValue placeholder="Select year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2025">2025</SelectItem>
+              <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2023">2023</SelectItem>
+              <SelectItem value="2022">2022</SelectItem>
+              <SelectItem value="2021">2021</SelectItem>
+              <SelectItem value="2020">2020</SelectItem>
+              <SelectItem value="2019">2019</SelectItem>
+              <SelectItem value="2018">2018</SelectItem>
+              <SelectItem value="2017">2017</SelectItem>
+              <SelectItem value="2016">2016</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Make */}
@@ -68,12 +88,23 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
         {/* Model */}
         <div className="space-y-2">
           <Label htmlFor="model">Model</Label>
-          <Input
-            id="model"
-            placeholder="Enter model"
-            value={filters.model}
-            onChange={(e) => setFilters({ ...filters, model: e.target.value })}
-          />
+          <Select value={filters.model} onValueChange={(value) => setFilters({ ...filters, model: value })}>
+            <SelectTrigger id="model">
+              <SelectValue placeholder="Select model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="camry">Camry</SelectItem>
+              <SelectItem value="accord">Accord</SelectItem>
+              <SelectItem value="f-150">F-150</SelectItem>
+              <SelectItem value="silverado">Silverado</SelectItem>
+              <SelectItem value="altima">Altima</SelectItem>
+              <SelectItem value="model-3">Model 3</SelectItem>
+              <SelectItem value="civic">Civic</SelectItem>
+              <SelectItem value="corolla">Corolla</SelectItem>
+              <SelectItem value="rav4">RAV4</SelectItem>
+              <SelectItem value="cr-v">CR-V</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Price From */}
