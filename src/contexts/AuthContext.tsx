@@ -26,13 +26,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Helper function to enrich user with profile data
+  const enrichUserWithProfile = async (authUser: User): Promise<AuthUser> => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('buybidhq_users')
+        .select('role, app_role, account_id, dealership_id')
+        .eq('id', authUser.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return authUser as AuthUser;
+      }
+
+      // Merge profile data into app_metadata
+      return {
+        ...authUser,
+        app_metadata: {
+          ...authUser.app_metadata,
+          role: profile.role,
+          app_role: profile.app_role,
+          account_id: profile.account_id,
+          dealership_id: profile.dealership_id,
+        }
+      } as AuthUser;
+    } catch (error) {
+      console.error('Error enriching user:', error);
+      return authUser as AuthUser;
+    }
+  };
+
   useEffect(() => {
     let warningTimer: NodeJS.Timeout;
     let refreshTimer: NodeJS.Timeout;
 
     // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser((session?.user as AuthUser) ?? null);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const enrichedUser = await enrichUserWithProfile(session.user);
+        setUser(enrichedUser);
+      } else {
+        setUser(null);
+      }
       setSession(session);
       setIsLoading(false);
 
@@ -52,9 +88,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Listen for changes on auth state (sign in, sign out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser((session?.user as AuthUser) ?? null);
+      // Set session and user immediately (synchronous)
       setSession(session);
       setIsLoading(false);
+      
+      // Defer the database call to avoid deadlocks
+      if (session?.user) {
+        setTimeout(async () => {
+          const enrichedUser = await enrichUserWithProfile(session.user);
+          setUser(enrichedUser);
+        }, 0);
+      } else {
+        setUser(null);
+      }
 
       if (session?.expires_at) {
         const expiresAt = new Date(session.expires_at * 1000);
@@ -67,9 +113,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (error) {
               toast.error("Session refresh failed. Please sign in again.");
               navigate('/signin');
-            } else if (refreshedSession) {
+            } else if (refreshedSession?.user) {
               setSession(refreshedSession);
-              setUser(refreshedSession.user as AuthUser);
+              const enrichedUser = await enrichUserWithProfile(refreshedSession.user);
+              setUser(enrichedUser);
             }
           }, timeUntilExpiry - 5 * 60 * 1000);
         }
