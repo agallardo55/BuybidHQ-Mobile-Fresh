@@ -1,6 +1,6 @@
 
 export type SignUpStep = 'plan' | 'personal' | 'dealership';
-export type PlanType = 'beta-access' | 'individual' | 'pay-per-bid' | 'annual';
+export type PlanType = 'beta-access' | 'connect' | 'annual';
 
 export interface SignUpFormData {
   fullName: string;

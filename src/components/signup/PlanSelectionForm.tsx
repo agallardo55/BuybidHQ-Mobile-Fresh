@@ -85,7 +85,7 @@ const PlanSelectionForm = ({
             </ul>
           </CardContent>
           <CardFooter className="p-4 sm:p-6 pt-0">
-            <Button onClick={() => onSelect('pay-per-bid')} className="w-full bg-accent hover:bg-accent/90 h-10 sm:h-11">
+            <Button onClick={() => onSelect('connect')} className="w-full bg-accent hover:bg-accent/90 h-10 sm:h-11">
               Get Started
             </Button>
           </CardFooter>

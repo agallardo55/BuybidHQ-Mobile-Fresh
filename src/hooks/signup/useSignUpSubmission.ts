@@ -92,8 +92,7 @@ export const useSignUpSubmission = ({
         .insert([
           {
             name: formData.dealershipName,
-            plan: formData.planType === 'beta-access' ? 'free' : 
-                  formData.planType === 'individual' ? 'connect' : 'free',
+            plan: formData.planType === 'beta-access' ? 'free' : formData.planType,
             seat_limit: 1,
             feature_group_enabled: false
           }
@@ -119,7 +118,7 @@ export const useSignUpSubmission = ({
           state: formData.state,
           zip_code: formData.zipCode,
           is_active: true,
-          status: ['individual', 'pay-per-bid'].includes(formData.planType) ? 'pending_payment' : 'active',
+          status: ['connect', 'annual'].includes(formData.planType) ? 'pending_payment' : 'active',
           sms_consent: formData.smsConsent,
           app_role: 'member', // All signup users are individual dealers with member role
           ...(formData.carrier ? { phone_carrier: formData.carrier } : {})
@@ -139,8 +138,8 @@ export const useSignUpSubmission = ({
           {
             user_id: authData.user.id,
             plan_type: formData.planType || 'beta-access',
-            status: ['individual', 'pay-per-bid'].includes(formData.planType) ? 'pending' : 'trialing',
-            is_trial: !['individual', 'pay-per-bid'].includes(formData.planType),
+            status: ['connect', 'annual'].includes(formData.planType) ? 'pending' : 'trialing',
+            is_trial: !['connect', 'annual'].includes(formData.planType),
             trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days trial
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -158,8 +157,8 @@ export const useSignUpSubmission = ({
         toast.success("Account created successfully!");
       }
       
-      if (['individual', 'pay-per-bid'].includes(formData.planType)) {
-        // Both individual and pay-per-bid plans go through Stripe checkout
+      if (['connect', 'annual'].includes(formData.planType)) {
+        // Both connect and annual plans go through Stripe checkout
         const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('stripe-checkout-session', {
           body: {
             currentPlan: formData.planType,

@@ -8,13 +8,14 @@ const corsHeaders = {
 }
 
 interface StripeCheckoutRequest {
-  currentPlan: 'beta-access' | 'individual' | 'dealership';
+  currentPlan: 'beta-access' | 'connect' | 'annual' | 'dealership';
   successUrl?: string;
   cancelUrl?: string;
 }
 
 const PRICE_IDS = {
-  'individual': process.env.STRIPE_INDIVIDUAL_PRICE_ID,
+  'connect': process.env.STRIPE_CONNECT_PRICE_ID,
+  'annual': process.env.STRIPE_ANNUAL_PRICE_ID,
 }
 
 Deno.serve(async (req) => {
