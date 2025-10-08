@@ -109,39 +109,11 @@ export const useSignUpSubmission = ({
         throw individualDealerError;
       }
 
-      // Step 4: Create or reuse account for this user
+      // Step 4: Create or reuse account (handle race conditions gracefully)
       let accountData;
       
-      if (existingUser?.account_id) {
-        // Restored user already has an account, fetch it
-        const { data: existingAccount, error: fetchError } = await supabase
-          .from('accounts')
-          .select()
-          .eq('id', existingUser.account_id)
-          .single();
-        
-        if (fetchError) {
-          throw fetchError;
-        }
-        
-        // Update the existing account with new plan info
-        const { data: updatedAccount, error: updateError } = await supabase
-          .from('accounts')
-          .update({
-            name: formData.dealershipName,
-            plan: formData.planType === 'beta-access' ? 'free' : formData.planType,
-          })
-          .eq('id', existingUser.account_id)
-          .select()
-          .single();
-        
-        if (updateError) {
-          throw updateError;
-        }
-        
-        accountData = updatedAccount;
-      } else {
-        // New user or restored user without account, create new account
+      try {
+        // Always try to create a new account first
         const { data: newAccount, error: accountError } = await supabase
           .from('accounts')
           .insert([
@@ -155,11 +127,34 @@ export const useSignUpSubmission = ({
           .select()
           .single();
 
-        if (accountError) {
+        if (accountError) throw accountError;
+        accountData = newAccount;
+        
+      } catch (accountError: any) {
+        // If RLS blocks INSERT, a concurrent request likely created the account
+        // Fetch the account that was linked by the other request
+        console.log('Account creation blocked, fetching existing account:', accountError.message);
+        
+        const { data: userWithAccount } = await supabase
+          .from('buybidhq_users')
+          .select('account_id')
+          .eq('id', authData.user.id)
+          .single();
+        
+        if (!userWithAccount?.account_id) {
+          // No account_id found - this is a real error
           throw accountError;
         }
         
-        accountData = newAccount;
+        // Fetch the existing account
+        const { data: existingAccount, error: fetchError } = await supabase
+          .from('accounts')
+          .select()
+          .eq('id', userWithAccount.account_id)
+          .single();
+        
+        if (fetchError) throw fetchError;
+        accountData = existingAccount;
       }
 
       // Step 5: Update the user record - all signup users get basic role and member app_role
