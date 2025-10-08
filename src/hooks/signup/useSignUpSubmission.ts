@@ -75,10 +75,10 @@ export const useSignUpSubmission = ({
       // Step 2: Wait briefly for any triggers to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Step 2: Create individual dealer record for all signup users
+      // Step 2: Create or update individual dealer record for all signup users
       const { data: individualDealerData, error: individualDealerError } = await supabase
         .from('individual_dealers')
-        .insert([
+        .upsert(
           {
             user_id: authData.user.id,
             business_name: formData.dealershipName,
@@ -89,8 +89,12 @@ export const useSignUpSubmission = ({
             city: formData.city,
             state: formData.state,
             zip_code: formData.zipCode
+          },
+          { 
+            onConflict: 'user_id',
+            ignoreDuplicates: false
           }
-        ])
+        )
         .select()
         .single();
 
