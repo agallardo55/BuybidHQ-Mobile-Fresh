@@ -65,7 +65,13 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
         {/* Make */}
         <div className="space-y-2">
           <Label htmlFor="make">Make</Label>
-          <Select value={filters.make} onValueChange={(value) => setFilters({ ...filters, make: value })}>
+          <Select 
+            value={filters.make} 
+            onValueChange={(value) => {
+              // Reset model when make changes
+              setFilters({ ...filters, make: value, model: "all" });
+            }}
+          >
             <SelectTrigger id="make">
               <SelectValue placeholder="Any" />
             </SelectTrigger>

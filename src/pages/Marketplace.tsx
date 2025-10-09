@@ -36,8 +36,18 @@ const Marketplace = () => {
 
     bidRequests.forEach((bid) => {
       if (bid.make && bid.make !== "N/A") makes.add(bid.make);
-      if (bid.model && bid.model !== "N/A") models.add(bid.model);
       if (bid.year) years.add(String(bid.year));
+      
+      // Filter models based on selected make (hierarchical filtering)
+      if (filters.make === "all" || !filters.make) {
+        // Show all models when no make is selected
+        if (bid.model && bid.model !== "N/A") models.add(bid.model);
+      } else {
+        // Only show models for the selected make
+        if (bid.make?.toLowerCase() === filters.make.toLowerCase() && bid.model && bid.model !== "N/A") {
+          models.add(bid.model);
+        }
+      }
     });
 
     return {
@@ -45,7 +55,7 @@ const Marketplace = () => {
       availableModels: Array.from(models).sort(),
       availableYears: Array.from(years).sort((a, b) => Number(b) - Number(a))
     };
-  }, [bidRequests]);
+  }, [bidRequests, filters.make]);
 
   // Transform bid requests to vehicle format and apply filters
   const vehicles = useMemo(() => {
