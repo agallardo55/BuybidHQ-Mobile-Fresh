@@ -28,9 +28,10 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
           <Label htmlFor="yearFrom">Year From</Label>
           <Select value={filters.yearFrom} onValueChange={(value) => setFilters({ ...filters, yearFrom: value })}>
             <SelectTrigger id="yearFrom">
-              <SelectValue placeholder="Select year" />
+              <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="">Any</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
               <SelectItem value="2023">2023</SelectItem>
               <SelectItem value="2022">2022</SelectItem>
@@ -50,9 +51,10 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
           <Label htmlFor="yearTo">Year To</Label>
           <Select value={filters.yearTo} onValueChange={(value) => setFilters({ ...filters, yearTo: value })}>
             <SelectTrigger id="yearTo">
-              <SelectValue placeholder="Select year" />
+              <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="">Any</SelectItem>
               <SelectItem value="2025">2025</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
               <SelectItem value="2023">2023</SelectItem>
@@ -72,9 +74,10 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
           <Label htmlFor="make">Make</Label>
           <Select value={filters.make} onValueChange={(value) => setFilters({ ...filters, make: value })}>
             <SelectTrigger id="make">
-              <SelectValue placeholder="Select make" />
+              <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="">Any</SelectItem>
               <SelectItem value="toyota">Toyota</SelectItem>
               <SelectItem value="honda">Honda</SelectItem>
               <SelectItem value="ford">Ford</SelectItem>
@@ -90,9 +93,10 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
           <Label htmlFor="model">Model</Label>
           <Select value={filters.model} onValueChange={(value) => setFilters({ ...filters, model: value })}>
             <SelectTrigger id="model">
-              <SelectValue placeholder="Select model" />
+              <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="">Any</SelectItem>
               <SelectItem value="camry">Camry</SelectItem>
               <SelectItem value="accord">Accord</SelectItem>
               <SelectItem value="f-150">F-150</SelectItem>
