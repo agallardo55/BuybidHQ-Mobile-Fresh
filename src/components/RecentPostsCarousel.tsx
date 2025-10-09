@@ -54,35 +54,35 @@ export const RecentPostsCarousel = () => {
             See what's being bought and sold right now on BuyBidHQ
           </p>
         </div>
+      </div>
 
-        <div className="relative px-12">
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            plugins={[autoScrollPlugin.current]}
-            className="w-full"
-            onMouseEnter={() => autoScrollPlugin.current.stop()}
-            onMouseLeave={() => autoScrollPlugin.current.play()}
-          >
-            <CarouselContent className="-ml-4">
-              {recentPosts.map((post) => (
-                <CarouselItem
-                  key={post.id}
-                  className="pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
-                >
-                  <RecentPostCard
-                    vehicle={post.vehicle}
-                    imageUrl={post.image_url}
-                    highestOffer={post.highest_offer}
-                    createdAt={post.created_at}
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-        </div>
+      <div className="relative w-full">
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          plugins={[autoScrollPlugin.current]}
+          className="w-full"
+          onMouseEnter={() => autoScrollPlugin.current.stop()}
+          onMouseLeave={() => autoScrollPlugin.current.play()}
+        >
+          <CarouselContent className="-ml-4">
+            {recentPosts.map((post) => (
+              <CarouselItem
+                key={post.id}
+                className="pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+              >
+                <RecentPostCard
+                  vehicle={post.vehicle}
+                  imageUrl={post.image_url}
+                  highestOffer={post.highest_offer}
+                  createdAt={post.created_at}
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </div>
     </section>
   );
