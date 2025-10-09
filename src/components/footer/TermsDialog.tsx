@@ -31,14 +31,12 @@ const TermsDialog = ({ open, onOpenChange }: TermsDialogProps) => {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold">3. User Roles and Access</h3>
-              <p>BuybidHQ provides different user roles with varying access permissions:</p>
+              <h3 className="text-lg font-semibold">3. Subscription Membership Levels</h3>
+              <p>BuybidHQ offers three subscription membership levels with varying features and access:</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li><strong>Basic:</strong> Free Beta plan users with access to core features during the Beta period.</li>
-                <li><strong>Independent:</strong> Single-user dealers with full access to their own account.</li>
-                <li><strong>Associate:</strong> Associate employees operating under Dealer control with assigned permissions.</li>
-                <li><strong>Dealer:</strong> Dealer employees under Admin control with specified access levels.</li>
-                <li><strong>Admin:</strong> Dealer administrators with full access to manage users, dealerships, and all features.</li>
+                <li><strong>Free Beta Plan:</strong> A limited-time promotional tier providing access to core bid request features during the Beta period. Does not include Market View access or premium support features.</li>
+                <li><strong>Buybid Connect Plan:</strong> A monthly subscription ($99/month) providing full access to all bid request features, Market View access, and standard support.</li>
+                <li><strong>Annual Plan:</strong> An annual subscription ($599/year) providing full access to all bid request features, Market View access, priority support, and discounted annual pricing.</li>
               </ul>
               <p className="mt-2">You are responsible for maintaining the confidentiality of your login credentials and any activity under your account.</p>
             </div>
