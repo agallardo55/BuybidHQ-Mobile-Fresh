@@ -34,6 +34,7 @@ const Marketplace = () => {
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
   const handleViewDetails = (vehicleId: string) => {
     setSelectedVehicleId(vehicleId);
@@ -80,7 +81,7 @@ const Marketplace = () => {
 
   // Transform bid requests to vehicle format and apply filters
   const vehicles = useMemo(() => {
-    return bidRequests
+    const filtered = bidRequests
       .map((bid) => {
         const mileageStr = typeof bid.mileage === 'string' ? bid.mileage : String(bid.mileage || '0');
         const mileageNum = parseInt(mileageStr.replace(/[^0-9]/g, ''));
@@ -136,7 +137,20 @@ const Marketplace = () => {
         
         return true;
       });
-  }, [bidRequests, filters]);
+
+    // Sort by date
+    return filtered.sort((a, b) => {
+      const dateA = bidRequests.find(bid => bid.id === a.id)?.createdAt;
+      const dateB = bidRequests.find(bid => bid.id === b.id)?.createdAt;
+      
+      if (!dateA || !dateB) return 0;
+      
+      const timeA = new Date(dateA).getTime();
+      const timeB = new Date(dateB).getTime();
+      
+      return sortOrder === "newest" ? timeB - timeA : timeA - timeB;
+    });
+  }, [bidRequests, filters, sortOrder]);
 
   const isLoading = isAuthLoading || isBidRequestsLoading;
 
@@ -181,6 +195,8 @@ const Marketplace = () => {
             vehicles={vehicles} 
             onViewDetails={handleViewDetails}
             onVehicleHover={handleVehicleHover}
+            sortOrder={sortOrder}
+            onSortChange={setSortOrder}
           />
         </div>
       </div>
