@@ -32,7 +32,7 @@ const NavItems = ({ items, onClick, className = "" }: NavItemsProps) => {
           className="text-gray-700 hover:text-accent transition-colors"
           onClick={onClick}
         >
-          Marketplace
+          Market View
         </Link>
       </div>
     </div>
