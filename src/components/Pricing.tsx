@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
@@ -54,7 +54,7 @@ const Pricing = () => {
                   <span className="text-sm sm:text-base">Buybid dashboard</span>
                 </li>
                 <li className="flex items-center">
-                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-accent mr-2 flex-shrink-0" />
+                  <X className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 mr-2 flex-shrink-0" />
                   <span className="text-sm sm:text-base">Market View Access</span>
                 </li>
               </ul>
