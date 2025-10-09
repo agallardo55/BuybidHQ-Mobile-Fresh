@@ -25,7 +25,7 @@ const VehicleCard = ({ vehicle }: VehicleCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 flex flex-col h-full">
       {/* Vehicle Image */}
       <div className="aspect-video bg-muted relative overflow-hidden">
         <img
@@ -37,7 +37,7 @@ const VehicleCard = ({ vehicle }: VehicleCardProps) => {
 
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div>
+          <div className="flex-1">
             <h3 className="font-semibold text-lg text-foreground">
               {vehicle.year} {vehicle.make} {vehicle.model}
             </h3>
@@ -47,13 +47,13 @@ const VehicleCard = ({ vehicle }: VehicleCardProps) => {
         </div>
       </CardHeader>
 
-      <CardContent className="pb-3">
+      <CardContent className="pb-3 flex-grow">
         <div className="text-2xl font-bold text-primary">
           {formatPrice(vehicle.price)}
         </div>
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="mt-auto">
         <Button className="w-full" variant="outline">
           View Details
         </Button>
