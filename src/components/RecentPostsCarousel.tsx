@@ -103,7 +103,6 @@ export const RecentPostsCarousel = () => {
                   vehicle={post.vehicle}
                   imageUrl={post.image_url}
                   highestOffer={post.highest_offer}
-                  createdAt={post.created_at}
                 />
               </CarouselItem>
             ))}

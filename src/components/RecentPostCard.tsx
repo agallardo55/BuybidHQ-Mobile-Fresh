@@ -1,4 +1,3 @@
-import { formatDistanceToNow } from "date-fns";
 import carPlaceholder from "@/assets/car-placeholder.png";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,16 +11,13 @@ interface RecentPostCardProps {
   };
   imageUrl: string | null;
   highestOffer: number | null;
-  createdAt: string;
 }
 
 export const RecentPostCard = ({
   vehicle,
   imageUrl,
   highestOffer,
-  createdAt,
 }: RecentPostCardProps) => {
-  const timeAgo = formatDistanceToNow(new Date(createdAt), { addSuffix: true });
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 border-border">
@@ -49,7 +45,6 @@ export const RecentPostCard = ({
             <span className="text-sm text-muted-foreground">Taking Bids</span>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">{timeAgo}</p>
       </CardContent>
     </Card>
   );
