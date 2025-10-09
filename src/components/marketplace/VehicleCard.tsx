@@ -14,9 +14,10 @@ interface VehicleCardProps {
     image: string;
   };
   onViewDetails?: (vehicleId: string) => void;
+  onHover?: (vehicleId: string) => void;
 }
 
-const VehicleCard = ({ vehicle, onViewDetails }: VehicleCardProps) => {
+const VehicleCard = ({ vehicle, onViewDetails, onHover }: VehicleCardProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -26,7 +27,10 @@ const VehicleCard = ({ vehicle, onViewDetails }: VehicleCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 flex flex-col h-full">
+    <Card 
+      className="overflow-hidden hover:shadow-lg transition-shadow duration-200 flex flex-col h-full"
+      onMouseEnter={() => onHover?.(vehicle.id)}
+    >
       {/* Vehicle Image */}
       <div className="aspect-video bg-muted relative overflow-hidden">
         <img

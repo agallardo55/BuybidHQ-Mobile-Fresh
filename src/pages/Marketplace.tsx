@@ -5,6 +5,7 @@ import MarketplaceFilters from "@/components/marketplace/MarketplaceFilters";
 import MarketplaceGrid from "@/components/marketplace/MarketplaceGrid";
 import MarketplaceVehicleDialog from "@/components/marketplace/MarketplaceVehicleDialog";
 import { useBidRequests } from "@/hooks/useBidRequests";
+import { usePrefetchVehicleDetails } from "@/hooks/marketplace/usePrefetchVehicleDetails";
 
 const Marketplace = () => {
   // Check for both legacy admin role and new app_role system
@@ -17,6 +18,7 @@ const Marketplace = () => {
   });
   
   const { bidRequests, isLoading: isBidRequestsLoading } = useBidRequests();
+  const { prefetchImages } = usePrefetchVehicleDetails();
   
   const [filters, setFilters] = useState({
     make: "all",
@@ -36,6 +38,15 @@ const Marketplace = () => {
     setSelectedVehicleId(vehicleId);
     setIsDialogOpen(true);
   };
+
+  const handleVehicleHover = (vehicleId: string) => {
+    prefetchImages(vehicleId);
+  };
+
+  // Find selected request from already-loaded data
+  const selectedRequest = useMemo(() => {
+    return bidRequests.find(bid => bid.id === selectedVehicleId);
+  }, [bidRequests, selectedVehicleId]);
 
   // Extract unique makes, models, and years from bid requests
   const { availableMakes, availableModels, availableYears } = useMemo(() => {
@@ -164,12 +175,17 @@ const Marketplace = () => {
           </div>
 
           {/* Vehicle Grid */}
-          <MarketplaceGrid vehicles={vehicles} onViewDetails={handleViewDetails} />
+          <MarketplaceGrid 
+            vehicles={vehicles} 
+            onViewDetails={handleViewDetails}
+            onVehicleHover={handleVehicleHover}
+          />
         </div>
       </div>
 
       {/* Vehicle Details Dialog */}
       <MarketplaceVehicleDialog
+        request={selectedRequest}
         vehicleId={selectedVehicleId}
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}

@@ -14,9 +14,10 @@ interface Vehicle {
 interface MarketplaceGridProps {
   vehicles: Vehicle[];
   onViewDetails?: (vehicleId: string) => void;
+  onVehicleHover?: (vehicleId: string) => void;
 }
 
-const MarketplaceGrid = ({ vehicles, onViewDetails }: MarketplaceGridProps) => {
+const MarketplaceGrid = ({ vehicles, onViewDetails, onVehicleHover }: MarketplaceGridProps) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -31,6 +32,7 @@ const MarketplaceGrid = ({ vehicles, onViewDetails }: MarketplaceGridProps) => {
             key={vehicle.id} 
             vehicle={vehicle} 
             onViewDetails={onViewDetails}
+            onHover={onVehicleHover}
           />
         ))}
       </div>

@@ -6,60 +6,68 @@ import ImagePreviewDialog from "../bid-request/components/ImagePreviewDialog";
 import MarketplaceVehicleHeader from "./MarketplaceVehicleHeader";
 import MarketplaceVehicleTabs from "./MarketplaceVehicleTabs";
 import { BidRequest } from "../bid-request/types";
+import { useVehicleImages } from "@/hooks/marketplace/useVehicleImages";
 
 interface MarketplaceVehicleDialogProps {
+  request?: BidRequest | null;
   vehicleId: string | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const MarketplaceVehicleDialog = ({ vehicleId, isOpen, onOpenChange }: MarketplaceVehicleDialogProps) => {
-  const [request, setRequest] = useState<BidRequest | null>(null);
-  const [images, setImages] = useState<string[]>([]);
+const MarketplaceVehicleDialog = ({ 
+  request: propsRequest, 
+  vehicleId, 
+  isOpen, 
+  onOpenChange 
+}: MarketplaceVehicleDialogProps) => {
+  const [request, setRequest] = useState<BidRequest | null>(propsRequest || null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Use React Query for image caching
+  const { data: images = [], isLoading: imagesLoading } = useVehicleImages(
+    request?.id || vehicleId,
+    isOpen && !!(request?.id || vehicleId)
+  );
+
   useEffect(() => {
+    // If request is passed from parent, use it immediately
+    if (propsRequest) {
+      setRequest(propsRequest);
+      setLoading(false);
+      return;
+    }
+    
+    // Otherwise fetch it (fallback for backward compatibility)
     const fetchVehicleData = async () => {
       if (!vehicleId) return;
       
       setLoading(true);
       setError(null);
+      
       try {
-        // Fetch bid request by ID (vehicleId is actually the bid request ID)
-        const { data: bidRequestData, error: bidRequestError } = await supabase
-          .from('bid_requests')
-          .select(`
-            *,
-            vehicle:vehicles(*),
-            recon:reconditioning(*)
-          `)
-          .eq('id', vehicleId)
-          .single();
+        // Parallel fetching using Promise.all
+        const [bidRequestData] = await Promise.all([
+          supabase
+            .from('bid_requests')
+            .select(`
+              *,
+              vehicle:vehicles(*),
+              recon:reconditioning(*)
+            `)
+            .eq('id', vehicleId)
+            .single()
+        ]);
 
-        if (bidRequestError) {
-          console.error('Error fetching bid request:', bidRequestError);
+        if (bidRequestData.error) {
+          console.error('Error fetching bid request:', bidRequestData.error);
           setError('Failed to load vehicle details. Please try again.');
           return;
         }
 
-        setRequest(bidRequestData as unknown as BidRequest);
-
-        // Fetch images
-        const { data: imagesData, error: imagesError } = await supabase
-          .from('images')
-          .select('image_url')
-          .eq('bid_request_id', bidRequestData.id);
-
-        if (imagesError) {
-          console.error('Error fetching images:', imagesError);
-          setError('Failed to load vehicle images.');
-          return;
-        }
-
-        const urls = imagesData.map(img => img.image_url).filter((url): url is string => url !== null);
-        setImages(urls);
+        setRequest(bidRequestData.data as unknown as BidRequest);
       } catch (error) {
         console.error('Error in fetchVehicleData:', error);
         setError('An unexpected error occurred. Please try again.');
@@ -68,16 +76,18 @@ const MarketplaceVehicleDialog = ({ vehicleId, isOpen, onOpenChange }: Marketpla
       }
     };
 
-    if (isOpen && vehicleId) {
+    if (isOpen && vehicleId && !propsRequest) {
       fetchVehicleData();
     }
-  }, [vehicleId, isOpen]);
+  }, [vehicleId, isOpen, propsRequest]);
+
+  const isLoadingData = loading || imagesLoading;
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="!w-[95vw] sm:!w-[90vw] md:!w-[85vw] lg:!w-[80vw] xl:!w-[75vw] !max-w-[1400px] !max-h-[90vh] overflow-y-auto pb-6">
-          {loading ? (
+          {isLoadingData ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-muted-foreground">Loading vehicle details...</div>
             </div>
