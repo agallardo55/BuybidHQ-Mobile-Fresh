@@ -9,6 +9,7 @@ interface Vehicle {
   mileage: string;
   price: number;
   image: string;
+  createdAt?: string;
 }
 
 interface MarketplaceGridProps {

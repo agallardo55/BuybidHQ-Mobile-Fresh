@@ -12,6 +12,7 @@ interface VehicleCardProps {
     mileage: string;
     price: number;
     image: string;
+    createdAt?: string;
   };
   onViewDetails?: (vehicleId: string) => void;
   onHover?: (vehicleId: string) => void;
@@ -41,6 +42,11 @@ const VehicleCard = ({ vehicle, onViewDetails, onHover }: VehicleCardProps) => {
       </div>
 
       <CardHeader className="pb-3">
+        {vehicle.createdAt && (
+          <div className="text-xs text-muted-foreground mb-2">
+            Posted {vehicle.createdAt}
+          </div>
+        )}
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h3 className="font-semibold text-lg text-foreground">
