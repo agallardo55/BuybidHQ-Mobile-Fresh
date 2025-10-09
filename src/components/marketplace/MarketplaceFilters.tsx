@@ -31,7 +31,7 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
               <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any</SelectItem>
+              <SelectItem value="all">Any</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
               <SelectItem value="2023">2023</SelectItem>
               <SelectItem value="2022">2022</SelectItem>
@@ -54,7 +54,7 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
               <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any</SelectItem>
+              <SelectItem value="all">Any</SelectItem>
               <SelectItem value="2025">2025</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
               <SelectItem value="2023">2023</SelectItem>
@@ -77,7 +77,7 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
               <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any</SelectItem>
+              <SelectItem value="all">Any</SelectItem>
               <SelectItem value="toyota">Toyota</SelectItem>
               <SelectItem value="honda">Honda</SelectItem>
               <SelectItem value="ford">Ford</SelectItem>
@@ -96,7 +96,7 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
               <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any</SelectItem>
+              <SelectItem value="all">Any</SelectItem>
               <SelectItem value="camry">Camry</SelectItem>
               <SelectItem value="accord">Accord</SelectItem>
               <SelectItem value="f-150">F-150</SelectItem>

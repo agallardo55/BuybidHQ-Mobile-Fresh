@@ -18,10 +18,10 @@ const Marketplace = () => {
   const { bidRequests, isLoading: isBidRequestsLoading } = useBidRequests();
   
   const [filters, setFilters] = useState({
-    make: "",
-    model: "",
-    yearFrom: "",
-    yearTo: "",
+    make: "all",
+    model: "all",
+    yearFrom: "all",
+    yearTo: "all",
     priceFrom: "",
     priceTo: "",
     mileageFrom: "",
@@ -48,21 +48,21 @@ const Marketplace = () => {
       })
       .filter((vehicle) => {
         // Filter by make
-        if (filters.make && !vehicle.make.toLowerCase().includes(filters.make.toLowerCase())) {
+        if (filters.make && filters.make !== "all" && !vehicle.make.toLowerCase().includes(filters.make.toLowerCase())) {
           return false;
         }
         
         // Filter by model
-        if (filters.model && !vehicle.model.toLowerCase().includes(filters.model.toLowerCase())) {
+        if (filters.model && filters.model !== "all" && !vehicle.model.toLowerCase().includes(filters.model.toLowerCase())) {
           return false;
         }
         
         // Filter by year range
         const vehicleYear = parseInt(vehicle.year);
-        if (filters.yearFrom && vehicleYear < parseInt(filters.yearFrom)) {
+        if (filters.yearFrom && filters.yearFrom !== "all" && vehicleYear < parseInt(filters.yearFrom)) {
           return false;
         }
-        if (filters.yearTo && vehicleYear > parseInt(filters.yearTo)) {
+        if (filters.yearTo && filters.yearTo !== "all" && vehicleYear > parseInt(filters.yearTo)) {
           return false;
         }
         
