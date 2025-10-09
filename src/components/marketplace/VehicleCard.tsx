@@ -53,6 +53,7 @@ const VehicleCard = ({ vehicle, onViewDetails, onHover }: VehicleCardProps) => {
       </CardHeader>
 
       <CardContent className="pb-3 flex-grow">
+        <div className="text-xs text-muted-foreground mb-1">Highest Offer</div>
         <div className="text-2xl font-bold text-primary">
           {formatPrice(vehicle.price)}
         </div>
