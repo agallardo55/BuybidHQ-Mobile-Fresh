@@ -96,7 +96,7 @@ const TermsDialog = ({ open, onOpenChange }: TermsDialogProps) => {
 
             <div>
               <h3 className="text-lg font-semibold">12. Governing Law</h3>
-              <p>These Terms are governed by the laws of [Your State/Region], without regard to conflict of law principles.</p>
+              <p>These Terms are governed by the laws of Washington state, without regard to conflict of law principles.</p>
             </div>
 
             <div>
