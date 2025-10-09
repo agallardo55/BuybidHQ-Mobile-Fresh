@@ -86,3 +86,6 @@ verify_jwt = false
 
 [functions.delete-user]
 verify_jwt = true
+
+[functions.get-carousel-listings]
+verify_jwt = false
