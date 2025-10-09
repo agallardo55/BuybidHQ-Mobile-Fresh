@@ -30,9 +30,9 @@ const DashboardNavigation = () => {
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
+    { name: "Buyers", href: "/buyers" },
     ...(canAccessDealerships ? [{ name: "Dealerships", href: "/dealerships" }] : []),
     ...(canAccessUsers ? [{ name: "Users", href: "/users" }] : []),
-    { name: "Buyers", href: "/buyers" },
   ];
 
   useEffect(() => {
