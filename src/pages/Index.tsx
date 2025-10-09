@@ -30,8 +30,8 @@ const Index = () => {
         <HowItWorks />
         <Features />
         {/* <AnonymousBiddingFeature /> */}
-        <Pricing />
         <RecentPostsCarousel />
+        <Pricing />
         <FAQ />
         <ContactUs />
         <AppDownload />
