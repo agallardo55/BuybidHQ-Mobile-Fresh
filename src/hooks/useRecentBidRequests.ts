@@ -1,5 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+
+// Use public client for anonymous access to recent listings
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+const publicSupabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export interface RecentBidRequest {
   id: string;
@@ -18,7 +24,7 @@ export const useRecentBidRequests = () => {
   return useQuery({
     queryKey: ["recent-bid-requests"],
     queryFn: async () => {
-      const { data: bidRequests, error } = await supabase
+      const { data: bidRequests, error } = await publicSupabase
         .from("bid_requests")
         .select(`
           id,
@@ -40,7 +46,7 @@ export const useRecentBidRequests = () => {
       const bidRequestsWithData = await Promise.all(
         (bidRequests || []).map(async (request) => {
           // Get first image
-          const { data: images } = await supabase
+          const { data: images } = await publicSupabase
             .from("images")
             .select("image_url")
             .eq("bid_request_id", request.id)
@@ -48,7 +54,7 @@ export const useRecentBidRequests = () => {
             .limit(1);
 
           // Get highest offer
-          const { data: responses } = await supabase
+          const { data: responses } = await publicSupabase
             .from("bid_responses")
             .select("offer_amount")
             .eq("bid_request_id", request.id)

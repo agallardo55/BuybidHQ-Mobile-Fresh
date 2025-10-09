@@ -6,20 +6,40 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
-import AutoScroll from "embla-carousel-auto-scroll";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+
+// Dynamically import the plugin to avoid SSR/bundling issues
+let AutoScroll: any = null;
+if (typeof window !== 'undefined') {
+  import('embla-carousel-auto-scroll').then((module) => {
+    AutoScroll = module.default;
+  });
+}
 
 export const RecentPostsCarousel = () => {
-  const { data: recentPosts, isLoading } = useRecentBidRequests();
+  const { data: recentPosts, isLoading, error } = useRecentBidRequests();
+  const [pluginLoaded, setPluginLoaded] = useState(false);
   
-  const autoScrollPlugin = useRef(
-    AutoScroll({ 
-      speed: 1,
-      startDelay: 0,
-      stopOnInteraction: true,
-      stopOnMouseEnter: true,
-    })
-  );
+  const autoScrollPlugin = useRef<any>(null);
+
+  useEffect(() => {
+    // Initialize plugin once it's loaded
+    const initPlugin = async () => {
+      try {
+        const AutoScrollModule = await import('embla-carousel-auto-scroll');
+        autoScrollPlugin.current = AutoScrollModule.default({ 
+          speed: 1,
+          startDelay: 0,
+          stopOnInteraction: true,
+          stopOnMouseEnter: true,
+        });
+        setPluginLoaded(true);
+      } catch (err) {
+        console.error('Failed to load carousel plugin:', err);
+      }
+    };
+    initPlugin();
+  }, []);
 
   if (isLoading) {
     return (
@@ -37,6 +57,12 @@ export const RecentPostsCarousel = () => {
         </div>
       </section>
     );
+  }
+
+  // Log error for debugging in production
+  if (error) {
+    console.error('Failed to load recent bid requests:', error);
+    return null;
   }
 
   if (!recentPosts || recentPosts.length === 0) {
@@ -62,10 +88,10 @@ export const RecentPostsCarousel = () => {
             align: "start",
             loop: true,
           }}
-          plugins={[autoScrollPlugin.current]}
+          plugins={autoScrollPlugin.current ? [autoScrollPlugin.current] : []}
           className="w-full"
-          onMouseEnter={() => autoScrollPlugin.current.stop()}
-          onMouseLeave={() => autoScrollPlugin.current.play()}
+          onMouseEnter={() => autoScrollPlugin.current?.stop?.()}
+          onMouseLeave={() => autoScrollPlugin.current?.play?.()}
         >
           <CarouselContent className="-ml-4">
             {recentPosts.map((post) => (
