@@ -137,6 +137,12 @@ const Marketplace = () => {
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* White Card Container */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+          {/* Page Title */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-foreground">Vehicle Marketplace</h1>
+            <p className="text-muted-foreground mt-1">Browse and filter available vehicles</p>
+          </div>
+
           {/* Filters Row */}
           <div className="mb-6">
             <MarketplaceFilters 
