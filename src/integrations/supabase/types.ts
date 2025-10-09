@@ -136,13 +136,6 @@ export type Database = {
             referencedRelation: "bid_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "bid_request_access_bid_request_id_fkey"
-            columns: ["bid_request_id"]
-            isOneToOne: false
-            referencedRelation: "carousel_recent_vehicles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       bid_request_access_cache: {
@@ -176,13 +169,6 @@ export type Database = {
             columns: ["bid_request_id"]
             isOneToOne: false
             referencedRelation: "bid_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bid_request_access_cache_bid_request_id_fkey"
-            columns: ["bid_request_id"]
-            isOneToOne: false
-            referencedRelation: "carousel_recent_vehicles"
             referencedColumns: ["id"]
           },
         ]
@@ -306,13 +292,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bid_responses_bid_request_id_fkey"
-            columns: ["bid_request_id"]
-            isOneToOne: false
-            referencedRelation: "carousel_recent_vehicles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "bid_responses_buyer_id_fkey"
             columns: ["buyer_id"]
             isOneToOne: false
@@ -358,13 +337,6 @@ export type Database = {
             columns: ["bid_request_id"]
             isOneToOne: false
             referencedRelation: "bid_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bid_submission_tokens_bid_request_id_fkey"
-            columns: ["bid_request_id"]
-            isOneToOne: false
-            referencedRelation: "carousel_recent_vehicles"
             referencedColumns: ["id"]
           },
           {
@@ -416,13 +388,6 @@ export type Database = {
             columns: ["bid_request_id"]
             isOneToOne: false
             referencedRelation: "bid_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bid_usage_bid_request_id_fkey"
-            columns: ["bid_request_id"]
-            isOneToOne: false
-            referencedRelation: "carousel_recent_vehicles"
             referencedColumns: ["id"]
           },
           {
@@ -1039,13 +1004,6 @@ export type Database = {
             columns: ["bid_request_id"]
             isOneToOne: false
             referencedRelation: "bid_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "images_bid_request_id_fkey"
-            columns: ["bid_request_id"]
-            isOneToOne: false
-            referencedRelation: "carousel_recent_vehicles"
             referencedColumns: ["id"]
           },
         ]
@@ -1807,19 +1765,7 @@ export type Database = {
       }
     }
     Views: {
-      carousel_recent_vehicles: {
-        Row: {
-          created_at: string | null
-          highest_offer: number | null
-          id: string | null
-          image_url: string | null
-          make: string | null
-          mileage: string | null
-          model: string | null
-          year: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       batch_process_carrier_detection: {
