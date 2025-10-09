@@ -24,28 +24,30 @@ export const useRecentBidRequests = () => {
   return useQuery({
     queryKey: ["recent-bid-requests"],
     queryFn: async () => {
-      // Query RLS-protected tables directly (anon can only see approved bids from last 30 days)
+      // Query RLS-protected tables (anon can only see approved bids from last 30 days)
+      // Using vehicles_public to exclude VINs for security
       const { data: bidRequests, error } = await publicSupabase
         .from("bid_requests")
         .select(`
           id,
           created_at,
-          vehicle_id,
-          vehicles (
-            year,
-            make,
-            model,
-            mileage
-          )
+          vehicle_id
         `)
         .order("created_at", { ascending: false })
         .limit(10);
 
       if (error) throw error;
 
-      // Get images and highest offers for each bid request
+      // Get vehicle data, images, and highest offers for each bid request
       const bidRequestsWithData = await Promise.all(
         (bidRequests || []).map(async (request) => {
+          // Query vehicles_public view (excludes VINs)
+          const { data: vehicle } = await publicSupabase
+            .from("vehicles_public")
+            .select("year, make, model, mileage")
+            .eq("id", request.vehicle_id)
+            .single();
+
           const { data: images } = await publicSupabase
             .from("images")
             .select("image_url")
@@ -63,7 +65,7 @@ export const useRecentBidRequests = () => {
           return {
             id: request.id,
             created_at: request.created_at,
-            vehicle: request.vehicles as any,
+            vehicle: vehicle || { year: "", make: "", model: "", mileage: "" },
             image_url: images?.[0]?.image_url || null,
             highest_offer: responses?.[0]?.offer_amount || null,
           };

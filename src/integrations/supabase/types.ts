@@ -2253,10 +2253,6 @@ export type Database = {
         Args: { notification_ids: string[] }
         Returns: string[]
       }
-      mask_vin: {
-        Args: { user_is_authenticated: boolean; vin: string }
-        Returns: string
-      }
       migrate_individual_dealers: {
         Args: Record<PropertyKey, never>
         Returns: undefined
