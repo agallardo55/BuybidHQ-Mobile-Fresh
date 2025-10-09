@@ -7,12 +7,16 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import Autoplay from "embla-carousel-autoplay";
+import { useRef } from "react";
 
 export const RecentPostsCarousel = () => {
   const { data: recentPosts, isLoading } = useRecentBidRequests();
+  
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true })
+  );
 
   if (isLoading) {
     return (
@@ -54,7 +58,10 @@ export const RecentPostsCarousel = () => {
               align: "start",
               loop: true,
             }}
+            plugins={[autoplayPlugin.current]}
             className="w-full"
+            onMouseEnter={() => autoplayPlugin.current.stop()}
+            onMouseLeave={() => autoplayPlugin.current.play()}
           >
             <CarouselContent className="-ml-4">
               {recentPosts.map((post) => (
