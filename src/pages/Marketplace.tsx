@@ -28,6 +28,25 @@ const Marketplace = () => {
     mileageTo: ""
   });
 
+  // Extract unique makes, models, and years from bid requests
+  const { availableMakes, availableModels, availableYears } = useMemo(() => {
+    const makes = new Set<string>();
+    const models = new Set<string>();
+    const years = new Set<string>();
+
+    bidRequests.forEach((bid) => {
+      if (bid.make && bid.make !== "N/A") makes.add(bid.make);
+      if (bid.model && bid.model !== "N/A") models.add(bid.model);
+      if (bid.year) years.add(String(bid.year));
+    });
+
+    return {
+      availableMakes: Array.from(makes).sort(),
+      availableModels: Array.from(models).sort(),
+      availableYears: Array.from(years).sort((a, b) => Number(b) - Number(a))
+    };
+  }, [bidRequests]);
+
   // Transform bid requests to vehicle format and apply filters
   const vehicles = useMemo(() => {
     return bidRequests
@@ -110,7 +129,13 @@ const Marketplace = () => {
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
           {/* Filters Row */}
           <div className="mb-6">
-            <MarketplaceFilters filters={filters} setFilters={setFilters} />
+            <MarketplaceFilters 
+              filters={filters} 
+              setFilters={setFilters}
+              availableMakes={availableMakes}
+              availableModels={availableModels}
+              availableYears={availableYears}
+            />
           </div>
 
           {/* Vehicle Grid */}

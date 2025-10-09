@@ -14,9 +14,12 @@ interface MarketplaceFiltersProps {
     mileageTo: string;
   };
   setFilters: (filters: any) => void;
+  availableMakes: string[];
+  availableModels: string[];
+  availableYears: string[];
 }
 
-const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) => {
+const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableModels, availableYears }: MarketplaceFiltersProps) => {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground mb-4">Filters</h2>
@@ -32,16 +35,11 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2022">2022</SelectItem>
-              <SelectItem value="2021">2021</SelectItem>
-              <SelectItem value="2020">2020</SelectItem>
-              <SelectItem value="2019">2019</SelectItem>
-              <SelectItem value="2018">2018</SelectItem>
-              <SelectItem value="2017">2017</SelectItem>
-              <SelectItem value="2016">2016</SelectItem>
-              <SelectItem value="2015">2015</SelectItem>
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -55,16 +53,11 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2022">2022</SelectItem>
-              <SelectItem value="2021">2021</SelectItem>
-              <SelectItem value="2020">2020</SelectItem>
-              <SelectItem value="2019">2019</SelectItem>
-              <SelectItem value="2018">2018</SelectItem>
-              <SelectItem value="2017">2017</SelectItem>
-              <SelectItem value="2016">2016</SelectItem>
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -78,12 +71,11 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any</SelectItem>
-              <SelectItem value="toyota">Toyota</SelectItem>
-              <SelectItem value="honda">Honda</SelectItem>
-              <SelectItem value="ford">Ford</SelectItem>
-              <SelectItem value="chevrolet">Chevrolet</SelectItem>
-              <SelectItem value="nissan">Nissan</SelectItem>
-              <SelectItem value="tesla">Tesla</SelectItem>
+              {availableMakes.map((make) => (
+                <SelectItem key={make} value={make.toLowerCase()}>
+                  {make}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -97,16 +89,11 @@ const MarketplaceFilters = ({ filters, setFilters }: MarketplaceFiltersProps) =>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any</SelectItem>
-              <SelectItem value="camry">Camry</SelectItem>
-              <SelectItem value="accord">Accord</SelectItem>
-              <SelectItem value="f-150">F-150</SelectItem>
-              <SelectItem value="silverado">Silverado</SelectItem>
-              <SelectItem value="altima">Altima</SelectItem>
-              <SelectItem value="model-3">Model 3</SelectItem>
-              <SelectItem value="civic">Civic</SelectItem>
-              <SelectItem value="corolla">Corolla</SelectItem>
-              <SelectItem value="rav4">RAV4</SelectItem>
-              <SelectItem value="cr-v">CR-V</SelectItem>
+              {availableModels.map((model) => (
+                <SelectItem key={model} value={model.toLowerCase()}>
+                  {model}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
