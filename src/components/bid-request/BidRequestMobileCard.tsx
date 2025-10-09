@@ -1,18 +1,23 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Car, Calendar, Users, Eye } from "lucide-react";
+import { Car, Calendar, Users, Eye, Trash2 } from "lucide-react";
 import { BidRequest } from "./types";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface BidRequestMobileCardProps {
   request: BidRequest;
   onClick: () => void;
+  onDelete: (id: string) => void;
 }
 
 export const BidRequestMobileCard = ({
   request,
-  onClick
+  onClick,
+  onDelete
 }: BidRequestMobileCardProps) => {
+  const { currentUser } = useCurrentUser();
+  const isSuperAdmin = currentUser?.app_role === 'super_admin';
   const formatOfferSummary = () => {
     const summary = request.offerSummary;
     if (!summary || summary.count === 0) {
@@ -44,15 +49,30 @@ export const BidRequestMobileCard = ({
     <Card className="mb-4">
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
-          <div>
+          <div className="flex-1">
             <h3 className="font-semibold text-base">
               {request.year} {request.make} {request.model}
             </h3>
             <p className="text-sm text-muted-foreground">{request.trim}</p>
           </div>
-          <Badge variant={getStatusBadgeVariant(request.status)}>
-            {request.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={getStatusBadgeVariant(request.status)}>
+              {request.status}
+            </Badge>
+            {isSuperAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(request.id);
+                }}
+                className="h-8 w-8 p-0 hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2 mb-4">

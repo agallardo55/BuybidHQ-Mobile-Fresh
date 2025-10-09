@@ -3,6 +3,7 @@ import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { BidRequest } from "../types";
 import { cn } from "@/lib/utils";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface TableHeadersProps {
   sortConfig: {
@@ -48,19 +49,27 @@ const SortableHeader = ({
   </TableHead>
 );
 
-export const TableHeaders = ({ sortConfig, onSort }: TableHeadersProps) => (
-  <TableHeader>
-    <TableRow>
-      <TableHead className="text-sm w-16"></TableHead>
-      <SortableHeader field="createdAt" sortConfig={sortConfig} onSort={onSort}>Date</SortableHeader>
-      <SortableHeader field="year" sortConfig={sortConfig} onSort={onSort}>Year</SortableHeader>
-      <SortableHeader field="make" sortConfig={sortConfig} onSort={onSort}>Make</SortableHeader>
-      <SortableHeader field="model" sortConfig={sortConfig} onSort={onSort}>Model</SortableHeader>
-      <TableHead className="text-sm">VIN</TableHead>
-      <SortableHeader field="mileage" sortConfig={sortConfig} onSort={onSort}>Mileage</SortableHeader>
-      <TableHead className="text-sm"># Offers</TableHead>
-      <TableHead className="text-sm">Offers Summary</TableHead>
-      <TableHead className="text-sm">Status</TableHead>
-    </TableRow>
-  </TableHeader>
-);
+export const TableHeaders = ({ sortConfig, onSort }: TableHeadersProps) => {
+  const { currentUser } = useCurrentUser();
+  const isSuperAdmin = currentUser?.app_role === 'super_admin';
+
+  return (
+    <TableHeader>
+      <TableRow>
+        <TableHead className="text-sm w-16"></TableHead>
+        <SortableHeader field="createdAt" sortConfig={sortConfig} onSort={onSort}>Date</SortableHeader>
+        <SortableHeader field="year" sortConfig={sortConfig} onSort={onSort}>Year</SortableHeader>
+        <SortableHeader field="make" sortConfig={sortConfig} onSort={onSort}>Make</SortableHeader>
+        <SortableHeader field="model" sortConfig={sortConfig} onSort={onSort}>Model</SortableHeader>
+        <TableHead className="text-sm">VIN</TableHead>
+        <SortableHeader field="mileage" sortConfig={sortConfig} onSort={onSort}>Mileage</SortableHeader>
+        <TableHead className="text-sm"># Offers</TableHead>
+        <TableHead className="text-sm">Offers Summary</TableHead>
+        <TableHead className="text-sm">Status</TableHead>
+        {isSuperAdmin && (
+          <TableHead className="text-sm text-center">Actions</TableHead>
+        )}
+      </TableRow>
+    </TableHeader>
+  );
+};

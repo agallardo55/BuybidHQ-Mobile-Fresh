@@ -16,9 +16,10 @@ interface BidRequestTableProps {
     direction: 'asc' | 'desc' | null;
   };
   onSort: (field: keyof BidRequest) => void;
+  onDelete: (id: string) => void;
 }
 
-const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps) => {
+const BidRequestTable = ({ requests, sortConfig, onSort, onDelete }: BidRequestTableProps) => {
   const [selectedRequest, setSelectedRequest] = useState<BidRequest | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { mutateAsync: updateBidResponseStatus } = useBidResponseMutation();
@@ -43,6 +44,7 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                 key={request.id}
                 request={request}
                 onClick={() => handleRowClick(request)}
+                onDelete={onDelete}
               />
             ))
           ) : (
@@ -75,11 +77,12 @@ const BidRequestTable = ({ requests, sortConfig, onSort }: BidRequestTableProps)
                   key={request.id}
                   request={request}
                   onClick={() => handleRowClick(request)}
+                  onDelete={onDelete}
                 />
                 ))
               ) : (
                 <tr>
-                  <td colSpan={10} className="text-center py-8 text-muted-foreground">
+                  <td colSpan={11} className="text-center py-8 text-muted-foreground">
                     No bid requests found
                   </td>
                 </tr>

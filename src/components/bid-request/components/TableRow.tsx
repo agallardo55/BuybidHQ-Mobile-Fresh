@@ -1,16 +1,22 @@
 
 import { TableCell, TableRow as UITableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { format, parseISO } from "date-fns";
 import { BidRequest } from "../types";
 import carPlaceholder from "@/assets/car-placeholder.png";
+import { Trash2 } from "lucide-react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface TableRowProps {
   request: BidRequest;
   onClick: () => void;
+  onDelete: (id: string) => void;
 }
 
-export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
+export const TableRowComponent = ({ request, onClick, onDelete }: TableRowProps) => {
+  const { currentUser } = useCurrentUser();
+  const isSuperAdmin = currentUser?.app_role === 'super_admin';
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), 'MM/dd/yyyy');
@@ -133,6 +139,21 @@ export const TableRowComponent = ({ request, onClick }: TableRowProps) => {
           {getDisplayStatus()}
         </Badge>
       </TableCell>
+      {isSuperAdmin && (
+        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap text-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(request.id);
+            }}
+            className="h-7 w-7 p-0 hover:bg-destructive/10"
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </TableCell>
+      )}
     </UITableRow>
   );
 };

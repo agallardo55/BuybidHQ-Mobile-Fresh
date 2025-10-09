@@ -6,6 +6,8 @@ import BidRequestTable from "@/components/bid-request/BidRequestTable";
 import TableFooter from "@/components/bid-request/TableFooter";
 import { useBidRequests } from "@/hooks/useBidRequests";
 import { BidRequest } from "@/components/bid-request/types";
+import { DeleteBidRequestDialog } from "@/components/bid-request/DeleteBidRequestDialog";
+import { useBidRequestDelete } from "@/hooks/bid-requests/useBidRequestDelete";
 
 type SortConfig = {
   field: keyof BidRequest | null;
@@ -17,7 +19,11 @@ const BidRequestDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'createdAt', direction: 'desc' });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [bidRequestToDelete, setBidRequestToDelete] = useState<BidRequest | null>(null);
+  
   const { bidRequests = [], isLoading, updateBidRequest } = useBidRequests();
+  const deleteMutation = useBidRequestDelete();
 
   // Reset to first page when search term changes
   const handleSearchChange = (newSearchTerm: string) => {
@@ -106,6 +112,28 @@ const BidRequestDashboard = () => {
     setCurrentPage(1);
   };
 
+  const handleDelete = (id: string) => {
+    const request = sortedRequests.find(r => r.id === id);
+    if (request) {
+      setBidRequestToDelete(request);
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const handleConfirmDelete = (reason?: string) => {
+    if (bidRequestToDelete) {
+      deleteMutation.mutate(
+        { id: bidRequestToDelete.id, reason },
+        {
+          onSuccess: () => {
+            setDeleteDialogOpen(false);
+            setBidRequestToDelete(null);
+          }
+        }
+      );
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
@@ -124,6 +152,7 @@ const BidRequestDashboard = () => {
                   requests={paginatedRequests}
                   sortConfig={sortConfig}
                   onSort={handleSort}
+                  onDelete={handleDelete}
                 />
 
                 <TableFooter
@@ -140,6 +169,13 @@ const BidRequestDashboard = () => {
           </div>
         </div>
       </div>
+
+      <DeleteBidRequestDialog
+        isOpen={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        bidRequest={bidRequestToDelete}
+      />
     </DashboardLayout>
   );
 };
