@@ -24,24 +24,53 @@ export const useRecentBidRequests = () => {
   return useQuery({
     queryKey: ["recent-bid-requests"],
     queryFn: async () => {
-      const { data, error } = await publicSupabase
-        .from("carousel_listings")
-        .select("*");
+      // Query with RLS-protected tables (anon can only see approved bids from last 30 days)
+      const { data: bidRequests, error } = await publicSupabase
+        .from("bid_requests")
+        .select(`
+          id,
+          created_at,
+          vehicle_id,
+          vehicles (
+            year,
+            make,
+            model,
+            mileage
+          )
+        `)
+        .order("created_at", { ascending: false })
+        .limit(10);
 
       if (error) throw error;
 
-      return (data || []).map(listing => ({
-        id: listing.id,
-        created_at: listing.created_at,
-        vehicle: {
-          year: listing.year,
-          make: listing.make,
-          model: listing.model,
-          mileage: listing.mileage,
-        },
-        image_url: listing.image_url,
-        highest_offer: listing.highest_offer,
-      })) as RecentBidRequest[];
+      // Get images and highest offers for each bid request
+      const bidRequestsWithData = await Promise.all(
+        (bidRequests || []).map(async (request) => {
+          const { data: images } = await publicSupabase
+            .from("images")
+            .select("image_url")
+            .eq("bid_request_id", request.id)
+            .order("sequence_order")
+            .limit(1);
+
+          const { data: responses } = await publicSupabase
+            .from("bid_responses")
+            .select("offer_amount")
+            .eq("bid_request_id", request.id)
+            .order("offer_amount", { ascending: false })
+            .limit(1);
+
+          return {
+            id: request.id,
+            created_at: request.created_at,
+            vehicle: request.vehicles as any,
+            image_url: images?.[0]?.image_url || null,
+            highest_offer: responses?.[0]?.offer_amount || null,
+          };
+        })
+      );
+
+      return bidRequestsWithData as RecentBidRequest[];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
