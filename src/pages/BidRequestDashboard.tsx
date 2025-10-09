@@ -121,7 +121,7 @@ const BidRequestDashboard = () => {
   };
 
   const handleConfirmDelete = (reason?: string) => {
-    if (bidRequestToDelete) {
+    if (bidRequestToDelete?.id) {
       deleteMutation.mutate(
         { id: bidRequestToDelete.id, reason },
         {
@@ -131,6 +131,8 @@ const BidRequestDashboard = () => {
           }
         }
       );
+    } else {
+      console.error('Cannot delete: bid request ID is missing', bidRequestToDelete);
     }
   };
 
