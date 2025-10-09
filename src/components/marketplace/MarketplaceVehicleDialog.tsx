@@ -18,14 +18,16 @@ const MarketplaceVehicleDialog = ({ vehicleId, isOpen, onOpenChange }: Marketpla
   const [images, setImages] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchVehicleData = async () => {
       if (!vehicleId) return;
       
       setLoading(true);
+      setError(null);
       try {
-        // Fetch bid request by vehicle ID
+        // Fetch bid request by ID (vehicleId is actually the bid request ID)
         const { data: bidRequestData, error: bidRequestError } = await supabase
           .from('bid_requests')
           .select(`
@@ -33,11 +35,12 @@ const MarketplaceVehicleDialog = ({ vehicleId, isOpen, onOpenChange }: Marketpla
             vehicle:vehicles(*),
             recon:reconditioning(*)
           `)
-          .eq('vehicle_id', vehicleId)
+          .eq('id', vehicleId)
           .single();
 
         if (bidRequestError) {
           console.error('Error fetching bid request:', bidRequestError);
+          setError('Failed to load vehicle details. Please try again.');
           return;
         }
 
@@ -51,6 +54,7 @@ const MarketplaceVehicleDialog = ({ vehicleId, isOpen, onOpenChange }: Marketpla
 
         if (imagesError) {
           console.error('Error fetching images:', imagesError);
+          setError('Failed to load vehicle images.');
           return;
         }
 
@@ -58,6 +62,7 @@ const MarketplaceVehicleDialog = ({ vehicleId, isOpen, onOpenChange }: Marketpla
         setImages(urls);
       } catch (error) {
         console.error('Error in fetchVehicleData:', error);
+        setError('An unexpected error occurred. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -68,8 +73,6 @@ const MarketplaceVehicleDialog = ({ vehicleId, isOpen, onOpenChange }: Marketpla
     }
   }, [vehicleId, isOpen]);
 
-  if (!request && !loading) return null;
-
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -77,6 +80,10 @@ const MarketplaceVehicleDialog = ({ vehicleId, isOpen, onOpenChange }: Marketpla
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-muted-foreground">Loading vehicle details...</div>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <div className="text-destructive">{error}</div>
             </div>
           ) : request ? (
             <>
