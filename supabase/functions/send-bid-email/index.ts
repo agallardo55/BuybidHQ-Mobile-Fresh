@@ -33,9 +33,8 @@ type EmailRequest = BidRequestEmail | BidResponseEmail
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
 
-// For testing, we'll send all emails to this address until domain is verified
-const TEST_EMAIL = 'adam@cmigpartners.com'
-const IS_TEST_MODE = true // Set to true until domain is verified
+// Production mode - emails sent to actual recipients
+const IS_TEST_MODE = false
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -105,16 +104,10 @@ serve(async (req) => {
 
     console.log('Sending email with subject:', subject)
 
-    // In test mode, override the recipient email with the test email
-    const toEmail = IS_TEST_MODE ? TEST_EMAIL : email
-
-    // Add a note about test mode in the subject if we're in test mode
-    const finalSubject = IS_TEST_MODE ? `[TEST MODE] ${subject}` : subject
-
     const emailResponse = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: [toEmail],
-      subject: finalSubject,
+      to: [email],
+      subject: subject,
       html: htmlContent,
     })
 
@@ -123,10 +116,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        emailId: emailResponse.data?.id,
-        testMode: IS_TEST_MODE,
-        originalRecipient: email,
-        actualRecipient: toEmail
+        emailId: emailResponse.data?.id
       }),
       { 
         headers: { 

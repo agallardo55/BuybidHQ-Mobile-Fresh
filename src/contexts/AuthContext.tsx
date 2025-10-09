@@ -26,27 +26,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Helper function to enrich user with profile data
+  // Helper function to enrich user with profile data and roles
   const enrichUserWithProfile = async (authUser: User): Promise<AuthUser> => {
     try {
-      const { data: profile, error } = await supabase
+      // Fetch user profile data (account_id, dealership_id, etc.)
+      const { data: profile, error: profileError } = await supabase
         .from('buybidhq_users')
-        .select('role, app_role, account_id, dealership_id')
+        .select('account_id, dealership_id, role')
         .eq('id', authUser.id)
         .single();
 
-      if (error) {
-        console.error('Error fetching user profile:', error);
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError);
         return authUser as AuthUser;
       }
 
-      // Merge profile data into app_metadata
+      // Fetch user roles from secure user_roles table
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', authUser.id)
+        .eq('is_active', true);
+
+      if (rolesError) {
+        console.error('Error fetching user roles:', rolesError);
+      }
+
+      // Determine highest role (prioritize super_admin > account_admin > manager > member)
+      const roleHierarchy = { 
+        member: 1, 
+        manager: 2, 
+        account_admin: 3, 
+        super_admin: 4 
+      };
+      
+      const highestRole = roles?.reduce((highest, r) => {
+        const currentLevel = roleHierarchy[r.role as keyof typeof roleHierarchy] || 0;
+        const highestLevel = roleHierarchy[highest as keyof typeof roleHierarchy] || 0;
+        return currentLevel > highestLevel ? r.role : highest;
+      }, 'member') || 'member';
+
+      // Merge profile and role data into app_metadata
       return {
         ...authUser,
         app_metadata: {
           ...authUser.app_metadata,
-          role: profile.role,
-          app_role: profile.app_role,
+          role: profile.role, // Keep legacy role for backwards compatibility
+          app_role: highestRole, // Use highest role from user_roles table
           account_id: profile.account_id,
           dealership_id: profile.dealership_id,
         }
