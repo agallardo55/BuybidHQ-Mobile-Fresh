@@ -51,7 +51,7 @@ export const RecentPostsCarousel = () => {
             Latest Vehicles on the Market
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            See what's being bought and sold right now on BuyBidHQ
+            See what's being bought and sold on BuyBidHQ
           </p>
         </div>
       </div>
