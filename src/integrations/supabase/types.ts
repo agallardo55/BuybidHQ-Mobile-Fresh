@@ -244,6 +244,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bid_requests_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_bid_request_user"
             columns: ["user_id"]
             isOneToOne: false
@@ -464,6 +471,13 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_values_vehicle"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1306,6 +1320,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_reconditioning_vehicle"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       subscriptions: {
@@ -1683,6 +1704,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicle_history_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicles: {
@@ -1765,7 +1793,57 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      vehicles_public: {
+        Row: {
+          created_at: string | null
+          drivetrain: string | null
+          engine: string | null
+          exterior: string | null
+          id: string | null
+          interior: string | null
+          make: string | null
+          mileage: string | null
+          model: string | null
+          options: string | null
+          transmission: string | null
+          trim: string | null
+          vin: string | null
+          year: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          drivetrain?: string | null
+          engine?: string | null
+          exterior?: string | null
+          id?: string | null
+          interior?: string | null
+          make?: string | null
+          mileage?: string | null
+          model?: string | null
+          options?: string | null
+          transmission?: string | null
+          trim?: string | null
+          vin?: never
+          year?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          drivetrain?: string | null
+          engine?: string | null
+          exterior?: string | null
+          id?: string | null
+          interior?: string | null
+          make?: string | null
+          mileage?: string | null
+          model?: string | null
+          options?: string | null
+          transmission?: string | null
+          trim?: string | null
+          vin?: never
+          year?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       batch_process_carrier_detection: {
@@ -2174,6 +2252,10 @@ export type Database = {
       mark_notifications_as_read: {
         Args: { notification_ids: string[] }
         Returns: string[]
+      }
+      mask_vin: {
+        Args: { user_is_authenticated: boolean; vin: string }
+        Returns: string
       }
       migrate_individual_dealers: {
         Args: Record<PropertyKey, never>
