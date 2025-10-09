@@ -13,9 +13,10 @@ interface VehicleCardProps {
     price: number;
     image: string;
   };
+  onViewDetails?: (vehicleId: string) => void;
 }
 
-const VehicleCard = ({ vehicle }: VehicleCardProps) => {
+const VehicleCard = ({ vehicle, onViewDetails }: VehicleCardProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -54,7 +55,11 @@ const VehicleCard = ({ vehicle }: VehicleCardProps) => {
       </CardContent>
 
       <CardFooter className="mt-auto">
-        <Button className="w-full" variant="default">
+        <Button 
+          className="w-full" 
+          variant="default"
+          onClick={() => onViewDetails?.(vehicle.id)}
+        >
           View Details
         </Button>
       </CardFooter>

@@ -3,6 +3,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useRoleGuard } from "@/hooks/useRoleGuard";
 import MarketplaceFilters from "@/components/marketplace/MarketplaceFilters";
 import MarketplaceGrid from "@/components/marketplace/MarketplaceGrid";
+import MarketplaceVehicleDialog from "@/components/marketplace/MarketplaceVehicleDialog";
 import { useBidRequests } from "@/hooks/useBidRequests";
 
 const Marketplace = () => {
@@ -27,6 +28,14 @@ const Marketplace = () => {
     mileageFrom: "",
     mileageTo: ""
   });
+
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleViewDetails = (vehicleId: string) => {
+    setSelectedVehicleId(vehicleId);
+    setIsDialogOpen(true);
+  };
 
   // Extract unique makes, models, and years from bid requests
   const { availableMakes, availableModels, availableYears } = useMemo(() => {
@@ -155,9 +164,16 @@ const Marketplace = () => {
           </div>
 
           {/* Vehicle Grid */}
-          <MarketplaceGrid vehicles={vehicles} />
+          <MarketplaceGrid vehicles={vehicles} onViewDetails={handleViewDetails} />
         </div>
       </div>
+
+      {/* Vehicle Details Dialog */}
+      <MarketplaceVehicleDialog
+        vehicleId={selectedVehicleId}
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
     </DashboardLayout>
   );
 };

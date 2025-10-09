@@ -13,9 +13,10 @@ interface Vehicle {
 
 interface MarketplaceGridProps {
   vehicles: Vehicle[];
+  onViewDetails?: (vehicleId: string) => void;
 }
 
-const MarketplaceGrid = ({ vehicles }: MarketplaceGridProps) => {
+const MarketplaceGrid = ({ vehicles, onViewDetails }: MarketplaceGridProps) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -26,7 +27,11 @@ const MarketplaceGrid = ({ vehicles }: MarketplaceGridProps) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {vehicles.map((vehicle) => (
-          <VehicleCard key={vehicle.id} vehicle={vehicle} />
+          <VehicleCard 
+            key={vehicle.id} 
+            vehicle={vehicle} 
+            onViewDetails={onViewDetails}
+          />
         ))}
       </div>
     </div>
