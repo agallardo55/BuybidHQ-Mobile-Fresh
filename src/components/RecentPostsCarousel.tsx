@@ -75,12 +75,6 @@ export const RecentPostsCarousel = () => {
             <CarouselNext className="hidden md:flex" />
           </Carousel>
         </div>
-
-        <div className="text-center mt-12">
-          <Button asChild size="lg" variant="default">
-            <Link to="/marketplace">View All Listings</Link>
-          </Button>
-        </div>
       </div>
     </section>
   );
