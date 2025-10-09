@@ -54,7 +54,7 @@ const VehicleCard = ({ vehicle }: VehicleCardProps) => {
       </CardContent>
 
       <CardFooter className="mt-auto">
-        <Button className="w-full" variant="outline">
+        <Button className="w-full" variant="default">
           View Details
         </Button>
       </CardFooter>
