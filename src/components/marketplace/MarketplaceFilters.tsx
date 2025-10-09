@@ -31,10 +31,10 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
           <Label htmlFor="yearFrom">Year From</Label>
           <Select value={filters.yearFrom} onValueChange={(value) => setFilters({ ...filters, yearFrom: value })}>
             <SelectTrigger id="yearFrom">
-              <SelectValue placeholder="Any" />
+              <SelectValue placeholder="ANY" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Any</SelectItem>
+              <SelectItem value="all">ANY</SelectItem>
               {availableYears.map((year) => (
                 <SelectItem key={year} value={year}>
                   {year}
@@ -49,10 +49,10 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
           <Label htmlFor="yearTo">Year To</Label>
           <Select value={filters.yearTo} onValueChange={(value) => setFilters({ ...filters, yearTo: value })}>
             <SelectTrigger id="yearTo">
-              <SelectValue placeholder="Any" />
+              <SelectValue placeholder="ANY" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Any</SelectItem>
+              <SelectItem value="all">ANY</SelectItem>
               {availableYears.map((year) => (
                 <SelectItem key={year} value={year}>
                   {year}
@@ -73,10 +73,10 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
             }}
           >
             <SelectTrigger id="make">
-              <SelectValue placeholder="Any" />
+              <SelectValue placeholder="ANY" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Any</SelectItem>
+              <SelectItem value="all">ANY</SelectItem>
               {availableMakes.map((make) => (
                 <SelectItem key={make} value={make.toLowerCase()}>
                   {make}
@@ -91,10 +91,10 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
           <Label htmlFor="model">Model</Label>
           <Select value={filters.model} onValueChange={(value) => setFilters({ ...filters, model: value })}>
             <SelectTrigger id="model">
-              <SelectValue placeholder="Any" />
+              <SelectValue placeholder="ANY" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Any</SelectItem>
+              <SelectItem value="all">ANY</SelectItem>
               {availableModels.map((model) => (
                 <SelectItem key={model} value={model.toLowerCase()}>
                   {model}
