@@ -1,0 +1,87 @@
+import { useRecentBidRequests } from "@/hooks/useRecentBidRequests";
+import { RecentPostCard } from "@/components/RecentPostCard";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export const RecentPostsCarousel = () => {
+  const { data: recentPosts, isLoading } = useRecentBidRequests();
+
+  if (isLoading) {
+    return (
+      <section className="bg-white py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Skeleton className="h-10 w-64 mx-auto mb-4" />
+            <Skeleton className="h-6 w-96 mx-auto" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-80 w-full" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!recentPosts || recentPosts.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="bg-white py-16 md:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Latest Vehicles on the Market
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            See what's being traded right now on BuyBidHQ
+          </p>
+        </div>
+
+        <div className="relative px-12">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
+              {recentPosts.map((post) => (
+                <CarouselItem
+                  key={post.id}
+                  className="pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                >
+                  <RecentPostCard
+                    vehicle={post.vehicle}
+                    imageUrl={post.image_url}
+                    highestOffer={post.highest_offer}
+                    createdAt={post.created_at}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
+        </div>
+
+        <div className="text-center mt-12">
+          <Button asChild size="lg" variant="default">
+            <Link to="/marketplace">View All Listings</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+};

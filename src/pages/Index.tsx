@@ -5,6 +5,7 @@ import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
 import AnonymousBiddingFeature from "@/components/AnonymousBiddingFeature";
 import Pricing from "@/components/Pricing";
+import { RecentPostsCarousel } from "@/components/RecentPostsCarousel";
 import FAQ from "@/components/FAQ";
 import ContactUs from "@/components/ContactUs";
 import AppDownload from "@/components/AppDownload";
@@ -30,6 +31,7 @@ const Index = () => {
         <Features />
         {/* <AnonymousBiddingFeature /> */}
         <Pricing />
+        <RecentPostsCarousel />
         <FAQ />
         <ContactUs />
         <AppDownload />
