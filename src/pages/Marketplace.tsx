@@ -6,6 +6,7 @@ import MarketplaceGrid from "@/components/marketplace/MarketplaceGrid";
 import MarketplaceVehicleDialog from "@/components/marketplace/MarketplaceVehicleDialog";
 import { useBidRequests } from "@/hooks/useBidRequests";
 import { usePrefetchVehicleDetails } from "@/hooks/marketplace/usePrefetchVehicleDetails";
+import { formatDistanceToNow } from "date-fns";
 
 const Marketplace = () => {
   // Check for both legacy admin role and new app_role system
@@ -92,7 +93,8 @@ const Marketplace = () => {
           trim: bid.trim || "",
           mileage: mileageNum.toLocaleString('en-US'),
           price: bid.offerSummary?.highestOffer || 0,
-          image: bid.primaryImage || "/placeholder.svg"
+          image: bid.primaryImage || "/placeholder.svg",
+          createdAt: bid.createdAt ? formatDistanceToNow(new Date(bid.createdAt), { addSuffix: true }) : undefined
         };
       })
       .filter((vehicle) => {
