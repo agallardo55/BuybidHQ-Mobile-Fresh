@@ -217,6 +217,69 @@ All tables implement Row Level Security policies to ensure data isolation and se
 - Managers can manage resources they own (group plans)
 - Account admins can manage all account resources
 
+### CRITICAL: Preventing RLS Infinite Recursion
+
+**The Problem**: 
+RLS policies that query their own table within the policy definition cause infinite recursion. For example:
+
+```sql
+-- ❌ WRONG - This causes infinite recursion
+CREATE POLICY "admins_can_view"
+ON public.users
+FOR SELECT
+USING (
+  (SELECT role FROM public.users WHERE id = auth.uid()) = 'admin'
+  --    ^^^^^^^^ Querying the SAME table the policy is on!
+);
+```
+
+When a query tries to access `users`, it triggers this policy, which then queries `users` again, triggering the policy again, creating an infinite loop.
+
+**The Solution**: 
+Use `SECURITY DEFINER` functions that query DIFFERENT tables:
+
+```sql
+-- ✅ CORRECT - Use a security definer function
+CREATE OR REPLACE FUNCTION public.is_user_admin(p_user_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 
+    FROM user_roles  -- Query a DIFFERENT table
+    WHERE user_id = p_user_id
+    AND role = 'admin'
+  );
+$$;
+
+-- Now use the function in the policy
+CREATE POLICY "admins_can_view"
+ON public.users
+FOR SELECT
+USING (is_user_admin(auth.uid()));
+```
+
+**Key Principles**:
+1. **Never query a table within its own RLS policy**
+2. **Use SECURITY DEFINER functions** to bypass RLS when needed
+3. **Query related tables** (like `user_roles`, `account_administrators`) instead
+4. **Add comments** explaining why the pattern is used
+5. **Test thoroughly** after creating or modifying RLS policies
+
+**Tables with Safe Patterns**:
+- `buybidhq_users`: Uses `account_administrators` table via security definer functions
+- `bid_requests`: Uses access cache tables and security definer functions
+- `buyers`: Uses access cache tables and security definer functions
+
+**Historical Fix**:
+- **Date**: January 2025
+- **Issue**: `buybidhq_users` policies caused infinite recursion
+- **Solution**: Created `can_view_account_users()`, `is_account_admin_safe()`, and `get_user_account_id_safe()` functions
+- **Migration**: `fix_buybidhq_users_rls_recursion.sql`
+
 ## Database Functions
 
 Key database functions for business logic:

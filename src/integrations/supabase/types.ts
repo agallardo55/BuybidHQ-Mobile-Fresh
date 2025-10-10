@@ -1877,6 +1877,10 @@ export type Database = {
         Args: { manager_id: string; target_user_id: string }
         Returns: boolean
       }
+      can_view_account_users: {
+        Args: { p_target_account_id: string; p_viewer_id: string }
+        Returns: boolean
+      }
       check_admin_status: {
         Args: { checking_user_id: string }
         Returns: boolean
@@ -2148,6 +2152,10 @@ export type Database = {
           zip_code: string
         }[]
       }
+      get_user_account_id_safe: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
       get_user_dealership: {
         Args: { user_id: string }
         Returns: string
@@ -2209,6 +2217,10 @@ export type Database = {
       }
       is_account_admin: {
         Args: { checking_user_id: string; target_account_id?: string }
+        Returns: boolean
+      }
+      is_account_admin_safe: {
+        Args: { p_target_account_id: string; p_user_id: string }
         Returns: boolean
       }
       is_admin: {

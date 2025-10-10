@@ -1,5 +1,39 @@
 # TODOs and Future Improvements
 
+## Completed Fixes
+
+### ✅ Fixed: Infinite Recursion in buybidhq_users RLS Policies (Jan 2025)
+
+**Problem**: 
+- Users couldn't log in or load profile data
+- Error: "infinite recursion detected in policy for relation buybidhq_users"
+- Bid requests weren't loading
+
+**Root Cause**:
+RLS policies on `buybidhq_users` were querying `buybidhq_users` within their own definitions:
+- "Account admins can view their account users" checked `buybidhq_users.app_role`
+- "Account admins can update their account users" checked `buybidhq_users.app_role`
+
+**Solution**:
+Created SECURITY DEFINER functions that query `account_administrators` table instead:
+- `get_user_account_id_safe()` - Get account_id without RLS
+- `is_account_admin_safe()` - Check admin status via account_administrators
+- `can_view_account_users()` - Combined permission check
+
+**Migration**: `fix_buybidhq_users_rls_recursion.sql`
+
+**Documentation**:
+- Added RLS recursion prevention section to `docs/data-model.md`
+- Created `docs/security-best-practices.md`
+- Documented the pattern for future reference
+
+**Prevention**:
+- Never query a table within its own RLS policy
+- Always use SECURITY DEFINER functions that query OTHER tables
+- Follow the patterns in `docs/security-best-practices.md`
+
+---
+
 ## Authentication & User Management
 
 ### Email Confirmation Flow
