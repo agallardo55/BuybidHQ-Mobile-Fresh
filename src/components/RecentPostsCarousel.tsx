@@ -7,7 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
+import AutoScroll from "embla-carousel-auto-scroll";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 
@@ -73,9 +73,10 @@ export const RecentPostsCarousel = () => {
             loop: true,
           }}
           plugins={[
-            Autoplay({
-              delay: 4000,
-              stopOnInteraction: true,
+            AutoScroll({
+              speed: 1,
+              stopOnInteraction: false,
+              stopOnMouseEnter: true,
             }),
           ]}
           className="w-full"
