@@ -4,7 +4,10 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 
@@ -63,19 +66,25 @@ export const RecentPostsCarousel = () => {
         </div>
       </div>
 
-      <div className="relative w-full">
+      <div className="relative w-full max-w-7xl mx-auto px-4">
         <Carousel
           opts={{
             align: "start",
             loop: true,
           }}
+          plugins={[
+            Autoplay({
+              delay: 4000,
+              stopOnInteraction: true,
+            }),
+          ]}
           className="w-full"
         >
-          <CarouselContent className="-ml-4">
+          <CarouselContent className="-ml-2 md:-ml-4">
             {recentPosts.map((post) => (
               <CarouselItem
                 key={post.id}
-                className="pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
               >
                 <RecentPostCard
                   vehicle={post.vehicle}
@@ -85,6 +94,8 @@ export const RecentPostsCarousel = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
+          <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16" />
+          <CarouselNext className="hidden md:flex -right-12 lg:-right-16" />
         </Carousel>
       </div>
     </section>
