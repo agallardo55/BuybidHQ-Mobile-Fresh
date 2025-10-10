@@ -6,40 +6,19 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRef, useEffect, useState } from "react";
-
-// Dynamically import the plugin to avoid SSR/bundling issues
-let AutoScroll: any = null;
-if (typeof window !== 'undefined') {
-  import('embla-carousel-auto-scroll').then((module) => {
-    AutoScroll = module.default;
-  });
-}
+import { useEffect } from "react";
 
 export const RecentPostsCarousel = () => {
   const { data: recentPosts, isLoading, error } = useRecentBidRequests();
-  const [pluginReady, setPluginReady] = useState(false);
-  const autoScrollPlugin = useRef<any>(null);
 
   useEffect(() => {
-    const initPlugin = async () => {
-      try {
-        const AutoScrollModule = await import('embla-carousel-auto-scroll');
-        autoScrollPlugin.current = AutoScrollModule.default({ 
-          speed: 1,
-          startDelay: 0,
-          stopOnInteraction: true,
-          stopOnMouseEnter: true,
-        });
-        setPluginReady(true);
-      } catch (err) {
-        console.error('Failed to load carousel plugin:', err);
-        // Set ready to true anyway so carousel still renders without auto-scroll
-        setPluginReady(true);
-      }
-    };
-    initPlugin();
-  }, []);
+    if (recentPosts) {
+      console.log('RecentPostsCarousel: Data loaded', {
+        count: recentPosts.length,
+        posts: recentPosts
+      });
+    }
+  }, [recentPosts]);
 
   if (isLoading) {
     return (
@@ -59,32 +38,15 @@ export const RecentPostsCarousel = () => {
     );
   }
 
-  // Log error for debugging in production
+  // Log error for debugging
   if (error) {
     console.error('Failed to load recent bid requests:', error);
     return null;
   }
 
-  // Don't render carousel until both plugin and data are ready
-  if (!pluginReady || !recentPosts || recentPosts.length === 0) {
-    // Show nothing if no data, loading skeleton if waiting for plugin
-    if (isLoading || !pluginReady) {
-      return (
-        <section className="bg-white py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <Skeleton className="h-10 w-64 mx-auto mb-4" />
-              <Skeleton className="h-6 w-96 mx-auto" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-80 w-full" />
-              ))}
-            </div>
-          </div>
-        </section>
-      );
-    }
+  // Don't render if no data
+  if (!recentPosts || recentPosts.length === 0) {
+    console.log('No recent posts to display');
     return null;
   }
 
@@ -107,10 +69,7 @@ export const RecentPostsCarousel = () => {
             align: "start",
             loop: true,
           }}
-          plugins={autoScrollPlugin.current ? [autoScrollPlugin.current] : []}
           className="w-full"
-          onMouseEnter={() => autoScrollPlugin.current?.stop?.()}
-          onMouseLeave={() => autoScrollPlugin.current?.play?.()}
         >
           <CarouselContent className="-ml-4">
             {recentPosts.map((post) => (
