@@ -28,7 +28,7 @@ export const useRecentBidRequests = () => {
           vehicle_id
         `)
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(25);
 
       if (error) throw error;
 
