@@ -4,14 +4,14 @@ import { Shield, Zap, BatteryCharging, BarChart } from "lucide-react";
 const Features = () => {
   const features = [
     {
-      icon: <Zap className="h-12 w-12 text-accent" />,
-      title: "Faster Buy Bid Offers",
-      description: "Send bid requests instantly to your network of buyers and get competing offers"
-    },
-    {
       icon: <Shield className="h-12 w-12 text-accent" />,
       title: "Private Marketplace",
       description: "A private marketplace to connect with the buyers and sellers you know and trust"
+    },
+    {
+      icon: <Zap className="h-12 w-12 text-accent" />,
+      title: "Faster Buy Bid Offers",
+      description: "Send bid requests instantly to your network of buyers and get competing offers"
     },
     {
       icon: <BarChart className="h-12 w-12 text-accent" />,
