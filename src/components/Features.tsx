@@ -6,7 +6,7 @@ const Features = () => {
     {
       icon: <Shield className="h-12 w-12 text-accent" />,
       title: "Private Marketplace",
-      description: "A private marketplace to connect with the buyers and sellers you know and trust"
+      description: "Create your own private auction to connect with the buyers and sellers you know"
     },
     {
       icon: <Zap className="h-12 w-12 text-accent" />,
