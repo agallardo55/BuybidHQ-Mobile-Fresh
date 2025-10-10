@@ -4,8 +4,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -95,8 +93,6 @@ export const RecentPostsCarousel = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16" />
-          <CarouselNext className="hidden md:flex -right-12 lg:-right-16" />
         </Carousel>
       </div>
     </section>
