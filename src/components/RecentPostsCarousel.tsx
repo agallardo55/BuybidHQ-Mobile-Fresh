@@ -65,27 +65,27 @@ export const RecentPostsCarousel = () => {
     return null;
   }
 
-  if (!recentPosts || recentPosts.length === 0) {
+  // Don't render carousel until both plugin and data are ready
+  if (!pluginReady || !recentPosts || recentPosts.length === 0) {
+    // Show nothing if no data, loading skeleton if waiting for plugin
+    if (isLoading || !pluginReady) {
+      return (
+        <section className="bg-white py-16 md:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <Skeleton className="h-10 w-64 mx-auto mb-4" />
+              <Skeleton className="h-6 w-96 mx-auto" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-80 w-full" />
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
     return null;
-  }
-
-  // Don't render carousel until plugin is ready
-  if (!pluginReady) {
-    return (
-      <section className="bg-white py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Skeleton className="h-10 w-64 mx-auto mb-4" />
-            <Skeleton className="h-6 w-96 mx-auto" />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-80 w-full" />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
   }
 
   return (

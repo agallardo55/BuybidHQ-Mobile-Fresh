@@ -1,11 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@supabase/supabase-js";
-
-// Use public client for anonymous access to recent listings
-const supabaseUrl = "https://fdcfdbjputcitgxosnyk.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkY2ZkYmpwdXRjaXRneG9zbnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg4OTc2NjksImV4cCI6MjAzNDQ3MzY2OX0.x2lu4j7aZPc1zvMYS_ElsqVyzQg7WgerAD4LRPzFRZE";
-
-const publicSupabase = createClient(supabaseUrl, supabaseAnonKey);
+import { publicSupabase } from "@/integrations/supabase/publicClient";
 
 export interface RecentBidRequest {
   id: string;
@@ -46,7 +40,7 @@ export const useRecentBidRequests = () => {
             .from("vehicles_public")
             .select("year, make, model, mileage")
             .eq("id", request.vehicle_id)
-            .single();
+            .maybeSingle();
 
           const { data: images } = await publicSupabase
             .from("images")
@@ -72,7 +66,10 @@ export const useRecentBidRequests = () => {
         })
       );
 
-      return bidRequestsWithData as RecentBidRequest[];
+      // Filter out entries where vehicle data is missing
+      return bidRequestsWithData.filter(
+        (item) => item.vehicle.year && item.vehicle.make && item.vehicle.model
+      ) as RecentBidRequest[];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
