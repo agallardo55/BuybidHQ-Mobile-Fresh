@@ -18,7 +18,7 @@ export const useRecentBidRequests = () => {
   return useQuery({
     queryKey: ["recent-bid-requests"],
     queryFn: async () => {
-      // Query RLS-protected tables (anon can only see approved bids from last 30 days)
+      // Query RLS-protected tables (anon can see recent bids from last 30 days)
       // Using vehicles_public to exclude VINs for security
       const { data: bidRequests, error } = await publicSupabase
         .from("bid_requests")
