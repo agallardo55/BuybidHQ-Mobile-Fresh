@@ -18,12 +18,10 @@ if (typeof window !== 'undefined') {
 
 export const RecentPostsCarousel = () => {
   const { data: recentPosts, isLoading, error } = useRecentBidRequests();
-  const [pluginLoaded, setPluginLoaded] = useState(false);
-  
+  const [pluginReady, setPluginReady] = useState(false);
   const autoScrollPlugin = useRef<any>(null);
 
   useEffect(() => {
-    // Initialize plugin once it's loaded
     const initPlugin = async () => {
       try {
         const AutoScrollModule = await import('embla-carousel-auto-scroll');
@@ -33,9 +31,11 @@ export const RecentPostsCarousel = () => {
           stopOnInteraction: true,
           stopOnMouseEnter: true,
         });
-        setPluginLoaded(true);
+        setPluginReady(true);
       } catch (err) {
         console.error('Failed to load carousel plugin:', err);
+        // Set ready to true anyway so carousel still renders without auto-scroll
+        setPluginReady(true);
       }
     };
     initPlugin();
@@ -67,6 +67,25 @@ export const RecentPostsCarousel = () => {
 
   if (!recentPosts || recentPosts.length === 0) {
     return null;
+  }
+
+  // Don't render carousel until plugin is ready
+  if (!pluginReady) {
+    return (
+      <section className="bg-white py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Skeleton className="h-10 w-64 mx-auto mb-4" />
+            <Skeleton className="h-6 w-96 mx-auto" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-80 w-full" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
