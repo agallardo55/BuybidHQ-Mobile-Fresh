@@ -26,8 +26,8 @@ export const PLAN_INFO = {
   free: {
     name: 'Free',
     price: 0,
-    description: '10 bid requests per month',
-    features: ['10 bid requests/month', 'Create/edit/delete buyers', 'Basic support']
+    description: 'Unlimited bid requests',
+    features: ['Unlimited bid requests', 'Create/edit/delete buyers', 'Basic support']
   },
   connect: {
     name: 'Connect',
