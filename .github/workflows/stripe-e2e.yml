@@ -1,0 +1,35 @@
+name: Stripe E2E (Phase 3)
+
+on:
+  push:
+    branches: [ "staging" ]
+  pull_request:
+    branches: [ "staging" ]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Stripe E2E tests
+        env:
+          SUPABASE_URL: ${{ secrets['SUPABASE_URL'] }}
+          SUPABASE_ANON_KEY: ${{ secrets['SUPABASE_ANON_KEY'] }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets['SUPABASE_SERVICE_ROLE_KEY'] }}
+          STRIPE_SECRET_KEY: ${{ secrets['STRIPE_SECRET_KEY'] }}
+          STRIPE_CONNECT_PRICE_ID: ${{ secrets['STRIPE_CONNECT_PRICE_ID'] }}
+          STRIPE_ANNUAL_PRICE_ID: ${{ secrets['STRIPE_ANNUAL_PRICE_ID'] }}
+          TEST_EMAIL_DOMAIN: ${{ secrets['TEST_EMAIL_DOMAIN'] }}
+        run: node scripts/stripe-e2e/runner.mjs
+

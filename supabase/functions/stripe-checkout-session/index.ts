@@ -65,7 +65,17 @@ Deno.serve(async (req) => {
     }
 
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
+    if (!stripeSecretKey) {
+      return new Response(
+        JSON.stringify({ error: 'Stripe not configured', code: 'STRIPE_CONFIG_MISSING' }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
     })
 
@@ -123,9 +133,9 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Stripe checkout error:', error)
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error occurred' }),
+      JSON.stringify({ error: 'Internal server error', code: 'INTERNAL_ERROR' }),
       {
-        status: 400,
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )

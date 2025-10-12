@@ -14,7 +14,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
+    if (!stripeSecretKey) {
+      return new Response(
+        JSON.stringify({ error: 'Stripe not configured', code: 'STRIPE_CONFIG_MISSING' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
     })
 
@@ -40,7 +47,7 @@ Deno.serve(async (req) => {
     } catch (err) {
       console.error('Webhook signature verification failed:', err instanceof Error ? err.message : 'Unknown error')
       return new Response(
-        JSON.stringify({ error: 'Webhook signature verification failed' }),
+        JSON.stringify({ error: 'Webhook signature verification failed', code: 'SIGNATURE_INVALID' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -70,9 +77,10 @@ Deno.serve(async (req) => {
         
         if (!accountId) {
           console.error('No account ID found in customer metadata');
-          return new Response('No account ID found', { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(
+            JSON.stringify({ error: 'No account ID found', code: 'ACCOUNT_ID_MISSING' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         }
 
@@ -101,9 +109,10 @@ Deno.serve(async (req) => {
 
         if (updateError) {
           console.error('Error updating account:', updateError);
-          return new Response('Database error', { 
-            status: 500, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(
+            JSON.stringify({ error: 'Database error', code: 'DB_UPDATE_FAILED' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         }
 
@@ -121,9 +130,10 @@ Deno.serve(async (req) => {
         
         if (!accountId) {
           console.error('No account ID found in customer metadata');
-          return new Response('No account ID found', { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(
+            JSON.stringify({ error: 'No account ID found', code: 'ACCOUNT_ID_MISSING' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         }
 
@@ -139,9 +149,10 @@ Deno.serve(async (req) => {
 
         if (updateError) {
           console.error('Error updating account:', updateError);
-          return new Response('Database error', { 
-            status: 500, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          return new Response(
+            JSON.stringify({ error: 'Database error', code: 'DB_UPDATE_FAILED' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         }
 
@@ -159,9 +170,9 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Webhook error:', error instanceof Error ? error.message : 'Unknown error');
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error occurred' }),
+      JSON.stringify({ error: 'Internal server error', code: 'INTERNAL_ERROR' }),
       {
-        status: 400,
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );

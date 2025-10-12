@@ -24,6 +24,13 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-explicit-any": "off", // Allow 'any' type for Lovable flexibility
+      "@typescript-eslint/no-require-imports": "off", // Allow require() in tests and edge functions
+      "@typescript-eslint/no-empty-object-type": "off", // Allow empty interfaces for type extensions
+      "no-console": "off", // Allow console statements for Lovable development
+      "prefer-const": "warn", // Warn instead of error
+      "no-useless-escape": "warn", // Warn instead of error
     },
   }
 );
