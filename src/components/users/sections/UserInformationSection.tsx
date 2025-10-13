@@ -9,24 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserFormData, CarrierType } from "@/types/users";
+import { UserFormData } from "@/types/users";
 
 interface UserInformationSectionProps {
   formData: UserFormData;
   onFormDataChange: (data: Partial<UserFormData>) => void;
 }
-
-const CARRIER_OPTIONS = [
-  'Verizon Wireless',
-  'AT&T',
-  'T-Mobile',
-  'Sprint',
-  'US Cellular',
-  'Metro PCS',
-  'Boost Mobile',
-  'Cricket',
-  'Virgin Mobile'
-] as const;
 
 const UserInformationSection = ({
   formData,
@@ -113,25 +101,6 @@ const UserInformationSection = ({
                 {['basic', 'individual', 'associate', 'salesperson', 'manager', 'admin'].map(role => (
                   <SelectItem key={role} value={role}>
                     {capitalizeFirstLetter(role)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phoneCarrier">Mobile Carrier</Label>
-            <Select
-              value={formData.phoneCarrier}
-              onValueChange={(value) => onFormDataChange({ phoneCarrier: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select carrier" />
-              </SelectTrigger>
-              <SelectContent>
-                {CARRIER_OPTIONS.map(carrier => (
-                  <SelectItem key={carrier} value={carrier}>
-                    {carrier}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -128,7 +128,6 @@ export const useBuyersQuery = () => {
             acceptedBids: countsMap.get(buyer.id)?.accepted || 0,
             pendingBids: countsMap.get(buyer.id)?.pending || 0,
             declinedBids: countsMap.get(buyer.id)?.declined || 0,
-            phoneCarrier: buyer.phone_carrier || 'N/A',
             phoneValidationStatus: buyer.phone_validation_status
           };
         });

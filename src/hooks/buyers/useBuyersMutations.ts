@@ -49,7 +49,6 @@ export const useBuyersMutations = () => {
             city: buyerData.city,
             state: buyerData.state,
             zip_code: buyerData.zipCode,
-            phone_carrier: buyerData.phoneCarrier,
             phone_validation_status: 'pending'
           }
         ])
@@ -86,8 +85,6 @@ export const useBuyersMutations = () => {
 
       console.log("Updating buyer:", buyerId, "with data:", buyerData);
 
-      const phoneCarrier = buyerData.phoneCarrier === 'N/A' ? null : buyerData.phoneCarrier || null;
-
       const { error } = await supabase
         .from('buyers')
         .update({
@@ -101,7 +98,6 @@ export const useBuyersMutations = () => {
           city: buyerData.city,
           state: buyerData.state,
           zip_code: buyerData.zipCode,
-          phone_carrier: phoneCarrier,
           phone_validation_status: 'pending',
           updated_at: new Date().toISOString()
         })
@@ -120,8 +116,6 @@ export const useBuyersMutations = () => {
       console.error("Update buyer error:", error);
       if (error.message?.includes('JWT')) {
         navigate('/signin');
-      } else if (error.message?.includes('valid_phone_carrier')) {
-        toast.error("Invalid phone carrier selected. Please choose a valid carrier.");
       } else {
         toast.error("Failed to update buyer. Please try again.");
       }

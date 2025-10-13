@@ -35,7 +35,6 @@ export const useSignUpSubmission = ({
             password: formData.password,
             fullName: formData.fullName,
             mobileNumber: formData.mobileNumber,
-            carrier: formData.carrier,
             dealershipAddress: formData.dealershipAddress,
             city: formData.city,
             state: formData.state,
@@ -174,7 +173,6 @@ export const useSignUpSubmission = ({
           status: ['connect', 'annual'].includes(formData.planType) ? 'pending_payment' : 'active',
           sms_consent: formData.smsConsent,
           app_role: 'member', // All signup users are individual dealers with member role
-          ...(formData.carrier ? { phone_carrier: formData.carrier } : {})
         })
         .eq('id', authData.user.id)
         .select()

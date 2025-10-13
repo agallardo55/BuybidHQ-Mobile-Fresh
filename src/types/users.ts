@@ -2,9 +2,6 @@
 // Database User Role type matching Supabase enum (dealer consolidated to basic+account_admin)
 export type UserRole = 'basic' | 'individual' | 'associate' | 'salesperson' | 'manager' | 'admin';
 
-// Carrier type for mobile providers
-export type CarrierType = 'Verizon Wireless' | 'AT&T' | 'T-Mobile' | 'Sprint' | 'US Cellular' | 'Metro PCS' | 'Boost Mobile' | 'Cricket' | 'Virgin Mobile';
-
 // Base user interface matching database schema
 export interface BaseUser {
   id: string;
@@ -62,7 +59,6 @@ export interface UserFormData {
   dealershipId?: string;
   isActive: boolean;
   isAccountAdmin?: boolean;
-  phoneCarrier?: string;
   phoneValidated?: boolean;
 }
 
@@ -101,7 +97,6 @@ export const transformDatabaseUser = (dbUser: BaseUser): UserFormData => {
     zipCode: dbUser.zip_code || '',
     dealershipId: dbUser.dealership_id || undefined,
     isActive: dbUser.is_active,
-    phoneCarrier: dbUser.phone_carrier || undefined,
     phoneValidated: dbUser.phone_validated
   };
 };
@@ -119,7 +114,6 @@ export const transformFormUser = (formData: UserFormData): Partial<BaseUser> => 
     zip_code: formData.zipCode || null,
     dealership_id: formData.dealershipId || null,
     is_active: formData.isActive,
-    phone_carrier: formData.phoneCarrier || null,
     phone_validated: formData.phoneValidated || false
   };
 };

@@ -1,13 +1,11 @@
 
 import { useState, useEffect } from "react";
 import { useCurrentUser } from "./useCurrentUser";
-import { CarrierType } from "@/types/users";
 
 interface AccountFormData {
   fullName: string;
   email: string;
   mobileNumber: string;
-  phoneCarrier?: CarrierType;
   businessNumber: string;
   dealershipName: string;
   licenseNumber: string;
@@ -28,7 +26,6 @@ export const useAccountForm = () => {
     fullName: "",
     email: "",
     mobileNumber: "",
-    phoneCarrier: undefined,
     businessNumber: "",
     dealershipName: "",
     licenseNumber: "",
@@ -50,7 +47,6 @@ export const useAccountForm = () => {
         fullName: currentUser.full_name || "",
         email: currentUser.email || "",
         mobileNumber: currentUser.mobile_number || "",
-        phoneCarrier: currentUser.phone_carrier as CarrierType || undefined,
         businessNumber: currentUser.business_phone || "",
         dealershipName: currentUser.dealer_name || "",
         licenseNumber: currentUser.license_number || "",

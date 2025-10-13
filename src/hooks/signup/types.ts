@@ -8,7 +8,6 @@ export interface SignUpFormData {
   password: string;
   confirmPassword: string;
   mobileNumber: string;
-  carrier?: string;
   businessNumber: string;
   dealershipName: string;
   licenseNumber: string;

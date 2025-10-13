@@ -57,7 +57,6 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
         fullName: formData.name,
         dealershipName: formData.dealership,
         mobileNumber: formatPhoneNumber(formData.mobile),
-        phoneCarrier: "",
         email: formData.email,
         businessNumber: "",
         licenseNumber: "",

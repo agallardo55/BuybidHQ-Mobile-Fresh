@@ -17,10 +17,10 @@ export const PersonalInfoTab = () => {
     e.preventDefault();
 
     // Validate required fields
-    if (!formData.fullName || !formData.email || !formData.mobileNumber || !formData.phoneCarrier) {
+    if (!formData.fullName || !formData.email || !formData.mobileNumber) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields: Full Name, Email, Mobile Number, and Carrier.",
+        description: "Please fill in all required fields: Full Name, Email, and Mobile Number.",
         variant: "destructive",
       });
       return;
@@ -34,7 +34,6 @@ export const PersonalInfoTab = () => {
         full_name: formData.fullName,
         email: formData.email,
         mobile_number: formData.mobileNumber,
-        phone_carrier: formData.phoneCarrier,
       };
 
       const { error: userError } = await supabase

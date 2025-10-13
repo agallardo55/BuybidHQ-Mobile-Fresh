@@ -11,7 +11,6 @@ interface SignupData {
   password: string;
   fullName: string;
   mobileNumber: string;
-  carrier?: string;
   dealershipAddress: string;
   city: string;
   state: string;
@@ -46,7 +45,6 @@ Deno.serve(async (req) => {
         p_state: signupData.state,
         p_zip_code: signupData.zipCode,
         p_sms_consent: signupData.smsConsent,
-        p_carrier: signupData.carrier || null,
       }
     );
 

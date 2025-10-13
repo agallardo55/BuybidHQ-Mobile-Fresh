@@ -12,7 +12,6 @@ export const useSignUpState = () => {
     password: "",
     confirmPassword: "",
     mobileNumber: "",
-    carrier: undefined,
     businessNumber: "",
     dealershipName: "",
     licenseNumber: "",
@@ -54,13 +53,6 @@ export const useSignUpState = () => {
     }));
   };
 
-  const handleCarrierChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      carrier: value,
-    }));
-  };
-
   const handlePlanSelect = (planType: PlanType) => {
     setFormData((prev) => ({
       ...prev,
@@ -77,7 +69,6 @@ export const useSignUpState = () => {
     setCurrentStep,
     handleChange,
     handleStateChange,
-    handleCarrierChange,
     handlePlanSelect,
   };
 };
