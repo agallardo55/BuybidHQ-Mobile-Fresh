@@ -3,6 +3,9 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useEmailAvailability } from "@/hooks/signup/useEmailAvailability";
+import { Link } from "react-router-dom";
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 interface PersonalInfoFormProps {
   formData: {
@@ -20,6 +23,8 @@ interface PersonalInfoFormProps {
 }
 
 const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFormProps) => {
+  // Check email availability in real-time
+  const { isChecking, isAvailable, message } = useEmailAvailability(formData.email, true);
 
   const handleSmsConsentChange = (checked: boolean) => {
     onChange({
@@ -29,6 +34,9 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
       },
     } as React.ChangeEvent<HTMLInputElement>);
   };
+
+  // Disable submit button if email is taken or still checking
+  const isFormValid = isAvailable !== false;
 
   return (
     <div className="space-y-4">
@@ -62,14 +70,53 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
           Email address
         </label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={onChange}
-          placeholder="fullname@mail.com"
-        />
+        <div className="relative">
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={onChange}
+            placeholder="fullname@mail.com"
+            className={`pr-10 ${
+              isAvailable === false ? 'border-red-500 focus:ring-red-500' :
+              isAvailable === true ? 'border-green-500 focus:ring-green-500' : ''
+            }`}
+          />
+          {/* Status Icon */}
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            {isChecking && (
+              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+            )}
+            {!isChecking && isAvailable === true && (
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+            )}
+            {!isChecking && isAvailable === false && (
+              <XCircle className="h-4 w-4 text-red-500" />
+            )}
+          </div>
+        </div>
+        {/* Status Message */}
+        {message && (
+          <div className={`mt-1 text-sm flex items-center gap-1 ${
+            isAvailable === false ? 'text-red-600' :
+            isAvailable === true ? 'text-green-600' :
+            'text-gray-500'
+          }`}>
+            <span>{message}</span>
+            {isAvailable === false && (
+              <>
+                <span className="mx-1">•</span>
+                <Link 
+                  to="/signin" 
+                  className="font-medium underline hover:no-underline"
+                >
+                  Sign in instead?
+                </Link>
+              </>
+            )}
+          </div>
+        )}
       </div>
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
@@ -137,8 +184,9 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           type="button"
           onClick={onNext}
           className="w-full bg-custom-blue text-white hover:bg-custom-blue/90"
+          disabled={!isFormValid || isChecking}
         >
-          Sign up
+          {isChecking ? 'Checking...' : 'Sign up'}
         </Button>
       </div>
     </div>
