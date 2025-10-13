@@ -34,7 +34,7 @@ export const useCurrentUser = () => {
 
   const { data: currentUser, isLoading } = useQuery<UserData | null>({
     queryKey: ['currentUser'],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       try {
         console.log('Fetching current user session...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -54,6 +54,7 @@ export const useCurrentUser = () => {
           .from('buybidhq_users')
           .select('*')
           .eq('id', session.user.id)
+          .abortSignal(signal)
           .single();
 
         if (userError) {

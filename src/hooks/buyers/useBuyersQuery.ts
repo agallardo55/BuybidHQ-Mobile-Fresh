@@ -12,7 +12,7 @@ export const useBuyersQuery = () => {
 
   return useQuery({
     queryKey: ['buyers', currentUser?.role],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (!session || sessionError) {
@@ -43,6 +43,7 @@ export const useBuyersQuery = () => {
             phone_validation_status
           `)
           .is('deleted_at', null)
+          .abortSignal(signal)
           .order('created_at', { ascending: false });
 
         if (buyersError) {
