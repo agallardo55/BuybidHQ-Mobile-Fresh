@@ -35,8 +35,14 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
     } as React.ChangeEvent<HTMLInputElement>);
   };
 
-  // Disable submit button if email is taken or still checking
-  const isFormValid = isAvailable !== false;
+  // Password match validation
+  const passwordsMatch = formData.password === formData.confirmPassword;
+  const passwordError = formData.confirmPassword && !passwordsMatch 
+    ? "Passwords do not match" 
+    : "";
+
+  // Disable submit button if email is taken, still checking, or passwords don't match
+  const isFormValid = isAvailable !== false && passwordsMatch;
 
   return (
     <div className="space-y-4">
@@ -156,8 +162,12 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={onChange}
-          placeholder="Enter password"
+          placeholder="Confirm password"
+          className={passwordError ? 'border-red-500 focus:ring-red-500' : ''}
         />
+        {passwordError && (
+          <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+        )}
       </div>
       <div className="flex items-center space-x-2">
         <Checkbox 
