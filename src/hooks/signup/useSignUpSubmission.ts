@@ -82,19 +82,12 @@ export const useSignUpSubmission = ({
         .single();
 
       // Step 3: Create or update individual dealer record for all signup users
-      const { data: individualDealerData, error: individualDealerError } = await supabase
+      const { data: individualDealerData, error: individualDealerError} = await supabase
         .from('individual_dealers')
         .upsert(
           {
             user_id: authData.user.id,
             business_name: formData.dealershipName,
-            business_phone: formData.businessNumber,
-            business_email: formData.email,
-            license_number: formData.licenseNumber,
-            address: formData.dealershipAddress,
-            city: formData.city,
-            state: formData.state,
-            zip_code: formData.zipCode
           },
           { 
             onConflict: 'user_id',

@@ -1,7 +1,6 @@
 
 import { Link } from "react-router-dom";
 import PersonalInfoForm from "@/components/signup/PersonalInfoForm";
-import DealershipForm from "@/components/signup/DealershipForm";
 import PlanSelectionForm from "@/components/signup/PlanSelectionForm";
 import { useSignUpForm } from "@/hooks/useSignUpForm";
 
@@ -11,20 +10,10 @@ const SignUp = () => {
     currentStep,
     isSubmitting,
     handleChange,
-    handleStateChange,
     handlePlanSelect,
-    handleNext,
     handleBack,
     handleSubmit,
   } = useSignUpForm();
-
-  const states = [
-    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
-  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
@@ -39,12 +28,9 @@ const SignUp = () => {
           <div className="flex justify-center space-x-2 sm:space-x-4 mt-4">
             <div className={`h-2 w-12 sm:w-16 rounded ${currentStep === 'plan' ? 'bg-accent' : 'bg-gray-200'}`} />
             <div className={`h-2 w-12 sm:w-16 rounded ${currentStep === 'personal' ? 'bg-accent' : 'bg-gray-200'}`} />
-            <div className={`h-2 w-12 sm:w-16 rounded ${currentStep === 'dealership' ? 'bg-accent' : 'bg-gray-200'}`} />
           </div>
           <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600">
-            {currentStep === 'plan' ? 'Step 1: Select Your Plan' : 
-             currentStep === 'personal' ? 'Step 2: Personal Information' :
-             'Step 3: Dealership Information'}
+            {currentStep === 'plan' ? 'Step 1: Select Your Plan' : 'Step 2: Personal Information'}
           </p>
         </div>
 
@@ -54,21 +40,12 @@ const SignUp = () => {
               onSelect={handlePlanSelect}
               onBack={() => null}
             />
-          ) : currentStep === 'personal' ? (
+          ) : (
             <PersonalInfoForm
               formData={formData}
-              onNext={handleNext}
+              onNext={handleSubmit}
               onChange={handleChange}
               onBack={handleBack}
-            />
-          ) : (
-            <DealershipForm
-              formData={formData}
-              onBack={handleBack}
-              onChange={handleChange}
-              onStateChange={handleStateChange}
-              isSubmitting={isSubmitting}
-              states={states}
             />
           )}
           

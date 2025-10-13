@@ -11,10 +11,7 @@ interface SignupData {
   password: string;
   fullName: string;
   mobileNumber: string;
-  dealershipAddress: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  dealershipName: string;
   planType: string;
   smsConsent: boolean;
 }
@@ -40,10 +37,6 @@ Deno.serve(async (req) => {
         p_email: signupData.email,
         p_full_name: signupData.fullName,
         p_mobile_number: signupData.mobileNumber,
-        p_address: signupData.dealershipAddress,
-        p_city: signupData.city,
-        p_state: signupData.state,
-        p_zip_code: signupData.zipCode,
         p_sms_consent: signupData.smsConsent,
       }
     );

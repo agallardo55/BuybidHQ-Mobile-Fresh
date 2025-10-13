@@ -7,18 +7,12 @@ export const useSignUpState = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState<SignUpStep>('plan');
   const [formData, setFormData] = useState<SignUpFormData>({
+    dealershipName: "",
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
     mobileNumber: "",
-    businessNumber: "",
-    dealershipName: "",
-    licenseNumber: "",
-    dealershipAddress: "",
-    city: "",
-    state: "",
-    zipCode: "",
     planType: undefined,
     smsConsent: false
   });
@@ -46,13 +40,6 @@ export const useSignUpState = () => {
     }
   };
 
-  const handleStateChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      state: value,
-    }));
-  };
-
   const handlePlanSelect = (planType: PlanType) => {
     setFormData((prev) => ({
       ...prev,
@@ -68,7 +55,6 @@ export const useSignUpState = () => {
     setIsSubmitting,
     setCurrentStep,
     handleChange,
-    handleStateChange,
     handlePlanSelect,
   };
 };

@@ -1,20 +1,14 @@
 
-export type SignUpStep = 'plan' | 'personal' | 'dealership';
+export type SignUpStep = 'plan' | 'personal';
 export type PlanType = 'beta-access' | 'connect' | 'annual';
 
 export interface SignUpFormData {
+  dealershipName: string;
   fullName: string;
   email: string;
   password: string;
   confirmPassword: string;
   mobileNumber: string;
-  businessNumber: string;
-  dealershipName: string;
-  licenseNumber: string;
-  dealershipAddress: string;
-  city: string;
-  state: string;
-  zipCode: string;
   planType?: PlanType;
   smsConsent: boolean;
 }

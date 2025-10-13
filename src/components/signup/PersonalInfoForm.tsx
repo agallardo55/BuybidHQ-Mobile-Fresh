@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface PersonalInfoFormProps {
   formData: {
+    dealershipName: string;
     fullName: string;
     email: string;
     password: string;
@@ -31,6 +32,19 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
 
   return (
     <div className="space-y-4">
+      <div>
+        <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700">
+          Dealership Name
+        </label>
+        <Input
+          id="dealershipName"
+          name="dealershipName"
+          type="text"
+          value={formData.dealershipName}
+          onChange={onChange}
+          placeholder="ABC Motors Inc."
+        />
+      </div>
       <div>
         <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
           Full Name
@@ -124,7 +138,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           onClick={onNext}
           className="w-full bg-custom-blue text-white hover:bg-custom-blue/90"
         >
-          Next Step
+          Sign up
         </Button>
       </div>
     </div>
