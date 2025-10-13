@@ -119,6 +119,20 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
         )}
       </div>
       <div>
+        <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
+          Mobile Number
+        </label>
+        <Input
+          id="mobileNumber"
+          name="mobileNumber"
+          type="tel"
+          value={formData.mobileNumber}
+          onChange={onChange}
+          placeholder="(123) 456-7890"
+          maxLength={14}
+        />
+      </div>
+      <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
           Password
         </label>
@@ -143,20 +157,6 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           value={formData.confirmPassword}
           onChange={onChange}
           placeholder="Enter password"
-        />
-      </div>
-      <div>
-        <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700">
-          Mobile Number
-        </label>
-        <Input
-          id="mobileNumber"
-          name="mobileNumber"
-          type="tel"
-          value={formData.mobileNumber}
-          onChange={onChange}
-          placeholder="(123) 456-7890"
-          maxLength={14}
         />
       </div>
       <div className="flex items-center space-x-2">
