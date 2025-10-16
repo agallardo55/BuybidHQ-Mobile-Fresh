@@ -2,12 +2,9 @@ import { Check, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { useNavigate } from "react-router-dom";
-import { useWaitlist } from "./waitlist/WaitlistContext";
+// Waitlist import removed
 const Pricing = () => {
   const navigate = useNavigate();
-  const {
-    setShowWaitlist
-  } = useWaitlist();
   const scrollToContact = () => {
     const contactSection = document.getElementById('contact');
     if (contactSection) {

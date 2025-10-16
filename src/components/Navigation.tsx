@@ -4,14 +4,13 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useWaitlist } from "./waitlist/WaitlistContext";
+// Waitlist import removed
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { setShowWaitlist } = useWaitlist();
 
   const handleScroll = (id: string) => {
     const element = document.getElementById(id);
