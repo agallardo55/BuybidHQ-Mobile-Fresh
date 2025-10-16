@@ -241,6 +241,35 @@ This application is hosted on **Netlify** for production deployment.
 #### Environment Variables
 All required environment variables are configured in the Netlify dashboard under Site settings → Environment variables.
 
+#### Git Workflow for Deployments
+This project follows a staging-first deployment workflow:
+
+1. **Development & Testing:**
+   ```bash
+   # Make changes locally
+   git add .
+   git commit -m "your commit message"
+   
+   # Push to staging for review and testing
+   git checkout staging
+   git merge main
+   git push origin staging
+   ```
+
+2. **Staging Deployment:**
+   - Deploy staging branch to Netlify for testing
+   - Verify all functionality works correctly
+   - Test the deployed staging environment
+
+3. **Production Deployment:**
+   ```bash
+   # After staging is tested and approved
+   git checkout main
+   git push origin main
+   ```
+   - Main branch auto-deploys to production
+   - Always test staging before pushing to main
+
 #### Alternative: Lovable Deployment
 Simply open [Lovable](https://lovable.dev/projects/9b7ce134-27b4-41b2-948d-4938fa315713) and click on Share -> Publish.
 
