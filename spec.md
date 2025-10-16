@@ -1,9 +1,9 @@
-# BuyBidHQ Functional Specification
+# BuybidHQ Functional Specification
 
 ## 1. Project Vision & Overview
 
 ### Business Summary
-**BuyBidHQ** is a Vite + React platform that helps automotive teams streamline vehicle buy-bid workflows, connect buyers and sellers, and surface competitive offers in one place.
+**BuybidHQ** is a Vite + React platform that helps automotive teams streamline vehicle buy-bid workflows, connect buyers and sellers, and surface competitive offers in one place.
 
 ### Primary Objective
 Manage and optimize the end-to-end bid lifecycle—from capturing leads on the marketing site to coordinating bid requests, responses, and analytics inside the authenticated dashboard.
@@ -385,4 +385,4 @@ export const features = {
 
 ---
 
-This specification serves as the single source of truth for BuyBidHQ development, bridging business requirements with technical implementation. It should be referenced for all feature development, updated as requirements evolve, and used as the foundation for acceptance criteria and quality gates.
+This specification serves as the single source of truth for BuybidHQ development, bridging business requirements with technical implementation. It should be referenced for all feature development, updated as requirements evolve, and used as the foundation for acceptance criteria and quality gates.

@@ -21,7 +21,7 @@ const SignUp = () => {
         <div className="text-center">
           <img 
             src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-            alt="BuyBidHQ Logo" 
+            alt="BuybidHQ Logo" 
             className="mx-auto h-10 sm:h-12 w-auto"
           />
           <h2 className="mt-4 sm:mt-6 text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Create your account</h2>

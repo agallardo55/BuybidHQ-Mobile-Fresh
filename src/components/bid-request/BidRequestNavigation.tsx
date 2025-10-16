@@ -28,7 +28,7 @@ const BidRequestNavigation = () => {
             <Link to="/" className="flex items-center">
               <img 
                 src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" 
-                alt="BuyBidHQ Logo" 
+                alt="BuybidHQ Logo" 
                 className="h-10 w-auto"
               />
             </Link>

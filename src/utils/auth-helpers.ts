@@ -91,7 +91,7 @@ export const getUserAppPermissions = (user: AuthUser | null): Permission[] => {
 };
 
 /**
- * Check if user is admin (super admin - global BuyBidHQ admin)
+ * Check if user is admin (super admin - global BuybidHQ admin)
  */
 export const isAdmin = (user: AuthUser | null): boolean => {
   // Super admin has global platform access

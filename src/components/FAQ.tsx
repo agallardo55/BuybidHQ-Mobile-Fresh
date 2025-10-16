@@ -14,7 +14,7 @@ const FAQ = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Get answers to common questions about BuyBidHQ and how our platform works
+            Get answers to common questions about BuybidHQ and how our platform works
           </p>
         </div>
 
@@ -24,7 +24,7 @@ const FAQ = () => {
               How does BuybidHQ work?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              BuyBidHQ allows auto dealers and wholesalers to send bid requests via SMS or email to their dealer network. Buyers respond with their offers, and you can track all responses in one central dashboard.
+              BuybidHQ allows auto dealers and wholesalers to send bid requests via SMS or email to their dealer network. Buyers respond with their offers, and you can track all responses in one central dashboard.
             </AccordionContent>
           </AccordionItem>
 
@@ -33,7 +33,7 @@ const FAQ = () => {
               What model years are available?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              BuyBidHQ supports vehicles from model year 1900 to the current year. Our VIN decoder and vehicle information system can retrieve detailed specifications for any vehicle within this range.
+              BuybidHQ supports vehicles from model year 1900 to the current year. Our VIN decoder and vehicle information system can retrieve detailed specifications for any vehicle within this range.
             </AccordionContent>
           </AccordionItem>
 
@@ -69,13 +69,13 @@ const FAQ = () => {
               Is there a mobile app available?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              Yes! BuyBidHQ is available as both a web application and mobile apps for iOS and Android. The mobile app includes all features including VIN scanning, photo capture, and bid management on the go.
+              Yes but coming soon! BuybidHQ is available as both a web application and mobile apps for iOS and Android. The mobile app includes all features including VIN scanning, photo capture, and bid management on the go.
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem value="item-7" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
             <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
-              How do I get started with BuyBidHQ?
+              How do I get started with BuybidHQ?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
               Getting started is easy! Sign up for a free trial, set up your dealership profile, add your buyer contacts, and start creating bid requests. Our support team provides onboarding assistance, and you can upgrade to a paid plan when you're ready to unlock more deals and offers.

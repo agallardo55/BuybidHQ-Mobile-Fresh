@@ -1,5 +1,5 @@
 /**
- * Core Data Models for BuyBidHQ
+ * Core Data Models for BuybidHQ
  * 
  * This file defines the primary data structures that align with
  * the Supabase database schema and provide type safety across the app.

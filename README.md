@@ -52,9 +52,9 @@ npm run dev
 
 ## What technologies are used for this project?
 
-# BuyBidHQ - Vehicle Bid Request Platform
+# BuybidHQ - Vehicle Bid Request Platform
 
-BuyBidHQ is a comprehensive bid request application for auto dealers that enables them to send, manage, and track buy bids on used vehicles.
+BuybidHQ is a comprehensive bid request application for auto dealers that enables them to send, manage, and track buy bids on used vehicles.
 
 ## Features
 

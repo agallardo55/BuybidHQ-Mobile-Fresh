@@ -1,10 +1,10 @@
-# BuyBidHQ Data Model Documentation
+# BuybidHQ Data Model Documentation
 
-This document outlines the core data models and database schema for the BuyBidHQ application.
+This document outlines the core data models and database schema for the BuybidHQ application.
 
 ## Overview
 
-BuyBidHQ uses Supabase as its backend with PostgreSQL database. The data model is designed around vehicle bid requests, user management, and dealership operations.
+BuybidHQ uses Supabase as its backend with PostgreSQL database. The data model is designed around vehicle bid requests, user management, and dealership operations.
 
 ## Core Entities
 

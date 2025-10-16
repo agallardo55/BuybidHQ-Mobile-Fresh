@@ -1,4 +1,4 @@
-# Security Best Practices for BuyBidHQ
+# Security Best Practices for BuybidHQ
 
 ## Row Level Security (RLS) Guidelines
 

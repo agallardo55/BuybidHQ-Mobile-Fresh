@@ -33,7 +33,7 @@ export const useBidRequestSubmission = () => {
         throw userError;
       }
 
-      const senderName = userData.full_name || 'BuyBidHQ User';
+      const senderName = userData.full_name || 'BuybidHQ User';
 
       // Prepare vehicle data matching database schema
       const vehicleData = {

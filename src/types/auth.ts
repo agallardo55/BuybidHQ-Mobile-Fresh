@@ -1,7 +1,7 @@
 /**
  * Authentication and Authorization Types
  * 
- * This file defines the core authentication types for BuyBidHQ,
+ * This file defines the core authentication types for BuybidHQ,
  * including user roles, permissions, and auth state management.
  */
 
