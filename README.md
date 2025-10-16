@@ -205,6 +205,43 @@ supabase/
 
 ## How can I deploy this project?
 
+### Production Deployment (Netlify)
+
+This application is hosted on **Netlify** for production deployment.
+
+#### Deployment Configuration
+- **Platform:** Netlify
+- **Build Command:** `npm run build`
+- **Publish Directory:** `dist`
+- **Node Version:** 18+
+- **Auto-deploy:** Enabled (deploys from main branch)
+
+#### Manual Deployment Steps
+1. **Via Netlify Dashboard:**
+   - Go to [netlify.com](https://netlify.com) and sign up/login
+   - Click "Add new site" → "Import an existing project"
+   - Connect your GitHub account
+   - Select your `buybidhq-1` repository
+   - Configure build settings (build command: `npm run build`, publish directory: `dist`)
+   - Click "Deploy site"
+
+2. **Via Netlify CLI:**
+   ```bash
+   # Install Netlify CLI
+   npm install -g netlify-cli
+   
+   # Login to Netlify
+   netlify login
+   
+   # Deploy
+   npm run build
+   netlify deploy --prod --dir=dist
+   ```
+
+#### Environment Variables
+All required environment variables are configured in the Netlify dashboard under Site settings → Environment variables.
+
+#### Alternative: Lovable Deployment
 Simply open [Lovable](https://lovable.dev/projects/9b7ce134-27b4-41b2-948d-4938fa315713) and click on Share -> Publish.
 
 ## I want to use a custom domain - is that possible?
