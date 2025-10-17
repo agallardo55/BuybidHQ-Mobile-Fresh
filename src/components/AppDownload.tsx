@@ -8,7 +8,7 @@ const AppDownload = () => {
             Coming Soon
           </h2>
           <p className="text-gray-600 max-w-[85%] mx-auto">
-            Download our mobile app for instant access to bid requests and vehicle listing management on the go
+            Mobile app in final testing. Bids & listings on the go—launching soon.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="cursor-not-allowed">

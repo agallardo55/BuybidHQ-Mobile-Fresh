@@ -45,15 +45,22 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
   return (
     <div className="space-y-2">
       {isMobile && (
-        <Button 
-          type="button"
-          onClick={startScan}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-          disabled={isScanning || isLoading}
-        >
-          <Barcode className="h-4 w-4 mr-2" />
-          Scan VIN
-        </Button>
+        <div className="space-y-2">
+          <Button 
+            type="button"
+            onClick={startScan}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            disabled={isScanning || isLoading}
+          >
+            <Barcode className="h-4 w-4 mr-2" />
+            {isScanning ? 'Scanning...' : 'Scan VIN'}
+          </Button>
+          {isScanning && (
+            <p className="text-xs text-gray-500 text-center">
+              Hold device steady and position barcode in center of screen
+            </p>
+          )}
+        </div>
       )}
       <div>
         <label htmlFor="vin" className="block text-sm font-medium text-gray-700 mb-1">
