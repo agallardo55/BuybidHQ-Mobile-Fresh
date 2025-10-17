@@ -23,16 +23,19 @@ const DashboardNavigation = () => {
   // Use app_role for new system, fallback to legacy role for backwards compatibility
   const userAppRole = currentUser?.app_role || (currentUser?.role === 'admin' ? 'account_admin' : 'member');
   
-  // Enable links for super admin users only
+  // Enable links for admin/super admin users
   const isSuperAdmin = userAppRole === 'super_admin';
+  const isAdmin = userAppRole === 'account_admin' || currentUser?.role === 'admin';
   const canAccessUsers = isSuperAdmin;
   const canAccessDealerships = isSuperAdmin;
+  const canAccessMarketView = isAdmin || isSuperAdmin;
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     ...(canAccessDealerships ? [{ name: "Dealerships", href: "/dealerships" }] : []),
     ...(canAccessUsers ? [{ name: "Users", href: "/users" }] : []),
     { name: "Buyers", href: "/buyers" },
+    ...(canAccessMarketView ? [{ name: "Market View", href: "/marketplace" }] : []),
   ];
 
   useEffect(() => {

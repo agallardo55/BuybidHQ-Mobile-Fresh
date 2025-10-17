@@ -26,15 +26,6 @@ const NavItems = ({ items, onClick, className = "" }: NavItemsProps) => {
           </Link>
         </div>
       ))}
-      <div>
-        <Link
-          to="/marketplace"
-          className="text-gray-700 hover:text-accent transition-colors"
-          onClick={onClick}
-        >
-          Market View
-        </Link>
-      </div>
     </div>
   );
 };
