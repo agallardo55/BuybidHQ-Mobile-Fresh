@@ -2,12 +2,15 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { BrowserMultiFormatReader, Result, DecodeHintType, BarcodeFormat } from '@zxing/library';
+import { useAuth } from '@/contexts/AuthContext';
+import { hasRole } from '@/utils/auth-helpers';
 
 export function useVinScanner(onVinScanned: (vin: string) => void) {
   const [isScanning, setIsScanning] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReader = useRef<BrowserMultiFormatReader>();
   const originalOrientation = useRef<string | null>(null);
+  const { user } = useAuth();
   const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const lockOrientationToLandscape = async () => {
@@ -137,15 +140,28 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
     } catch (error: any) {
       if (isScanning) { // Only show error if we haven't cancelled
         console.error('Scanning error:', error);
-        let errorMessage = "Failed to start scanner.";
-        if (error.name === 'NotAllowedError') {
-          errorMessage += " Please check camera permissions.";
-        } else if (error.name === 'NotFoundError') {
-          errorMessage += " No camera found.";
-        } else if (error.name === 'NotReadableError') {
-          errorMessage += " Camera may be in use by another application.";
+        
+        // Check if user is admin or superadmin for detailed error messages
+        const isAdminOrSuperAdmin = hasRole(user, 'admin') || hasRole(user, 'super_admin');
+        
+        if (isAdminOrSuperAdmin) {
+          // Show detailed error for admin/superadmin
+          let errorMessage = "Failed to start scanner.";
+          if (error.name === 'NotAllowedError') {
+            errorMessage += " Please check camera permissions.";
+          } else if (error.name === 'NotFoundError') {
+            errorMessage += " No camera found.";
+          } else if (error.name === 'NotReadableError') {
+            errorMessage += " Camera may be in use by another application.";
+          }
+          toast.error(errorMessage);
+        } else {
+          // Show generic error for other roles with auto-dismiss
+          toast.error("Something went wrong", {
+            duration: 3000,
+            description: "Please try again or contact support if the issue persists."
+          });
         }
-        toast.error(errorMessage);
       }
       cleanupScanner();
       setIsScanning(false);
@@ -155,15 +171,32 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
   const handleScannedResult = (result: Result) => {
     const scannedVin = result.getText();
     
+    // Check if user is admin or superadmin for detailed error messages
+    const isAdminOrSuperAdmin = hasRole(user, 'admin') || hasRole(user, 'super_admin');
+    
     // Validate VIN length (should be 17 characters)
     if (scannedVin.length !== 17) {
-      toast.error(`Invalid VIN length: ${scannedVin.length} characters. VIN should be 17 characters.`);
+      if (isAdminOrSuperAdmin) {
+        toast.error(`Invalid VIN length: ${scannedVin.length} characters. VIN should be 17 characters.`);
+      } else {
+        toast.error("Invalid VIN format", {
+          duration: 3000,
+          description: "Please ensure the barcode is clear and try again."
+        });
+      }
       return; // Don't close scanner, let user try again
     }
     
     // Basic VIN validation (should contain only alphanumeric characters, no I, O, Q)
     if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(scannedVin)) {
-      toast.error("Invalid VIN format. Please ensure the barcode is clear and try again.");
+      if (isAdminOrSuperAdmin) {
+        toast.error("Invalid VIN format. Please ensure the barcode is clear and try again.");
+      } else {
+        toast.error("Invalid VIN format", {
+          duration: 3000,
+          description: "Please ensure the barcode is clear and try again."
+        });
+      }
       return; // Don't close scanner, let user try again
     }
     

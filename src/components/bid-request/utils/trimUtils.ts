@@ -56,6 +56,20 @@ export const getDisplayValue = (trim: TrimOption): string => {
   // If we only have a description, clean and return it
   if (!trim.name && trim.description) return cleanTrimDescription(trim.description);
   
+  // For meaningful trim names (like Autobiography, AMG, GT3 RS, etc.), prioritize the name
+  const meaningfulTrimNames = [
+    'Autobiography', 'Autobiography Edition', 'AMG', 'GT3 RS', 'GT2 RS', 
+    'GTS', 'Turbo', 'Turbo S', 'Sport', 'Luxury', 'Premium', 'Base'
+  ];
+  
+  const isMeaningfulTrim = meaningfulTrimNames.some(meaningfulName => 
+    trim.name?.toLowerCase().includes(meaningfulName.toLowerCase())
+  );
+  
+  if (isMeaningfulTrim) {
+    return trim.name;
+  }
+  
   // If the description already contains the trim name, don't duplicate it
   if (trim.description.includes(trim.name)) {
     return cleanTrimDescription(trim.description);

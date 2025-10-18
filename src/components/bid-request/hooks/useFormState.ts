@@ -131,31 +131,23 @@ export const useFormState = (): FormState & FormStateActions => {
   };
 
   const handleBatchChanges = (changes: Array<{ name: string; value: any }>) => {
-    console.log('handleBatchChanges called with:', changes);
-    console.log('Current formData before batch update:', state.formData);
-    
+    console.log('useFormState: handleBatchChanges called with:', changes);
     const updates: Partial<BidRequestFormData> = {};
     const newErrors = { ...state.errors };
 
     changes.forEach(({ name, value }) => {
-      console.log(`Batch update: ${name} = ${value}`);
       updates[name] = value;
       if (newErrors[name]) {
         delete newErrors[name];
       }
     });
 
-    console.log('Batch updates object:', updates);
-
-    setState(prev => {
-      const newState = {
-        ...prev,
-        formData: { ...prev.formData, ...updates },
-        errors: newErrors
-      };
-      console.log('New formData after batch update:', newState.formData);
-      return newState;
-    });
+    console.log('useFormState: Applying updates:', updates);
+    setState(prev => ({
+      ...prev,
+      formData: { ...prev.formData, ...updates },
+      errors: newErrors
+    }));
   };
 
   const handleSelectChange = (value: string, name: string) => {

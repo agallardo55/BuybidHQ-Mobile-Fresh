@@ -2,7 +2,8 @@
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrimOption } from "../types";
-import { deduplicateTrims, getDisplayValue } from "../utils/trimUtils";
+import { deduplicateTrims } from "../utils/trimUtils";
+import { vinService } from "@/services/vinService";
 
 interface TrimDropdownProps {
   trims: TrimOption[];
@@ -38,22 +39,27 @@ const TrimDropdown = ({
         </SelectTrigger>
         <SelectContent className="bg-white">
           {uniqueTrims && uniqueTrims.length > 0 ? (
-            uniqueTrims.map((trim, index) => {
-              const displayValue = getDisplayValue(trim);
-              return (
-                <SelectItem 
-                  key={`${displayValue}-${index}`} 
-                  value={displayValue}
-                  className="hover:bg-gray-100 focus:bg-gray-100 data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-900 transition-colors cursor-pointer"
-                >
-                  <div className="w-full whitespace-normal break-words">
-                    <div className="font-medium text-gray-900">
-                      {displayValue}
+            uniqueTrims
+              .filter(trim => {
+                const displayValue = vinService.getDisplayTrim(trim);
+                return displayValue && displayValue.trim() !== '';
+              })
+              .map((trim, index) => {
+                const displayValue = vinService.getDisplayTrim(trim);
+                return (
+                  <SelectItem 
+                    key={`${displayValue}-${index}`} 
+                    value={displayValue}
+                    className="hover:bg-gray-100 focus:bg-gray-100 data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-900 transition-colors cursor-pointer"
+                  >
+                    <div className="w-full whitespace-normal break-words">
+                      <div className="font-medium text-gray-900">
+                        {displayValue}
+                      </div>
                     </div>
-                  </div>
-                </SelectItem>
-              );
-            })
+                  </SelectItem>
+                );
+              })
           ) : (
             <SelectItem value="default" disabled>No trim levels available</SelectItem>
           )}

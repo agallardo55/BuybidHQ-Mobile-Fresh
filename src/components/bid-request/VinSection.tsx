@@ -5,40 +5,27 @@ import { Barcode } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ScannerModal from "./vin-scanner/ScannerModal";
 import { useVinScanner } from "./vin-scanner/useVinScanner";
-import { useVinDecoder } from "./vin-scanner/useVinDecoder";
-import { TrimOption } from "./types";
+import { useVinDecoder } from "@/hooks/useVinDecoder";
+import { VehicleData } from "@/services/vinService";
 
 interface VinSectionProps {
   vin: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
-  onVehicleDataFetched?: (data: {
-    year: string;
-    make: string;
-    model: string;
-    trim: string;
-    displayTrim: string;
-    engineCylinders: string;
-    transmission: string;
-    drivetrain: string;
-    availableTrims: TrimOption[];
-  }) => void;
+  onVehicleDataFetched?: (data: VehicleData) => void;
   showValidation?: boolean;
 }
 
 const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation }: VinSectionProps) => {
   const isMobile = useIsMobile();
-  const { isLoading, decodeVin } = useVinDecoder(onVehicleDataFetched);
+  const { isLoading, decodeVin } = useVinDecoder();
   const { isScanning, videoRef, startScan, stopScan } = useVinScanner((scannedVin) => {
     const syntheticEvent = {
-      target: {
-        name: 'vin',
-        value: scannedVin
-      }
+      target: { name: 'vin', value: scannedVin }
     } as React.ChangeEvent<HTMLInputElement>;
     
     onChange(syntheticEvent);
-    setTimeout(() => decodeVin(scannedVin), 100);
+    setTimeout(() => decodeVin(scannedVin, onVehicleDataFetched), 100);
   });
 
   const showError = error && showValidation;
@@ -82,7 +69,7 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
           <Button 
             type="button"
             className="bg-custom-blue hover:bg-custom-blue/90 px-6"
-            onClick={() => decodeVin(vin)}
+            onClick={() => decodeVin(vin, onVehicleDataFetched)}
             disabled={isLoading || isScanning}
           >
             {isLoading ? "Loading..." : "Go"}

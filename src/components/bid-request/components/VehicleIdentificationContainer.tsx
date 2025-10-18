@@ -1,5 +1,5 @@
-
 import React from "react";
+import { VehicleData } from "@/services/vinService";
 import VehicleIdentification from "./VehicleIdentification";
 import { TrimOption } from "../types";
 
@@ -11,15 +11,12 @@ interface VehicleIdentificationContainerProps {
     trim: string;
     displayTrim: string;
     vin: string;
+    engineCylinders: string;
+    transmission: string;
+    drivetrain: string;
     availableTrims: TrimOption[];
   };
-  errors: {
-    year?: string;
-    make?: string;
-    model?: string;
-    trim?: string;
-    vin?: string;
-  };
+  errors: Record<string, string>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBatchChange?: (changes: Array<{ name: string; value: any }>) => void;
   onSelectChange: (value: string, name: string) => void;
@@ -34,49 +31,37 @@ const VehicleIdentificationContainer = ({
   onSelectChange,
   showValidation
 }: VehicleIdentificationContainerProps) => {
-  const handleVehicleDataFetched = (data: {
-    year: string;
-    make: string;
-    model: string;
-    trim: string;
-    displayTrim: string;
-    engineCylinders: string;
-    transmission: string;
-    drivetrain: string;
-    availableTrims: TrimOption[];
-  }) => {
-    console.log('Vehicle data received in VehicleIdentificationContainer:', data);
-    console.log('Current formData before update:', formData);
-    console.log('onBatchChange function available:', !!onBatchChange);
+  const handleVehicleDataFetched = (data: VehicleData) => {
+    console.log('VehicleIdentificationContainer: Received vehicle data:', data);
+    console.log('VehicleIdentificationContainer: onBatchChange available:', !!onBatchChange);
+    console.log('VehicleIdentificationContainer: data.availableTrims:', data.availableTrims);
+    console.log('VehicleIdentificationContainer: data.model:', data.model);
+    console.log('VehicleIdentificationContainer: data.displayTrim:', data.displayTrim);
     
-    // Always use batch changes to properly handle complex data
-    const changes = Object.entries(data).map(([name, value]) => ({
-      name,
-      value
-    }));
-    
-    console.log('Sending batch changes:', changes);
-    
-    if (onBatchChange) {
-      console.log('Calling onBatchChange with changes:', changes);
-      onBatchChange(changes);
-      console.log('onBatchChange called successfully');
-    } else {
-      console.warn('onBatchChange not available, using fallback method');
-      // Fallback for simple string values if batch change isn't available
+    if (!onBatchChange) {
+      console.log('VehicleIdentificationContainer: Using fallback onChange method');
+      // Fallback for simple string values
       Object.entries(data).forEach(([key, value]) => {
         if (typeof value === 'string') {
           const syntheticEvent = {
-            target: {
-              name: key,
-              value: value
-            }
+            target: { name: key, value: value }
           } as React.ChangeEvent<HTMLInputElement>;
-          console.log(`Fallback: updating ${key} to ${value}`);
           onChange(syntheticEvent);
         }
       });
+      return;
     }
+
+    // Convert VehicleData to batch changes format, handling arrays properly
+    const changes = Object.entries(data)
+      .filter(([name, value]) => {
+        // Only include string values and availableTrims array
+        return typeof value === 'string' || name === 'availableTrims';
+      })
+      .map(([name, value]) => ({ name, value }));
+    
+    console.log('VehicleIdentificationContainer: Applying batch changes:', changes);
+    onBatchChange(changes);
   };
 
   return (

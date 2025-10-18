@@ -1,9 +1,10 @@
 
 import FormField from "./FormField";
+import DropdownField from "./DropdownField";
 import VinSection from "../VinSection";
 import { TrimOption } from "../types";
 import TrimDropdown from "./TrimDropdown";
-import { getDisplayValue } from "../utils/trimUtils";
+import { vinService } from "@/services/vinService";
 
 interface VehicleIdentificationProps {
   formData: {
@@ -47,21 +48,84 @@ const VehicleIdentification = ({
   showValidation
 }: VehicleIdentificationProps) => {
   console.log('VehicleIdentification rendered with formData:', formData);
+  console.log('VehicleIdentification - availableTrims:', formData.availableTrims);
+  console.log('VehicleIdentification - model:', formData.model);
+  console.log('VehicleIdentification - displayTrim:', formData.displayTrim);
+
+  // Generate dropdown options from available trims (Manheim style)
+  // For model dropdown, we want to show the model with engine type, not trim values
+  const modelOptions = formData.availableTrims?.length > 0 ? 
+    [{ value: formData.model, label: formData.model }] : 
+    [];
+
+  // Generate year options (current year ± 10 years)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 21 }, (_, i) => {
+    const year = currentYear - 10 + i;
+    return { value: year.toString(), label: year.toString() };
+  });
+
+  // Common make options (expandable)
+  const makeOptions = [
+    { value: "LAND ROVER", label: "LAND ROVER" },
+    { value: "PORSCHE", label: "PORSCHE" },
+    { value: "MCLAREN", label: "MCLAREN" },
+    { value: "ROLLS-ROYCE", label: "ROLLS-ROYCE" },
+    { value: "BMW", label: "BMW" },
+    { value: "MERCEDES-BENZ", label: "MERCEDES-BENZ" },
+    { value: "AUDI", label: "AUDI" },
+    { value: "LEXUS", label: "LEXUS" },
+    { value: "TOYOTA", label: "TOYOTA" },
+    { value: "HONDA", label: "HONDA" },
+    { value: "FORD", label: "FORD" },
+    { value: "CHEVROLET", label: "CHEVROLET" },
+    { value: "NISSAN", label: "NISSAN" },
+    { value: "HYUNDAI", label: "HYUNDAI" },
+    { value: "KIA", label: "KIA" },
+    { value: "MAZDA", label: "MAZDA" },
+    { value: "SUBARU", label: "SUBARU" },
+    { value: "VOLKSWAGEN", label: "VOLKSWAGEN" },
+    { value: "VOLVO", label: "VOLVO" },
+    { value: "JAGUAR", label: "JAGUAR" },
+    { value: "INFINITI", label: "INFINITI" },
+    { value: "ACURA", label: "ACURA" },
+    { value: "GENESIS", label: "GENESIS" },
+    { value: "LINCOLN", label: "LINCOLN" },
+    { value: "CADILLAC", label: "CADILLAC" },
+    { value: "BUICK", label: "BUICK" },
+    { value: "CHRYSLER", label: "CHRYSLER" },
+    { value: "DODGE", label: "DODGE" },
+    { value: "JEEP", label: "JEEP" },
+    { value: "RAM", label: "RAM" },
+    { value: "GMC", label: "GMC" },
+    { value: "ALFA ROMEO", label: "ALFA ROMEO" },
+    { value: "MASERATI", label: "MASERATI" },
+    { value: "BENTLEY", label: "BENTLEY" },
+    { value: "ASTON MARTIN", label: "ASTON MARTIN" },
+    { value: "FERRARI", label: "FERRARI" },
+    { value: "LAMBORGHINI", label: "LAMBORGHINI" },
+    { value: "BUGATTI", label: "BUGATTI" },
+    { value: "KOENIGSEGG", label: "KOENIGSEGG" },
+    { value: "PAGANI", label: "PAGANI" }
+  ];
+
+  const handleDropdownChange = (field: string) => (value: string) => {
+    const syntheticEvent = {
+      target: { name: field, value: value }
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
+  };
 
   const handleTrimChange = (value: string) => {
-    console.log('Trim selected:', value);
-    
     // Find the selected trim to auto-populate related fields
     const selectedTrim = formData.availableTrims.find(trim => 
-      getDisplayValue(trim) === value
+      vinService.getDisplayTrim(trim) === value
     );
-    
-    console.log('Selected trim details:', selectedTrim);
 
     if (selectedTrim) {
       // Store both display and database values
-      const cleanedTrimValue = getDisplayValue(selectedTrim);
-      onSelectChange(cleanedTrimValue, 'trim'); // For database
+      const cleanedTrimValue = vinService.getDisplayTrim(selectedTrim);
+      onSelectChange(selectedTrim.name, 'trim'); // For database - use actual trim name
       onSelectChange(cleanedTrimValue, 'displayTrim'); // For dropdown display
       
       // Update engine and other specs if available
@@ -72,7 +136,8 @@ const VehicleIdentification = ({
         if (selectedTrim.specs.transmission) {
           onSelectChange(selectedTrim.specs.transmission, 'transmission');
         }
-        if (selectedTrim.specs.drivetrain) {
+        // Only update drivetrain if it's not already set (to prevent overwriting VIN decoder values)
+        if (selectedTrim.specs.drivetrain && !formData.drivetrain) {
           onSelectChange(selectedTrim.specs.drivetrain, 'drivetrain');
         }
       }
@@ -88,34 +153,41 @@ const VehicleIdentification = ({
         onVehicleDataFetched={onVehicleDataFetched}
         showValidation={showValidation}
       />
-      <FormField
+      
+      {/* Year Dropdown */}
+      <DropdownField
         id="year"
         label="Year"
-        type="number"
         value={formData.year}
-        onChange={onChange}
+        options={yearOptions}
+        onChange={handleDropdownChange('year')}
         error={errors.year}
-        placeholder="2024"
         showValidation={showValidation}
       />
-      <FormField
+
+      {/* Make Dropdown */}
+      <DropdownField
         id="make"
         label="Make"
         value={formData.make}
-        onChange={onChange}
+        options={makeOptions}
+        onChange={handleDropdownChange('make')}
         error={errors.make}
-        placeholder="Toyota"
         showValidation={showValidation}
       />
-      <FormField
+
+      {/* Model Dropdown (Manheim Style - includes engine type) */}
+      <DropdownField
         id="model"
         label="Model"
         value={formData.model}
-        onChange={onChange}
+        options={modelOptions}
+        onChange={handleDropdownChange('model')}
         error={errors.model}
-        placeholder="Camry"
         showValidation={showValidation}
       />
+
+      {/* Trim Dropdown (Body Style + Trim Level) */}
       <TrimDropdown
         trims={formData.availableTrims}
         selectedTrim={formData.displayTrim || ''}
