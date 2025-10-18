@@ -28,6 +28,7 @@ interface VehicleIdentificationProps {
     make: string;
     model: string;
     trim: string;
+    displayTrim: string;
     engineCylinders: string;
     transmission: string;
     drivetrain: string;

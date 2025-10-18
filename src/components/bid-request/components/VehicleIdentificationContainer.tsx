@@ -39,12 +39,15 @@ const VehicleIdentificationContainer = ({
     make: string;
     model: string;
     trim: string;
+    displayTrim: string;
     engineCylinders: string;
     transmission: string;
     drivetrain: string;
     availableTrims: TrimOption[];
   }) => {
     console.log('Vehicle data received in VehicleIdentificationContainer:', data);
+    console.log('Current formData before update:', formData);
+    console.log('onBatchChange function available:', !!onBatchChange);
     
     // Always use batch changes to properly handle complex data
     const changes = Object.entries(data).map(([name, value]) => ({
@@ -55,8 +58,11 @@ const VehicleIdentificationContainer = ({
     console.log('Sending batch changes:', changes);
     
     if (onBatchChange) {
+      console.log('Calling onBatchChange with changes:', changes);
       onBatchChange(changes);
+      console.log('onBatchChange called successfully');
     } else {
+      console.warn('onBatchChange not available, using fallback method');
       // Fallback for simple string values if batch change isn't available
       Object.entries(data).forEach(([key, value]) => {
         if (typeof value === 'string') {
@@ -66,6 +72,7 @@ const VehicleIdentificationContainer = ({
               value: value
             }
           } as React.ChangeEvent<HTMLInputElement>;
+          console.log(`Fallback: updating ${key} to ${value}`);
           onChange(syntheticEvent);
         }
       });
