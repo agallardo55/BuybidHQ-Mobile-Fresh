@@ -8,14 +8,7 @@ import { Loader2, Check } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PlanType } from "@/types/accounts";
-import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-
-interface BidRequestLimits {
-  allowed: boolean;
-  remaining?: number;
-  reason?: string;
-}
 
 export const SubscriptionTab = () => {
   const { toast } = useToast();
@@ -23,30 +16,7 @@ export const SubscriptionTab = () => {
   const { account, isLoading } = useAccount();
   const { currentUser } = useCurrentUser();
 
-  // Fetch bid request limits for free users
-  const { data: bidRequestLimits } = useQuery({
-    queryKey: ['bid-request-limits', currentUser?.id],
-    queryFn: async (): Promise<BidRequestLimits | null> => {
-      if (!currentUser?.id) return null;
-      
-      // Show limits for basic users and free plan users
-      const shouldShowLimits = currentUser.role === 'basic' || account?.plan === 'free';
-      if (!shouldShowLimits) return null;
-      
-      const { data, error } = await supabase.rpc('can_create_bid_request', {
-        user_id: currentUser.id
-      });
-      
-      if (error) {
-        console.error('Error fetching bid request limits:', error);
-        throw error;
-      }
-      
-      console.info('Bid request limits response:', data);
-      return data as unknown as BidRequestLimits;
-    },
-    enabled: !!currentUser?.id && (currentUser?.role === 'basic' || account?.plan === 'free'),
-  });
+  // Bid request limits removed - all plans now have unlimited requests
 
   const handleManageSubscription = async () => {
     try {
@@ -115,7 +85,7 @@ export const SubscriptionTab = () => {
     {
       id: 'free',
       name: 'Free Plan',
-      description: '10 buybids per month',
+      description: 'Unlimited bid requests',
       price: '$0',
       period: '/mo',
     },
@@ -168,22 +138,6 @@ export const SubscriptionTab = () => {
             <p className="text-sm text-gray-500">
               Status: {account?.billing_status?.charAt(0).toUpperCase() + account?.billing_status?.slice(1) || 'Active'}
             </p>
-            {/* Show bid request limits only for free plan users */}
-            {account?.plan === 'free' && currentUser?.app_role !== 'super_admin' && currentUser?.app_role !== 'account_admin' && bidRequestLimits && (
-              <div className="mt-2 space-y-1">
-                {bidRequestLimits.allowed ? (
-                  <p className="text-sm text-green-600">
-                    {bidRequestLimits.remaining !== undefined 
-                      ? `${bidRequestLimits.remaining} bid requests remaining this month`
-                      : 'Bid requests available'}
-                  </p>
-                ) : (
-                  <p className="text-sm text-red-600">
-                    Monthly limit reached (10/10). Upgrade to continue submitting bid requests.
-                  </p>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>

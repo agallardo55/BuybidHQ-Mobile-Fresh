@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { useAccount, useBidRequestLimit } from "@/hooks/useAccount";
+import { useAccount } from "@/hooks/useAccount";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { PLAN_INFO, type PlanType } from "@/types/accounts";
@@ -13,7 +13,6 @@ import { isGroupPlanEnabled } from "@/config/features";
 
 export const SubscriptionSection = () => {
   const { account, isLoading: accountLoading } = useAccount();
-  const { data: bidLimit } = useBidRequestLimit();
   const { currentUser } = useCurrentUser();
   const [selectedPlan, setSelectedPlan] = useState<PlanType>(account?.plan || "free");
   const [isUpgrading, setIsUpgrading] = useState(false);
@@ -118,14 +117,6 @@ export const SubscriptionSection = () => {
               <p className="text-sm text-muted-foreground">
                 {planInfo.description}
               </p>
-              {currentPlan === 'free' && bidLimit && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {bidLimit.remaining !== undefined ? 
-                    `${bidLimit.remaining} requests remaining this month` : 
-                    'Loading usage...'
-                  }
-                </p>
-              )}
             </div>
             <div className="text-right">
               <Badge variant="secondary">Current</Badge>
@@ -215,25 +206,6 @@ export const SubscriptionSection = () => {
           )}
         </div>
 
-        {/* Limit Reached Banner for Free Users */}
-        {currentPlan === 'free' && bidLimit && !bidLimit.allowed && (
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h4 className="font-medium text-yellow-800">Limit Reached</h4>
-            <p className="text-sm text-yellow-700 mt-1">
-              You've used all 10 free bid requests this month. Upgrade to Connect for unlimited requests.
-            </p>
-            <Button 
-              size="sm" 
-              className="mt-2"
-              onClick={() => {
-                setSelectedPlan('connect');
-                handleUpgrade();
-              }}
-            >
-              Upgrade to Connect
-            </Button>
-          </div>
-        )}
 
         {/* Cancel Account */}
         <div className="pt-4 border-t">
