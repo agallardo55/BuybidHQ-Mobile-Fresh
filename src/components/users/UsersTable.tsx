@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { User } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { cn } from "@/lib/utils";
+import { formatRoleName } from "@/utils/auth-helpers";
 
 interface UsersTableProps {
   users: User[];
@@ -87,7 +88,7 @@ const UsersTable = ({ users, onEdit, onDelete, sortConfig, onSort }: UsersTableP
           <TableRow key={user.id} className="text-sm hover:bg-muted/50">
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{user.full_name || 'N/A'}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{user.email}</TableCell>
-            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap capitalize">{user.role}</TableCell>
+            <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{formatRoleName(user.role)}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap capitalize">{user.status}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{user.dealership?.dealer_name || 'N/A'}</TableCell>
             <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">

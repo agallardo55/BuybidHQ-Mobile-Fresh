@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { formatRoleName } from "@/utils/auth-helpers";
 
 export const RoleDisplay = () => {
   const { currentUser } = useCurrentUser();
@@ -25,11 +26,11 @@ export const RoleDisplay = () => {
           <SelectValue placeholder="Loading..." />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="basic">Basic</SelectItem>
-          <SelectItem value="individual">Individual</SelectItem>
-          <SelectItem value="dealer">Dealer</SelectItem>
-          <SelectItem value="associate">Associate</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
+          <SelectItem value="basic">{formatRoleName('basic')}</SelectItem>
+          <SelectItem value="individual">{formatRoleName('individual')}</SelectItem>
+          <SelectItem value="dealer">{formatRoleName('dealer')}</SelectItem>
+          <SelectItem value="associate">{formatRoleName('associate')}</SelectItem>
+          <SelectItem value="admin">{formatRoleName('admin')}</SelectItem>
         </SelectContent>
       </Select>
     </div>

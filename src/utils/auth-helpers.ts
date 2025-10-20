@@ -230,6 +230,8 @@ export const formatRoleName = (role: UserRole | AppRole): string => {
       return 'Super Admin';
     case 'account_admin':
       return 'Account Admin';
+    case 'basic':
+      return 'Free Subscription';
     default:
       return role.charAt(0).toUpperCase() + role.slice(1);
   }

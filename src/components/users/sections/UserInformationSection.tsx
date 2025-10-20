@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserFormData } from "@/types/users";
+import { formatRoleName } from "@/utils/auth-helpers";
 
 interface UserInformationSectionProps {
   formData: UserFormData;
@@ -100,7 +101,7 @@ const UserInformationSection = ({
               <SelectContent>
                 {['basic', 'individual', 'associate', 'salesperson', 'manager', 'admin'].map(role => (
                   <SelectItem key={role} value={role}>
-                    {capitalizeFirstLetter(role)}
+                    {formatRoleName(role)}
                   </SelectItem>
                 ))}
               </SelectContent>

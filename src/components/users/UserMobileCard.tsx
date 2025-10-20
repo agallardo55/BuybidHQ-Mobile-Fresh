@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, User, Building, Edit, Trash } from "lucide-react";
 import { User as UserType } from "@/types/users";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { formatRoleName } from "@/utils/auth-helpers";
 
 interface UserMobileCardProps {
   user: UserType;
@@ -56,7 +57,7 @@ export const UserMobileCard = ({
           </div>
           <div className="flex flex-col gap-1">
             <Badge variant="outline" className={getRoleColor(user.role)}>
-              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+              {formatRoleName(user.role)}
             </Badge>
             <Badge variant="outline" className={getStatusColor(user.status)}>
               {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
@@ -71,7 +72,7 @@ export const UserMobileCard = ({
           </div>
           <div className="flex items-center gap-2 text-sm">
             <User className="h-4 w-4 text-muted-foreground" />
-            <span>Role: {user.role}</span>
+            <span>Role: {formatRoleName(user.role)}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Building className="h-4 w-4 text-muted-foreground" />
