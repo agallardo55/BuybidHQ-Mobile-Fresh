@@ -36,6 +36,7 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 };
 
 export const AuthRoute = ({ children }: { children: ReactNode }) => {
+  console.log('AuthRoute component loaded successfully');
   const { user, isLoading } = useAuth();
   const location = useLocation();
   const [forceShow, setForceShow] = useState(false);
