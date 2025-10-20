@@ -29,57 +29,87 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Helper function to enrich user with profile data and roles
   const enrichUserWithProfile = async (authUser: User): Promise<AuthUser> => {
     try {
-      // Fetch user profile data (account_id, dealership_id, etc.)
-      const { data: profile, error: profileError } = await supabase
-        .from('buybidhq_users')
-        .select('account_id, dealership_id, role')
-        .eq('id', authUser.id)
-        .single();
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('User enrichment timeout')), 10000); // 10 second timeout
+      });
 
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError);
-        return authUser as AuthUser;
-      }
+      const enrichPromise = async () => {
+        // Fetch user profile data
+        const { data: profile, error: profileError } = await supabase
+          .from('buybidhq_users')
+          .select('account_id, dealership_id, role')
+          .eq('id', authUser.id)
+          .single();
 
-      // Fetch user roles from secure user_roles table
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', authUser.id)
-        .eq('is_active', true);
+        if (profileError) {
+          console.error('Error fetching user profile:', profileError);
+          // Return a fallback user with basic data until migration is applied
+          return {
+            ...authUser,
+            app_metadata: {
+              ...authUser.app_metadata,
+              role: 'basic',
+              app_role: 'member',
+              account_id: null,
+              dealership_id: null,
+            }
+          } as AuthUser;
+        }
 
-      if (rolesError) {
-        console.error('Error fetching user roles:', rolesError);
-      }
+        // Fetch user roles from secure user_roles table
+        const { data: roles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', authUser.id)
+          .eq('is_active', true);
 
-      // Determine highest role (prioritize super_admin > account_admin > manager > member)
-      const roleHierarchy = { 
-        member: 1, 
-        manager: 2, 
-        account_admin: 3, 
-        super_admin: 4 
+        if (rolesError) {
+          console.error('Error fetching user roles:', rolesError);
+          // Continue with default role if roles can't be fetched
+        }
+
+        // Determine highest role (prioritize super_admin > account_admin > manager > member)
+        const roleHierarchy = { 
+          member: 1, 
+          manager: 2, 
+          account_admin: 3, 
+          super_admin: 4 
+        };
+        
+        const highestRole = roles?.reduce((highest, r) => {
+          const currentLevel = roleHierarchy[r.role as keyof typeof roleHierarchy] || 0;
+          const highestLevel = roleHierarchy[highest as keyof typeof roleHierarchy] || 0;
+          return currentLevel > highestLevel ? r.role : highest;
+        }, 'member') || 'member';
+
+        // Merge profile and role data into app_metadata
+        return {
+          ...authUser,
+          app_metadata: {
+            ...authUser.app_metadata,
+            role: profile.role, // Keep legacy role for backwards compatibility
+            app_role: highestRole, // Use highest role from user_roles table
+            account_id: profile.account_id,
+            dealership_id: profile.dealership_id,
+          }
+        } as AuthUser;
       };
-      
-      const highestRole = roles?.reduce((highest, r) => {
-        const currentLevel = roleHierarchy[r.role as keyof typeof roleHierarchy] || 0;
-        const highestLevel = roleHierarchy[highest as keyof typeof roleHierarchy] || 0;
-        return currentLevel > highestLevel ? r.role : highest;
-      }, 'member') || 'member';
 
-      // Merge profile and role data into app_metadata
+      return await Promise.race([enrichPromise(), timeoutPromise]);
+    } catch (error) {
+      console.error('Error enriching user:', error);
+      // Return a fallback user with basic data until migration is applied
       return {
         ...authUser,
         app_metadata: {
           ...authUser.app_metadata,
-          role: profile.role, // Keep legacy role for backwards compatibility
-          app_role: highestRole, // Use highest role from user_roles table
-          account_id: profile.account_id,
-          dealership_id: profile.dealership_id,
+          role: 'basic',
+          app_role: 'member',
+          account_id: null,
+          dealership_id: null,
         }
       } as AuthUser;
-    } catch (error) {
-      console.error('Error enriching user:', error);
-      return authUser as AuthUser;
     }
   };
 
@@ -89,43 +119,100 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Check active sessions and sets the user
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const enrichedUser = await enrichUserWithProfile(session.user);
-        setUser(enrichedUser);
-      } else {
-        setUser(null);
-      }
-      setSession(session);
-      setIsLoading(false);
-
-      // Set up session expiration warning if session exists
-      if (session) {
-        const expiresAt = new Date(session.expires_at! * 1000);
-        const timeUntilExpiry = expiresAt.getTime() - Date.now();
-        const warningTime = timeUntilExpiry - (10 * 60 * 1000); // 10 minutes before expiry
-
-        if (warningTime > 0) {
-          warningTimer = setTimeout(() => {
-            toast.warning("Your session will expire in 10 minutes. Please save any unsaved work.");
-          }, warningTime);
+      console.log('AuthContext: Checking session...', { session: session ? 'exists' : 'null' });
+      
+      try {
+        if (session?.user) {
+          console.log('AuthContext: User found in session:', session.user.id);
+          try {
+            const enrichedUser = await enrichUserWithProfile(session.user);
+            setUser(enrichedUser);
+          } catch (error) {
+            console.error('AuthContext: Error enriching user:', error);
+            // Use fallback user data until migration is applied
+            setUser({
+              ...session.user,
+              app_metadata: {
+                ...session.user.app_metadata,
+                role: 'basic',
+                app_role: 'member',
+                account_id: null,
+                dealership_id: null,
+              }
+            } as AuthUser);
+          }
+        } else {
+          console.log('AuthContext: No user in session, setting user to null');
+          setUser(null);
         }
+        
+        setSession(session);
+
+        // Set up session expiration warning if session exists
+        if (session) {
+          const expiresAt = new Date(session.expires_at! * 1000);
+          const timeUntilExpiry = expiresAt.getTime() - Date.now();
+          const warningTime = timeUntilExpiry - (10 * 60 * 1000); // 10 minutes before expiry
+
+          if (warningTime > 0) {
+            warningTimer = setTimeout(() => {
+              toast.warning("Your session will expire in 10 minutes. Please save any unsaved work.");
+            }, warningTime);
+          }
+        }
+      } catch (error) {
+        console.error('AuthContext: Error processing session:', error);
+        setUser(null);
+        setSession(session);
+      } finally {
+        // Always set loading to false, regardless of success or failure
+        setIsLoading(false);
       }
+    }).catch((error) => {
+      console.error('AuthContext: Error getting session:', error);
+      setUser(null);
+      setSession(null);
+      setIsLoading(false);
     });
 
     // Listen for changes on auth state (sign in, sign out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      // Set session and user immediately (synchronous)
-      setSession(session);
-      setIsLoading(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('AuthContext: Auth state changed:', { event, session: session ? 'exists' : 'null' });
       
-      // Defer the database call to avoid deadlocks
-      if (session?.user) {
-        setTimeout(async () => {
-          const enrichedUser = await enrichUserWithProfile(session.user);
-          setUser(enrichedUser);
-        }, 0);
-      } else {
+      try {
+        // Set session immediately
+        setSession(session);
+        
+        if (session?.user) {
+          console.log('AuthContext: Processing user from auth state change:', session.user.id);
+          try {
+            const enrichedUser = await enrichUserWithProfile(session.user);
+            setUser(enrichedUser);
+          } catch (error) {
+            console.error('AuthContext: Error enriching user:', error);
+            // Use fallback user data until migration is applied
+            setUser({
+              ...session.user,
+              app_metadata: {
+                ...session.user.app_metadata,
+                role: 'basic',
+                app_role: 'member',
+                account_id: null,
+                dealership_id: null,
+              }
+            } as AuthUser);
+          }
+        } else {
+          console.log('AuthContext: No user in auth state change, setting user to null');
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('AuthContext: Error processing auth state change:', error);
         setUser(null);
+        setSession(session);
+      } finally {
+        // Always set loading to false, regardless of success or failure
+        setIsLoading(false);
       }
 
       if (session?.expires_at) {
@@ -135,14 +222,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Set up auto-refresh 5 minutes before expiration
         if (timeUntilExpiry > 5 * 60 * 1000) {
           refreshTimer = setTimeout(async () => {
-            const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
-            if (error) {
+            try {
+              const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
+              if (error) {
+                console.error('Session refresh error:', error);
+                toast.error("Session refresh failed. Please sign in again.");
+                navigate('/signin');
+              } else if (refreshedSession?.user) {
+                setSession(refreshedSession);
+                try {
+                  const enrichedUser = await enrichUserWithProfile(refreshedSession.user);
+                  setUser(enrichedUser);
+                } catch (enrichError) {
+                  console.error('Error enriching user during refresh:', enrichError);
+                  // Use fallback user data until migration is applied
+                  setUser({
+                    ...refreshedSession.user,
+                    app_metadata: {
+                      ...refreshedSession.user.app_metadata,
+                      role: 'basic',
+                      app_role: 'member',
+                      account_id: null,
+                      dealership_id: null,
+                    }
+                  } as AuthUser);
+                }
+              }
+            } catch (refreshError) {
+              console.error('Session refresh failed:', refreshError);
               toast.error("Session refresh failed. Please sign in again.");
               navigate('/signin');
-            } else if (refreshedSession?.user) {
-              setSession(refreshedSession);
-              const enrichedUser = await enrichUserWithProfile(refreshedSession.user);
-              setUser(enrichedUser);
             }
           }, timeUntilExpiry - 5 * 60 * 1000);
         }

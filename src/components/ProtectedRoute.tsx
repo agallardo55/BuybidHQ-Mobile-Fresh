@@ -1,7 +1,8 @@
 
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { Loader2 } from 'lucide-react';
 
 export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -13,7 +14,15 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-600">Loading your account...</p>
+          <p className="text-sm text-gray-500 mt-2">Please wait while we verify your session</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
@@ -30,9 +39,36 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 export const AuthRoute = ({ children }: { children: ReactNode }) => {
   const { user, isLoading } = useAuth();
   const location = useLocation();
+  const [forceShow, setForceShow] = useState(false);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  // Add a timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.warn('AuthRoute: Loading timeout reached, forcing display');
+        setForceShow(true);
+      }
+    }, 15000); // 15 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
+
+  // Reset forceShow when loading completes
+  useEffect(() => {
+    if (!isLoading) {
+      setForceShow(false);
+    }
+  }, [isLoading]);
+
+  if (isLoading && !forceShow) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (user) {
