@@ -95,7 +95,25 @@ Deno.serve(async (req) => {
           );
         }
 
-        console.log(`✅ Successfully activated subscription for user ${userId}`);
+        // Also update the user status to active when payment is confirmed
+        const { error: userUpdateError } = await supabaseAdmin
+          .from('buybidhq_users')
+          .update({
+            status: 'active',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId)
+          .eq('status', 'pending_payment'); // Only update pending_payment users
+
+        if (userUpdateError) {
+          console.error('Error updating user status:', userUpdateError);
+          return new Response(
+            JSON.stringify({ error: 'User status update failed', details: userUpdateError.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        console.log(`✅ Successfully activated subscription and updated user status for user ${userId}`);
         break;
       }
 
@@ -141,6 +159,28 @@ Deno.serve(async (req) => {
           );
         }
 
+        // Sync user status with subscription status for paid plans
+        if (dbStatus === 'active' || dbStatus === 'past_due' || dbStatus === 'canceled') {
+          const userStatus = dbStatus === 'active' ? 'active' : 
+                           dbStatus === 'past_due' ? 'pending_payment' : 
+                           'inactive';
+          
+          const { error: userUpdateError } = await supabaseAdmin
+            .from('buybidhq_users')
+            .update({
+              status: userStatus,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', userId);
+
+          if (userUpdateError) {
+            console.error('Error updating user status:', userUpdateError);
+            // Don't fail the webhook for user status update errors, just log them
+          } else {
+            console.log(`✅ Updated user ${userId} status to ${userStatus}`);
+          }
+        }
+
         console.log(`✅ Updated subscription for user ${userId} to status ${dbStatus}`);
         break;
       }
@@ -171,6 +211,22 @@ Deno.serve(async (req) => {
             JSON.stringify({ error: 'Database error', details: updateError.message }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
+        }
+
+        // Update user status to inactive when subscription is canceled
+        const { error: userUpdateError } = await supabaseAdmin
+          .from('buybidhq_users')
+          .update({
+            status: 'inactive',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId);
+
+        if (userUpdateError) {
+          console.error('Error updating user status:', userUpdateError);
+          // Don't fail the webhook for user status update errors, just log them
+        } else {
+          console.log(`✅ Updated user ${userId} status to inactive`);
         }
 
         console.log(`✅ Canceled subscription for user ${userId}`);
