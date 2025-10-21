@@ -26,7 +26,7 @@ export const useSignUpSubmission = ({
     }
 
     try {
-      console.log('Starting signup process with formData:', formData);
+      console.log('Starting signup process for email:', formData.email);
       
       // Validate required fields
       if (!formData.email || !formData.password || !formData.fullName || !formData.mobileNumber || !formData.dealershipName || !formData.planType) {
@@ -52,17 +52,24 @@ export const useSignUpSubmission = ({
         smsConsent: formData.smsConsent,
       };
       
-      console.log('Calling Edge Function with body:', requestBody);
+      console.log('Calling Edge Function for user:', formData.email);
       
       let signupResponse, signupError;
       try {
         // Use direct fetch instead of supabase.functions.invoke to bypass JWT verification
-        const response = await fetch('https://fdcfdbjputcitgxosnyk.supabase.co/functions/v1/handle-signup-or-restore', {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        if (!supabaseUrl || !supabaseAnonKey) {
+          throw new Error('Missing Supabase environment variables. Please check your .env file.');
+        }
+        
+        const response = await fetch(`${supabaseUrl}/functions/v1/handle-signup-or-restore`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkY2ZkYmpwdXRjaXRneG9zbnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg4OTc2NjksImV4cCI6MjAzNDQ3MzY2OX0.x2lu4j7aZPc1zvMYS_ElsqVyzQg7WgerAD4LRPzFRZE',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkY2ZkYmpwdXRjaXRneG9zbnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg4OTc2NjksImV4cCI6MjAzNDQ3MzY2OX0.x2lu4j7aZPc1zvMYS_ElsqVyzQg7WgerAD4LRPzFRZE'
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`
           },
           body: JSON.stringify(requestBody)
         });
