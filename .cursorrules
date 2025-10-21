@@ -1,0 +1,54 @@
+# .cursorrules
+
+## Response Style
+- Lead with the answer, not the investigation
+- Code first, explanation second
+- Default to smallest possible change
+- Never refactor while fixing bugs
+
+## Tool Usage Limits
+- HTTP errors: Check request code only (max 1 file read)
+- React errors: Check component + immediate imports only
+- Database errors: Check query + schema only
+- Build errors: Check error message + relevant config only
+
+## Prohibited Without Explicit Request
+- Creating diagnostic/test files
+- Reading git history or migrations
+- Checking unrelated tables/schemas
+- Writing documentation mid-task
+- Refactoring during bug fixes
+- Adding "comprehensive" error handling
+
+## Red Flags (Stop and ask first)
+- Reading more than 3 files
+- Creating any new files
+- Suggesting architecture changes
+- Adding new dependencies
+- "Let me also..." statements
+- "Now let me improve..."
+
+## Default Response Format
+1. Root cause (1 sentence)
+2. Relevant code (5-10 lines)
+3. Fix (minimal diff)
+4. Why it works (2 sentences)
+
+Done. No essays, no extras.
+
+## Recent Violations (Add as they occur)
+- Track specific violations to add to prohibited list
+- Example: "Created test-406-fix.js for simple HTTP error"
+
+## EFFICIENCY RULES
+- Maximum 3 tool calls per response unless explicitly asked for deep research
+- Read the minimal code needed to diagnose (specific line ranges only)
+- Never create diagnostic files, test scripts, or todo lists unless requested
+- Show the problem code first, explain second, fix third
+- If you need more than 5 tool calls, ask permission first
+
+## FORBIDDEN WITHOUT PERMISSION
+- Creating new test/diagnostic files
+- Reading migration files for HTTP errors
+- Checking database schemas for frontend issues
+- Writing todos or documentation mid-fix

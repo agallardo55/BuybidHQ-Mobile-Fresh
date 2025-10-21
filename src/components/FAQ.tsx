@@ -24,7 +24,7 @@ const FAQ = () => {
               How does BuybidHQ work?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              BuybidHQ allows auto dealers and wholesalers to send bid requests via SMS or email to their dealer network. Buyers respond with their offers, and you can track all responses in one central dashboard.
+              BuybidHQ allows auto dealers and wholesalers to send bid requests via SMS to their dealer network. Buyers respond with their offers, and you can track all responses in one central dashboard.
             </AccordionContent>
           </AccordionItem>
 
@@ -33,7 +33,7 @@ const FAQ = () => {
               What model years are available?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              BuybidHQ supports vehicles from model year 1900 to the current year. Our VIN decoder and vehicle information system can retrieve detailed specifications for any vehicle within this range.
+              BuybidHQ supports vehicles from model year 1990 to the current year. Our VIN decoder and vehicle information system can retrieve detailed specifications for any vehicle within this range.
             </AccordionContent>
           </AccordionItem>
 
@@ -48,10 +48,10 @@ const FAQ = () => {
 
           <AccordionItem value="item-3" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
             <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
-              Can I send bid requests via both SMS and email?
+              How are my bid requests sent?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">
-              Yes! We support both SMS and email for sending bid requests. You can choose your preferred method or use both depending on your buyers' preferences and your communication strategy.
+              All bid requests are sent by SMS from our cloud text service.  At no point will the SMS come from your personal account
             </AccordionContent>
           </AccordionItem>
 

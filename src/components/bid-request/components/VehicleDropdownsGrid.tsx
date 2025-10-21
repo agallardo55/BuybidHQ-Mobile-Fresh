@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DropdownField from "./DropdownField";
 import TrimDropdown from "./TrimDropdown";
 import { TrimOption } from "../types";
@@ -14,6 +14,7 @@ interface VehicleDropdownsGridProps {
   onMakeChange: (value: string) => void;
   onModelChange: (value: string) => void;
   onTrimChange: (value: string) => void;
+  onTrimsUpdate?: (trims: TrimOption[]) => void;
   yearError?: string;
   makeError?: string;
   modelError?: string;
@@ -31,79 +32,120 @@ const VehicleDropdownsGrid = ({
   onMakeChange,
   onModelChange,
   onTrimChange,
+  onTrimsUpdate,
   yearError,
   makeError,
   modelError,
   trimError,
   showValidation = false
 }: VehicleDropdownsGridProps) => {
-  // Generate year options (current year ± 10 years)
+  const [availableMakes, setAvailableMakes] = useState<Array<{ value: string; label: string }>>([]);
+  const [availableModels, setAvailableModels] = useState<Array<{ value: string; label: string }>>([]);
+  const [isLoadingMakes, setIsLoadingMakes] = useState(false);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [isLoadingTrims, setIsLoadingTrims] = useState(false);
+
+  // Generate year options (current year + 1 to 1990 - newest to oldest)
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 21 }, (_, i) => {
-    const year = currentYear - 10 + i;
+  const maxYear = currentYear + 1; // Include 1 future model year
+  const minYear = 1990; // Start from 1990
+  const yearOptions = Array.from({ length: maxYear - minYear + 1 }, (_, i) => {
+    const year = maxYear - i;
     return { value: year.toString(), label: year.toString() };
   });
 
-  // Common make options
-  const makeOptions = [
-    { value: "LAND ROVER", label: "LAND ROVER" },
-    { value: "PORSCHE", label: "PORSCHE" },
-    { value: "MCLAREN", label: "MCLAREN" },
-    { value: "ROLLS-ROYCE", label: "ROLLS-ROYCE" },
-    { value: "BMW", label: "BMW" },
-    { value: "MERCEDES-BENZ", label: "MERCEDES-BENZ" },
-    { value: "AUDI", label: "AUDI" },
-    { value: "LEXUS", label: "LEXUS" },
-    { value: "TOYOTA", label: "TOYOTA" },
-    { value: "HONDA", label: "HONDA" },
-    { value: "FORD", label: "FORD" },
-    { value: "CHEVROLET", label: "CHEVROLET" },
-    { value: "NISSAN", label: "NISSAN" },
-    { value: "HYUNDAI", label: "HYUNDAI" },
-    { value: "KIA", label: "KIA" },
-    { value: "MAZDA", label: "MAZDA" },
-    { value: "SUBARU", label: "SUBARU" },
-    { value: "VOLKSWAGEN", label: "VOLKSWAGEN" },
-    { value: "VOLVO", label: "VOLVO" },
-    { value: "JAGUAR", label: "JAGUAR" },
-    { value: "INFINITI", label: "INFINITI" },
-    { value: "ACURA", label: "ACURA" },
-    { value: "GENESIS", label: "GENESIS" },
-    { value: "LINCOLN", label: "LINCOLN" },
-    { value: "CADILLAC", label: "CADILLAC" },
-    { value: "BUICK", label: "BUICK" },
-    { value: "CHRYSLER", label: "CHRYSLER" },
-    { value: "DODGE", label: "DODGE" },
-    { value: "JEEP", label: "JEEP" },
-    { value: "RAM", label: "RAM" },
-    { value: "GMC", label: "GMC" },
-    { value: "ALFA ROMEO", label: "ALFA ROMEO" },
-    { value: "MASERATI", label: "MASERATI" },
-    { value: "BENTLEY", label: "BENTLEY" },
-    { value: "ASTON MARTIN", label: "ASTON MARTIN" },
-    { value: "FERRARI", label: "FERRARI" },
-    { value: "LAMBORGHINI", label: "LAMBORGHINI" },
-    { value: "BUGATTI", label: "BUGATTI" },
-    { value: "KOENIGSEGG", label: "KOENIGSEGG" },
-    { value: "PAGANI", label: "PAGANI" }
-  ];
+  // Load makes when year changes
+  useEffect(() => {
+    if (year) {
+      setIsLoadingMakes(true);
+      vinService.fetchMakesByYear(year)
+        .then(makes => {
+          const makeOptions = makes.map(make => ({ value: make, label: make }));
+          setAvailableMakes(makeOptions);
+          setIsLoadingMakes(false);
+        })
+        .catch(error => {
+          console.error('Error fetching makes:', error);
+          setIsLoadingMakes(false);
+        });
+    } else {
+      setAvailableMakes([]);
+    }
+  }, [year]);
 
-  // Generate model options from available trims (Manheim style)
-  const modelOptions = availableTrims?.length > 0 ? 
-    [{ value: model, label: model }] : 
-    [];
+  // Load models when year and make change
+  useEffect(() => {
+    if (year && make) {
+      setIsLoadingModels(true);
+      vinService.fetchModelsByYearMake(year, make)
+        .then(models => {
+          const modelOptions = models.map(model => ({ value: model, label: model }));
+          setAvailableModels(modelOptions);
+          setIsLoadingModels(false);
+        })
+        .catch(error => {
+          console.error('Error fetching models:', error);
+          setIsLoadingModels(false);
+        });
+    } else {
+      setAvailableModels([]);
+    }
+  }, [year, make]);
+
+  // Load trims when year, make, and model change
+  useEffect(() => {
+    if (year && make && model && onTrimsUpdate && !isLoadingTrims) {
+      console.log('Fetching trims for:', { year, make, model });
+      setIsLoadingTrims(true);
+      vinService.fetchTrimsByYearMakeModel(year, make, model)
+        .then(trims => {
+          console.log('Received trims:', trims);
+          onTrimsUpdate(trims);
+          setIsLoadingTrims(false);
+        })
+        .catch(error => {
+          console.error('Error fetching trims:', error);
+          setIsLoadingTrims(false);
+        });
+    }
+  }, [year, make, model]); // Removed onTrimsUpdate from dependencies
+
+  // Handle year change
+  const handleYearChange = (value: string) => {
+    onYearChange(value);
+    // Clear dependent fields when year changes
+    if (make) onMakeChange("");
+    if (model) onModelChange("");
+    if (displayTrim) onTrimChange("");
+  };
+
+  // Handle make change
+  const handleMakeChange = (value: string) => {
+    onMakeChange(value);
+    // Clear dependent fields when make changes
+    if (model) onModelChange("");
+    if (displayTrim) onTrimChange("");
+  };
+
+  // Handle model change
+  const handleModelChange = (value: string) => {
+    onModelChange(value);
+    // Clear dependent fields when model changes
+    if (displayTrim) onTrimChange("");
+  };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-4 gap-4">
       {/* Year Dropdown */}
       <DropdownField
         id="year"
         label="Year"
         value={year}
         options={yearOptions}
-        onChange={onYearChange}
+        onChange={handleYearChange}
         error={yearError}
         showValidation={showValidation}
+        placeholder="Select Year"
       />
 
       {/* Make Dropdown */}
@@ -111,36 +153,33 @@ const VehicleDropdownsGrid = ({
         id="make"
         label="Make"
         value={make}
-        options={makeOptions}
-        onChange={onMakeChange}
+        options={availableMakes}
+        onChange={handleMakeChange}
         error={makeError}
         showValidation={showValidation}
+        placeholder={isLoadingMakes ? "Loading..." : "Select Make"}
       />
 
-      {/* Model Dropdown (Manheim Style) */}
+      {/* Model Dropdown */}
       <DropdownField
         id="model"
         label="Model"
         value={model}
-        options={modelOptions}
-        onChange={onModelChange}
+        options={availableModels}
+        onChange={handleModelChange}
         error={modelError}
         showValidation={showValidation}
+        placeholder={isLoadingModels ? "Loading..." : "Select Model"}
       />
 
       {/* Trim Dropdown (Body Style + Trim Level) */}
-      <div>
-        <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">
-          Trim <span className="text-red-500">*</span>
-        </label>
-        <TrimDropdown
-          trims={availableTrims}
-          selectedTrim={displayTrim || ''}
-          onTrimChange={onTrimChange}
-          error={trimError}
-          showValidation={showValidation}
-        />
-      </div>
+      <TrimDropdown
+        trims={availableTrims}
+        selectedTrim={displayTrim || ''}
+        onTrimChange={onTrimChange}
+        error={trimError}
+        showValidation={showValidation}
+      />
     </div>
   );
 };

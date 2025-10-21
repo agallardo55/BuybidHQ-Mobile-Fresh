@@ -32,6 +32,7 @@ export const ContactInfo = ({ formData, handleChange }: ContactInfoProps) => {
           required
           value={formData.fullName}
           onChange={handleChange}
+          autoComplete="name"
         />
       </div>
       <div>
@@ -45,6 +46,7 @@ export const ContactInfo = ({ formData, handleChange }: ContactInfoProps) => {
           required
           value={formData.email}
           onChange={handleChange}
+          autoComplete="email"
         />
       </div>
       <div>
@@ -60,6 +62,7 @@ export const ContactInfo = ({ formData, handleChange }: ContactInfoProps) => {
           onChange={handleMobileNumberChange}
           placeholder="(123) 456-7890"
           maxLength={14}
+          autoComplete="tel"
         />
       </div>
     </>

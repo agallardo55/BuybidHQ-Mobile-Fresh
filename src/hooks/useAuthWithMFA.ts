@@ -9,91 +9,21 @@ export const useAuthWithMFA = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const signInWithMFA = async (email: string, password: string, redirectTo?: string) => {
+    console.log('useAuthWithMFA: Starting sign in process for:', email);
     try {
       setIsLoading(true);
 
-      // Check MFA settings BEFORE signing in
-      const { data: userData, error: userError } = await supabase
-        .from('buybidhq_users')
-        .select('id')
-        .eq('email', email)
-        .single();
-
-      if (userError || !userData) {
-        // User not found, proceed with normal sign in to get proper error
-        const { error: authError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (authError) {
-          toast({
-            title: "Error",
-            description: authError.message,
-            variant: "destructive",
-          });
-        }
-        return false;
-      }
-
-      // Check if user has MFA enabled
-      const { data: mfaSettings, error: mfaError } = await supabase
-        .from('mfa_settings')
-        .select('method, status')
-        .eq('user_id', userData.id)
-        .eq('status', 'enabled');
-
-      if (mfaError) {
-        console.error('Error checking MFA settings:', mfaError);
-      }
-
-      const hasMFA = mfaSettings && mfaSettings.length > 0;
-      
-      if (hasMFA) {
-        // User has MFA enabled - don't sign them in yet, go straight to MFA challenge
-        try {
-          // Auto-send SMS challenge
-          const { error: sendError } = await supabase.functions.invoke('send-mfa-challenge-sms', {
-            body: { 
-              email,
-              method: 'sms'
-            }
-          });
-
-          // Build URL params
-          const params = new URLSearchParams();
-          params.set('email', email);
-          if (redirectTo) {
-            params.set('redirect', redirectTo);
-          }
-
-          if (!sendError) {
-            params.set('codeSent', 'true');
-          } else {
-            console.error('Error auto-sending SMS MFA code:', sendError);
-          }
-
-          navigate(`/auth/mfa-challenge?${params.toString()}`);
-          return true;
-        } catch (error) {
-          console.error('Error in MFA flow:', error);
-          const params = new URLSearchParams();
-          params.set('email', email);
-          if (redirectTo) {
-            params.set('redirect', redirectTo);
-          }
-          navigate(`/auth/mfa-challenge?${params.toString()}`);
-          return true;
-        }
-      }
-
-      // No MFA enabled, proceed with normal sign in
+      // Step 1: Password authentication (creates AAL1 session)
+      console.log('useAuthWithMFA: Attempting sign in...');
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
+      
+      console.log('useAuthWithMFA: Auth result:', { authData, authError });
+      
       if (authError) {
+        console.log('useAuthWithMFA: Auth failed:', authError.message);
         toast({
           title: "Error",
           description: authError.message,
@@ -103,6 +33,7 @@ export const useAuthWithMFA = () => {
       }
 
       if (!authData.user) {
+        console.log('useAuthWithMFA: No user in auth response');
         toast({
           title: "Error", 
           description: "Sign in failed",
@@ -111,7 +42,35 @@ export const useAuthWithMFA = () => {
         return false;
       }
 
-      // Navigate to intended destination
+      // Step 2: Check if MFA required using Supabase's native MFA API
+      console.log('useAuthWithMFA: Checking MFA factors...');
+      const { data: factors, error: mfaError } = await supabase.auth.mfa.listFactors();
+      
+      console.log('useAuthWithMFA: MFA factors result:', { factors, mfaError });
+
+      if (mfaError) {
+        console.error('Error checking MFA factors:', mfaError);
+      }
+
+      const hasMFA = factors && (factors.totp?.length > 0 || factors.phone?.length > 0);
+      
+      if (hasMFA) {
+        // MFA required - session is AAL1 at this point
+        console.log('useAuthWithMFA: MFA required, redirecting to challenge');
+        
+        // Build URL params
+        const params = new URLSearchParams();
+        params.set('email', email);
+        if (redirectTo) {
+          params.set('redirect', redirectTo);
+        }
+
+        navigate(`/auth/mfa-challenge?${params.toString()}`);
+        return true;
+      }
+
+      // No MFA enabled - full session granted (AAL2)
+      console.log('useAuthWithMFA: No MFA enabled, navigating to:', redirectTo || '/dashboard');
       navigate(redirectTo || '/dashboard');
       return true;
 

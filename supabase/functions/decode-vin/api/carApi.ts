@@ -146,6 +146,62 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
   }
 }
 
+export async function fetchNHTSAData(vin: string): Promise<any> {
+  try {
+    console.log(`Fetching NHTSA data for VIN: ${vin}`);
+    
+    const url = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`;
+    console.log('NHTSA URL:', url);
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error(`NHTSA API request failed with status ${response.status}`);
+      return null;
+    }
+    
+    const data = await response.json();
+    console.log('NHTSA raw response:', JSON.stringify(data, null, 2));
+    
+    if (!data.Results || data.Results.length === 0) {
+      console.error('No results from NHTSA API');
+      return null;
+    }
+    
+    const result = data.Results[0];
+    
+    // Extract basic vehicle information
+    const vehicleData = {
+      year: result.ModelYear || '',
+      make: result.Make || '',
+      model: result.Model || '',
+      specs: {
+        engine_number_of_cylinders: result.EngineCylinders || '',
+        displacement_l: result.DisplacementL || '',
+        transmission_speeds: result.TransmissionSpeeds || '',
+        transmission_style: result.TransmissionStyle || '',
+        drive_type: result.DriveType || '',
+        turbo: result.Turbo || false,
+        trim: result.Trim || '',
+        series: result.Series || '',
+        body_class: result.BodyClass || '',
+        doors: result.Doors || ''
+      },
+      trims: result.Trim ? [{
+        name: result.Trim,
+        description: `${result.ModelYear} ${result.Make} ${result.Model} ${result.Trim}`,
+        year: parseInt(result.ModelYear) || 0
+      }] : []
+    };
+    
+    console.log('Processed NHTSA data:', JSON.stringify(vehicleData, null, 2));
+    return vehicleData;
+  } catch (error) {
+    console.error('NHTSA API error:', error);
+    return null;
+  }
+}
+
 export async function fetchAllTrimsForModel(makeModelId: number, year: number): Promise<any[]> {
   try {
     // Get JWT token using existing auth function

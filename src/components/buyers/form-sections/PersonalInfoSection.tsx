@@ -35,6 +35,7 @@ const PersonalInfoSection = ({ formData, onFormDataChange, formatPhoneNumber }: 
           required
           value={formData.fullName}
           onChange={handleChange}
+          autoComplete="name"
         />
       </div>
       <div>
@@ -47,6 +48,7 @@ const PersonalInfoSection = ({ formData, onFormDataChange, formatPhoneNumber }: 
           type="email"
           value={formData.email}
           onChange={handleChange}
+          autoComplete="email"
         />
       </div>
       <div>
@@ -62,6 +64,7 @@ const PersonalInfoSection = ({ formData, onFormDataChange, formatPhoneNumber }: 
           onChange={handleChange}
           placeholder="(123) 456-7890"
           maxLength={14}
+          autoComplete="tel"
         />
       </div>
       <div>

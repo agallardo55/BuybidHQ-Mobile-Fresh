@@ -29,6 +29,9 @@ export default function MFAChallenge() {
     sendMFAChallenge,
     verifyMFAChallenge,
     resendCode,
+    attemptCount,
+    resendCooldown,
+    maskedPhone,
   } = useMFAChallenge(email, urlCodeSent);
 
   useEffect(() => {
@@ -136,8 +139,14 @@ export default function MFAChallenge() {
           {codeSent && (
             <div className="space-y-4">
               <div className="text-center text-sm text-muted-foreground">
-                We sent a verification code to your phone number.
+                {maskedPhone ? `Code sent to ${maskedPhone}` : 'We sent a verification code to your phone number.'}
               </div>
+              
+              {attemptCount > 0 && (
+                <div className="text-center text-sm text-amber-600">
+                  Attempts: {attemptCount}/5
+                </div>
+              )}
               
               <div className="space-y-2">
                 <Label htmlFor="verification-code">Verification Code</Label>
@@ -181,10 +190,10 @@ export default function MFAChallenge() {
                 <Button 
                   variant="outline" 
                   onClick={resendCode}
-                  disabled={isLoading}
+                  disabled={isLoading || resendCooldown > 0}
                   size="sm"
                 >
-                  Resend Code
+                  {resendCooldown > 0 ? `Resend in ${Math.ceil(resendCooldown / 1000)}s` : 'Resend Code'}
                 </Button>
               </div>
             </div>

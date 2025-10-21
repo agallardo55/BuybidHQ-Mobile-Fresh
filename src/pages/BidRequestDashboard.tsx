@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import SearchHeader from "@/components/bid-request/SearchHeader";
 import BidRequestTable from "@/components/bid-request/BidRequestTable";
@@ -8,6 +8,7 @@ import { useBidRequests } from "@/hooks/useBidRequests";
 import { BidRequest } from "@/components/bid-request/types";
 import { DeleteBidRequestDialog } from "@/components/bid-request/DeleteBidRequestDialog";
 import { useBidRequestDelete } from "@/hooks/bid-requests/useBidRequestDelete";
+import { useAuth } from "@/contexts/AuthContext";
 
 type SortConfig = {
   field: keyof BidRequest | null;
@@ -15,9 +16,17 @@ type SortConfig = {
 };
 
 const BidRequestDashboard = () => {
+  const { enrichUserProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Trigger enrichment once after login
+  useEffect(() => {
+    enrichUserProfile().catch(err => {
+      console.log('Background enrichment failed:', err);
+    });
+  }, []); // Only run once on mount
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'createdAt', direction: 'desc' });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bidRequestToDelete, setBidRequestToDelete] = useState<BidRequest | null>(null);

@@ -20,15 +20,9 @@ port = 54324
 
 [storage]
 enabled = true
-port = 54325
 
 [auth]
 enabled = true
-port = 54326
-
-[edge-functions]
-enabled = true
-port = 54327
 
 [functions.batch-validate-phones]
 verify_jwt = false
@@ -66,7 +60,37 @@ verify_jwt = false
 [functions.verify-recaptcha]
 verify_jwt = false
 
+[functions.test-stripe-config]
+verify_jwt = false
+
+[functions.test-simple-debug]
+verify_jwt = true
+
+[functions.test-minimal]
+verify_jwt = true
+
+[functions.test-ultra-minimal]
+verify_jwt = true
+
+[functions.test-stripe-integration]
+verify_jwt = true
+
+[functions.test-stripe-checkout]
+verify_jwt = true
+
+[functions.test-env-vars]
+verify_jwt = false
+
+[functions.test-simple-checkout]
+verify_jwt = false
+
+[functions.test-stripe-keys]
+verify_jwt = false
+
 [functions.create-stripe-portal]
+verify_jwt = true
+
+[functions.create-stripe-checkout]
 verify_jwt = true
 
 [functions.stripe-checkout-session]

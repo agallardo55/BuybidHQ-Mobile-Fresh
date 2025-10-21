@@ -71,8 +71,8 @@ export const DealershipTab = () => {
           city: formData.city,
           state: formData.state,
           zip_code: formData.zipCode,
-        })
-        .eq('id', user.id);
+        } as any)
+        .eq('id', user.id as any);
 
       if (userError) throw userError;
 
@@ -90,7 +90,7 @@ export const DealershipTab = () => {
             zip_code: formData.zipCode,
             business_email: currentUser?.email || '',
             business_phone: currentUser?.mobile_number || null,
-          }, {
+          } as any, {
             onConflict: 'user_id'
           });
 

@@ -98,24 +98,22 @@ const MultiStepForm = ({
       onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "book-values" | "buyers")}
     >
       <FormProgress currentStep={currentStep} progressMap={progressMap} />
+      
+      {/* Vehicle Details Section - Between Progress Bar and Tabs */}
+      <div className="mt-6 mb-6">
+        <BasicVehicleInfo 
+          formData={formData}
+          errors={errors}
+          onChange={onChange}
+          onBatchChange={onBatchChange}
+          onSelectChange={onSelectChange}
+          showValidation={showValidation}
+        />
+      </div>
+      
       <FormTabs />
 
       <div className="mt-6">
-        <TabsContent value="basic-info">
-          <BasicVehicleInfo 
-            formData={formData}
-            errors={errors}
-            onChange={onChange}
-            onBatchChange={onBatchChange}
-            onSelectChange={onSelectChange}
-            showValidation={showValidation}
-          />
-          <StepNavigation 
-            showBack={false} 
-            onNext={handleNext} 
-          />
-        </TabsContent>
-
         <TabsContent value="appearance">
           <ColorsAndAccessories 
             formData={formData}
@@ -125,7 +123,7 @@ const MultiStepForm = ({
             selectedFileUrls={selectedFileUrls}
           />
           <StepNavigation 
-            onBack={handleBack}
+            showBack={false}
             onNext={handleNext}
           />
         </TabsContent>

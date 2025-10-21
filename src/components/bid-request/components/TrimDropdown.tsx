@@ -30,12 +30,14 @@ const TrimDropdown = ({
       <Select
         value={selectedTrim || ''} 
         onValueChange={onTrimChange}
+        name="trim"
       >
         <SelectTrigger 
           id="trim"
+          name="trim"
           className={`w-full bg-white hover:bg-gray-50 transition-colors [&>span]:!line-clamp-none ${error && showValidation ? "border-red-500" : ""}`}
         >
-          <SelectValue placeholder="Select trim level" />
+          <SelectValue placeholder="Select Trim" />
         </SelectTrigger>
         <SelectContent className="bg-white">
           {uniqueTrims && uniqueTrims.length > 0 ? (

@@ -9,6 +9,7 @@ import { AuthUser, AuthContextType } from '@/types/auth';
 // Enhanced context type with better typing
 interface EnhancedAuthContextType extends AuthContextType {
   user: AuthUser | null;
+  enrichUserProfile: () => Promise<void>;
   // TODO: Add MFA state when implementing
   // mfaRequired?: boolean;
   // emailConfirmationRequired?: boolean;
@@ -18,6 +19,7 @@ const AuthContext = createContext<EnhancedAuthContextType>({
   user: null,
   session: null,
   isLoading: true,
+  enrichUserProfile: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -26,55 +28,100 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Public method to enrich user after login (non-blocking)
+  const enrichUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      console.log('AuthContext: Starting background enrichment for:', user.id);
+      const enrichedUser = await enrichUserWithProfile(user);
+      setUser(enrichedUser);
+      console.log('AuthContext: Background enrichment completed');
+    } catch (error) {
+      console.warn('AuthContext: Background enrichment failed (non-blocking):', error);
+    }
+  };
+
   // Helper function to enrich user with profile data and roles
   const enrichUserWithProfile = async (authUser: User): Promise<AuthUser> => {
-    const timeoutMs = 5000; // 5 second timeout
+    console.log('AuthContext: Starting user enrichment for:', authUser.id);
     
-    const enrichmentPromise = (async () => {
-      console.log('AuthContext: Starting user enrichment for:', authUser.id);
+    try {
+      console.log('AuthContext: Querying buybidhq_users table...');
       
-      // Fetch user profile data
-      const { data: profile, error: profileError } = await supabase
+      // Add 3-second timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout')), 3000)
+      );
+      
+      const queryPromise = supabase
         .from('buybidhq_users')
         .select('account_id, dealership_id, role')
         .eq('id', authUser.id)
         .single();
-
+      
+      const { data: profile, error: profileError } = await Promise.race([queryPromise, timeoutPromise]);
+        
+      console.log('AuthContext: Profile query result:', { profile, profileError });
+        
       if (profileError) {
-        console.error('AuthContext: Error fetching user profile:', profileError);
-        throw profileError;
+        console.warn('AuthContext: Profile fetch failed (406/RLS/timeout):', profileError.message);
+        // Return basic user, don't crash - this handles 406 errors and timeouts gracefully
+        return {
+          ...authUser,
+          app_metadata: {
+            ...authUser.app_metadata,
+            role: 'basic',
+            app_role: 'member',
+            account_id: null,
+            dealership_id: null,
+          }
+        } as AuthUser;
       }
 
       if (!profile) {
         console.warn('AuthContext: No profile found for user:', authUser.id);
-        throw new Error('Profile not found');
+        // Return basic user, don't crash
+        return {
+          ...authUser,
+          app_metadata: {
+            ...authUser.app_metadata,
+            role: 'basic',
+            app_role: 'member',
+            account_id: null,
+            dealership_id: null,
+          }
+        } as AuthUser;
       }
 
-      // Fetch user roles from secure user_roles table
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', authUser.id)
-        .eq('is_active', true);
+      // Fetch user roles from secure user_roles table (optional)
+      let highestRole = 'member';
+      try {
+        const { data: roles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', authUser.id)
+          .eq('is_active', true);
 
-      if (rolesError) {
-        console.error('AuthContext: Error fetching user roles:', rolesError);
-        // Continue with default role if roles can't be fetched
+        if (!rolesError && roles) {
+          // Determine highest role (prioritize super_admin > account_admin > manager > member)
+          const roleHierarchy = { 
+            member: 1, 
+            manager: 2, 
+            account_admin: 3, 
+            super_admin: 4 
+          };
+          
+          highestRole = roles.reduce((highest, r) => {
+            const currentLevel = roleHierarchy[r.role as keyof typeof roleHierarchy] || 0;
+            const highestLevel = roleHierarchy[highest as keyof typeof roleHierarchy] || 0;
+            return currentLevel > highestLevel ? r.role : highest;
+          }, 'member');
+        }
+      } catch (rolesError) {
+        console.warn('AuthContext: Roles fetch failed:', rolesError);
+        // Continue with default role
       }
-
-      // Determine highest role (prioritize super_admin > account_admin > manager > member)
-      const roleHierarchy = { 
-        member: 1, 
-        manager: 2, 
-        account_admin: 3, 
-        super_admin: 4 
-      };
-      
-      const highestRole = roles?.reduce((highest, r) => {
-        const currentLevel = roleHierarchy[r.role as keyof typeof roleHierarchy] || 0;
-        const highestLevel = roleHierarchy[highest as keyof typeof roleHierarchy] || 0;
-        return currentLevel > highestLevel ? r.role : highest;
-      }, 'member') || 'member';
 
       console.log('AuthContext: User enriched successfully');
       
@@ -89,19 +136,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           dealership_id: profile.dealership_id,
         }
       } as AuthUser;
-    })();
-
-    // Race enrichment against timeout
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('User enrichment timeout')), timeoutMs);
-    });
-
-    try {
-      return await Promise.race([enrichmentPromise, timeoutPromise]);
     } catch (error) {
-      console.error('AuthContext: Enrichment failed:', error);
+      console.warn('AuthContext: Enrichment error (non-blocking):', error);
       
-      // Return basic user as fallback
+      // Return basic user as fallback - never crash, never throw
       return {
         ...authUser,
         app_metadata: {
@@ -120,21 +158,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let refreshTimer: NodeJS.Timeout;
 
     // Check active sessions and sets the user
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      console.log('AuthContext: Initial session check');
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+      console.log('AuthContext: Initial session check:', { 
+        hasSession: !!session, 
+        userId: session?.user?.id,
+        error 
+      });
       
       try {
         if (session?.user) {
           console.log('AuthContext: Session found, enriching user:', session.user.id);
           
           try {
-            // Enrich user with profile data
-            const enrichedUser = await enrichUserWithProfile(session.user);
-            setUser(enrichedUser);
+            // Skip enrichment during sign-in to prevent blocking
+            const basicUser = {
+              ...session.user,
+              app_metadata: {
+                ...session.user.app_metadata,
+                role: 'basic',
+                app_role: 'member',
+                account_id: null,
+                dealership_id: null,
+              }
+            } as AuthUser;
+            
+            setUser(basicUser);
             setSession(session);
-            console.log('AuthContext: User enriched successfully');
+            console.log('AuthContext: User signed in with basic profile (enrichment deferred)');
           } catch (enrichError) {
-            console.error('AuthContext: Error enriching user:', enrichError);
+            console.error('AuthContext: Error setting basic user:', enrichError);
             
             // Fallback: set basic user without enrichment
             setUser({
@@ -214,6 +266,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           console.log('AuthContext: Token refreshed');
           setSession(session);
           // Don't re-enrich on token refresh, just update session
+        } else if (event === 'TOKEN_REFRESH_FAILED') {
+          console.error('AuthContext: Token refresh failed, signing out');
+          await supabase.auth.signOut();
+          localStorage.clear();
+          setUser(null);
+          setSession(null);
+          navigate('/signin');
         } else if (event === 'USER_UPDATED' && session?.user) {
           console.log('AuthContext: User updated');
           
@@ -279,7 +338,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading }}>
+    <AuthContext.Provider value={{ user, session, isLoading, enrichUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

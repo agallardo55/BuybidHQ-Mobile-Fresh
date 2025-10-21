@@ -24,8 +24,8 @@ const TrimSelector = ({ selectedTrim, availableTrims, onTrimChange }: TrimSelect
   return (
     <div className="space-y-1 w-full">
       <Label htmlFor="trim" className="text-sm">Trim</Label>
-      <Select value={selectedTrim} onValueChange={onTrimChange}>
-        <SelectTrigger className="w-full h-8">
+      <Select value={selectedTrim} onValueChange={onTrimChange} name="trim">
+        <SelectTrigger id="trim" name="trim" className="w-full h-8">
           <SelectValue placeholder="Select a trim" />
         </SelectTrigger>
         <SelectContent>

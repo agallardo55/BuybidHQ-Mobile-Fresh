@@ -73,7 +73,7 @@ export const CommunicationSettingsTab = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
-            Communication Preferences
+            Communication Settings
           </CardTitle>
           <CardDescription>
             Choose how you want to send bid requests to buyers
@@ -81,21 +81,24 @@ export const CommunicationSettingsTab = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Email Notifications */}
-          <div className="flex items-start space-x-3">
-            <Mail className="h-5 w-5 text-primary mt-0.5" />
+          <div className="flex items-start space-x-3 opacity-50">
+            <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="flex-1 space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="email-notifications" className="text-base font-medium">
+                <Label htmlFor="email-notifications" className="text-base font-medium text-muted-foreground">
                   Send via Email
                 </Label>
                 <Switch
                   id="email-notifications"
-                  checked={emailEnabled}
-                  onCheckedChange={setEmailEnabled}
+                  checked={false}
+                  disabled={true}
                 />
               </div>
               <p className="text-sm text-muted-foreground">
                 Send bid requests to buyers via email. This includes new bid requests and updates.
+                <span className="block mt-1 text-xs text-orange-600 font-medium">
+                  Coming soon - Email feature is currently in development
+                </span>
               </p>
             </div>
           </div>
@@ -132,16 +135,16 @@ export const CommunicationSettingsTab = () => {
           <div className="pt-4">
             <Button 
               onClick={handleSave} 
-              disabled={isSaving || (!smsEnabled && !emailEnabled)}
+              disabled={isSaving || !smsEnabled}
               className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving..." : "Save Preferences"}
             </Button>
             
-            {!smsEnabled && !emailEnabled && (
+            {!smsEnabled && (
               <p className="text-sm text-destructive mt-2">
-                At least one sending method must be enabled.
+                SMS sending must be enabled.
               </p>
             )}
           </div>

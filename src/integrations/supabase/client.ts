@@ -2,10 +2,82 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://fdcfdbjputcitgxosnyk.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkY2ZkYmpwdXRjaXRneG9zbnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg4OTc2NjksImV4cCI6MjAzNDQ3MzY2OX0.x2lu4j7aZPc1zvMYS_ElsqVyzQg7WgerAD4LRPzFRZE";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    storage: {
+      getItem: (key) => {
+        try {
+          return localStorage.getItem(key)
+        } catch {
+          return null
+        }
+      },
+      setItem: (key, value) => {
+        try {
+          localStorage.setItem(key, value)
+        } catch {}
+      },
+      removeItem: (key) => {
+        try {
+          localStorage.removeItem(key)
+        } catch {}
+      },
+    },
+  },
+  db: {
+    schema: 'public'
+  },
+  global: {
+    headers: {
+      'apikey': SUPABASE_PUBLISHABLE_KEY,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  },
+});
+
+// Validate session on initialization
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'TOKEN_REFRESHED') {
+    console.log('Token refreshed successfully')
+  }
+  
+  if (event === 'SIGNED_OUT') {
+    localStorage.clear() // Clear all stored data
+  }
+})
+
+// Clear invalid sessions on startup
+const clearInvalidSession = async () => {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    
+    if (error || !session) {
+      await supabase.auth.signOut()
+      localStorage.clear()
+    }
+  } catch (err) {
+    console.error('Session validation failed:', err)
+    await supabase.auth.signOut()
+    localStorage.clear()
+  }
+}
+
+clearInvalidSession()

@@ -57,6 +57,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           value={formData.dealershipName}
           onChange={onChange}
           placeholder="ABC Motors Inc."
+          autoComplete="organization"
         />
       </div>
       <div>
@@ -70,6 +71,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           value={formData.fullName}
           onChange={onChange}
           placeholder="John Smith"
+          autoComplete="name"
         />
       </div>
       <div>
@@ -84,6 +86,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
             value={formData.email}
             onChange={onChange}
             placeholder="fullname@mail.com"
+            autoComplete="email"
             className={`pr-10 ${
               isAvailable === false ? 'border-red-500 focus:ring-red-500' :
               isAvailable === true ? 'border-green-500 focus:ring-green-500' : ''

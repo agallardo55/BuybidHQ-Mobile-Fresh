@@ -4,14 +4,13 @@ import { useState } from "react";
 export type FormStep = "basic-info" | "appearance" | "condition" | "book-values" | "buyers";
 
 export const useFormNavigation = () => {
-  const [currentStep, setCurrentStep] = useState<FormStep>("basic-info");
+  const [currentStep, setCurrentStep] = useState<FormStep>("appearance");
   const [isAddBuyerOpen, setIsAddBuyerOpen] = useState(false);
   
   const progressMap = {
-    "basic-info": 20,
-    "appearance": 40,
-    "condition": 60,
-    "book-values": 80,
+    "appearance": 25,
+    "condition": 50,
+    "book-values": 75,
     "buyers": 100
   };
 

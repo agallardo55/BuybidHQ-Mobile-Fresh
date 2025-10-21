@@ -95,8 +95,8 @@ export const ProfileImageSection = () => {
       // Update user profile with cache-busted URL
       const { error: updateError } = await supabase
         .from('buybidhq_users')
-        .update({ profile_photo: cacheBustedUrl })
-        .eq('id', currentUser.id);
+        .update({ profile_photo: cacheBustedUrl } as any)
+        .eq('id', currentUser.id as any);
 
       if (updateError) throw updateError;
 

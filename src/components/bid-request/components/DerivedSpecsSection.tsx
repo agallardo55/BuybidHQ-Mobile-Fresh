@@ -13,35 +13,35 @@ const DerivedSpecsSection = ({
 }: DerivedSpecsSectionProps) => {
   return (
     <div className="grid grid-cols-3 gap-4">
-      {/* Engine */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-          ENGINE
-        </label>
-        <div className="text-lg font-semibold text-blue-600 bg-gray-50 p-3 rounded border min-h-[3rem] flex items-center">
-          {engineCylinders || "—"}
-        </div>
-      </div>
+             {/* Engine */}
+             <div className="space-y-0.5">
+               <label className="text-sm font-medium text-gray-500 uppercase">
+                 ENGINE
+               </label>
+               <div className="text-sm font-medium text-blue-600 py-1 min-h-[2rem] flex items-start">
+                 {engineCylinders || "—"}
+               </div>
+             </div>
 
-      {/* Transmission */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-          TRANSMISSION
-        </label>
-        <div className="text-lg font-semibold text-blue-600 bg-gray-50 p-3 rounded border min-h-[3rem] flex items-center">
-          {transmission || "—"}
-        </div>
-      </div>
+             {/* Transmission */}
+             <div className="space-y-0.5">
+               <label className="text-sm font-medium text-gray-500 uppercase">
+                 TRANSMISSION
+               </label>
+               <div className="text-sm font-medium text-blue-600 py-1 min-h-[2rem] flex items-start">
+                 {transmission || "—"}
+               </div>
+             </div>
 
-      {/* Drivetrain */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-          DRIVETRAIN
-        </label>
-        <div className="text-lg font-semibold text-blue-600 bg-gray-50 p-3 rounded border min-h-[3rem] flex items-center">
-          {drivetrain || "—"}
-        </div>
-      </div>
+             {/* Drivetrain */}
+             <div className="space-y-0.5">
+               <label className="text-sm font-medium text-gray-500 uppercase">
+                 DRIVETRAIN
+               </label>
+               <div className="text-sm font-medium text-blue-600 py-1 min-h-[2rem] flex items-start">
+                 {drivetrain || "—"}
+               </div>
+             </div>
     </div>
   );
 };

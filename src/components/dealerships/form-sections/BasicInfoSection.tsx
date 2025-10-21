@@ -37,6 +37,7 @@ const BasicInfoSection = ({
             value={dealerName}
             onChange={(e) => onChange('dealerName', e.target.value)}
             required
+            autoComplete="organization"
           />
         </div>
 
@@ -56,6 +57,7 @@ const BasicInfoSection = ({
             value={businessPhone}
             onChange={(e) => onChange('businessPhone', formatPhoneNumber(e.target.value))}
             required
+            autoComplete="tel"
           />
         </div>
 
@@ -67,6 +69,7 @@ const BasicInfoSection = ({
             value={businessEmail}
             onChange={(e) => onChange('businessEmail', e.target.value)}
             required
+            autoComplete="email"
           />
         </div>
 

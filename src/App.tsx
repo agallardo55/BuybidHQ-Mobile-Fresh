@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PublicAppWrapper } from "@/components/PublicAppWrapper";
 import { ProtectedRoute, AuthRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { useSessionRecovery } from "@/hooks/useSessionRecovery";
 
 import { RecoveryRedirector } from "@/components/RecoveryRedirector";
 import { StrictMode, lazy, Suspense } from "react";
@@ -37,148 +37,152 @@ const PageLoader = () => (
   </div>
 );
 
-const App = () => (
-  <StrictMode>
-    <ErrorBoundary>
-      <TooltipProvider>
-        <BrowserRouter>
-          <PublicAppWrapper>
-            <RecoveryRedirector />
-            <Toaster />
-            <Sonner position="top-center" />
-            <Routes>
-            <Route path="/" element={<Index />} />
-            <Route 
-              path="/signin" 
-              element={
-                <AuthRoute>
-                  <SignIn />
-                </AuthRoute>
-              } 
-            />
-            <Route 
-              path="/signup" 
-              element={<SignUp />} 
-            />
-            <Route 
-              path="/forgot-password" 
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <AuthRoute>
-                    <ForgotPassword />
-                  </AuthRoute>
-                </Suspense>
-              } 
-            />
-            <Route 
-              path="/reset-password" 
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ResetPassword />
-                </Suspense>
-              } 
-            />
-            <Route 
-              path="/password-reset" 
-              element={<Navigate to="/reset-password" replace />} 
-            />
-            <Route 
-              path="/auth/mfa-challenge" 
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <MFAChallenge />
-                </Suspense>
-              } 
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ProtectedRoute>
-                    <BidRequestDashboard />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/create-bid-request"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ProtectedRoute>
-                    <CreateBidRequest />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/bid-response/:id"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <BidResponse />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/buyers"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ProtectedRoute>
-                    <Buyers />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/dealerships"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ProtectedRoute>
-                    <Dealerships />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/users"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ProtectedRoute>
-                    <Users />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/account"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ProtectedRoute>
-                    <Account />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-            />
-            <Route
-              path="/marketplace"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ProtectedRoute>
-                    <Marketplace />
-                  </ProtectedRoute>
-                </Suspense>
-              }
-            />
-            <Route path="*" element={
-              <Suspense fallback={<PageLoader />}>
-                <NotFound />
-              </Suspense>
-            } />
-          </Routes>
-        </PublicAppWrapper>
-      </BrowserRouter>
-    </TooltipProvider>
-    </ErrorBoundary>
-  </StrictMode>
-);
+const App = () => {
+  useSessionRecovery(); // Add session recovery
+  
+  return (
+    <StrictMode>
+      <ErrorBoundary>
+        <TooltipProvider>
+          <BrowserRouter>
+            <PublicAppWrapper>
+              <RecoveryRedirector />
+              <Toaster />
+              <Sonner position="top-center" />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route 
+                  path="/signin" 
+                  element={
+                    <AuthRoute>
+                      <SignIn />
+                    </AuthRoute>
+                  } 
+                />
+                <Route 
+                  path="/signup" 
+                  element={<SignUp />} 
+                />
+                <Route 
+                  path="/forgot-password" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <AuthRoute>
+                        <ForgotPassword />
+                      </AuthRoute>
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/reset-password" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ResetPassword />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/password-reset" 
+                  element={<Navigate to="/reset-password" replace />} 
+                />
+                <Route 
+                  path="/auth/mfa-challenge" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <MFAChallenge />
+                    </Suspense>
+                  } 
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProtectedRoute>
+                        <BidRequestDashboard />
+                      </ProtectedRoute>
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/create-bid-request"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProtectedRoute>
+                        <CreateBidRequest />
+                      </ProtectedRoute>
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/bid-response/:id"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <BidResponse />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/buyers"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProtectedRoute>
+                        <Buyers />
+                      </ProtectedRoute>
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/dealerships"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProtectedRoute>
+                        <Dealerships />
+                      </ProtectedRoute>
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/users"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProtectedRoute>
+                        <Users />
+                      </ProtectedRoute>
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/account"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProtectedRoute>
+                        <Account />
+                      </ProtectedRoute>
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/marketplace"
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <ProtectedRoute>
+                        <Marketplace />
+                      </ProtectedRoute>
+                    </Suspense>
+                  }
+                />
+                <Route path="*" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <NotFound />
+                  </Suspense>
+                } />
+              </Routes>
+            </PublicAppWrapper>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ErrorBoundary>
+    </StrictMode>
+  );
+};
 
 export default App;

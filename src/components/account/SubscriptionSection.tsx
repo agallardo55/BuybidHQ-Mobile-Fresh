@@ -18,6 +18,7 @@ export const SubscriptionSection = () => {
   const [isUpgrading, setIsUpgrading] = useState(false);
 
   const handlePlanChange = (value: string) => {
+    console.log('Plan selected:', value);
     setSelectedPlan(value as PlanType);
   };
 
@@ -26,6 +27,8 @@ export const SubscriptionSection = () => {
     
     setIsUpgrading(true);
     try {
+      console.log('Starting upgrade process:', { currentPlan: account.plan, selectedPlan, account });
+      
       if (selectedPlan === "connect" || selectedPlan === "annual") {
         // Create Stripe checkout session
         const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
@@ -37,17 +40,26 @@ export const SubscriptionSection = () => {
           }
         });
 
-        if (error) throw error;
+        console.log('Stripe checkout response:', { data, error });
+
+        if (error) {
+          console.error('Stripe checkout error:', error);
+          throw error;
+        }
         
         if (data?.url) {
+          console.log('Redirecting to Stripe checkout:', data.url);
           window.location.href = data.url;
+        } else {
+          console.error('No checkout URL returned:', data);
+          throw new Error('No checkout URL returned from server');
         }
       }
     } catch (error) {
       console.error('Error upgrading plan:', error);
       toast({
         title: "Error",
-        description: "Failed to start upgrade process. Please try again.",
+        description: `Failed to start upgrade process: ${error.message || 'Please try again.'}`,
         variant: "destructive",
       });
     } finally {
@@ -189,7 +201,7 @@ export const SubscriptionSection = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
-          {selectedPlan !== currentPlan && (
+          {selectedPlan !== currentPlan ? (
             <Button 
               onClick={handleUpgrade} 
               disabled={isUpgrading}
@@ -197,6 +209,10 @@ export const SubscriptionSection = () => {
             >
               {isUpgrading ? 'Processing...' : `Upgrade to ${PLAN_INFO[selectedPlan as keyof typeof PLAN_INFO].name}`}
             </Button>
+          ) : (
+            <div className="text-sm text-muted-foreground p-4 border rounded-lg bg-gray-50">
+              Select a different plan above to upgrade
+            </div>
           )}
           
           {account?.stripe_customer_id && (

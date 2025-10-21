@@ -23,7 +23,7 @@ export const useBuyersQuery = () => {
 
         console.log("Current user role:", currentUser?.role);
 
-        // Fetch buyers data
+        // Fetch buyers data - add proper error handling for 406
         const { data: buyersData, error: buyersError } = await supabase
           .from('buyers')
           .select(`
@@ -136,21 +136,36 @@ export const useBuyersQuery = () => {
         return mappedBuyers;
       } catch (error: any) {
         console.error("Error in buyers query:", error);
+        
+        // AbortError is normal - query was cancelled (component unmounted or query invalidated)
+        if (error.name === 'AbortError' || error.code === '20' || error.message?.includes('AbortError')) {
+          console.log('Query cancelled (normal behavior)');
+          return [];
+        }
+        
+        // Real errors
         if (error.message?.includes('JWT')) {
           navigate('/signin');
           return [];
         }
+        
         toast.error("Failed to fetch buyers. Please try again.");
         throw error;
       }
     },
     enabled: !!currentUser,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     retry: (failureCount, error: any) => {
+      // Don't retry aborted queries or auth errors
       if (error?.message?.includes('JWT') || 
-          error?.message?.includes('Invalid refresh token')) {
+          error?.message?.includes('Invalid refresh token') ||
+          error?.message?.includes('AbortError') ||
+          error?.name === 'AbortError' ||
+          error?.code === '20') {
         return false;
       }
-      return failureCount < 3;
+      return failureCount < 2;
     },
+    retryDelay: 1000,
   });
 };

@@ -37,7 +37,12 @@ Deno.serve(async (req) => {
         p_email: signupData.email,
         p_full_name: signupData.fullName,
         p_mobile_number: signupData.mobileNumber,
+        p_address: '', // Not collected in signup form
+        p_city: '', // Not collected in signup form
+        p_state: '', // Not collected in signup form
+        p_zip_code: '', // Not collected in signup form
         p_sms_consent: signupData.smsConsent,
+        p_carrier: '', // Not collected in signup form
       }
     );
 

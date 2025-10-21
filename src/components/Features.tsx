@@ -15,13 +15,13 @@ const Features = () => {
     },
     {
       icon: <BarChart className="h-12 w-12 text-accent" />,
-      title: "Analytics Dashboard",
+      title: "Bid Request Dashboard",
       description: "Easily track and manage your bids and offers like never before."
     },
     {
       icon: <BatteryCharging className="h-12 w-12 text-accent" />,
       title: "Real-time Updates",
-      description: "Stay ahead with real-time bid and offer notifications via text or email."
+      description: "Stay ahead with real-time bid and offer notifications via text messaging."
     }
   ];
 
@@ -30,10 +30,10 @@ const Features = () => {
       <div className="container px-4 md:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-            Powerful Features
+          Smarter Bidding, Real Results
           </h2>
           <p className="mt-4 text-lg text-gray-600">
-            Everything you need to streamline your vehicle bidding process
+          Unlock a private marketplace with instant bid requests, real-time updates, giving you total control and more opportunities for a faster, better sale.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

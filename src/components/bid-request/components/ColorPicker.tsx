@@ -15,8 +15,8 @@ const ColorPicker = ({ label, value, colors, name, onSelectChange }: ColorPicker
       <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
-      <Select value={value} onValueChange={value => onSelectChange(value, name)}>
-        <SelectTrigger className="w-full">
+      <Select value={value} onValueChange={value => onSelectChange(value, name)} name={name}>
+        <SelectTrigger id={name} name={name} className="w-full">
           <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
         </SelectTrigger>
         <SelectContent>

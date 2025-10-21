@@ -61,6 +61,7 @@ const UserInformationSection = ({
               value={formData.fullName}
               onChange={(e) => onFormDataChange({ fullName: e.target.value })}
               required
+              autoComplete="name"
             />
           </div>
           
@@ -73,6 +74,7 @@ const UserInformationSection = ({
               value={formData.email}
               onChange={(e) => onFormDataChange({ email: e.target.value })}
               required
+              autoComplete="email"
             />
           </div>
 
@@ -85,6 +87,7 @@ const UserInformationSection = ({
               onChange={handlePhoneNumberChange}
               maxLength={14}
               required
+              autoComplete="tel"
             />
           </div>
 

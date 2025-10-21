@@ -1,4 +1,6 @@
 
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import {
   Tabs,
@@ -13,10 +15,53 @@ import { SecurityTab } from "@/components/account/SecurityTab";
 import { SettingsTab } from "@/components/account/SettingsTab";
 import { ProfileImageSection } from "@/components/account/ProfileImageSection";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useToast } from "@/hooks/use-toast";
+import { useAccount } from "@/hooks/useAccount";
 
 const Account = () => {
   const { currentUser, isLoading } = useCurrentUser();
+  const { account } = useAccount();
+  const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const isAdmin = currentUser?.role === 'admin';
+
+  // Handle Stripe checkout result messages
+  useEffect(() => {
+    const isCanceled = searchParams.get('canceled') === 'true';
+    const isSuccess = searchParams.get('success') === 'true';
+    
+    if (isCanceled) {
+      const currentPlan = account?.plan || 'free';
+      const planName = currentPlan === 'free' ? 'Free' : 
+                      currentPlan === 'connect' ? 'Connect' : 
+                      currentPlan === 'annual' ? 'Annual' : 'current';
+      
+      toast({
+        title: "Checkout Cancelled",
+        description: `Your subscription upgrade was cancelled. You're still on the ${planName} plan. You can try upgrading again anytime from the Subscription tab.`,
+        variant: "default",
+      });
+      
+      // Clear the URL parameter
+      window.history.replaceState({}, '', '/account');
+    }
+    
+    if (isSuccess) {
+      const currentPlan = account?.plan || 'free';
+      const planName = currentPlan === 'free' ? 'Free' : 
+                      currentPlan === 'connect' ? 'Connect' : 
+                      currentPlan === 'annual' ? 'Annual' : 'current';
+      
+      toast({
+        title: "Payment Successful",
+        description: `Your subscription has been updated successfully! You're now on the ${planName} plan.`,
+        variant: "default",
+      });
+      
+      // Clear the URL parameter
+      window.history.replaceState({}, '', '/account');
+    }
+  }, [searchParams, toast, account?.plan]);
 
   return (
     <DashboardLayout>

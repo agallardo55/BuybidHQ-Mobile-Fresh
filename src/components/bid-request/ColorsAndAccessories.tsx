@@ -210,21 +210,24 @@ const ColorsAndAccessories = ({
 
   return (
     <div className="space-y-4">
-      <ColorPicker
-        label="Exterior Color"
-        value={formData.exteriorColor}
-        colors={exteriorColors}
-        name="exteriorColor"
-        onSelectChange={handleSelectChange}
-      />
+      {/* Color Picker Row - Exterior and Interior on same row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ColorPicker
+          label="Exterior Color"
+          value={formData.exteriorColor}
+          colors={exteriorColors}
+          name="exteriorColor"
+          onSelectChange={handleSelectChange}
+        />
 
-      <ColorPicker
-        label="Interior Color"
-        value={formData.interiorColor}
-        colors={interiorColors}
-        name="interiorColor"
-        onSelectChange={handleSelectChange}
-      />
+        <ColorPicker
+          label="Interior Color"
+          value={formData.interiorColor}
+          colors={interiorColors}
+          name="interiorColor"
+          onSelectChange={handleSelectChange}
+        />
+      </div>
 
       <div>
         <label htmlFor="accessories" className="block text-sm font-medium text-gray-700 mb-1">

@@ -9,6 +9,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PlanType } from "@/types/accounts";
 import { useState, useEffect } from "react";
+import { getPlanButtonConfig, type PlanType as PlanTypeFromHelpers } from "@/utils/planHelpers";
 
 export const SubscriptionTab = () => {
   const { toast } = useToast();
@@ -38,44 +39,46 @@ export const SubscriptionTab = () => {
     }
   };
 
-  const handleUpgradeSubscription = async (planType?: PlanType) => {
+  const handlePlanChange = async (planType?: PlanType) => {
     try {
       const currentPlan = account?.plan;
       const targetPlan = planType || 'connect';
 
-      // If upgrading from free plan to connect, show contact sales message  
-      if (currentPlan === "free" && targetPlan === "connect") {
-        const contactSection = document.getElementById('contact');
-        if (contactSection) {
-          contactSection.scrollIntoView({ behavior: 'smooth' });
-          return;
-        } else {
-          // If not on homepage, navigate there first
-          navigate('/#contact');
-          return;
-        }
-      }
+      console.log('Starting upgrade process:', { currentPlan, targetPlan, account });
+
+      // Allow free plan users to upgrade to connect plan via Stripe checkout
+      // Removed the contact sales redirect for connect plan
 
       // For specific plan upgrades, use Stripe Checkout
       const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
         method: 'POST',
         body: {
           currentPlan,
-          targetPlan,
+          selectedPlan: targetPlan,
           successUrl: `${window.location.origin}/account?success=true`,
           cancelUrl: `${window.location.origin}/account?canceled=true`,
         },
       });
 
-      if (error) throw error;
+      console.log('Stripe checkout response:', { data, error });
+
+      if (error) {
+        console.error('Stripe checkout error:', error);
+        throw error;
+      }
+      
       if (data?.url) {
+        console.log('Redirecting to Stripe checkout:', data.url);
         window.location.href = data.url;
+      } else {
+        console.error('No checkout URL returned:', data);
+        throw new Error('No checkout URL returned from server');
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
       toast({
         title: "Error",
-        description: "Unable to process upgrade request. Please try again later.",
+        description: `Unable to process upgrade request: ${error.message || 'Please try again later.'}`,
         variant: "destructive",
       });
     }
@@ -154,54 +157,58 @@ export const SubscriptionTab = () => {
               }
               return true;
             })
-            .map((plan) => (
-            <div key={plan.id} className={`flex items-center justify-between p-4 border rounded-lg ${plan.id === 'annual' ? 'border-accent bg-accent/5' : 'border-border'}`}>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-medium text-gray-900">{plan.name}</h4>
-                  {plan.badge && (
-                    <span className="bg-accent text-accent-foreground px-2 py-1 rounded-full text-xs font-medium">
-                      {plan.badge}
-                    </span>
-                  )}
+            .map((plan) => {
+              const buttonConfig = getPlanButtonConfig(account?.plan, plan.id);
+              
+              return (
+                <div key={plan.id} className={`flex items-center justify-between p-4 border rounded-lg ${plan.id === 'annual' ? 'border-accent bg-accent/5' : 'border-border'}`}>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-gray-900">{plan.name}</h4>
+                      {plan.badge && (
+                        <span className="bg-accent text-accent-foreground px-2 py-1 rounded-full text-xs font-medium">
+                          {plan.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
+                    <div className="flex items-baseline gap-1 mt-2">
+                      <span className="text-xl font-bold text-gray-900">{plan.price}</span>
+                      <span className="text-sm text-gray-500">{plan.period}</span>
+                      {plan.note && (
+                        <span className="ml-2 text-xs text-accent font-medium">• {plan.note}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    {(currentUser?.app_role === 'super_admin' || currentUser?.app_role === 'account_admin') ? (
+                      <Button disabled variant="outline" className="bg-gray-100 text-gray-500">
+                        Admin Access
+                      </Button>
+                    ) : account?.plan === plan.id ? (
+                      <Button disabled variant="outline" className="bg-green-100 text-green-700 hover:bg-green-100">
+                        <Check className="h-4 w-4 mr-2" />
+                        Current Plan
+                      </Button>
+                    ) : plan.isCustom ? (
+                      <Button
+                        onClick={() => navigate('/#contact')}
+                        className="bg-accent hover:bg-accent/90"
+                      >
+                        Contact Sales
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handlePlanChange(plan.id as PlanType)}
+                        className={buttonConfig.className}
+                      >
+                        {buttonConfig.text}
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">{plan.description}</p>
-                <div className="flex items-baseline gap-1 mt-2">
-                  <span className="text-xl font-bold text-gray-900">{plan.price}</span>
-                  <span className="text-sm text-gray-500">{plan.period}</span>
-                  {plan.note && (
-                    <span className="ml-2 text-xs text-accent font-medium">• {plan.note}</span>
-                  )}
-                </div>
-              </div>
-              <div className="ml-4">
-                {(currentUser?.app_role === 'super_admin' || currentUser?.app_role === 'account_admin') ? (
-                  <Button disabled variant="outline" className="bg-gray-100 text-gray-500">
-                    Admin Access
-                  </Button>
-                ) : account?.plan === plan.id ? (
-                  <Button disabled variant="outline" className="bg-green-100 text-green-700 hover:bg-green-100">
-                    <Check className="h-4 w-4 mr-2" />
-                    Current Plan
-                  </Button>
-                ) : plan.isCustom ? (
-                  <Button
-                    onClick={() => navigate('/#contact')}
-                    className="bg-accent hover:bg-accent/90"
-                  >
-                    Contact Sales
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => handleUpgradeSubscription(plan.id as PlanType)}
-                    className="bg-accent hover:bg-accent/90"
-                  >
-                    {plan.id === 'free' ? 'Start Free Trial' : 'Get Started'}
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
+              );
+            })}
         </div>
       </div>
 

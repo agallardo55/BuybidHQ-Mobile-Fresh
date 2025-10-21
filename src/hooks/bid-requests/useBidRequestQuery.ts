@@ -33,10 +33,11 @@ export const useBidRequestQuery = (enabled: boolean) => {
           return [];
         }
 
-        // Get bid requests directly
+        // Get bid requests for current user only
         const { data: requests, error: requestError } = await supabase
           .from('bid_requests')
-          .select('id, created_at, status');
+          .select('id, created_at, status')
+          .eq('user_id', session.user.id);
 
         if (requestError) {
           console.error("Error fetching bid requests:", requestError);

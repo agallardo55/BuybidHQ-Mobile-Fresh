@@ -112,6 +112,13 @@ const BasicVehicleInfo = ({
     }
   };
 
+  // Handle trims update from manual selection
+  const handleTrimsUpdate = (trims: TrimOption[]) => {
+    if (onBatchChange) {
+      onBatchChange([{ name: 'availableTrims', value: trims }]);
+    }
+  };
+
   // Handle VIN decode button click
   const handleVinDecode = () => {
     // This will be handled by the VinSection component
@@ -119,8 +126,8 @@ const BasicVehicleInfo = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* VIN and Mileage Section */}
+    <div className="space-y-4">
+      {/* Row One: VIN Number Section - Mileage Section */}
       <VinAndMileageSection
         vin={formData.vin}
         mileage={formData.mileage}
@@ -132,7 +139,7 @@ const BasicVehicleInfo = ({
         showValidation={showValidation}
       />
 
-      {/* Vehicle Dropdowns Grid */}
+      {/* Row Two: Year Make Model Trim */}
       <VehicleDropdownsGrid
         year={formData.year}
         make={formData.make}
@@ -143,6 +150,7 @@ const BasicVehicleInfo = ({
         onMakeChange={handleDropdownChange('make')}
         onModelChange={handleDropdownChange('model')}
         onTrimChange={handleTrimChange}
+        onTrimsUpdate={handleTrimsUpdate}
         yearError={errors.year}
         makeError={errors.make}
         modelError={errors.model}
@@ -150,7 +158,7 @@ const BasicVehicleInfo = ({
         showValidation={showValidation}
       />
 
-      {/* Derived Specs Section */}
+      {/* Row Three: Engine Transmission Drivetrain */}
       <DerivedSpecsSection
         engineCylinders={formData.engineCylinders}
         transmission={formData.transmission}

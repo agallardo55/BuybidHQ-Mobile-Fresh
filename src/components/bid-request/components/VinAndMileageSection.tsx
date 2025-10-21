@@ -2,6 +2,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import gaugeIcon from "@/assets/gauge_image.png";
 
 interface VinAndMileageSectionProps {
   vin: string;
@@ -29,10 +30,18 @@ const VinAndMileageSection = ({
   const showVinError = vinError || (showValidation && vinIsEmpty);
   const showMileageError = mileageError || (showValidation && mileageIsEmpty);
 
+  // Format mileage with commas for display only
+  const formatMileageDisplay = (value: string) => {
+    if (!value) return '';
+    const numericValue = value.replace(/[^0-9]/g, '');
+    if (!numericValue) return '';
+    return Number(numericValue).toLocaleString('en-US');
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* VIN Input */}
-      <div className="space-y-1">
+      <div className="space-y-1 md:col-span-2">
         <Label htmlFor="vin" className="text-sm font-medium text-gray-700">
           VIN <span className="text-red-500">*</span>
         </Label>
@@ -43,12 +52,13 @@ const VinAndMileageSection = ({
             value={vin}
             onChange={onVinChange}
             placeholder="Enter 17-character VIN"
+            autoComplete="off"
             className={`flex-1 ${showVinError ? "border-red-500" : ""}`}
           />
           <Button
             type="button"
             onClick={onVinDecode}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2"
+            className="bg-custom-blue hover:bg-custom-blue/90 text-white px-4 py-2"
             disabled={vin.length !== 17}
           >
             Go
@@ -70,15 +80,19 @@ const VinAndMileageSection = ({
           <Input
             id="mileage"
             name="mileage"
-            type="number"
-            value={mileage}
+            type="text"
+            value={mileage ? formatMileageDisplay(mileage) : ''}
             onChange={onMileageChange}
-            placeholder="35000"
-            min="0"
+            placeholder="35,000"
+            autoComplete="off"
             className={`flex-1 ${showMileageError ? "border-red-500" : ""}`}
           />
           <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border">
-            <div className="w-4 h-4 bg-gray-400 rounded-full"></div>
+            <img 
+              src={gaugeIcon} 
+              alt="Mileage gauge" 
+              className="w-4 h-4"
+            />
           </div>
         </div>
         {showMileageError && (
@@ -92,3 +106,4 @@ const VinAndMileageSection = ({
 };
 
 export default VinAndMileageSection;
+// Updated: Removed handleMileageChange - using direct onMileageChange

@@ -32,8 +32,8 @@ const DropdownField = ({
       <Label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full">
+      <Select value={value} onValueChange={onChange} name={id}>
+        <SelectTrigger id={id} name={id} className="w-full">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

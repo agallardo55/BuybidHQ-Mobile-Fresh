@@ -139,7 +139,7 @@ const useQuickBidDetails = () => {
         throw new Error('Invalid or expired bid submission link');
       }
 
-      const request = requestDetails[0];
+      const request = requestDetails[0] as any;
       
       return {
         request_id: request.request_id,

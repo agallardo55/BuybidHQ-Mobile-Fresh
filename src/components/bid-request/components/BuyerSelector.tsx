@@ -26,8 +26,8 @@ const BuyerSelector = ({ selectedBuyer, buyers, onBuyerChange }: BuyerSelectorPr
   return (
     <div className="space-y-1 w-full">
       <Label htmlFor="buyer-select">Select Buyer</Label>
-      <Select value={selectedBuyer} onValueChange={onBuyerChange}>
-        <SelectTrigger className="w-full h-9">
+      <Select value={selectedBuyer} onValueChange={onBuyerChange} name="buyer-select">
+        <SelectTrigger id="buyer-select" name="buyer-select" className="w-full h-9">
           <SelectValue placeholder="Select a buyer" />
         </SelectTrigger>
         <SelectContent>

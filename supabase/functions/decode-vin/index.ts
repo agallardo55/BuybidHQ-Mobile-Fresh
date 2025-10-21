@@ -1,6 +1,6 @@
 
 import { cleanTrimValue, findBestTrimMatch, cleanEngineDescription } from "./utils/trimUtils.ts";
-import { fetchCarApiData, fetchAllTrimsForModel } from "./api/carApi.ts";
+import { fetchCarApiData, fetchAllTrimsForModel, fetchNHTSAData } from "./api/carApi.ts";
 import { CarApiResult } from "./types.ts";
 import { corsHeaders } from "./config.ts";
 
@@ -14,7 +14,31 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { vin } = await req.json() as { vin: string };
+    const body = await req.json() as { vin?: string; make_model_id?: number; year?: number; trim_lookup?: boolean };
+
+    // Handle trim lookup request (for manual dropdown selection)
+    if (body.trim_lookup && body.make_model_id && body.year) {
+      console.log(`Received trim lookup request: make_model_id=${body.make_model_id}, year=${body.year}`);
+      
+      const allTrims = await fetchAllTrimsForModel(body.make_model_id, body.year);
+      
+      if (allTrims && allTrims.length > 0) {
+        console.log(`Successfully fetched ${allTrims.length} trims for make_model_id ${body.make_model_id}, year ${body.year}`);
+        return new Response(JSON.stringify({ trims: allTrims }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } else {
+        console.log('No trims found for the given make_model_id and year');
+        return new Response(JSON.stringify({ trims: [] }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Handle VIN decoding request (existing functionality)
+    const { vin } = body;
 
     if (!vin) {
       return new Response(JSON.stringify({ error: "VIN is required" }), {
@@ -25,17 +49,23 @@ Deno.serve(async (req) => {
 
     console.log(`Received VIN: ${vin}`);
 
-    const apiResult = await fetchCarApiData(vin);
+    // Try CarAPI first, then fallback to NHTSA
+    let apiResult = await fetchCarApiData(vin);
 
     if (!apiResult) {
-      console.error("Failed to decode VIN from CarAPI");
-      return new Response(
-        JSON.stringify({ error: "Failed to decode VIN from CarAPI" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      console.log("CarAPI failed, trying NHTSA fallback");
+      apiResult = await fetchNHTSAData(vin);
+      
+      if (!apiResult) {
+        console.error("Both CarAPI and NHTSA failed to decode VIN");
+        return new Response(
+          JSON.stringify({ error: "Failed to decode VIN from available services" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
     }
 
     const vehicleData = apiResult;

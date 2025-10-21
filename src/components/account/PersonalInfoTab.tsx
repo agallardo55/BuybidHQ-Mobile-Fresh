@@ -34,12 +34,12 @@ export const PersonalInfoTab = () => {
         full_name: formData.fullName,
         email: formData.email,
         mobile_number: formData.mobileNumber,
-      };
+      } as any;
 
       const { error: userError } = await supabase
         .from('buybidhq_users')
         .update(updateData)
-        .eq('id', user.id);
+        .eq('id', user.id as any);
 
       if (userError) throw userError;
 
