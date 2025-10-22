@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Barcode } from "lucide-react";
+import { Barcode, Pencil } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ScannerModal from "./vin-scanner/ScannerModal";
 import { useVinScanner } from "./vin-scanner/useVinScanner";
@@ -149,8 +149,25 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
       {/* Vehicle Data Display */}
       {vehicleData && (
         <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-          <h3 className="font-medium text-gray-900">Vehicle Information</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
+          {/* Header with title and edit icon */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Vehicle Information</h3>
+            
+            {/* Compact edit icon button in top-right */}
+            {onEditManually && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onEditManually}
+                className="h-8 w-8"
+                title="Edit vehicle information manually"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
             <div>
               <span className="font-medium">Year:</span> {vehicleData?.year || 'N/A'}
             </div>
@@ -179,17 +196,6 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
               </div>
             )}
           </div>
-          
-          {/* Edit Manually Button */}
-          {onEditManually && (
-            <Button 
-              variant="outline" 
-              onClick={onEditManually}
-              className="mt-3 w-full"
-            >
-              🔧 Information Incorrect? Edit Manually
-            </Button>
-          )}
         </div>
       )}
 
