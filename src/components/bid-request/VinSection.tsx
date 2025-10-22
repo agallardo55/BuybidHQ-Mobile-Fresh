@@ -68,28 +68,6 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
     }
   };
 
-  const handleTrimChange = (trimValue: string) => {
-    const trim = availableTrims.find(
-      t => t.id?.toString() === trimValue || t.name === trimValue
-    );
-    
-    if (trim) {
-      setSelectedTrim(trim);
-      
-      if (vehicleData) {
-        const updatedVehicleData: VehicleData = {
-          ...vehicleData,
-          trim: trim.name,
-          displayTrim: trim.name,
-          engineCylinders: trim.specs?.engine || vehicleData.engineCylinders,
-          transmission: trim.specs?.transmission || vehicleData.transmission,
-          drivetrain: trim.specs?.drivetrain || vehicleData.drivetrain
-        };
-        onVehicleDataFetched?.(updatedVehicleData);
-      }
-    }
-  };
-
   const showError = (error || decodeError) && showValidation;
 
   return (
@@ -194,73 +172,6 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
               <div>
                 <span className="font-medium">Drivetrain:</span> {vehicleData.drivetrain}
               </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Trim Selection */}
-      {availableTrims.length > 1 && (
-        <div className="space-y-2">
-          <Label htmlFor="trim-select">
-            Trim Level
-            {!selectedTrim && <span className="text-red-500 ml-1">*</span>}
-          </Label>
-          
-          {/* Show match status */}
-          {selectedTrim ? (
-            <p className="text-sm text-green-600 mb-2">
-              ✓ Automatically matched trim based on VIN data
-            </p>
-          ) : (
-            <p className="text-sm text-amber-600 mb-2">
-              ⚠ Multiple trims match this VIN. Please select the correct one for your vehicle.
-            </p>
-          )}
-          
-          <Select
-            value={selectedTrim?.id?.toString() || selectedTrim?.name || ""}
-            onValueChange={handleTrimChange}
-          >
-            <SelectTrigger id="trim-select" className="w-full">
-              <SelectValue placeholder="Select trim level..." />
-            </SelectTrigger>
-            <SelectContent>
-              {availableTrims.map((trim, index) => {
-                const uniqueKey = trim.id?.toString() || trim.name;
-                const isSelected = selectedTrim?.name === trim.name;
-                
-                return (
-                  <SelectItem key={uniqueKey} value={uniqueKey}>
-                    <div className="flex flex-col">
-                      <span className={`font-medium ${isSelected ? 'text-green-600' : ''}`}>
-                        {trim.name}
-                        {isSelected && ' ✓'}
-                      </span>
-                      {trim.description && (
-                        <span className="text-xs text-gray-500">
-                          {trim.description}
-                        </span>
-                      )}
-                    </div>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {/* Single Trim Display */}
-      {availableTrims.length === 1 && (
-        <div className="space-y-2">
-          <Label>Trim Level</Label>
-          <div className="flex items-center h-10 px-3 py-2 border rounded-md bg-gray-50">
-            <span className="font-medium">{availableTrims[0].name}</span>
-            {availableTrims[0].description && (
-              <span className="ml-2 text-sm text-gray-500">
-                - {availableTrims[0].description}
-              </span>
             )}
           </div>
         </div>
