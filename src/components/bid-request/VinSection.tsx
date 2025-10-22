@@ -114,13 +114,23 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
   const handleTrimChange = (trimName: string) => {
     const newTrim = trimOptions.find(t => t.name === trimName);
     
-    console.log('🔧 Trim changed:', {
-      newTrimName: trimName,
-      newTrim: newTrim,
-      engine: newTrim?.specs?.engine,
-      transmission: newTrim?.specs?.transmission,
-      drivetrain: newTrim?.specs?.drivetrain,
+    console.log('=== TRIM CHANGE DEBUG ===');
+    console.log('1. Selected trim name:', trimName);
+    console.log('2. Found trim object:', newTrim);
+    console.log('3. Full trim object structure:', JSON.stringify(newTrim, null, 2));
+    console.log('4. Trim specs object:', newTrim?.specs);
+    console.log('5. Engine path check:', {
+      'newTrim?.specs?.engine': newTrim?.specs?.engine,
+      'newTrim?.engine': newTrim?.engine,
+      'newTrim?.description': newTrim?.description,
     });
+    console.log('6. All available trim options:', trimOptions.map(t => ({
+      name: t.name,
+      hasSpecs: !!t.specs,
+      specs: t.specs,
+      description: t.description,
+    })));
+    console.log('=========================');
     
     setEditedTrim(trimName);
     setSelectedTrim(newTrim || null);
@@ -149,7 +159,28 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
 
   const trimOptions = availableTrims || [];
 
+  // Debug trimOptions source
+  console.log('📋 trimOptions source:', {
+    trimOptions: trimOptions,
+    count: trimOptions.length,
+    sample: trimOptions[0],
+    allHaveSpecs: trimOptions.every(t => t.specs),
+    availableTrims: availableTrims,
+  });
+
   const showError = (error || decodeError) && showValidation;
+
+  // Debug display state
+  console.log('🔍 Display State:', {
+    selectedTrim: selectedTrim,
+    selectedTrimSpecs: selectedTrim?.specs,
+    vehicleData: vehicleData,
+    engineDisplay: selectedTrim?.specs?.engine || vehicleData?.engineCylinders || 'N/A',
+    transmissionDisplay: selectedTrim?.specs?.transmission || vehicleData?.transmission || 'N/A',
+    drivetrainDisplay: selectedTrim?.specs?.drivetrain || vehicleData?.drivetrain || 'N/A',
+    isEditMode: isEditMode,
+    editedTrim: editedTrim,
+  });
 
   return (
     <div className="space-y-4">
