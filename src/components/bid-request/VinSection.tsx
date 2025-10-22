@@ -110,6 +110,22 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
     setIsEditMode(false);
   };
 
+  // Handle trim change in edit mode
+  const handleTrimChange = (trimName: string) => {
+    const newTrim = trimOptions.find(t => t.name === trimName);
+    
+    console.log('🔧 Trim changed:', {
+      newTrimName: trimName,
+      newTrim: newTrim,
+      engine: newTrim?.specs?.engine,
+      transmission: newTrim?.specs?.transmission,
+      drivetrain: newTrim?.specs?.drivetrain,
+    });
+    
+    setEditedTrim(trimName);
+    setSelectedTrim(newTrim || null);
+  };
+
   // Generate dropdown options for inline editing
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 21 }, (_, i) => {
@@ -307,7 +323,7 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
               ) : (
                 <Select
                   value={editedTrim}
-                  onValueChange={setEditedTrim}
+                  onValueChange={handleTrimChange}
                 >
                   <SelectTrigger className="h-6 min-w-[160px] text-xs">
                     <SelectValue />
@@ -323,27 +339,33 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
               )}
             </div>
             
-            {/* Engine - Read Only */}
-            {vehicleData?.engineCylinders && (
+            {/* Engine - Dynamic from selected trim */}
+            {(selectedTrim?.specs?.engine || vehicleData?.engineCylinders) && (
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">Engine:</span>
-                <span className="text-sm text-gray-600">{vehicleData.engineCylinders}</span>
+                <span className="text-sm text-gray-600">
+                  {selectedTrim?.specs?.engine || vehicleData?.engineCylinders || 'N/A'}
+                </span>
               </div>
             )}
             
-            {/* Transmission - Read Only */}
-            {vehicleData?.transmission && (
+            {/* Transmission - Dynamic from selected trim */}
+            {(selectedTrim?.specs?.transmission || vehicleData?.transmission) && (
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">Transmission:</span>
-                <span className="text-sm text-gray-600">{vehicleData.transmission}</span>
+                <span className="text-sm text-gray-600">
+                  {selectedTrim?.specs?.transmission || vehicleData?.transmission || 'N/A'}
+                </span>
               </div>
             )}
             
-            {/* Drivetrain - Read Only */}
-            {vehicleData?.drivetrain && (
+            {/* Drivetrain - Dynamic from selected trim */}
+            {(selectedTrim?.specs?.drivetrain || vehicleData?.drivetrain) && (
               <div className="flex items-center gap-2 col-span-2">
                 <span className="font-medium text-sm">Drivetrain:</span>
-                <span className="text-sm text-gray-600">{vehicleData.drivetrain}</span>
+                <span className="text-sm text-gray-600">
+                  {selectedTrim?.specs?.drivetrain || vehicleData?.drivetrain || 'N/A'}
+                </span>
               </div>
             )}
           </div>
