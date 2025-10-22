@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Barcode, Pencil } from "lucide-react";
+import { Barcode, Pencil, Check, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ScannerModal from "./vin-scanner/ScannerModal";
 import { useVinScanner } from "./vin-scanner/useVinScanner";
@@ -32,6 +32,13 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
     decodeVin, 
     setSelectedTrim 
   } = useVinDecoder();
+  
+  // Edit mode state
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedYear, setEditedYear] = useState('');
+  const [editedMake, setEditedMake] = useState('');
+  const [editedModel, setEditedModel] = useState('');
+  const [editedTrim, setEditedTrim] = useState('');
   
   const { isScanning, videoRef, startScan, stopScan } = useVinScanner((scannedVin) => {
     const syntheticEvent = {
@@ -67,6 +74,64 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
       decodeVin(vin);
     }
   };
+
+  // Edit mode handlers
+  const handleEditClick = () => {
+    // Initialize edit state with current values
+    setEditedYear(vehicleData?.year || '');
+    setEditedMake(vehicleData?.make || '');
+    setEditedModel(vehicleData?.model || '');
+    setEditedTrim(selectedTrim?.name || '');
+    setIsEditMode(true);
+  };
+
+  const handleSaveEdit = () => {
+    // Save changes to formData via onChange
+    const changes = [
+      { name: 'year', value: editedYear },
+      { name: 'make', value: editedMake },
+      { name: 'model', value: editedModel },
+      { name: 'trim', value: editedTrim },
+    ];
+    
+    // Apply changes one by one
+    changes.forEach(({ name, value }) => {
+      const syntheticEvent = {
+        target: { name, value }
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(syntheticEvent);
+    });
+    
+    setIsEditMode(false);
+  };
+
+  const handleCancelEdit = () => {
+    // Revert changes
+    setIsEditMode(false);
+  };
+
+  // Generate dropdown options for inline editing
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 21 }, (_, i) => {
+    const year = currentYear - 10 + i;
+    return year.toString();
+  });
+
+  const makeOptions = [
+    "LAND ROVER", "PORSCHE", "MCLAREN", "ROLLS-ROYCE", "BMW", "MERCEDES-BENZ", 
+    "AUDI", "LEXUS", "TOYOTA", "HONDA", "FORD", "CHEVROLET", "NISSAN", 
+    "HYUNDAI", "KIA", "MAZDA", "SUBARU", "VOLKSWAGEN", "VOLVO", "JAGUAR", 
+    "INFINITI", "ACURA", "GENESIS", "LINCOLN", "CADILLAC", "BUICK", 
+    "CHRYSLER", "DODGE", "JEEP", "RAM", "GMC", "ALFA ROMEO", "MASERATI", 
+    "BENTLEY", "ASTON MARTIN", "FERRARI", "LAMBORGHINI", "BUGATTI", 
+    "KOENIGSEGG", "PAGANI"
+  ];
+
+  const modelOptions = availableTrims?.length > 0 ? 
+    [{ value: vehicleData?.model || '', label: vehicleData?.model || '' }] : 
+    [];
+
+  const trimOptions = availableTrims || [];
 
   const showError = (error || decodeError) && showValidation;
 
@@ -127,50 +192,158 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
       {/* Vehicle Data Display */}
       {vehicleData && (
         <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-          {/* Header with title and edit icon */}
+          {/* Header with title and edit/save buttons */}
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Vehicle Information</h3>
             
-            {/* Compact edit icon button in top-right */}
-            {onEditManually && (
+            {!isEditMode ? (
+              /* Edit button */
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={onEditManually}
+                onClick={handleEditClick}
                 className="h-8 w-8"
-                title="Edit vehicle information manually"
+                title="Edit vehicle information"
               >
                 <Pencil className="h-4 w-4" />
               </Button>
+            ) : (
+              /* Save/Cancel buttons */
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancelEdit}
+                  className="h-7 px-2 text-xs"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Cancel
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSaveEdit}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Check className="h-3 w-3 mr-1" />
+                  Save
+                </Button>
+              </div>
             )}
           </div>
           
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-            <div>
-              <span className="font-medium">Year:</span> {vehicleData?.year || 'N/A'}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+            {/* Year Field */}
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Year:</span>
+              {!isEditMode ? (
+                <span className="text-sm">{vehicleData?.year || 'N/A'}</span>
+              ) : (
+                <Select
+                  value={editedYear}
+                  onValueChange={setEditedYear}
+                >
+                  <SelectTrigger className="h-6 w-20 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map(year => (
+                      <SelectItem key={year} value={year}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
-            <div>
-              <span className="font-medium">Make:</span> {vehicleData?.make || 'N/A'}
+            
+            {/* Make Field */}
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Make:</span>
+              {!isEditMode ? (
+                <span className="text-sm">{vehicleData?.make || 'N/A'}</span>
+              ) : (
+                <Select
+                  value={editedMake}
+                  onValueChange={setEditedMake}
+                >
+                  <SelectTrigger className="h-6 min-w-[120px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {makeOptions.map(make => (
+                      <SelectItem key={make} value={make}>{make}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
-            <div>
-              <span className="font-medium">Model:</span> {vehicleData?.model || 'N/A'}
+            
+            {/* Model Field */}
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Model:</span>
+              {!isEditMode ? (
+                <span className="text-sm">{vehicleData?.model || 'N/A'}</span>
+              ) : (
+                <Select
+                  value={editedModel}
+                  onValueChange={setEditedModel}
+                >
+                  <SelectTrigger className="h-6 min-w-[140px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {modelOptions.map(model => (
+                      <SelectItem key={model.value} value={model.value}>{model.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
-            <div>
-              <span className="font-medium">Trim:</span> {selectedTrim?.name || 'Select from dropdown'}
+            
+            {/* Trim Field */}
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-sm">Trim:</span>
+              {!isEditMode ? (
+                <span className="text-sm">{selectedTrim?.name || 'N/A'}</span>
+              ) : (
+                <Select
+                  value={editedTrim}
+                  onValueChange={setEditedTrim}
+                >
+                  <SelectTrigger className="h-6 min-w-[160px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {trimOptions.map(trim => (
+                      <SelectItem key={trim.id || trim.name} value={trim.name}>
+                        {trim.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
+            
+            {/* Engine - Read Only */}
             {vehicleData?.engineCylinders && (
-              <div>
-                <span className="font-medium">Engine:</span> {vehicleData.engineCylinders}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm">Engine:</span>
+                <span className="text-sm text-gray-600">{vehicleData.engineCylinders}</span>
               </div>
             )}
+            
+            {/* Transmission - Read Only */}
             {vehicleData?.transmission && (
-              <div>
-                <span className="font-medium">Transmission:</span> {vehicleData.transmission}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm">Transmission:</span>
+                <span className="text-sm text-gray-600">{vehicleData.transmission}</span>
               </div>
             )}
+            
+            {/* Drivetrain - Read Only */}
             {vehicleData?.drivetrain && (
-              <div>
-                <span className="font-medium">Drivetrain:</span> {vehicleData.drivetrain}
+              <div className="flex items-center gap-2 col-span-2">
+                <span className="font-medium text-sm">Drivetrain:</span>
+                <span className="text-sm text-gray-600">{vehicleData.drivetrain}</span>
               </div>
             )}
           </div>
