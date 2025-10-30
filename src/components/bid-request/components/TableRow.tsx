@@ -101,6 +101,10 @@ export const TableRowComponent = ({ request, onClick, onDelete }: TableRowProps)
             src={request.primaryImage} 
             alt="Vehicle thumbnail" 
             className="w-14 h-10 object-cover rounded"
+            onError={(e) => {
+              e.currentTarget.src = carPlaceholder;
+              e.currentTarget.className = "w-14 h-10 object-cover rounded opacity-50";
+            }}
           />
         ) : (
           <img 

@@ -6,42 +6,16 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { robustSignOut } from "./robust-signout";
 
 /**
  * Enhanced logout function that ensures complete session cleanup
  * This fixes issues with switching between different user accounts
+ * @deprecated Use robustSignOut instead
  */
 export const enhancedLogout = async (): Promise<void> => {
-  try {
-    // Step 1: Sign out with global scope to clear all sessions
-    console.log('Enhanced logout: Starting global signout...');
-    const { error: signOutError } = await supabase.auth.signOut({ scope: 'global' });
-    
-    if (signOutError) {
-      console.warn('Global signout failed, attempting local signout:', signOutError);
-      // Fallback to local signout if global fails
-      await supabase.auth.signOut({ scope: 'local' });
-    }
-
-    // Step 2: Manual localStorage cleanup as additional safety measure
-    console.log('Enhanced logout: Clearing local storage...');
-    clearSupabaseLocalStorage();
-
-    // Step 3: Clear any cached session data
-    console.log('Enhanced logout: Clearing session cache...');
-    await clearSessionCache();
-
-    console.log('Enhanced logout: Complete');
-    
-  } catch (error) {
-    console.error('Enhanced logout error:', error);
-    
-    // Force cleanup even if signOut fails
-    clearSupabaseLocalStorage();
-    await clearSessionCache();
-    
-    toast.error('Logout encountered an issue, but session has been cleared');
-  }
+  console.log('Enhanced logout: Redirecting to robustSignOut...');
+  await robustSignOut({ scope: 'global', clearHistory: true });
 };
 
 /**

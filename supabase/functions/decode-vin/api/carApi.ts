@@ -10,6 +10,17 @@ async function generateJWTToken(): Promise<string | null> {
     const apiToken = Deno.env.get('VIN_API_TOKEN') || Deno.env.get('VIN_API_KEY');
     const apiSecret = Deno.env.get('VIN_API_SECRET');
     
+    // DETAILED LOGGING: Check if CarAPI credentials exist
+    console.log('=== CarAPI Credentials Check ===');
+    console.log('VIN_API_TOKEN exists:', !!apiToken);
+    console.log('VIN_API_SECRET exists:', !!apiSecret);
+    if (apiToken) {
+      console.log('VIN_API_TOKEN first 8 chars:', apiToken.substring(0, 8));
+    }
+    if (apiSecret) {
+      console.log('VIN_API_SECRET first 8 chars:', apiSecret.substring(0, 8));
+    }
+    
     if (!apiToken || !apiSecret) {
       console.error('VIN_API_TOKEN and VIN_API_SECRET are required for JWT authentication');
       return null;
@@ -30,7 +41,11 @@ async function generateJWTToken(): Promise<string | null> {
     });
 
     if (!response.ok) {
-      console.error(`CarAPI auth failed with status ${response.status}`);
+      console.error(`=== CarAPI Authentication Failed ===`);
+      console.error(`Status: ${response.status}`);
+      console.error(`Status Text: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`Error Response: ${errorText}`);
       return null;
     }
 
@@ -78,6 +93,9 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
       return null;
     }
 
+    console.log('=== CarAPI VIN Decode Request ===');
+    console.log('VIN being processed:', vin);
+
     // Get JWT token
     const jwtToken = await getValidJWTToken();
     if (!jwtToken) {
@@ -87,24 +105,57 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
 
     const API_URL = `https://carapi.app/api/vin/${vin}`;
 
-    // Log the request details (using JWT authentication)
-    console.log('Making authenticated CarAPI request:', {
-      url: API_URL,
-      vin,
-      hasJWTToken: !!jwtToken
-    });
+    // DETAILED LOGGING: Log complete request details
+    console.log('=== CarAPI Request Details ===');
+    console.log('Complete API URL:', API_URL);
+    console.log('VIN:', vin);
+    console.log('JWT Token exists:', !!jwtToken);
+    console.log('JWT Token first 20 chars:', jwtToken.substring(0, 20) + '...');
 
     // Make the API request with JWT authentication
     const response = await fetchData<any>(API_URL, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${jwtToken}`
+        'Authorization': `Bearer ${jwtToken}`,
+        'Content-Type': 'application/json'
       }
     });
 
-    // Log the raw response for debugging
-    console.log('CarAPI raw response:', JSON.stringify(response, null, 2));
+    // DETAILED LOGGING: Log response analysis
+    console.log('=== CarAPI Response Analysis ===');
+    console.log('Response received:', !!response);
+    console.log('Response type:', typeof response);
+    
+    if (response) {
+      console.log('Raw CarAPI response:', JSON.stringify(response, null, 2));
+      
+      // Check for essential fields
+      const hasYear = !!response.year;
+      const hasMake = !!response.make;
+      const hasModel = !!response.model;
+      const hasTrim = !!response.trim;
+      const hasSpecs = !!response.specs;
+      const hasTrims = Array.isArray(response.trims) && response.trims.length > 0;
+      
+      console.log('=== Essential Fields Check ===');
+      console.log('Has year:', hasYear, 'Value:', response.year);
+      console.log('Has make:', hasMake, 'Value:', response.make);
+      console.log('Has model:', hasModel, 'Value:', response.model);
+      console.log('Has trim:', hasTrim, 'Value:', response.trim);
+      console.log('Has specs:', hasSpecs, 'Keys:', hasSpecs ? Object.keys(response.specs) : 'N/A');
+      console.log('Has trims array:', hasTrims, 'Count:', hasTrims ? response.trims.length : 0);
+      
+      if (!hasYear || !hasMake || !hasModel) {
+        console.error('=== CRITICAL: Missing essential vehicle data ===');
+        console.error('Year:', response.year);
+        console.error('Make:', response.make);
+        console.error('Model:', response.model);
+        console.error('This indicates CarAPI is not returning complete vehicle information');
+      }
+    } else {
+      console.error('No response from CarAPI - this indicates a network or authentication issue');
+    }
 
     if (!response) {
       console.error('No response from CarAPI');

@@ -15,10 +15,10 @@ export const validateBasicInfoStep = (formData: {
   if (!formData.make) stepErrors.make = "Make is required";
   if (!formData.model) stepErrors.model = "Model is required";
   if (!formData.trim) stepErrors.trim = "Trim is required";
-  if (!formData.vin) stepErrors.vin = "VIN is required";
+  // VIN is now optional - remove required validation
   if (!formData.mileage) stepErrors.mileage = "Mileage is required";
 
-  // VIN validation
+  // VIN validation (only if provided)
   if (formData.vin && formData.vin.length !== 17) {
     stepErrors.vin = "VIN must be 17 characters";
   }

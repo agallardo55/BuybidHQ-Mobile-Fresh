@@ -25,20 +25,23 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange, onStatusUpdate, onBid
       if (!request?.id) return;
 
       try {
+        console.log('🖼️ Fetching images for bid request:', request.id);
         const { data, error } = await supabase
           .from('images')
           .select('image_url')
           .eq('bid_request_id', request.id);
 
         if (error) {
-          console.error('Error fetching images:', error);
+          console.error('❌ Error fetching images:', error);
           return;
         }
 
+        console.log('📸 Fetched image data:', data);
         const urls = data.map(img => img.image_url).filter((url): url is string => url !== null);
+        console.log('🔗 Processed image URLs:', urls);
         setImages(urls);
       } catch (error) {
-        console.error('Error in fetchImages:', error);
+        console.error('❌ Error in fetchImages:', error);
       }
     };
 

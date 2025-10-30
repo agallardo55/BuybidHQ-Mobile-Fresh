@@ -14,9 +14,11 @@ export interface VehicleData {
   transmission: string;
   drivetrain: string;
   availableTrims: TrimOption[];
+  selectedTrim?: TrimOption | null; // Add this line
 }
 
 export interface TrimOption {
+  id?: string | number; // CarAPI uses numbers, NHTSA might not have IDs
   name: string;
   description: string;
   specs: {
@@ -25,12 +27,19 @@ export interface TrimOption {
     drivetrain: string;
   };
   year: number;
+  source?: 'carapi' | 'nhtsa'; // Track data source
 }
 
 export interface VinDecodeResult {
   success: boolean;
   data?: VehicleData;
   error?: string;
+  fallbackToManual?: boolean;
+  partialData?: {
+    year?: string | number;
+    make?: string;
+    model?: string;
+  };
 }
 
 class VinService {
@@ -46,11 +55,13 @@ class VinService {
     }
 
     try {
+      const requestBody = { vin };
       const { data: response, error } = await supabase.functions.invoke('decode-vin', {
-        body: { vin }
+        body: requestBody
       });
 
       if (error) {
+        console.error('VIN decode API error:', error.message);
         return {
           success: false,
           error: error.message || "Failed to decode VIN. Please try again."
@@ -58,6 +69,7 @@ class VinService {
       }
 
       if (!response || response.error) {
+        console.error('VIN decode failed:', response?.error);
         return {
           success: false,
           error: response?.error || "No data received from VIN decoder"
@@ -67,11 +79,21 @@ class VinService {
       // Transform API response to consistent format
       const vehicleData: VehicleData = this.transformApiResponse(response);
       
+      // Check if we got essential vehicle data
+      if (!vehicleData.year || !vehicleData.make || !vehicleData.model) {
+        console.error('VIN decode returned incomplete data');
+        return {
+          success: false,
+          error: "Unable to decode VIN - vehicle information not found"
+        };
+      }
+      
       return {
         success: true,
         data: vehicleData
       };
     } catch (error) {
+      console.error('VIN decode unexpected error:', error);
       return {
         success: false,
         error: "An unexpected error occurred while decoding VIN"
@@ -503,6 +525,11 @@ class VinService {
         '570S': ['Base', 'Spider'],
         '570GT': ['Base'],
         '540C': ['Base']
+      },
+      'ALFA ROMEO': {
+        'GIULIA': ['Base', 'Ti', 'Ti Sport', 'Quadrifoglio'],
+        'STELVIO': ['Base', 'Ti', 'Ti Sport', 'Quadrifoglio'],
+        '4C': ['Base', 'Spider']
       }
     };
     
@@ -982,9 +1009,103 @@ class VinService {
     console.log('transformApiResponse: Raw API specs:', apiData?.specs);
     console.log('transformApiResponse: Raw API description:', apiData?.description);
     
+    // Check if we have essential vehicle data
+    const hasEssentialData = apiData?.year && apiData?.make && apiData?.model;
+    if (!hasEssentialData) {
+      console.error('transformApiResponse: Missing essential vehicle data (year, make, model)');
+      // Return empty data structure - this will trigger an error in the calling code
+      return {
+        year: "",
+        make: "",
+        model: "",
+        trim: "",
+        displayTrim: "",
+        engineCylinders: "",
+        transmission: "",
+        drivetrain: "",
+        availableTrims: []
+      };
+    }
+    
     const processedTrims = this.processTrims(apiData);
     console.log('transformApiResponse: Processed trims:', processedTrims);
-    const selectedTrim = processedTrims[0];
+    
+    // Check if no trims are available - fallback to manual entry
+    if (processedTrims.length === 0) {
+      console.warn('⚠️ No trims returned from CarAPI');
+      return {
+        success: false,
+        error: 'Trim data unavailable from VIN. Please enter vehicle details manually.',
+        fallbackToManual: true,
+        partialData: {
+          year: apiData.year,
+          make: apiData.make,
+          model: apiData.model
+        }
+      };
+    }
+    
+    // Intelligent trim matching from CarAPI response
+    let selectedTrim: TrimOption | null = null;
+
+    if (processedTrims.length === 1) {
+      // Only one option - auto-select
+      selectedTrim = processedTrims[0];
+      
+    } else if (processedTrims.length > 1 && apiData.trim) {
+      // Multiple options - try to match using API trim field
+      const apiTrimLower = apiData.trim.toLowerCase().trim();
+      
+      // Strategy 1: Exact match (case-insensitive)
+      selectedTrim = processedTrims.find(t => 
+        t.name.toLowerCase() === apiTrimLower
+      ) || null;
+      
+      // Strategy 2: API trim contains option name
+      if (!selectedTrim) {
+        selectedTrim = processedTrims.find(t => 
+          apiTrimLower.includes(t.name.toLowerCase())
+        ) || null;
+      }
+      
+      // Strategy 3: Option name contains API trim
+      if (!selectedTrim) {
+        selectedTrim = processedTrims.find(t => 
+          t.name.toLowerCase().includes(apiTrimLower)
+        ) || null;
+      }
+      
+      // Strategy 4: Fuzzy matching - extract key identifiers
+      if (!selectedTrim) {
+        // Extract numbers and key words from API trim
+        const apiWords = apiTrimLower.match(/\b\w+\b/g) || [];
+        const apiNumbers = apiTrimLower.match(/\d+/g) || [];
+        
+        selectedTrim = processedTrims.find(t => {
+          const optionLower = t.name.toLowerCase();
+          const optionWords = optionLower.match(/\b\w+\b/g) || [];
+          const optionNumbers = optionLower.match(/\d+/g) || [];
+          
+          // Must match all numbers (e.g., "90", "110", "130", "P400")
+          const numbersMatch = apiNumbers.every(num => 
+            optionNumbers.includes(num)
+          );
+          
+          // Must match key trim identifiers (X, S, SE, HSE, etc.)
+          const keyWords = ['x', 's', 'se', 'hse', 'first', 'edition'];
+          const hasKeyWordMatch = keyWords.some(keyword => 
+            apiWords.includes(keyword) && optionWords.includes(keyword)
+          );
+          
+          return numbersMatch && hasKeyWordMatch;
+        }) || null;
+      }
+      
+    } else if (processedTrims.length > 1) {
+      // Multiple options but no API trim field
+      selectedTrim = null;
+    }
+    
     console.log('transformApiResponse: Selected trim:', selectedTrim);
     
     // Manheim-style formatting
@@ -1000,7 +1121,8 @@ class VinService {
       engineCylinders: selectedTrim?.specs?.engine || "",
       transmission: selectedTrim?.specs?.transmission || "",
       drivetrain: selectedTrim?.specs?.drivetrain || "",
-      availableTrims: processedTrims
+      availableTrims: processedTrims,
+      selectedTrim: selectedTrim // Pass the matched trim to hook
     };
     
     console.log('transformApiResponse: Final vehicle data (Manheim style):', vehicleData);
@@ -1140,13 +1262,20 @@ class VinService {
   }
 
   /**
-   * Process and normalize trim data - UNIFIED APPROACH
-   * Handles all vehicle types consistently with comprehensive fallback logic
+   * Process and normalize trim data - SIMPLIFIED APPROACH
+   * If Edge Function already processed trims, use them directly
    */
   private processTrims(apiData: any): TrimOption[] {
-    console.log('processTrims: Starting unified processing with API data:', apiData);
+    console.log('processTrims: Starting processing with API data:', apiData);
     
-    // Collect all possible trim sources
+    // ✅ FIX: If Edge Function already processed trims, return as-is
+    if (apiData.availableTrims && Array.isArray(apiData.availableTrims)) {
+      console.log('processTrims: Using pre-processed trims from Edge Function');
+      // Don't transform - preserve IDs and structure
+      return apiData.availableTrims;
+    }
+    
+    // Otherwise, process raw API data (CarAPI/NHTSA)
     const trimSources: any[] = [];
     
     // Source 1: trims array (specialty cars like McLaren)
@@ -1155,13 +1284,7 @@ class VinService {
       trimSources.push(...apiData.trims.map((trim: any) => ({ ...trim, source: 'trims_array' })));
     }
     
-    // Source 2: availableTrims array (standard vehicles)
-    if (apiData?.availableTrims && Array.isArray(apiData.availableTrims)) {
-      console.log('processTrims: Found availableTrims array with', apiData.availableTrims.length, 'items');
-      trimSources.push(...apiData.availableTrims.map((trim: any) => ({ ...trim, source: 'available_trims_array' })));
-    }
-    
-    // Source 3: Single trim at top level (some manufacturers)
+    // Source 2: Single trim at top level (some manufacturers)
     if (apiData?.trim) {
       console.log('processTrims: Found single trim at top level:', apiData.trim);
       trimSources.push({ 
@@ -1173,7 +1296,7 @@ class VinService {
       });
     }
     
-    // Source 4: Create trim from top-level data if no trims found
+    // Source 3: Create trim from top-level data if no trims found
     if (trimSources.length === 0 && (apiData?.make || apiData?.model)) {
       console.log('processTrims: No trim arrays found, creating from top-level data');
       trimSources.push({
@@ -1192,10 +1315,12 @@ class VinService {
       console.log(`processTrims: Processing trim ${index} from ${trimData.source}:`, trimData);
       
       const processedTrim: TrimOption = {
+        id: trimData.id || `trim-${index}`, // Ensure ID is present
         name: this.normalizeTrimName(trimData.name, trimData.description),
         description: trimData.description || "",
         specs: this.extractSpecsWithFallback(trimData, apiData),
-        year: trimData.year || Number(apiData.year)
+        year: trimData.year || Number(apiData.year),
+        source: trimData.source || 'unknown'
       };
       
       console.log(`processTrims: Processed trim ${index}:`, processedTrim);

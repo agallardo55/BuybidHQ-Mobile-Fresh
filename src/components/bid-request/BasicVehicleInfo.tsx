@@ -1,7 +1,4 @@
 import React from "react";
-import VinAndMileageSection from "./components/VinAndMileageSection";
-import VehicleDropdownsGrid from "./components/VehicleDropdownsGrid";
-import DerivedSpecsSection from "./components/DerivedSpecsSection";
 import VinSection from "./VinSection";
 import { TrimOption } from "./types";
 import { vinService } from "@/services/vinService";
@@ -45,6 +42,7 @@ const BasicVehicleInfo = ({
   onSelectChange,
   showValidation 
 }: BasicVehicleInfoProps) => {
+  
   // Handle VIN decoding
   const handleVehicleDataFetched = (data: any) => {
     console.log('BasicVehicleInfo: Received vehicle data:', data);
@@ -119,62 +117,23 @@ const BasicVehicleInfo = ({
     }
   };
 
-  // Handle VIN decode button click
-  const handleVinDecode = () => {
-    // This will be handled by the VinSection component
-    console.log('VIN decode button clicked');
-  };
-
   return (
     <div className="space-y-4">
-      {/* Row One: VIN Number Section - Mileage Section */}
-      <VinAndMileageSection
+      {/* Single section: VIN input + Vehicle dropdowns with smart display logic */}
+      <VinSection
         vin={formData.vin}
-        mileage={formData.mileage}
-        onVinChange={onChange}
-        onMileageChange={onChange}
-        onVinDecode={handleVinDecode}
-        vinError={errors.vin}
-        mileageError={errors.mileage}
+        onChange={onChange}
+        error={errors.vin}
+        onVehicleDataFetched={handleVehicleDataFetched}
         showValidation={showValidation}
-      />
-
-      {/* Row Two: Year Make Model Trim */}
-      <VehicleDropdownsGrid
-        year={formData.year}
-        make={formData.make}
-        model={formData.model}
-        displayTrim={formData.displayTrim}
-        availableTrims={formData.availableTrims}
+        formData={formData}
+        errors={errors}
         onYearChange={handleDropdownChange('year')}
         onMakeChange={handleDropdownChange('make')}
         onModelChange={handleDropdownChange('model')}
         onTrimChange={handleTrimChange}
         onTrimsUpdate={handleTrimsUpdate}
-        yearError={errors.year}
-        makeError={errors.make}
-        modelError={errors.model}
-        trimError={errors.trim}
-        showValidation={showValidation}
       />
-
-      {/* Row Three: Engine Transmission Drivetrain */}
-      <DerivedSpecsSection
-        engineCylinders={formData.engineCylinders}
-        transmission={formData.transmission}
-        drivetrain={formData.drivetrain}
-      />
-
-      {/* Hidden VIN Section for VIN decoding functionality */}
-      <div className="hidden">
-        <VinSection 
-          vin={formData.vin}
-          onChange={onChange}
-          error={errors.vin}
-          onVehicleDataFetched={handleVehicleDataFetched}
-          showValidation={showValidation}
-        />
-      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { BidRequestFormData, FormErrors } from "./types";
-import VehicleIdentificationContainer from "./components/VehicleIdentificationContainer";
+import BasicVehicleInfo from "./BasicVehicleInfo";
 import ColorsAndAccessories from "./ColorsAndAccessories";
 import VehicleCondition from "./VehicleCondition";
 import BookValues from "./BookValues";
@@ -101,7 +101,7 @@ const MultiStepForm = ({
       
       {/* Vehicle Details Section - Between Progress Bar and Tabs */}
       <div className="mt-6 mb-6">
-        <VehicleIdentificationContainer 
+        <BasicVehicleInfo 
           formData={formData}
           errors={errors}
           onChange={onChange}

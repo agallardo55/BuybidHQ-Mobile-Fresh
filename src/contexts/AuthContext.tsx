@@ -5,11 +5,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AuthUser, AuthContextType } from '@/types/auth';
+import { robustSignOut } from '@/utils/robust-signout';
 
 // Enhanced context type with better typing
 interface EnhancedAuthContextType extends AuthContextType {
   user: AuthUser | null;
   enrichUserProfile: () => Promise<void>;
+  signOut: () => Promise<void>;
   // TODO: Add MFA state when implementing
   // mfaRequired?: boolean;
   // emailConfirmationRequired?: boolean;
@@ -20,6 +22,7 @@ const AuthContext = createContext<EnhancedAuthContextType>({
   session: null,
   isLoading: true,
   enrichUserProfile: async () => {},
+  signOut: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -39,6 +42,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('AuthContext: Background enrichment completed');
     } catch (error) {
       console.warn('AuthContext: Background enrichment failed (non-blocking):', error);
+    }
+  };
+
+  // Robust sign out function
+  const signOut = async () => {
+    console.log('AuthContext: Initiating sign out...');
+    try {
+      await robustSignOut({ scope: 'global', clearHistory: true });
+    } catch (error) {
+      console.error('AuthContext: Sign out error:', error);
+      // Fallback - clear local state and navigate
+      setUser(null);
+      setSession(null);
+      navigate('/signin', { replace: true });
     }
   };
 
@@ -338,7 +355,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, enrichUserProfile }}>
+    <AuthContext.Provider value={{ user, session, isLoading, enrichUserProfile, signOut }}>
       {children}
     </AuthContext.Provider>
   );

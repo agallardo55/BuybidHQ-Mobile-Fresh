@@ -75,8 +75,17 @@ const ColorsAndAccessories = ({
   const compressImage = async (file: File): Promise<File> => {
     try {
       console.log(`Compressing file: ${file.name} (${file.size} bytes)`);
+      console.log(`Original file type: ${file.type}`);
+      
       const compressedFile = await imageCompression(file, compressionOptions);
       console.log(`Compression complete: ${compressedFile.size} bytes`);
+      console.log(`Compressed file type: ${compressedFile.type}`);
+      
+      // Validate the compressed file
+      if (compressedFile.size === 0) {
+        throw new Error('Compressed file is empty');
+      }
+      
       return compressedFile;
     } catch (error) {
       console.error('Compression error:', error);
@@ -87,11 +96,13 @@ const ColorsAndAccessories = ({
   const handleUpload = async () => {
     if (selectedFilesWithPreviews.length === 0) return;
     setIsUploading(true);
+    const uploadedFiles: { filePath: string; publicUrl: string }[] = [];
     const uploadedUrls: string[] = [];
 
     try {
       console.log('Starting file upload process...');
       
+      // Step 1: Upload all files to storage
       for (const { file } of selectedFilesWithPreviews) {
         try {
           console.log(`Processing file: ${file.name}`);
@@ -105,19 +116,28 @@ const ColorsAndAccessories = ({
           
           const { error: uploadError } = await supabase.storage
             .from('vehicle_images')
-            .upload(filePath, compressedFile);
+            .upload(filePath, compressedFile, {
+              contentType: 'image/webp'
+            });
           
           if (uploadError) {
             console.error('Upload error for file:', file.name, uploadError);
             toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
-            continue;
+            continue; // Skip URL generation for failed uploads
           }
           
-          const { data: { publicUrl } } = supabase.storage
+          // Only generate URL if upload succeeded
+          const { data: { publicUrl }, error: urlError } = supabase.storage
             .from('vehicle_images')
             .getPublicUrl(filePath);
           
+          if (urlError) {
+            console.error('URL generation error:', urlError);
+            continue;
+          }
+          
           console.log('Generated public URL:', publicUrl);
+          uploadedFiles.push({ filePath, publicUrl });
           uploadedUrls.push(publicUrl);
         } catch (fileError) {
           console.error(`Error processing file ${file.name}:`, fileError);
@@ -125,28 +145,127 @@ const ColorsAndAccessories = ({
         }
       }
 
-      if (uploadedUrls.length > 0) {
-        console.log('Successfully uploaded files:', uploadedUrls);
+      // Step 2: Verify all uploaded files actually exist
+      if (uploadedFiles.length > 0) {
+        console.log('Verifying uploaded files...');
+        const verifiedUrls: string[] = [];
+        
+        // Verify each uploaded file by checking metadata (efficient)
+        for (const { filePath, publicUrl } of uploadedFiles) {
+          try {
+            const { data, error } = await supabase.storage
+              .from('vehicle_images')
+              .list('', { 
+                limit: 1,
+                search: filePath 
+              });
+            
+            // File exists if list returns results
+            const fileExists = !error && data && data.length > 0;
+            
+            if (!fileExists) {
+              console.warn(`File verification failed for ${filePath}:`, error);
+              // Don't add to verified URLs - this file doesn't exist
+            } else {
+              verifiedUrls.push(publicUrl);
+            }
+          } catch (verifyError) {
+            console.warn(`File verification error for ${filePath}:`, verifyError);
+            // Don't add to verified URLs - verification failed
+          }
+        }
 
-        // Clean up preview URLs and state
-        selectedFilesWithPreviews.forEach(({ previewUrl }) => {
-          URL.revokeObjectURL(previewUrl);
-        });
-        
-        setSelectedFilesWithPreviews([]);
-        setSelectedFileUrls?.([]);
-        
-        // Update uploaded images through callback with new array
-        onImagesUploaded?.(uploadedUrls);
-        
-        toast.success(`Successfully uploaded ${uploadedUrls.length} image${uploadedUrls.length > 1 ? 's' : ''}`);
-        setIsUploadDialogOpen(false);
+        // Step 3: Comprehensive rollback if verification fails
+        if (verifiedUrls.length !== uploadedFiles.length) {
+          console.error('Upload verification failed - rolling back ALL files');
+          
+          // Clean up ALL uploaded files (comprehensive rollback)
+          const filePathsToRemove = uploadedFiles.map(({ filePath }) => filePath);
+          try {
+            const { error: rollbackError } = await supabase.storage
+              .from('vehicle_images')
+              .remove(filePathsToRemove);
+            
+            if (rollbackError) {
+              console.error('CRITICAL: Rollback failed, manual cleanup required:', {
+                error: rollbackError,
+                files: filePathsToRemove,
+                timestamp: new Date().toISOString()
+              });
+              // TODO: Add monitoring alert here (Sentry, CloudWatch, etc.)
+            } else {
+              console.log('Rollback completed - all uploaded files removed');
+            }
+          } catch (rollbackError) {
+            console.error('CRITICAL: Rollback failed, manual cleanup required:', {
+              error: rollbackError,
+              files: filePathsToRemove,
+              timestamp: new Date().toISOString()
+            });
+            // TODO: Add monitoring alert here (Sentry, CloudWatch, etc.)
+          }
+          
+          toast.error('Upload verification failed. All files have been removed. Please try again.');
+          return;
+        }
+
+        // Step 4: Success - all files verified
+        if (verifiedUrls.length > 0) {
+          console.log('Successfully verified all files:', verifiedUrls);
+
+          // Clean up preview URLs and state
+          selectedFilesWithPreviews.forEach(({ previewUrl }) => {
+            URL.revokeObjectURL(previewUrl);
+          });
+          
+          setSelectedFilesWithPreviews([]);
+          setSelectedFileUrls?.([]);
+          
+          // Update uploaded images through callback with verified URLs only
+          onImagesUploaded?.(verifiedUrls);
+          
+          toast.success(`Successfully uploaded ${verifiedUrls.length} image${verifiedUrls.length > 1 ? 's' : ''}`);
+          setIsUploadDialogOpen(false);
+        } else {
+          toast.error('No images were successfully uploaded. Please try again.');
+        }
       } else {
         toast.error('No images were successfully uploaded. Please try again.');
       }
     } catch (error) {
-      console.error('Upload process error:', error);
-      toast.error('Failed to upload images. Please try again.');
+      console.error('Error in upload process:', error);
+      
+      // Comprehensive rollback: Clean up ALL uploaded files
+      if (uploadedFiles.length > 0) {
+        console.log('Rolling back all uploaded files due to error...');
+        const filePathsToRemove = uploadedFiles.map(({ filePath }) => filePath);
+        
+        try {
+          const { error: rollbackError } = await supabase.storage
+            .from('vehicle_images')
+            .remove(filePathsToRemove);
+          
+          if (rollbackError) {
+            console.error('CRITICAL: Rollback failed, manual cleanup required:', {
+              error: rollbackError,
+              files: filePathsToRemove,
+              timestamp: new Date().toISOString()
+            });
+            // TODO: Add monitoring alert here (Sentry, CloudWatch, etc.)
+          } else {
+            console.log('Rollback completed - all uploaded files removed');
+          }
+        } catch (rollbackError) {
+          console.error('CRITICAL: Rollback failed, manual cleanup required:', {
+            error: rollbackError,
+            files: filePathsToRemove,
+            timestamp: new Date().toISOString()
+          });
+          // TODO: Add monitoring alert here (Sentry, CloudWatch, etc.)
+        }
+      }
+      
+      toast.error('Failed to upload images. All files have been removed. Please try again.');
     } finally {
       setIsUploading(false);
     }
@@ -162,12 +281,32 @@ const ColorsAndAccessories = ({
     onChange(syntheticEvent);
   }, [onChange]);
 
+  const handleImageLoadError = useCallback((url: string) => {
+    console.log('🚨 Image load error detected for URL:', url);
+    
+    // Remove the failed image from the uploaded URLs
+    removeUploadedImage?.(url);
+    
+    // Show user-friendly error message
+    toast.error('Failed to load image. It has been removed from your uploads.', {
+      closeButton: false
+    });
+  }, [removeUploadedImage]);
+
   const handleDeleteImage = useCallback(async (url: string, isUploaded: boolean) => {
-    if (isDeleting) return;
+    console.log('🔄 handleDeleteImage called:', { url, isUploaded, isDeleting });
+    
+    if (isDeleting) {
+      console.log('⏳ Delete already in progress, returning early');
+      return;
+    }
+    
     setIsDeleting(true);
+    console.log('🔒 Set isDeleting to true');
 
     try {
       if (isUploaded) {
+        console.log('📤 Deleting uploaded image from storage');
         const filePath = url.split('/').pop();
         if (!filePath) {
           throw new Error('Invalid file path');
@@ -184,10 +323,15 @@ const ColorsAndAccessories = ({
         }
 
         // Use the new removeUploadedImage function
+        console.log('🔄 Calling removeUploadedImage with URL:', url);
         removeUploadedImage?.(url);
+        console.log('✅ removeUploadedImage called successfully');
         
-        toast.success('Image deleted successfully');
+        toast.success('Image deleted successfully', {
+          closeButton: false
+        });
       } else {
+        console.log('📋 Deleting preview image from local state');
         // Find and remove the preview file
         setSelectedFilesWithPreviews(prev => {
           const fileToDelete = prev.find(item => item.previewUrl === url);
@@ -204,6 +348,7 @@ const ColorsAndAccessories = ({
       console.error('Error handling image deletion:', error);
       toast.error('Failed to delete image');
     } finally {
+      console.log('🔓 Set isDeleting to false');
       setIsDeleting(false);
     }
   }, [isDeleting, removeUploadedImage, setSelectedFileUrls]);
@@ -267,6 +412,7 @@ const ColorsAndAccessories = ({
         selectedFileUrls={selectedFileUrls}
         onImageClick={setPreviewImage}
         onDeleteImage={handleDeleteImage}
+        onImageLoadError={handleImageLoadError}
         isDeleting={isDeleting}
       />
 

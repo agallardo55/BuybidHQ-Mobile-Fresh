@@ -5,6 +5,7 @@ import VinSection from "../VinSection";
 import { TrimOption } from "../types";
 import TrimDropdown from "./TrimDropdown";
 import { vinService } from "@/services/vinService";
+import { toast } from 'sonner';
 
 interface VehicleIdentificationProps {
   formData: {
@@ -47,10 +48,37 @@ const VehicleIdentification = ({
   onSelectChange,
   showValidation
 }: VehicleIdentificationProps) => {
-  console.log('VehicleIdentification rendered with formData:', formData);
-  console.log('VehicleIdentification - availableTrims:', formData.availableTrims);
-  console.log('VehicleIdentification - model:', formData.model);
-  console.log('VehicleIdentification - displayTrim:', formData.displayTrim);
+  // Use derived state: VIN decode succeeded if we have vehicle data
+  const vinDecodedSuccessfully = !!(formData.year && formData.make && formData.model && formData.availableTrims?.length > 0);
+
+  // Add debug logging for the callback
+  const handleVehicleDataFetched = (data: any) => {
+    console.log('📦 VehicleIdentification handleVehicleDataFetched called with:', data);
+    console.log('📦 Current formData before update:', formData);
+    onVehicleDataFetched(data);
+  };
+
+  // Add comprehensive debug logging
+  console.log('🔍 VIN Decode Debug:', {
+    vinDecodedSuccessfully,
+    formData: {
+      year: formData.year,
+      make: formData.make,
+      model: formData.model,
+      availableTrims: formData.availableTrims?.length,
+    },
+    vin: formData.vin,
+  });
+
+  console.log('🔍 Derived State Check:', {
+    hasYear: !!formData.year,
+    hasMake: !!formData.make,
+    hasModel: !!formData.model,
+    hasTrims: !!formData.availableTrims?.length,
+    trimsLength: formData.availableTrims?.length,
+    result: vinDecodedSuccessfully,
+    rawFormData: formData,
+  });
 
   // Generate dropdown options from available trims (Manheim style)
   // For model dropdown, we want to show the model with engine type, not trim values
@@ -58,10 +86,12 @@ const VehicleIdentification = ({
     [{ value: formData.model, label: formData.model }] : 
     [];
 
-  // Generate year options (current year ± 10 years)
+  // Generate year options (current year + 1 to 1990 - newest to oldest)
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 21 }, (_, i) => {
-    const year = currentYear - 10 + i;
+  const maxYear = currentYear + 1; // Include 1 future model year
+  const minYear = 1990; // Start from 1990
+  const yearOptions = Array.from({ length: maxYear - minYear + 1 }, (_, i) => {
+    const year = maxYear - i;
     return { value: year.toString(), label: year.toString() };
   });
 
@@ -144,57 +174,96 @@ const VehicleIdentification = ({
     }
   };
 
+  const handleEditManually = () => {
+    // Clear VIN to force manual entry
+    onChange({
+      target: { name: 'vin', value: '' }
+    } as React.ChangeEvent<HTMLInputElement>);
+    
+    // Clear vehicle data to reset derived state
+    onVehicleDataFetched({
+      year: '',
+      make: '',
+      model: '',
+      trim: '',
+      displayTrim: '',
+      engineCylinders: '',
+      transmission: '',
+      drivetrain: '',
+      availableTrims: []
+    });
+    
+    // Show toast message
+    toast.info('Switched to manual entry. Correct any incorrect information.');
+  };
+
   return (
     <div className="space-y-4">
       <VinSection 
         vin={formData.vin}
         onChange={onChange}
         error={errors.vin}
-        onVehicleDataFetched={onVehicleDataFetched}
+        onVehicleDataFetched={handleVehicleDataFetched}
         showValidation={showValidation}
+        onEditManually={handleEditManually}
       />
       
-      {/* Year Dropdown */}
-      <DropdownField
-        id="year"
-        label="Year"
-        value={formData.year}
-        options={yearOptions}
-        onChange={handleDropdownChange('year')}
-        error={errors.year}
-        showValidation={showValidation}
-      />
+      {/* Only show manual dropdowns if VIN decode hasn't succeeded */}
+      {(() => {
+        console.log('🎯 Conditional Rendering Check:', {
+          vinDecodedSuccessfully,
+          willShowDropdowns: !vinDecodedSuccessfully,
+          formDataYear: formData.year,
+          formDataMake: formData.make,
+          formDataModel: formData.model,
+          formDataTrimsLength: formData.availableTrims?.length
+        });
+        return !vinDecodedSuccessfully;
+      })() && (
+        <>
+          {/* Year Dropdown */}
+          <DropdownField
+            id="year"
+            label="Year"
+            value={formData.year}
+            options={yearOptions}
+            onChange={handleDropdownChange('year')}
+            error={errors.year}
+            showValidation={showValidation}
+          />
 
-      {/* Make Dropdown */}
-      <DropdownField
-        id="make"
-        label="Make"
-        value={formData.make}
-        options={makeOptions}
-        onChange={handleDropdownChange('make')}
-        error={errors.make}
-        showValidation={showValidation}
-      />
+          {/* Make Dropdown */}
+          <DropdownField
+            id="make"
+            label="Make"
+            value={formData.make}
+            options={makeOptions}
+            onChange={handleDropdownChange('make')}
+            error={errors.make}
+            showValidation={showValidation}
+          />
 
-      {/* Model Dropdown (Manheim Style - includes engine type) */}
-      <DropdownField
-        id="model"
-        label="Model"
-        value={formData.model}
-        options={modelOptions}
-        onChange={handleDropdownChange('model')}
-        error={errors.model}
-        showValidation={showValidation}
-      />
+          {/* Model Dropdown (Manheim Style - includes engine type) */}
+          <DropdownField
+            id="model"
+            label="Model"
+            value={formData.model}
+            options={modelOptions}
+            onChange={handleDropdownChange('model')}
+            error={errors.model}
+            showValidation={showValidation}
+          />
 
-      {/* Trim Dropdown (Body Style + Trim Level) */}
-      <TrimDropdown
-        trims={formData.availableTrims}
-        selectedTrim={formData.displayTrim || ''}
-        onTrimChange={handleTrimChange}
-        error={errors.trim}
-        showValidation={showValidation}
-      />
+          {/* Trim Dropdown (Body Style + Trim Level) */}
+          <TrimDropdown
+            trims={formData.availableTrims}
+            selectedTrim={formData.displayTrim || ''}
+            onTrimChange={handleTrimChange}
+            error={errors.trim}
+            showValidation={showValidation}
+          />
+        </>
+      )}
     </div>
   );
 };

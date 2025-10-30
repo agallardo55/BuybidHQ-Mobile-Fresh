@@ -3,13 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Barcode, Pencil, Check, X } from "lucide-react";
+import { Barcode } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ScannerModal from "./vin-scanner/ScannerModal";
 import { useVinScanner } from "./vin-scanner/useVinScanner";
 import { useVinDecoder } from "@/hooks/useVinDecoder";
-import { VehicleData, TrimOption } from "@/services/vinService";
+import { VehicleData, TrimOption, vinService } from "@/services/vinService";
+import DropdownField from "./components/DropdownField";
+import TrimDropdown from "./components/TrimDropdown";
+import gaugeIcon from "@/assets/gauge_image.png";
 
 interface VinSectionProps {
   vin: string;
@@ -17,28 +19,61 @@ interface VinSectionProps {
   error?: string;
   onVehicleDataFetched?: (data: VehicleData) => void;
   showValidation?: boolean;
-  onEditManually?: () => void; // Add callback for manual edit
+  formData?: { 
+    year: string; 
+    make: string; 
+    model: string; 
+    displayTrim: string; 
+    mileage: string;
+    engineCylinders?: string; 
+    transmission?: string; 
+    drivetrain?: string;
+    availableTrims: TrimOption[];
+  };
+  errors?: {
+    year?: string;
+    make?: string;
+    model?: string;
+    trim?: string;
+    vin?: string;
+    mileage?: string;
+  };
+  onYearChange?: (value: string) => void;
+  onMakeChange?: (value: string) => void;
+  onModelChange?: (value: string) => void;
+  onTrimChange?: (value: string) => void;
+  onTrimsUpdate?: (trims: TrimOption[]) => void;
 }
 
-const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation, onEditManually }: VinSectionProps) => {
+const VinSection = ({ 
+  vin, 
+  onChange, 
+  error, 
+  onVehicleDataFetched, 
+  showValidation, 
+  formData,
+  errors,
+  onYearChange,
+  onMakeChange,
+  onModelChange,
+  onTrimChange,
+  onTrimsUpdate
+}: VinSectionProps) => {
   const isMobile = useIsMobile();
   
   const { 
     vehicleData, 
-    availableTrims, 
-    selectedTrim, 
     isLoading, 
     error: decodeError,
     decodeVin, 
-    setSelectedTrim 
   } = useVinDecoder();
   
-  // Edit mode state
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editedYear, setEditedYear] = useState('');
-  const [editedMake, setEditedMake] = useState('');
-  const [editedModel, setEditedModel] = useState('');
-  const [editedTrim, setEditedTrim] = useState('');
+  // Cascading dropdown state
+  const [availableMakes, setAvailableMakes] = useState<Array<{ value: string; label: string }>>([]);
+  const [availableModels, setAvailableModels] = useState<Array<{ value: string; label: string }>>([]);
+  const [isLoadingMakes, setIsLoadingMakes] = useState(false);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [isLoadingTrims, setIsLoadingTrims] = useState(false);
   
   const { isScanning, videoRef, startScan, stopScan } = useVinScanner((scannedVin) => {
     const syntheticEvent = {
@@ -53,17 +88,114 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
 
   // Notify parent when VIN decode succeeds
   useEffect(() => {
-    console.log('🔄 VinSection useEffect triggered:', {
-      hasVehicleData: !!vehicleData,
-      hasCallback: !!onVehicleDataFetched,
-      vehicleDataKeys: vehicleData ? Object.keys(vehicleData) : [],
-    });
-    
     if (vehicleData && onVehicleDataFetched) {
-      console.log('📦 VinSection calling onVehicleDataFetched with:', vehicleData);
       onVehicleDataFetched(vehicleData);
     }
-  }, [vehicleData]); // Only depend on vehicleData, not the callback
+  }, [vehicleData]);
+
+  // Load makes when year changes
+  useEffect(() => {
+    if (formData?.year) {
+      setIsLoadingMakes(true);
+      vinService.fetchMakesByYear(formData.year)
+        .then(makes => {
+          const makeOptions = makes.map(make => ({ value: make, label: make }));
+          
+          // If formData already has a make (from VIN decode), ensure it's in the options
+          if (formData.make && !makeOptions.find(m => m.value === formData.make)) {
+            makeOptions.unshift({ value: formData.make, label: formData.make });
+          }
+          
+          setAvailableMakes(makeOptions);
+          setIsLoadingMakes(false);
+        })
+        .catch(error => {
+          console.error('Error fetching makes:', error);
+          setIsLoadingMakes(false);
+        });
+    } else {
+      setAvailableMakes([]);
+    }
+  }, [formData?.year, formData?.make]);
+
+  // Load models when year and make change
+  useEffect(() => {
+    if (formData?.year && formData?.make) {
+      setIsLoadingModels(true);
+      vinService.fetchModelsByYearMake(formData.year, formData.make)
+        .then(models => {
+          const modelOptions = models.map(model => ({ value: model, label: model }));
+          
+          // If formData already has a model (from VIN decode), ensure it's in the options
+          if (formData.model) {
+            // Normalize VIN-decoded model by removing engine/trim suffixes
+            // "DEFENDER HYBRID" → "DEFENDER"
+            // "RANGE ROVER SPORT V8" → "RANGE ROVER SPORT"
+            const normalizeModel = (model: string) => {
+              // Remove common suffixes like HYBRID, V6, V8, etc.
+              return model
+                .replace(/\s+(HYBRID|PHEV|V6|V8|P\d+|SE|HSE|AUTOBIOGRAPHY).*$/i, '')
+                .trim();
+            };
+            
+            const normalizedModel = normalizeModel(formData.model);
+            
+            // Check if normalized model exists in options
+            const exactMatch = modelOptions.find(m => m.value === normalizedModel);
+            
+            if (exactMatch) {
+              // Use the API's model name (without VIN decoder's extra details)
+              // Update formData to match dropdown
+              const syntheticEvent = {
+                target: { name: 'model', value: normalizedModel }
+              } as React.ChangeEvent<HTMLInputElement>;
+              onChange(syntheticEvent);
+            } else if (!modelOptions.find(m => m.value === formData.model)) {
+              // Model doesn't exist even after normalization, add the VIN-decoded version
+              modelOptions.unshift({ value: formData.model, label: formData.model });
+            }
+          }
+          
+          setAvailableModels(modelOptions);
+          setIsLoadingModels(false);
+        })
+        .catch(error => {
+          console.error('Error fetching models:', error);
+          setIsLoadingModels(false);
+        });
+    } else {
+      setAvailableModels([]);
+    }
+  }, [formData?.year, formData?.make, formData?.model]);
+
+  // Load trims when year, make, and model change
+  useEffect(() => {
+    console.log('🔄 Trim useEffect triggered:', {
+      year: formData?.year,
+      make: formData?.make,
+      model: formData?.model,
+      availableTrimsLength: formData?.availableTrims?.length,
+      isLoadingTrims,
+      hasOnTrimsUpdate: !!onTrimsUpdate
+    });
+    
+    if (formData?.year && formData?.make && formData?.model && onTrimsUpdate && !isLoadingTrims) {
+      // Always fetch fresh trims when year/make/model changes
+      console.log('🚀 Fetching fresh trims for:', { year: formData.year, make: formData.make, model: formData.model });
+      
+      setIsLoadingTrims(true);
+      vinService.fetchTrimsByYearMakeModel(formData.year, formData.make, formData.model)
+        .then(trims => {
+          console.log('✅ Received trims:', trims.length, 'trims');
+          onTrimsUpdate(trims);
+          setIsLoadingTrims(false);
+        })
+        .catch(error => {
+          console.error('❌ Error fetching trims:', error);
+          setIsLoadingTrims(false);
+        });
+    }
+  }, [formData?.year, formData?.make, formData?.model]);
 
   const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e);
@@ -75,116 +207,82 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
     }
   };
 
-  // Edit mode handlers
-  const handleEditClick = () => {
-    // Initialize edit state with current values
-    setEditedYear(vehicleData?.year || '');
-    setEditedMake(vehicleData?.make || '');
-    setEditedModel(vehicleData?.model || '');
-    setEditedTrim(selectedTrim?.name || '');
-    setIsEditMode(true);
+  // Handle mileage input with formatting
+  const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Remove any non-numeric characters
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
+    // Format with commas for thousands
+    let formattedValue = numericValue;
+    if (numericValue) {
+      formattedValue = Number(numericValue).toLocaleString('en-US', {
+        maximumFractionDigits: 0,
+        useGrouping: true
+      });
+    }
+    
+    // Create synthetic event with formatted value
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        name: 'mileage',
+        value: formattedValue
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    onChange(syntheticEvent);
   };
 
-  const handleSaveEdit = () => {
-    // Save changes to formData via onChange
-    const changes = [
-      { name: 'year', value: editedYear },
-      { name: 'make', value: editedMake },
-      { name: 'model', value: editedModel },
-      { name: 'trim', value: editedTrim },
-    ];
-    
-    // Apply changes one by one
-    changes.forEach(({ name, value }) => {
-      const syntheticEvent = {
-        target: { name, value }
-      } as React.ChangeEvent<HTMLInputElement>;
-      onChange(syntheticEvent);
-    });
-    
-    setIsEditMode(false);
+  // Handle year change with clearing dependents
+  const handleYearChange = (value: string) => {
+    if (onYearChange) onYearChange(value);
+    if (onMakeChange && formData?.make) onMakeChange("");
+    if (onModelChange && formData?.model) onModelChange("");
+    if (onTrimChange && formData?.displayTrim) onTrimChange("");
+    // Clear availableTrims when year changes to force fresh trim fetch
+    if (onTrimsUpdate) {
+      onTrimsUpdate([]);
+    }
   };
 
-  const handleCancelEdit = () => {
-    // Revert changes
-    setIsEditMode(false);
+  // Handle make change with clearing dependents
+  const handleMakeChange = (value: string) => {
+    if (onMakeChange) onMakeChange(value);
+    if (onModelChange && formData?.model) onModelChange("");
+    if (onTrimChange && formData?.displayTrim) onTrimChange("");
+    // Clear availableTrims when make changes to force fresh trim fetch
+    if (onTrimsUpdate) {
+      onTrimsUpdate([]);
+    }
   };
 
-  // Handle trim change in edit mode
-  const handleTrimChange = (trimName: string) => {
-    const newTrim = trimOptions.find(t => t.name === trimName);
-    
-    console.log('=== TRIM CHANGE DEBUG ===');
-    console.log('1. Selected trim name:', trimName);
-    console.log('2. Found trim object:', newTrim);
-    console.log('3. Full trim object structure:', JSON.stringify(newTrim, null, 2));
-    console.log('4. Trim specs object:', newTrim?.specs);
-    console.log('5. Engine path check:', {
-      'newTrim?.specs?.engine': newTrim?.specs?.engine,
-      'newTrim?.engine': newTrim?.engine,
-      'newTrim?.description': newTrim?.description,
-    });
-    console.log('6. All available trim options:', trimOptions.map(t => ({
-      name: t.name,
-      hasSpecs: !!t.specs,
-      specs: t.specs,
-      description: t.description,
-    })));
-    console.log('=========================');
-    
-    setEditedTrim(trimName);
-    setSelectedTrim(newTrim || null);
+  // Handle model change with clearing dependents
+  const handleModelChange = (value: string) => {
+    if (onModelChange) onModelChange(value);
+    if (onTrimChange && formData?.displayTrim) onTrimChange("");
+    // Clear availableTrims when model changes to force fresh trim fetch
+    if (onTrimsUpdate) {
+      onTrimsUpdate([]);
+    }
   };
 
-  // Generate dropdown options for inline editing
+  // Generate year options (current year + 1 to 1990 - descending)
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 21 }, (_, i) => {
-    const year = currentYear - 10 + i;
-    return year.toString();
-  });
-
-  const makeOptions = [
-    "LAND ROVER", "PORSCHE", "MCLAREN", "ROLLS-ROYCE", "BMW", "MERCEDES-BENZ", 
-    "AUDI", "LEXUS", "TOYOTA", "HONDA", "FORD", "CHEVROLET", "NISSAN", 
-    "HYUNDAI", "KIA", "MAZDA", "SUBARU", "VOLKSWAGEN", "VOLVO", "JAGUAR", 
-    "INFINITI", "ACURA", "GENESIS", "LINCOLN", "CADILLAC", "BUICK", 
-    "CHRYSLER", "DODGE", "JEEP", "RAM", "GMC", "ALFA ROMEO", "MASERATI", 
-    "BENTLEY", "ASTON MARTIN", "FERRARI", "LAMBORGHINI", "BUGATTI", 
-    "KOENIGSEGG", "PAGANI"
-  ];
-
-  const modelOptions = availableTrims?.length > 0 ? 
-    [{ value: vehicleData?.model || '', label: vehicleData?.model || '' }] : 
-    [];
-
-  const trimOptions = availableTrims || [];
-
-  // Debug trimOptions source
-  console.log('📋 trimOptions source:', {
-    trimOptions: trimOptions,
-    count: trimOptions.length,
-    sample: trimOptions[0],
-    allHaveSpecs: trimOptions.every(t => t.specs),
-    availableTrims: availableTrims,
+  const maxYear = currentYear + 1;
+  const minYear = 1990;
+  const yearOptions = Array.from({ length: maxYear - minYear + 1 }, (_, i) => {
+    const year = maxYear - i;
+    return { value: year.toString(), label: year.toString() };
   });
 
   const showError = (error || decodeError) && showValidation;
 
-  // Debug display state
-  console.log('🔍 Display State:', {
-    selectedTrim: selectedTrim,
-    selectedTrimSpecs: selectedTrim?.specs,
-    vehicleData: vehicleData,
-    engineDisplay: selectedTrim?.specs?.engine || vehicleData?.engineCylinders || 'N/A',
-    transmissionDisplay: selectedTrim?.specs?.transmission || vehicleData?.transmission || 'N/A',
-    drivetrainDisplay: selectedTrim?.specs?.drivetrain || vehicleData?.drivetrain || 'N/A',
-    isEditMode: isEditMode,
-    editedTrim: editedTrim,
-  });
-
   return (
     <div className="space-y-4">
-      {/* VIN Input Section */}
+      {/* VIN and Mileage Input Section - Single Row */}
       <div className="space-y-2">
         {isMobile && (
           <div className="space-y-2">
@@ -205,198 +303,201 @@ const VinSection = ({ vin, onChange, error, onVehicleDataFetched, showValidation
           </div>
         )}
         
-        <div>
-          <Label htmlFor="vin">
-            VIN
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="vin"
-              name="vin"
-              type="text"
-              value={vin}
-              onChange={handleVinChange}
-              required={false}
-              placeholder="1HGCM82633A123456"
-              className={`${showError ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
-              maxLength={17}
-            />
-            <Button 
-              type="button"
-              className="bg-custom-blue hover:bg-custom-blue/90 px-6"
-              onClick={handleGoClick}
-              disabled={isLoading || isScanning}
-            >
-              {isLoading ? "Loading..." : "Go"}
-            </Button>
-          </div>
-          {showError && (
-            <p className="text-red-500 text-sm mt-1">{error || decodeError}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Vehicle Data Display */}
-      {vehicleData && (
-        <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-          {/* Header with title and edit/save buttons */}
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Vehicle Information</h3>
-            
-            {!isEditMode ? (
-              /* Edit button */
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleEditClick}
-                className="h-8 w-8"
-                title="Edit vehicle information"
+        {/* Desktop: Single row layout */}
+        <div className="hidden md:flex gap-6 items-end">
+          {/* VIN Input - takes most space */}
+          <div className="flex-1">
+            <Label htmlFor="vin">
+              VIN
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="vin"
+                name="vin"
+                type="text"
+                value={vin}
+                onChange={handleVinChange}
+                required={false}
+                placeholder="1HGCM82633A123456"
+                className={`${showError ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
+                maxLength={17}
+              />
+              <Button 
+                type="button"
+                className="bg-custom-blue hover:bg-custom-blue/90 px-6"
+                onClick={handleGoClick}
+                disabled={isLoading || isScanning}
               >
-                <Pencil className="h-4 w-4" />
+                {isLoading ? "Loading..." : "Go"}
               </Button>
-            ) : (
-              /* Save/Cancel buttons */
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCancelEdit}
-                  className="h-7 px-2 text-xs"
-                >
-                  <X className="h-3 w-3 mr-1" />
-                  Cancel
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSaveEdit}
-                  className="h-7 px-2 text-xs"
-                >
-                  <Check className="h-3 w-3 mr-1" />
-                  Save
-                </Button>
-              </div>
+            </div>
+            {showError && (
+              <p className="text-red-500 text-sm mt-1">{error || decodeError}</p>
             )}
           </div>
           
-          <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-            {/* Year Field */}
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">Year:</span>
-              {!isEditMode ? (
-                <span className="text-sm">{vehicleData?.year || 'N/A'}</span>
-              ) : (
-                <Select
-                  value={editedYear}
-                  onValueChange={setEditedYear}
-                >
-                  <SelectTrigger className="h-6 w-20 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {yearOptions.map(year => (
-                      <SelectItem key={year} value={year}>{year}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+          {/* Mileage Input - fixed width */}
+          <div className="w-64">
+            <Label htmlFor="mileage">
+              Mileage
+            </Label>
+            <div className="flex gap-2 items-center">
+              <Input
+                id="mileage"
+                name="mileage"
+                type="text"
+                value={formData?.mileage || ''}
+                onChange={handleMileageChange}
+                placeholder="35,000"
+                className={`${errors?.mileage && showValidation ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
+                inputMode="numeric"
+                pattern="[0-9,]*"
+              />
+              <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border border-gray-300 flex-shrink-0">
+                <img 
+                  src={gaugeIcon} 
+                  alt="Mileage gauge" 
+                  className="w-5 h-5"
+                />
+              </div>
             </div>
-            
-            {/* Make Field */}
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">Make:</span>
-              {!isEditMode ? (
-                <span className="text-sm">{vehicleData?.make || 'N/A'}</span>
-              ) : (
-                <Select
-                  value={editedMake}
-                  onValueChange={setEditedMake}
-                >
-                  <SelectTrigger className="h-6 min-w-[120px] text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {makeOptions.map(make => (
-                      <SelectItem key={make} value={make}>{make}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+            {errors?.mileage && showValidation && (
+              <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile: Stacked layout */}
+        <div className="md:hidden space-y-4">
+          <div>
+            <Label htmlFor="vin">
+              VIN
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="vin"
+                name="vin"
+                type="text"
+                value={vin}
+                onChange={handleVinChange}
+                required={false}
+                placeholder="1HGCM82633A123456"
+                className={`${showError ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
+                maxLength={17}
+              />
+              <Button 
+                type="button"
+                className="bg-custom-blue hover:bg-custom-blue/90 px-6"
+                onClick={handleGoClick}
+                disabled={isLoading || isScanning}
+              >
+                {isLoading ? "Loading..." : "Go"}
+              </Button>
             </div>
-            
-            {/* Model Field */}
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">Model:</span>
-              {!isEditMode ? (
-                <span className="text-sm">{vehicleData?.model || 'N/A'}</span>
-              ) : (
-                <Select
-                  value={editedModel}
-                  onValueChange={setEditedModel}
-                >
-                  <SelectTrigger className="h-6 min-w-[140px] text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {modelOptions.map(model => (
-                      <SelectItem key={model.value} value={model.value}>{model.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+            {showError && (
+              <p className="text-red-500 text-sm mt-1">{error || decodeError}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="mileage">
+              Mileage
+            </Label>
+            <div className="flex gap-2 items-center">
+              <Input
+                id="mileage"
+                name="mileage"
+                type="text"
+                value={formData?.mileage || ''}
+                onChange={handleMileageChange}
+                placeholder="35,000"
+                className={`${errors?.mileage && showValidation ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
+                inputMode="numeric"
+                pattern="[0-9,]*"
+              />
+              <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border border-gray-300 flex-shrink-0">
+                <img 
+                  src={gaugeIcon} 
+                  alt="Mileage gauge" 
+                  className="w-5 h-5"
+                />
+              </div>
             </div>
-            
-            {/* Trim Field */}
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">Trim:</span>
-              {!isEditMode ? (
-                <span className="text-sm">{selectedTrim?.name || 'N/A'}</span>
-              ) : (
-                <Select
-                  value={editedTrim}
-                  onValueChange={handleTrimChange}
-                >
-                  <SelectTrigger className="h-6 min-w-[160px] text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {trimOptions.map(trim => (
-                      <SelectItem key={trim.id || trim.name} value={trim.name}>
-                        {trim.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-            
-            {/* Engine - Dynamic from selected trim */}
-            {(selectedTrim?.specs?.engine || vehicleData?.engineCylinders) && (
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">Engine:</span>
-                <span className="text-sm text-gray-600">
-                  {selectedTrim?.specs?.engine || vehicleData?.engineCylinders || 'N/A'}
-                </span>
+            {errors?.mileage && showValidation && (
+              <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Vehicle Dropdowns - Always editable */}
+      <div className="grid grid-cols-4 gap-4">
+        {/* Year Dropdown */}
+        <DropdownField
+          id="year"
+          label="Year"
+          value={formData?.year || ''}
+          options={yearOptions}
+          onChange={handleYearChange}
+          error={errors?.year}
+          showValidation={showValidation}
+          placeholder="Select Year"
+        />
+
+        {/* Make Dropdown */}
+        <DropdownField
+          id="make"
+          label="Make"
+          value={formData?.make || ''}
+          options={availableMakes}
+          onChange={handleMakeChange}
+          error={errors?.make}
+          showValidation={showValidation}
+          placeholder={isLoadingMakes ? "Loading..." : "Select Make"}
+        />
+
+        {/* Model Dropdown */}
+        <DropdownField
+          id="model"
+          label="Model"
+          value={formData?.model || ''}
+          options={availableModels}
+          onChange={handleModelChange}
+          error={errors?.model}
+          showValidation={showValidation}
+          placeholder={isLoadingModels ? "Loading..." : "Select Model"}
+        />
+
+        {/* Trim Dropdown */}
+        <TrimDropdown
+          trims={formData?.availableTrims || []}
+          selectedTrim={formData?.displayTrim || ''}
+          onTrimChange={onTrimChange || (() => {})}
+          error={errors?.trim}
+          showValidation={showValidation}
+        />
+      </div>
+
+      {/* Engine/Transmission/Drivetrain - Read-only display below dropdowns */}
+      {(formData?.engineCylinders || formData?.transmission || formData?.drivetrain) && (
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            {formData?.engineCylinders && (
+              <div>
+                <span className="font-medium text-gray-700">Engine:</span>
+                <p className="text-gray-600 mt-1">{formData.engineCylinders}</p>
               </div>
             )}
-            
-            {/* Transmission - Dynamic from selected trim */}
-            {(selectedTrim?.specs?.transmission || vehicleData?.transmission) && (
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">Transmission:</span>
-                <span className="text-sm text-gray-600">
-                  {selectedTrim?.specs?.transmission || vehicleData?.transmission || 'N/A'}
-                </span>
+            {formData?.transmission && (
+              <div>
+                <span className="font-medium text-gray-700">Transmission:</span>
+                <p className="text-gray-600 mt-1">{formData.transmission}</p>
               </div>
             )}
-            
-            {/* Drivetrain - Dynamic from selected trim */}
-            {(selectedTrim?.specs?.drivetrain || vehicleData?.drivetrain) && (
-              <div className="flex items-center gap-2 col-span-2">
-                <span className="font-medium text-sm">Drivetrain:</span>
-                <span className="text-sm text-gray-600">
-                  {selectedTrim?.specs?.drivetrain || vehicleData?.drivetrain || 'N/A'}
-                </span>
+            {formData?.drivetrain && (
+              <div>
+                <span className="font-medium text-gray-700">Drivetrain:</span>
+                <p className="text-gray-600 mt-1">{formData.drivetrain}</p>
               </div>
             )}
           </div>

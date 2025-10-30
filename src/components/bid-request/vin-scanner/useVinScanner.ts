@@ -171,32 +171,21 @@ export function useVinScanner(onVinScanned: (vin: string) => void) {
   const handleScannedResult = (result: Result) => {
     const scannedVin = result.getText();
     
-    // Check if user is admin or superadmin for detailed error messages
-    const isAdminOrSuperAdmin = hasRole(user, 'admin') || hasRole(user, 'super_admin');
-    
     // Validate VIN length (should be 17 characters)
     if (scannedVin.length !== 17) {
-      if (isAdminOrSuperAdmin) {
-        toast.error(`Invalid VIN length: ${scannedVin.length} characters. VIN should be 17 characters.`);
-      } else {
-        toast.error("Invalid VIN format", {
-          duration: 3000,
-          description: "Please ensure the barcode is clear and try again."
-        });
-      }
+      toast.error("Something went wrong", {
+        duration: 3000,
+        description: "Please try again with a US Vin Number 1990 or Newer vehicle."
+      });
       return; // Don't close scanner, let user try again
     }
     
     // Basic VIN validation (should contain only alphanumeric characters, no I, O, Q)
     if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(scannedVin)) {
-      if (isAdminOrSuperAdmin) {
-        toast.error("Invalid VIN format. Please ensure the barcode is clear and try again.");
-      } else {
-        toast.error("Invalid VIN format", {
-          duration: 3000,
-          description: "Please ensure the barcode is clear and try again."
-        });
-      }
+      toast.error("Something went wrong", {
+        duration: 3000,
+        description: "Please try again with a US Vin Number 1990 or Newer vehicle."
+      });
       return; // Don't close scanner, let user try again
     }
     

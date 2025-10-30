@@ -9,11 +9,11 @@ const validateFormData = (formData: BidRequestFormData, selectedBuyers: string[]
   if (!formData.make) newErrors.make = "Make is required";
   if (!formData.model) newErrors.model = "Model is required";
   if (!formData.trim) newErrors.trim = "Trim is required";
-  if (!formData.vin) newErrors.vin = "VIN is required";
+  // VIN is now optional - remove required validation
   if (!formData.mileage) newErrors.mileage = "Mileage is required";
   if (selectedBuyers.length === 0) newErrors.buyers = "Please select at least one buyer";
   
-  // VIN validation
+  // VIN validation (only if provided)
   if (formData.vin && formData.vin.length !== 17) {
     newErrors.vin = "VIN must be 17 characters";
   }

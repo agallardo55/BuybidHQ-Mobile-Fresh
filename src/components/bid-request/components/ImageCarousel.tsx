@@ -8,6 +8,7 @@ interface ImageCarouselProps {
   selectedFileUrls: string[];
   onImageClick: (url: string) => void;
   onDeleteImage?: (url: string, isUploaded: boolean) => void;
+  onImageLoadError?: (url: string) => void;
   isDeleting?: boolean;
 }
 
@@ -16,6 +17,7 @@ const ImageCarousel = ({
   selectedFileUrls, 
   onImageClick,
   onDeleteImage,
+  onImageLoadError,
   isDeleting 
 }: ImageCarouselProps) => {
   const sortedUploadedImages = [...uploadedImages];
@@ -53,6 +55,10 @@ const ImageCarousel = ({
                   alt={`Vehicle photo ${index + 1}`} 
                   className="h-full w-auto object-contain cursor-pointer" 
                   onClick={() => onImageClick(url)}
+                  onError={(e) => {
+                    // Fallback to placeholder on error
+                    e.currentTarget.src = carPlaceholder;
+                  }}
                 />
                 {onDeleteImage && (
                   <Button
@@ -61,8 +67,11 @@ const ImageCarousel = ({
                     className="absolute top-1 right-1 h-6 w-6 bg-white/80 hover:bg-white"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log('🗑️ Delete button clicked for uploaded image:', url);
                       if (!isDeleting) {
                         onDeleteImage(url, true);
+                      } else {
+                        console.log('⏳ Delete already in progress, ignoring click');
                       }
                     }}
                     disabled={isDeleting}
@@ -81,6 +90,10 @@ const ImageCarousel = ({
                   alt={`Vehicle photo ${index + 1}`} 
                   className="h-full w-auto object-contain cursor-pointer"
                   onClick={() => onImageClick(url)}
+                  onError={(e) => {
+                    // Fallback to placeholder on error
+                    e.currentTarget.src = carPlaceholder;
+                  }}
                 />
                 {onDeleteImage && (
                   <Button
@@ -89,8 +102,11 @@ const ImageCarousel = ({
                     className="absolute top-1 right-1 h-6 w-6 bg-white/80 hover:bg-white"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log('🗑️ Delete button clicked for preview image:', url);
                       if (!isDeleting) {
                         onDeleteImage(url, false);
+                      } else {
+                        console.log('⏳ Delete already in progress, ignoring click');
                       }
                     }}
                     disabled={isDeleting}
