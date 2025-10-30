@@ -14,6 +14,7 @@ Deno.serve(async (req) => {
   }
 
   try {
+    console.log('VIN decode request received');
     const body = await req.json() as { vin?: string; make_model_id?: number; year?: number; trim_lookup?: boolean };
 
     // Handle trim lookup request (for manual dropdown selection)
@@ -47,7 +48,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    console.log(`Received VIN: ${vin}`);
+    console.log(`Decoding VIN: ${vin}`);
 
     // Try CarAPI first, then fallback to NHTSA
     let apiResult = await fetchCarApiData(vin);
@@ -69,7 +70,36 @@ Deno.serve(async (req) => {
     }
 
     const vehicleData = apiResult;
-    console.log('Raw vehicle data:', vehicleData);
+
+    // Detailed logging for troubleshooting
+    console.log('=== RAW API RESULT ===');
+    console.log(JSON.stringify(apiResult, null, 2));
+    console.log('=== VEHICLE DATA SPECS ===');
+    console.log(JSON.stringify(vehicleData.specs, null, 2));
+
+    // Detect Electric Vehicles (EV) using granular checks and then combine
+    const fuelCheck = (vehicleData.specs?.fuel_type_primary?.toLowerCase?.() || '').includes('electric');
+    const bevCheck = (vehicleData.specs?.electrification_level?.toLowerCase?.() || '').includes('bev');
+    const electricCheck = (vehicleData.specs?.electrification_level?.toLowerCase?.() || '').includes('electric');
+    const cylinderCheck = vehicleData.specs?.engine_number_of_cylinders === null;
+    const displacementCheck = vehicleData.specs?.displacement_l === null;
+    const transmissionCheck = vehicleData.specs?.transmission_speeds === '1';
+
+    console.log('=== EV DETECTION BREAKDOWN ===', {
+      fuelCheck,
+      bevCheck,
+      electricCheck,
+      cylinderCheck,
+      displacementCheck,
+      transmissionCheck,
+      fuel_type_primary: vehicleData.specs?.fuel_type_primary,
+      electrification_level: vehicleData.specs?.electrification_level,
+      engine_number_of_cylinders: vehicleData.specs?.engine_number_of_cylinders,
+      displacement_l: vehicleData.specs?.displacement_l,
+      transmission_speeds: vehicleData.specs?.transmission_speeds
+    });
+
+    const isElectric = fuelCheck || bevCheck || electricCheck || cylinderCheck || displacementCheck || transmissionCheck;
 
     // Fetch all available trims for this model if we have make_model_id
     let allTrims = vehicleData.trims || [];
@@ -283,15 +313,25 @@ Deno.serve(async (req) => {
       turbo: vehicleData.specs?.turbo || false
     };
 
-    const availableTrims = processedTrims.map((trim) => {
-      const engineDesc = trim.description?.match(/\(([\d.]+L\s+\d+cyl(?:\s+Turbo)?)[^)]*\)/i)?.[1] || 
-        `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`;
+    const availableTrims = processedTrims.map((trim, index) => {
+      const engineDesc = isElectric
+        ? 'Electric Motor'
+        : (
+          trim.description?.match(/\(([^)]+)\)/i)?.[1]?.match(/([\d.]+L\s+\d+cyl(?:\s+Turbo)?)/i)?.[1] ||
+          `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`
+        );
 
-      const transmission = vehicleData.specs?.transmission_speeds ? 
-        `${vehicleData.specs.transmission_speeds}-Speed ${vehicleData.specs.transmission_style}` :
-        vehicleData.specs?.transmission_style || '7-Speed Automatic';
+      const transmission = isElectric
+        ? 'Single-Speed'
+        : (
+          vehicleData.specs?.transmission_speeds ? 
+            `${vehicleData.specs.transmission_speeds}-Speed ${vehicleData.specs.transmission_style}` :
+            vehicleData.specs?.transmission_style || '7-Speed Automatic'
+        );
 
       return {
+        // Generate stable IDs using VIN prefix for uniqueness
+        id: trim.id || `${vin}-trim-${index}`,
         name: trim.name,
         description: trim.description?.replace(/\.{3,}|\.+$/g, '').trim() || '',
         specs: {
@@ -300,6 +340,7 @@ Deno.serve(async (req) => {
           drivetrain: vehicleData.specs?.drive_type || 'AWD',
         },
         year: trim.year,
+        source: 'carapi' // Mark source for debugging
       };
     });
 
@@ -308,8 +349,8 @@ Deno.serve(async (req) => {
       make: vehicleData.make,
       model: vehicleData.model,
       trim: bestTrim || (processedTrims[0]?.name || ''),
-      engineCylinders: availableTrims[0]?.specs?.engine || `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`,
-      transmission: availableTrims[0]?.specs?.transmission || "7-Speed Automatic",
+      engineCylinders: availableTrims[0]?.specs?.engine || (isElectric ? 'Electric Motor' : `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`),
+      transmission: availableTrims[0]?.specs?.transmission || (isElectric ? 'Single-Speed' : "7-Speed Automatic"),
       drivetrain: availableTrims[0]?.specs?.drivetrain || "AWD",
       availableTrims: availableTrims,
     };
