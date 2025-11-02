@@ -18,9 +18,10 @@ interface MarketplaceGridProps {
   onVehicleHover?: (vehicleId: string) => void;
   sortOrder: "newest" | "oldest";
   onSortChange: (order: "newest" | "oldest") => void;
+  shouldShowPrices?: boolean;
 }
 
-const MarketplaceGrid = ({ vehicles, onViewDetails, onVehicleHover, sortOrder, onSortChange }: MarketplaceGridProps) => {
+const MarketplaceGrid = ({ vehicles, onViewDetails, onVehicleHover, sortOrder, onSortChange, shouldShowPrices = true }: MarketplaceGridProps) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -60,6 +61,7 @@ const MarketplaceGrid = ({ vehicles, onViewDetails, onVehicleHover, sortOrder, o
             vehicle={vehicle} 
             onViewDetails={onViewDetails}
             onHover={onVehicleHover}
+            shouldShowPrices={shouldShowPrices}
           />
         ))}
       </div>

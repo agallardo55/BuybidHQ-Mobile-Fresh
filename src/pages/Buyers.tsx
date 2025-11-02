@@ -94,7 +94,7 @@ const Buyers = () => {
   const paginatedBuyers = sortedBuyers.slice(startIndex, startIndex + pageSize);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F6F6F7]">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       <DashboardNavigation />
       <div className="pt-24 px-4 sm:px-8 flex-grow pb-8">
         <div className="max-w-7xl mx-auto">

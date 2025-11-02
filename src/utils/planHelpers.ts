@@ -45,5 +45,22 @@ export const getPlanButtonConfig = (
   };
 };
 
-
-
+/**
+ * Determines if a user should be able to see offer prices in Market View
+ * Admins and super_admins can ALWAYS see prices regardless of plan
+ * Paid users (connect, annual, group) can see prices
+ * Free plan users (non-admin) cannot see prices
+ */
+export const canUserSeePrices = (
+  accountPlan: string | undefined, 
+  userRole?: string, 
+  userAppRole?: string
+): boolean => {
+  // Admins and super_admins can ALWAYS see prices, regardless of plan
+  if (userRole === 'admin' || userAppRole === 'super_admin') {
+    return true;
+  }
+  // Unpaid users (free plan) cannot see prices
+  // Paid users (connect, annual, group plans) can see prices
+  return accountPlan !== 'free';
+};

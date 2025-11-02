@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import SearchHeader from "@/components/bid-request/SearchHeader";
 import BidRequestTable from "@/components/bid-request/BidRequestTable";
 import TableFooter from "@/components/bid-request/TableFooter";
-import { useBidRequests } from "@/hooks/useBidRequests";
+import { useBidRequestsForDashboard } from "@/hooks/bid-requests/useBidRequestsForDashboard";
 import { BidRequest } from "@/components/bid-request/types";
 import { DeleteBidRequestDialog } from "@/components/bid-request/DeleteBidRequestDialog";
 import { useBidRequestDelete } from "@/hooks/bid-requests/useBidRequestDelete";
@@ -31,7 +31,7 @@ const BidRequestDashboard = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bidRequestToDelete, setBidRequestToDelete] = useState<BidRequest | null>(null);
   
-  const { bidRequests = [], isLoading, updateBidRequest } = useBidRequests();
+  const { bidRequests = [], isLoading, updateBidRequest } = useBidRequestsForDashboard();
   const deleteMutation = useBidRequestDelete();
 
   // Reset to first page when search term changes

@@ -1,26 +1,17 @@
 import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { useRoleGuard } from "@/hooks/useRoleGuard";
 import MarketplaceFilters from "@/components/marketplace/MarketplaceFilters";
 import MarketplaceGrid from "@/components/marketplace/MarketplaceGrid";
 import MarketplaceVehicleDialog from "@/components/marketplace/MarketplaceVehicleDialog";
 import { useBidRequests } from "@/hooks/useBidRequests";
 import { usePrefetchVehicleDetails } from "@/hooks/marketplace/usePrefetchVehicleDetails";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useAccount } from "@/hooks/useAccount";
+import { canUserSeePrices } from "@/utils/planHelpers";
 import { formatDistanceToNow } from "date-fns";
 const Marketplace = () => {
-  // Check for both legacy admin role and new app_role system
-  const {
-    isAuthorized,
-    isLoading: isAuthLoading
-  } = useRoleGuard({
-    anyOfRoles: ['admin'],
-    // Legacy admin role
-    anyOfAppRoles: ['account_admin', 'super_admin'],
-    // New system roles
-    redirectTo: "/dashboard",
-    showToast: true,
-    accessDeniedMessage: 'Admin or super admin access required.'
-  });
+  const { currentUser } = useCurrentUser();
+  const { account } = useAccount();
   const {
     bidRequests,
     isLoading: isBidRequestsLoading
@@ -152,17 +143,24 @@ const Marketplace = () => {
       return sortOrder === "newest" ? timeB - timeA : timeA - timeB;
     });
   }, [bidRequests, filters, sortOrder]);
-  const isLoading = isAuthLoading || isBidRequestsLoading;
-  if (isLoading) {
+
+  // Determine if user should see prices (admins/super_admins always can, paid users can, free users cannot)
+  const shouldShowPrices = useMemo(() => {
+    return canUserSeePrices(
+      account?.plan,
+      currentUser?.role,
+      currentUser?.app_role
+    );
+  }, [account?.plan, currentUser?.role, currentUser?.app_role]);
+  
+  if (isBidRequestsLoading) {
     return <DashboardLayout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </DashboardLayout>;
   }
-  if (!isAuthorized) {
-    return null;
-  }
+  
   return <DashboardLayout>
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* White Card Container */}
@@ -179,7 +177,7 @@ const Marketplace = () => {
           </div>
 
           {/* Vehicle Grid */}
-          <MarketplaceGrid vehicles={vehicles} onViewDetails={handleViewDetails} onVehicleHover={handleVehicleHover} sortOrder={sortOrder} onSortChange={setSortOrder} />
+          <MarketplaceGrid vehicles={vehicles} onViewDetails={handleViewDetails} onVehicleHover={handleVehicleHover} sortOrder={sortOrder} onSortChange={setSortOrder} shouldShowPrices={shouldShowPrices} />
         </div>
       </div>
 

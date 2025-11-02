@@ -40,28 +40,37 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
   console.log('RobustSignOut: Starting complete logout process...');
 
   try {
-    // Step 1: Clear timers and subscriptions FIRST
-    // (before any async operations that might fail)
+    // Navigate FIRST to prevent any flash of content
+    if (!skipNavigation) {
+      console.log('RobustSignOut: Navigating to:', redirectTo);
+      if (clearHistory) {
+        window.location.replace(redirectTo); // Prevents back button
+        // Continue cleanup in background, but navigation already happened
+      } else {
+        window.location.href = redirectTo;
+        // Continue cleanup in background, but navigation already happened
+      }
+    }
+
+    // Step 1: Clear timers and subscriptions
     console.log('RobustSignOut: Clearing timers and subscriptions...');
     clearAllTimers();
     unsubscribeAllRealtimeChannels();
     
-    // Step 2: Attempt Supabase sign out
+    // Step 2: Attempt Supabase sign out (may complete after navigation)
     console.log('RobustSignOut: Attempting Supabase signOut...');
     try {
       const { error } = await supabase.auth.signOut({ scope });
       if (error) {
         console.error('Supabase signOut error:', error);
-        // Continue with cleanup even if API fails
       } else {
         console.log('RobustSignOut: Supabase signOut successful');
       }
     } catch (apiError) {
       console.error('SignOut API call failed:', apiError);
-      // Continue with local cleanup
     }
 
-    // Step 3: Clear all storage (always do this, even if API failed)
+    // Step 3: Clear all storage
     console.log('RobustSignOut: Clearing all storage...');
     localStorage.clear();
     sessionStorage.clear();
@@ -83,16 +92,6 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
     // Step 7: Clear any cached auth state in memory
     console.log('RobustSignOut: Clearing memory state...');
     clearMemoryState();
-
-    // Step 8: Navigation with proper history handling
-    if (!skipNavigation) {
-      console.log('RobustSignOut: Navigating to:', redirectTo);
-      if (clearHistory) {
-        window.location.replace(redirectTo); // Prevents back button
-      } else {
-        window.location.href = redirectTo;
-      }
-    }
 
     console.log('RobustSignOut: Complete logout successful');
     return { success: true };

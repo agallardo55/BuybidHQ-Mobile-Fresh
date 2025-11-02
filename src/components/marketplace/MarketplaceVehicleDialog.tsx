@@ -1,12 +1,16 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ImageCarousel from "../bid-request/components/ImageCarousel";
 import ImagePreviewDialog from "../bid-request/components/ImagePreviewDialog";
 import MarketplaceVehicleHeader from "./MarketplaceVehicleHeader";
 import MarketplaceVehicleTabs from "./MarketplaceVehicleTabs";
+import UpgradeDialog from "./UpgradeDialog";
 import { BidRequest } from "../bid-request/types";
 import { useVehicleImages } from "@/hooks/marketplace/useVehicleImages";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useAccount } from "@/hooks/useAccount";
+import { canUserSeePrices } from "@/utils/planHelpers";
 
 interface MarketplaceVehicleDialogProps {
   request?: BidRequest | null;
@@ -25,11 +29,22 @@ const MarketplaceVehicleDialog = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { currentUser } = useCurrentUser();
+  const { account } = useAccount();
+
+  // Check if user should see prices (admins/super_admins always can, paid users can, free users cannot)
+  const shouldShowPrices = useMemo(() => {
+    return canUserSeePrices(
+      account?.plan,
+      currentUser?.role,
+      currentUser?.app_role
+    );
+  }, [account?.plan, currentUser?.role, currentUser?.app_role]);
 
   // Use React Query for image caching
   const { data: images = [], isLoading: imagesLoading } = useVehicleImages(
     request?.id || vehicleId,
-    isOpen && !!(request?.id || vehicleId)
+    isOpen && !!(request?.id || vehicleId) && shouldShowPrices
   );
 
   useEffect(() => {
@@ -83,6 +98,17 @@ const MarketplaceVehicleDialog = ({
 
   const isLoadingData = loading || imagesLoading;
 
+  // If user cannot see prices (unpaid and not admin/super_admin), show upgrade dialog
+  if (!shouldShowPrices && isOpen) {
+    return (
+      <UpgradeDialog 
+        isOpen={isOpen} 
+        onOpenChange={onOpenChange} 
+      />
+    );
+  }
+
+  // Otherwise show normal vehicle details dialog
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>

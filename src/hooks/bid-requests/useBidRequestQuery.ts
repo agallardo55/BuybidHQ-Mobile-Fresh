@@ -33,11 +33,10 @@ export const useBidRequestQuery = (enabled: boolean) => {
           return [];
         }
 
-        // Get bid requests for current user only
+        // Get all bid requests (RLS policies will handle access control)
         const { data: requests, error: requestError } = await supabase
           .from('bid_requests')
-          .select('id, created_at, status')
-          .eq('user_id', session.user.id);
+          .select('id, created_at, status');
 
         if (requestError) {
           console.error("Error fetching bid requests:", requestError);

@@ -28,14 +28,13 @@ const DashboardNavigation = () => {
   const isAdmin = userAppRole === 'account_admin' || currentUser?.role === 'admin';
   const canAccessUsers = isSuperAdmin;
   const canAccessDealerships = isSuperAdmin;
-  const canAccessMarketView = isAdmin || isSuperAdmin;
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard" },
     ...(canAccessDealerships ? [{ name: "Dealerships", href: "/dealerships" }] : []),
     ...(canAccessUsers ? [{ name: "Users", href: "/users" }] : []),
     { name: "Buyers", href: "/buyers" },
-    ...(canAccessMarketView ? [{ name: "Market View", href: "/marketplace" }] : []),
+    { name: "Market View", href: "/marketplace" },
   ];
 
   useEffect(() => {

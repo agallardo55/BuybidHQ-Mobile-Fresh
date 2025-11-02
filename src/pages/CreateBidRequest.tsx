@@ -67,7 +67,7 @@ const CreateBidRequest = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       <DashboardNavigation />
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
         <div className="max-w-7xl mx-auto">

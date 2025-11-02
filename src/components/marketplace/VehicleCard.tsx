@@ -16,9 +16,10 @@ interface VehicleCardProps {
   };
   onViewDetails?: (vehicleId: string) => void;
   onHover?: (vehicleId: string) => void;
+  shouldShowPrices?: boolean;
 }
 
-const VehicleCard = ({ vehicle, onViewDetails, onHover }: VehicleCardProps) => {
+const VehicleCard = ({ vehicle, onViewDetails, onHover, shouldShowPrices = true }: VehicleCardProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -63,8 +64,8 @@ const VehicleCard = ({ vehicle, onViewDetails, onHover }: VehicleCardProps) => {
 
       <CardContent className="pb-3">
         <div className="text-xs text-muted-foreground mb-1">Highest Offer</div>
-        <div className="text-2xl font-bold text-primary">
-          {formatPrice(vehicle.price)}
+        <div className={`text-2xl font-bold text-primary ${!shouldShowPrices ? 'blur-sm select-none' : ''}`}>
+          {shouldShowPrices ? formatPrice(vehicle.price) : '$•••,•••'}
         </div>
       </CardContent>
 
