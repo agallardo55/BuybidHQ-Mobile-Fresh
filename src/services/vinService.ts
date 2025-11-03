@@ -102,43 +102,242 @@ class VinService {
   }
 
   /**
-   * Fetch vehicle makes and models based on year selection
-   * This is a simplified implementation - in a real app you'd have a comprehensive database
+   * Fetch vehicle makes based on year selection
+   * Tries CarAPI first (for consistency with VIN decoder), then falls back to NHTSA
+   * This ensures we get all available makes including newer ones like Rivian, Lucid, etc.
    */
   async fetchMakesByYear(year: string): Promise<string[]> {
-    // This is a simplified implementation
-    // In a real application, you'd query a database or API for makes available in a specific year
-    const commonMakes = [
+    try {
+      const yearNum = parseInt(year);
+      if (isNaN(yearNum) || yearNum < 1900 || yearNum > new Date().getFullYear() + 1) {
+        console.error('Invalid year for fetching makes:', year);
+        return this.getFallbackMakes();
+      }
+
+      // Try CarAPI first (same API as VIN decoder for consistency)
+      try {
+        const carApiMakes = await this.fetchMakesFromCarAPI(year);
+        if (carApiMakes && carApiMakes.length > 0) {
+          console.log(`Fetched ${carApiMakes.length} makes from CarAPI for year ${year}`);
+          return carApiMakes;
+        }
+      } catch (carApiError) {
+        console.warn('CarAPI makes fetch failed, trying NHTSA:', carApiError);
+      }
+
+      // Fallback to NHTSA API
+      const nhtsaMakes = await this.fetchMakesFromNHTSA(year);
+      if (nhtsaMakes && nhtsaMakes.length > 0) {
+        console.log(`Fetched ${nhtsaMakes.length} makes from NHTSA API for year ${year}`);
+        return nhtsaMakes;
+      }
+
+      // Final fallback to hardcoded list
+      console.warn('Both CarAPI and NHTSA failed, using fallback makes list');
+      return this.getFallbackMakes();
+    } catch (error) {
+      console.error('Error fetching makes:', error);
+      return this.getFallbackMakes();
+    }
+  }
+
+  /**
+   * Fetch makes from CarAPI
+   * Uses the same authentication as VIN decoder for consistency
+   */
+  private async fetchMakesFromCarAPI(year: string): Promise<string[]> {
+    try {
+      // Call our edge function to use CarAPI (handles auth automatically)
+      const { data: response, error } = await supabase.functions.invoke('decode-vin', {
+        body: { 
+          make_lookup: true,
+          year: parseInt(year)
+        }
+      });
+
+      if (error) {
+        console.error('CarAPI makes lookup error:', error);
+        return [];
+      }
+
+      // Check if response has makes
+      if (response && response.makes && Array.isArray(response.makes)) {
+        const makes = response.makes
+          .map((make: string) => make.toUpperCase().trim())
+          .filter((make: string) => make.length > 0)
+          .filter((make: string, index: number, self: string[]) => self.indexOf(make) === index)
+          .sort();
+        return makes;
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error in fetchMakesFromCarAPI:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch makes from NHTSA API
+   */
+  private async fetchMakesFromNHTSA(year: string): Promise<string[]> {
+    try {
+      // Use NHTSA API to get makes for the specific model year
+      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForModelYear/${year}?format=json`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        return [];
+      }
+
+      const data = await response.json();
+      
+      if (!data.Results || data.Results.length === 0) {
+        return [];
+      }
+
+      // Extract makes from NHTSA response
+      const makes = data.Results
+        .map((item: any) => item.MakeName || item.Mfr_CommonName)
+        .filter((make: string) => make && make.trim().length > 0)
+        .map((make: string) => make.toUpperCase().trim())
+        .filter((make: string, index: number, self: string[]) => self.indexOf(make) === index)
+        .sort();
+
+      return makes;
+    } catch (error) {
+      console.error('Error fetching makes from NHTSA:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fallback makes list - used if API fails
+   * Includes common makes including newer ones like Rivian
+   */
+  private getFallbackMakes(): string[] {
+    return [
       "ACURA", "ALFA ROMEO", "ASTON MARTIN", "AUDI", "BENTLEY", "BMW", "BUGATTI", "BUICK", 
       "CADILLAC", "CHEVROLET", "CHRYSLER", "DODGE", "FERRARI", "FORD", "GENESIS", "GMC", 
       "HONDA", "HYUNDAI", "INFINITI", "JAGUAR", "JEEP", "KIA", "KOENIGSEGG", "LAMBORGHINI", 
-      "LAND ROVER", "LEXUS", "LINCOLN", "MASERATI", "MAZDA", "MCLAREN", "MERCEDES-BENZ", 
-      "NISSAN", "PAGANI", "PORSCHE", "RAM", "ROLLS-ROYCE", "SUBARU", "TOYOTA", "VOLKSWAGEN", "VOLVO"
+      "LAND ROVER", "LEXUS", "LINCOLN", "LUCID", "MASERATI", "MAZDA", "MCLAREN", "MERCEDES-BENZ", 
+      "NISSAN", "PAGANI", "POLESTAR", "PORSCHE", "RAM", "RIVIAN", "ROLLS-ROYCE", "SUBARU", 
+      "TESLA", "TOYOTA", "VOLKSWAGEN", "VOLVO"
     ];
-    
-    // Filter based on year (simplified logic)
-    const yearNum = parseInt(year);
-    if (yearNum < 2000) {
-      return commonMakes.filter(make => 
-        ["FORD", "CHEVROLET", "CHRYSLER", "DODGE", "BUICK", "CADILLAC", "LINCOLN", "GMC"].includes(make)
-      );
-    } else if (yearNum < 2010) {
-      return commonMakes.filter(make => 
-        !["KOENIGSEGG", "PAGANI", "BUGATTI"].includes(make)
-      );
-    }
-    
-    return commonMakes;
   }
 
   /**
    * Fetch models based on year and make selection
-   * This is a simplified implementation - in a real app you'd have a comprehensive database
+   * Tries CarAPI first (for consistency with VIN decoder), then falls back to NHTSA, then hardcoded list
    */
   async fetchModelsByYearMake(year: string, make: string): Promise<string[]> {
-    // This is a simplified implementation
-    // In a real application, you'd query a database or API for models available for a specific year/make
-    
+    try {
+      const yearNum = parseInt(year);
+      if (isNaN(yearNum) || !make || make.trim().length === 0) {
+        console.error('Invalid year or make for fetching models:', { year, make });
+        return this.getFallbackModels(make);
+      }
+
+      // Try CarAPI first (same API as VIN decoder for consistency)
+      try {
+        const carApiModels = await this.fetchModelsFromCarAPI(year, make);
+        if (carApiModels && carApiModels.length > 0) {
+          console.log(`Fetched ${carApiModels.length} models from CarAPI for ${year} ${make}`);
+          return carApiModels;
+        }
+      } catch (carApiError) {
+        console.warn('CarAPI models fetch failed, trying NHTSA:', carApiError);
+      }
+
+      // Fallback to NHTSA API
+      const nhtsaModels = await this.fetchModelsFromNHTSA(year, make);
+      if (nhtsaModels && nhtsaModels.length > 0) {
+        console.log(`Fetched ${nhtsaModels.length} models from NHTSA for ${year} ${make}`);
+        return nhtsaModels;
+      }
+
+      // Final fallback to hardcoded list
+      console.warn('Both CarAPI and NHTSA failed, using fallback models list');
+      return this.getFallbackModels(make);
+    } catch (error) {
+      console.error('Error fetching models:', error);
+      return this.getFallbackModels(make);
+    }
+  }
+
+  /**
+   * Fetch models from CarAPI via edge function
+   */
+  private async fetchModelsFromCarAPI(year: string, make: string): Promise<string[]> {
+    try {
+      const { data: response, error } = await supabase.functions.invoke('decode-vin', {
+        body: { 
+          model_lookup: true,
+          year: parseInt(year),
+          make: make
+        }
+      });
+
+      if (error) {
+        console.error('CarAPI models lookup error:', error);
+        return [];
+      }
+
+      if (response && response.models && Array.isArray(response.models)) {
+        const models = response.models
+          .map((model: string) => model.toUpperCase().trim())
+          .filter((model: string) => model.length > 0)
+          .filter((model: string, index: number, self: string[]) => self.indexOf(model) === index)
+          .sort();
+        return models;
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error in fetchModelsFromCarAPI:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch models from NHTSA API
+   */
+  private async fetchModelsFromNHTSA(year: string, make: string): Promise<string[]> {
+    try {
+      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear/makeId/${make}/modelyear/${year}?format=json`;
+      
+      // First try by make name
+      let response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/${encodeURIComponent(make)}/modelyear/${year}?format=json`);
+      
+      if (!response.ok) {
+        return [];
+      }
+
+      const data = await response.json();
+      
+      if (!data.Results || data.Results.length === 0) {
+        return [];
+      }
+
+      const models = data.Results
+        .map((item: any) => item.Model_Name || item.ModelName || item.Model)
+        .filter((model: string) => model && model.trim().length > 0)
+        .map((model: string) => model.toUpperCase().trim())
+        .filter((model: string, index: number, self: string[]) => self.indexOf(model) === index)
+        .sort();
+
+      return models;
+    } catch (error) {
+      console.error('Error fetching models from NHTSA:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fallback models list - used if API fails
+   */
+  private getFallbackModels(make: string): string[] {
     const modelMap: Record<string, string[]> = {
       "BMW": ["3 SERIES", "5 SERIES", "7 SERIES", "X3", "X5", "X7", "M3", "M5", "M8"],
       "MERCEDES-BENZ": ["C-CLASS", "E-CLASS", "S-CLASS", "GLC", "GLE", "GLS", "AMG GT", "G-CLASS"],
@@ -178,7 +377,11 @@ class VinService {
       "MASERATI": ["GHIBLI", "QUATTROPORTE", "LEVANTE", "MC20"],
       "BUGATTI": ["CHIRON", "VEYRON", "DIVO"],
       "KOENIGSEGG": ["REGERA", "AGERA", "JESKO", "GEMERA"],
-      "PAGANI": ["HUAYRA", "ZONDA", "UTOPIA"]
+      "PAGANI": ["HUAYRA", "ZONDA", "UTOPIA"],
+      "RIVIAN": ["R1T", "R1S"],
+      "TESLA": ["MODEL S", "MODEL 3", "MODEL X", "MODEL Y", "CYBERTRUCK", "ROADSTER"],
+      "LUCID": ["AIR", "GRAVITY"],
+      "POLESTAR": ["POLESTAR 2", "POLESTAR 3", "POLESTAR 4"]
     };
 
     return modelMap[make.toUpperCase()] || [];
@@ -186,14 +389,31 @@ class VinService {
 
   /**
    * Fetch trims based on year, make, and model selection
-   * Prioritize comprehensive database for reliable results
+   * Tries CarAPI first (for consistency with VIN decoder and latest data), 
+   * then comprehensive database, then NHTSA, then generic fallback
    */
   async fetchTrimsByYearMakeModel(year: string, make: string, model: string): Promise<TrimOption[]> {
     console.log('🚗 fetchTrimsByYearMakeModel: Starting trim fetch for', { year, make, model });
     
     try {
-      // Step 1: Try comprehensive database first (most reliable)
-      console.log('📚 Step 1: Checking comprehensive trim database...');
+      // Step 1: Try CarAPI first (same API as VIN decoder for consistency and latest data)
+      console.log('🔍 Step 1: Trying CarAPI for trims...');
+      const makeModelId = await this.findMakeModelId(year, make, model);
+      if (makeModelId) {
+        console.log('Found make_model_id:', makeModelId, 'fetching trims from CarAPI...');
+        const carApiTrims = await this.fetchTrimsFromSupabase(makeModelId, parseInt(year));
+        
+        if (carApiTrims && carApiTrims.length > 0) {
+          console.log('✅ CarAPI Success: Got', carApiTrims.length, 'trims from CarAPI');
+          console.log('📋 CarAPI Trims:', carApiTrims.map(t => t.name || t.trim_name));
+          return this.transformCarApiTrimsToTrimOptions(carApiTrims, year, make, model);
+        }
+      }
+      
+      console.log('⚠️ CarAPI returned no trims, trying comprehensive database...');
+      
+      // Step 2: Try comprehensive database (may have more complete data for common vehicles)
+      console.log('📚 Step 2: Checking comprehensive trim database...');
       const comprehensiveTrims = this.getComprehensiveTrims(make, model);
       
       if (comprehensiveTrims.length > 0) {
@@ -214,22 +434,7 @@ class VinService {
         return trimOptions;
       }
       
-      console.log('⚠️ No database match, trying CarAPI...');
-      
-      // Step 2: Try CarAPI direct approach
-      const makeModelId = await this.findMakeModelId(year, make, model);
-      if (makeModelId) {
-        console.log('🔍 Step 2: Found make_model_id:', makeModelId, 'trying CarAPI...');
-        const realTrims = await this.fetchTrimsFromSupabase(makeModelId, parseInt(year));
-        
-        if (realTrims && realTrims.length > 0) {
-          console.log('✅ CarAPI Success: Got', realTrims.length, 'trims from CarAPI');
-          console.log('📋 CarAPI Trims:', realTrims.map(t => t.name || t.trim_name));
-          return this.transformCarApiTrimsToTrimOptions(realTrims, year, make, model);
-        }
-      }
-      
-      console.log('⚠️ CarAPI returned no trims, trying NHTSA...');
+      console.log('⚠️ No database match, trying NHTSA...');
       
       // Step 3: Try NHTSA as fallback
       const nhtsaTrims = await this.fetchTrimsFromNHTSA(year, make, model);

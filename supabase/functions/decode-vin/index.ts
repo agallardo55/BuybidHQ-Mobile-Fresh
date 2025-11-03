@@ -1,6 +1,6 @@
 
 import { cleanTrimValue, findBestTrimMatch, cleanEngineDescription } from "./utils/trimUtils.ts";
-import { fetchCarApiData, fetchAllTrimsForModel, fetchNHTSAData } from "./api/carApi.ts";
+import { fetchCarApiData, fetchAllTrimsForModel, fetchNHTSAData, fetchMakesFromCarAPI, fetchModelsFromCarAPI } from "./api/carApi.ts";
 import { CarApiResult } from "./types.ts";
 import { corsHeaders } from "./config.ts";
 
@@ -15,7 +15,58 @@ Deno.serve(async (req) => {
 
   try {
     console.log('VIN decode request received');
-    const body = await req.json() as { vin?: string; make_model_id?: number; year?: number; trim_lookup?: boolean };
+    const body = await req.json() as { 
+      vin?: string; 
+      make_model_id?: number; 
+      year?: number; 
+      make?: string;
+      model?: string;
+      trim_lookup?: boolean; 
+      make_lookup?: boolean;
+      model_lookup?: boolean;
+    };
+
+    // Handle makes lookup request (for dropdown selection)
+    if (body.make_lookup && body.year) {
+      console.log(`Received makes lookup request for year ${body.year}`);
+      
+      const makes = await fetchMakesFromCarAPI(body.year);
+      
+      if (makes && makes.length > 0) {
+        console.log(`Successfully fetched ${makes.length} makes for year ${body.year}`);
+        return new Response(JSON.stringify({ makes }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } else {
+        console.log(`No makes found from CarAPI for year ${body.year}`);
+        return new Response(JSON.stringify({ makes: [] }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Handle models lookup request (for dropdown selection)
+    if (body.model_lookup && body.year && body.make) {
+      console.log(`Received models lookup request for year ${body.year}, make ${body.make}`);
+      
+      const models = await fetchModelsFromCarAPI(body.year, body.make);
+      
+      if (models && models.length > 0) {
+        console.log(`Successfully fetched ${models.length} models for ${body.year} ${body.make}`);
+        return new Response(JSON.stringify({ models }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } else {
+        console.log(`No models found from CarAPI for ${body.year} ${body.make}`);
+        return new Response(JSON.stringify({ models: [] }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
     // Handle trim lookup request (for manual dropdown selection)
     if (body.trim_lookup && body.make_model_id && body.year) {

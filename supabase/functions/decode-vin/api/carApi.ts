@@ -303,3 +303,159 @@ export async function fetchAllTrimsForModel(makeModelId: number, year: number): 
     return [];
   }
 }
+
+export async function fetchMakesFromCarAPI(year?: number): Promise<string[]> {
+  try {
+    // Get JWT token using existing auth function
+    const jwtToken = await getValidJWTToken();
+    if (!jwtToken) {
+      console.error('Failed to obtain JWT token for makes API');
+      return [];
+    }
+
+    // Try different possible CarAPI endpoints for makes
+    // Common patterns: /api/makes, /api/makes?year={year}, /api/models?year={year}
+    let API_URL = `https://carapi.app/api/makes`;
+    if (year) {
+      API_URL += `?year=${year}`;
+    }
+    
+    console.log('Fetching makes from CarAPI:', {
+      url: API_URL,
+      year
+    });
+
+    // Make the API request with JWT authentication
+    const response = await fetchData<any>(API_URL, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      }
+    });
+
+    console.log('CarAPI makes raw response:', JSON.stringify(response, null, 2));
+
+    if (!response) {
+      console.log('No makes data returned from CarAPI');
+      return [];
+    }
+
+    // The API might return different formats - handle various response structures
+    let makesArray: string[] = [];
+    
+    if (Array.isArray(response)) {
+      // Direct array response: [{ id, name }, ...] or [string, ...]
+      makesArray = response.map((item: any) => 
+        typeof item === 'string' ? item : (item.name || item.make || item.MakeName || item.title)
+      );
+    } else if (response && Array.isArray(response.data)) {
+      makesArray = response.data.map((item: any) => 
+        typeof item === 'string' ? item : (item.name || item.make || item.MakeName || item.title)
+      );
+    } else if (response && Array.isArray(response.collection)) {
+      makesArray = response.collection.map((item: any) => 
+        typeof item === 'string' ? item : (item.name || item.make || item.MakeName || item.title)
+      );
+    } else if (response && Array.isArray(response.makes)) {
+      makesArray = response.makes.map((item: any) => 
+        typeof item === 'string' ? item : (item.name || item.make || item.MakeName || item.title)
+      );
+    }
+
+    // Filter out null/undefined and normalize
+    makesArray = makesArray
+      .filter((make: any) => make && typeof make === 'string')
+      .map((make: string) => make.toUpperCase().trim())
+      .filter((make: string, index: number, self: string[]) => self.indexOf(make) === index) // Remove duplicates
+      .sort();
+
+    if (makesArray.length === 0) {
+      console.log('No makes found in CarAPI response');
+      return [];
+    }
+
+    console.log(`Found ${makesArray.length} makes from CarAPI${year ? ` for year ${year}` : ''}`);
+    return makesArray;
+  } catch (error) {
+    console.error('Error fetching makes from CarAPI:', error);
+    return [];
+  }
+}
+
+export async function fetchModelsFromCarAPI(year: number, make: string): Promise<string[]> {
+  try {
+    // Get JWT token using existing auth function
+    const jwtToken = await getValidJWTToken();
+    if (!jwtToken) {
+      console.error('Failed to obtain JWT token for models API');
+      return [];
+    }
+
+    // Try different possible CarAPI endpoints for models
+    // Common patterns: /api/models?year={year}&make={make}, /api/models?make_id={id}&year={year}
+    let API_URL = `https://carapi.app/api/models?year=${year}&make=${encodeURIComponent(make)}`;
+    
+    console.log('Fetching models from CarAPI:', {
+      url: API_URL,
+      year,
+      make
+    });
+
+    // Make the API request with JWT authentication
+    const response = await fetchData<any>(API_URL, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`
+      }
+    });
+
+    console.log('CarAPI models raw response:', JSON.stringify(response, null, 2));
+
+    if (!response) {
+      console.log('No models data returned from CarAPI');
+      return [];
+    }
+
+    // The API might return different formats - handle various response structures
+    let modelsArray: string[] = [];
+    
+    if (Array.isArray(response)) {
+      // Direct array response: [{ id, name }, ...] or [string, ...]
+      modelsArray = response.map((item: any) => 
+        typeof item === 'string' ? item : (item.name || item.model || item.ModelName || item.title)
+      );
+    } else if (response && Array.isArray(response.data)) {
+      modelsArray = response.data.map((item: any) => 
+        typeof item === 'string' ? item : (item.name || item.model || item.ModelName || item.title)
+      );
+    } else if (response && Array.isArray(response.collection)) {
+      modelsArray = response.collection.map((item: any) => 
+        typeof item === 'string' ? item : (item.name || item.model || item.ModelName || item.title)
+      );
+    } else if (response && Array.isArray(response.models)) {
+      modelsArray = response.models.map((item: any) => 
+        typeof item === 'string' ? item : (item.name || item.model || item.ModelName || item.title)
+      );
+    }
+
+    // Filter out null/undefined and normalize
+    modelsArray = modelsArray
+      .filter((model: any) => model && typeof model === 'string')
+      .map((model: string) => model.toUpperCase().trim())
+      .filter((model: string, index: number, self: string[]) => self.indexOf(model) === index) // Remove duplicates
+      .sort();
+
+    if (modelsArray.length === 0) {
+      console.log('No models found in CarAPI response');
+      return [];
+    }
+
+    console.log(`Found ${modelsArray.length} models from CarAPI for ${year} ${make}`);
+    return modelsArray;
+  } catch (error) {
+    console.error('Error fetching models from CarAPI:', error);
+    return [];
+  }
+}
