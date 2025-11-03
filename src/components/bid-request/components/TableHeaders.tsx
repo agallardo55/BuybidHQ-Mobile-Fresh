@@ -51,6 +51,7 @@ const SortableHeader = ({
 
 export const TableHeaders = ({ sortConfig, onSort }: TableHeadersProps) => {
   const { currentUser } = useCurrentUser();
+  // Actions column (delete button) is only visible to super_admin users
   const isSuperAdmin = currentUser?.app_role === 'super_admin';
 
   return (

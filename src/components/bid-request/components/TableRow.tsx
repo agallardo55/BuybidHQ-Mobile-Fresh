@@ -16,6 +16,7 @@ interface TableRowProps {
 
 export const TableRowComponent = ({ request, onClick, onDelete }: TableRowProps) => {
   const { currentUser } = useCurrentUser();
+  // Actions column (delete button) is only visible to super_admin users
   const isSuperAdmin = currentUser?.app_role === 'super_admin';
   const formatDate = (dateString: string) => {
     try {

@@ -17,6 +17,7 @@ export const BidRequestMobileCard = ({
   onDelete
 }: BidRequestMobileCardProps) => {
   const { currentUser } = useCurrentUser();
+  // Delete button is only visible to super_admin users
   const isSuperAdmin = currentUser?.app_role === 'super_admin';
   const formatOfferSummary = () => {
     const summary = request.offerSummary;
