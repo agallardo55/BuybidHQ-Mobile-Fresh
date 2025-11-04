@@ -73,7 +73,7 @@ async function generateJWTToken(): Promise<string | null> {
   }
 }
 
-async function getValidJWTToken(): Promise<string | null> {
+export async function getValidJWTToken(): Promise<string | null> {
   // Check if we have a valid cached token
   if (cachedJWT && Date.now() < cachedJWT.expiresAt) {
     console.log('Using cached JWT token');
@@ -128,6 +128,23 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
     console.log('Response type:', typeof response);
     
     if (response) {
+      // Enhanced logging for specific VIN debugging
+      const isDebugVIN = vin === 'WP0CD2Y18RSA84275';
+      if (isDebugVIN) {
+        console.log('🔍 ========== DEBUG VIN: WP0CD2Y18RSA84275 ==========');
+        console.log('🔍 RAW CarAPI Response (Full):', JSON.stringify(response, null, 2));
+        console.log('🔍 Model field (raw):', response.model);
+        console.log('🔍 Model field type:', typeof response.model);
+        console.log('🔍 Make field:', response.make);
+        console.log('🔍 Year field:', response.year);
+        console.log('🔍 Trim field:', response.trim);
+        console.log('🔍 Specs object:', JSON.stringify(response.specs, null, 2));
+        console.log('🔍 Fuel type (if present):', response.specs?.fuel_type_primary);
+        console.log('🔍 Electrification level:', response.specs?.electrification_level);
+        console.log('🔍 Trims array:', JSON.stringify(response.trims, null, 2));
+        console.log('🔍 ================================================');
+      }
+      
       console.log('Raw CarAPI response:', JSON.stringify(response, null, 2));
       
       // Check for essential fields
@@ -176,6 +193,7 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
       year: vehicle.year,
       make: vehicle.make,
       model: vehicle.model,
+      vin: vin, // Include VIN for debugging
       specs: {
         engine_number_of_cylinders: vehicle.specs?.engine_number_of_cylinders,
         displacement_l: vehicle.specs?.displacement_l,
@@ -184,12 +202,23 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
         drive_type: vehicle.specs?.drive_type,
         turbo: vehicle.specs?.turbo,
         trim: vehicle.specs?.trim,
-        series: vehicle.specs?.series
+        series: vehicle.specs?.series,
+        fuel_type_primary: vehicle.specs?.fuel_type_primary,
+        electrification_level: vehicle.specs?.electrification_level
       },
       trims: Array.isArray(vehicle.trims) ? vehicle.trims : []
     };
 
     console.log('Processed CarAPI data:', JSON.stringify(processedData, null, 2));
+    
+    // Enhanced logging for debug VIN
+    if (vin === 'WP0CD2Y18RSA84275') {
+      console.log('🔍 ========== PROCESSED DATA FOR DEBUG VIN ==========');
+      console.log('🔍 Processed model:', processedData.model);
+      console.log('🔍 Processed specs:', JSON.stringify(processedData.specs, null, 2));
+      console.log('🔍 ================================================');
+    }
+    
     return processedData;
   } catch (error) {
     console.error('CarAPI error:', error);

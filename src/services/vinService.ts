@@ -60,6 +60,45 @@ class VinService {
         body: requestBody
       });
 
+      // ✅ ENHANCED LOGGING: Debug Tesla VIN decode
+      console.log('🔍 ========== VIN DECODE RAW RESPONSE ==========');
+      console.log('🔍 VIN:', vin);
+      console.log('🔍 Full Response:', JSON.stringify(response, null, 2));
+      console.log('🔍 Response Keys:', response ? Object.keys(response) : 'No response');
+      console.log('🔍 Response Model (raw):', response?.model);
+      console.log('🔍 Response Make (raw):', response?.make);
+      console.log('🔍 Response Year (raw):', response?.year);
+      console.log('🔍 Response Trim (raw):', response?.trim);
+      console.log('🔍 Response Description (raw):', response?.description);
+      console.log('🔍 Response Specs (raw):', response?.specs);
+      
+      if (response?.availableTrims) {
+        console.log('🔍 Available Trims Array Length:', response.availableTrims.length);
+        response.availableTrims.forEach((trim: any, idx: number) => {
+          console.log(`🔍 Trim ${idx}:`, {
+            id: trim.id,
+            name: trim.name,
+            description: trim.description,
+            specs: trim.specs,
+            year: trim.year,
+            source: trim.source
+          });
+        });
+      } else {
+        console.log('🔍 Available Trims: NOT PRESENT IN RESPONSE');
+      }
+      
+      if (response?.engineCylinders) {
+        console.log('🔍 Response EngineCylinders (raw):', response.engineCylinders);
+      }
+      if (response?.transmission) {
+        console.log('🔍 Response Transmission (raw):', response.transmission);
+      }
+      if (response?.drivetrain) {
+        console.log('🔍 Response Drivetrain (raw):', response.drivetrain);
+      }
+      console.log('🔍 ============================================');
+
       if (error) {
         console.error('VIN decode API error:', error.message);
         return {
@@ -399,15 +438,25 @@ class VinService {
       // Step 1: Try CarAPI first (same API as VIN decoder for consistency and latest data)
       console.log('🔍 Step 1: Trying CarAPI for trims...');
       const makeModelId = await this.findMakeModelId(year, make, model);
+      console.log('🔍 fetchTrimsByYearMakeModel: makeModelId result:', makeModelId);
+      
       if (makeModelId) {
-        console.log('Found make_model_id:', makeModelId, 'fetching trims from CarAPI...');
+        console.log('✅ Found make_model_id:', makeModelId, 'fetching trims from CarAPI...');
         const carApiTrims = await this.fetchTrimsFromSupabase(makeModelId, parseInt(year));
+        console.log('🔍 fetchTrimsByYearMakeModel: carApiTrims received:', carApiTrims?.length, 'trims');
         
         if (carApiTrims && carApiTrims.length > 0) {
           console.log('✅ CarAPI Success: Got', carApiTrims.length, 'trims from CarAPI');
-          console.log('📋 CarAPI Trims:', carApiTrims.map(t => t.name || t.trim_name));
-          return this.transformCarApiTrimsToTrimOptions(carApiTrims, year, make, model);
+          console.log('📋 CarAPI Trims (raw):', JSON.stringify(carApiTrims, null, 2));
+          console.log('📋 CarAPI Trim names:', carApiTrims.map(t => t.name || t.trim_name));
+          const transformed = this.transformCarApiTrimsToTrimOptions(carApiTrims, year, make, model);
+          console.log('📋 CarAPI Trims (transformed):', transformed.map(t => t.name));
+          return transformed;
+        } else {
+          console.warn('⚠️ CarAPI returned empty trims array, makeModelId was:', makeModelId);
         }
+      } else {
+        console.warn('⚠️ No make_model_id found for', { year, make, model });
       }
       
       console.log('⚠️ CarAPI returned no trims, trying comprehensive database...');
@@ -457,6 +506,51 @@ class VinService {
       const genericTrims = this.getGenericTrims(year, make, model);
       console.log('📋 Error Fallback Trims:', genericTrims.map(t => t.name));
       return genericTrims;
+    }
+  }
+
+  /**
+   * Fetch specs for a specific trim (engine, transmission, drivetrain)
+   * Only called when specs are missing from trim object
+   */
+  async fetchSpecsByYearMakeModelTrim(
+    year: string,
+    make: string,
+    model: string,
+    trim: string
+  ): Promise<{ engine: string; transmission: string; drivetrain: string } | null> {
+    console.log('🔍 fetchSpecsByYearMakeModelTrim: Fetching specs for', { year, make, model, trim });
+    
+    try {
+      const { data: response, error } = await supabase.functions.invoke('decode-vin', {
+        body: {
+          year: parseInt(year),
+          make: make,
+          model: model,
+          trim: trim,
+          specs_lookup: true
+        }
+      });
+
+      if (error) {
+        console.error('Error fetching specs:', error);
+        return null;
+      }
+
+      if (response && response.specs) {
+        console.log('✅ fetchSpecsByYearMakeModelTrim: Got specs:', response.specs);
+        return {
+          engine: response.specs.engine || '',
+          transmission: response.specs.transmission || '',
+          drivetrain: response.specs.drivetrain || ''
+        };
+      }
+
+      console.warn('⚠️ fetchSpecsByYearMakeModelTrim: No specs in response');
+      return null;
+    } catch (error) {
+      console.error('❌ fetchSpecsByYearMakeModelTrim: Error:', error);
+      return null;
     }
   }
 
@@ -1049,6 +1143,8 @@ class VinService {
    */
   private async fetchTrimsFromSupabase(makeModelId: number, year: number): Promise<any[]> {
     try {
+      console.log('🔍 fetchTrimsFromSupabase: Calling edge function with', { makeModelId, year });
+      
       // Import supabase client
       const { supabase } = await import('@/integrations/supabase/client');
       
@@ -1061,32 +1157,34 @@ class VinService {
         }
       });
 
+      console.log('🔍 fetchTrimsFromSupabase: Edge function response:', { data, error });
+
       if (error) {
-        console.error('Error calling Supabase function:', error);
+        console.error('❌ Error calling Supabase function:', error);
         return [];
       }
 
       if (data && data.trims) {
+        console.log('✅ fetchTrimsFromSupabase: Got trims from edge function:', data.trims.length);
+        console.log('📋 fetchTrimsFromSupabase: Trim names:', data.trims.map((t: any) => t.name || t.trim_name));
         return data.trims;
       }
 
+      console.warn('⚠️ fetchTrimsFromSupabase: No trims in response, data:', data);
       return [];
     } catch (error) {
-      console.error('Error fetching trims from Supabase:', error);
+      console.error('❌ Error fetching trims from Supabase:', error);
       return [];
     }
   }
 
   /**
    * Find make_model_id from CarAPI based on year, make, and model
+   * First tries hardcoded map (performance optimization), then queries CarAPI dynamically
    */
   private async findMakeModelId(year: string, make: string, model: string): Promise<number | null> {
     try {
-      // This is a simplified implementation
-      // In a real app, you'd use CarAPI's search endpoints to find the correct make_model_id
-      
-      // For now, we'll use a basic mapping approach
-      // This could be enhanced with actual CarAPI search calls
+      // Step 1: Try hardcoded map first (performance optimization for known models)
       const makeModelMap: Record<string, Record<string, number>> = {
         "BMW": {
           "3 SERIES": 1,
@@ -1124,12 +1222,113 @@ class VinService {
       const modelUpper = model.toUpperCase();
       
       if (makeModelMap[makeUpper] && makeModelMap[makeUpper][modelUpper]) {
+        console.log(`✅ Found make_model_id in hardcoded map: ${makeModelMap[makeUpper][modelUpper]}`);
         return makeModelMap[makeUpper][modelUpper];
       }
+
+      // Step 2: Not in hardcoded map, query CarAPI dynamically
+      console.log(`🔍 make_model_id not in hardcoded map, querying CarAPI for ${year} ${make} ${model}...`);
       
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      // 🔍 Log request body before sending
+      const requestBody = {
+        make_model_id_lookup: true,
+        year: parseInt(year),
+        make: make,
+        model: model
+      };
+      console.log('🔍 VIN SERVICE: Invoking make_model_id_lookup');
+      console.log('🔍 VIN SERVICE: Request body =', JSON.stringify(requestBody, null, 2));
+      console.log('🔍 VIN SERVICE: year value:', year, 'parsed:', parseInt(year), 'type:', typeof parseInt(year));
+      console.log('🔍 VIN SERVICE: make:', make, 'type:', typeof make);
+      console.log('🔍 VIN SERVICE: model:', model, 'type:', typeof model);
+      
+      const { data, error } = await supabase.functions.invoke('decode-vin', {
+        body: requestBody
+      });
+
+      if (error) {
+        console.error('❌ Error calling make_model_id lookup:', error);
+        
+        // Try to read the response body from the error (ReadableStream)
+        try {
+          const errorObj = error as any;
+          
+          // Check if there's a response object
+          if (errorObj.context?.response) {
+            const response = errorObj.context.response;
+            console.error('❌ Response status:', response.status);
+            console.error('❌ Response statusText:', response.statusText);
+            
+            // Try to read the response body (ReadableStream)
+            try {
+              const responseText = await response.text();
+              console.error('❌ Response body text:', responseText);
+              
+              // Try to parse as JSON
+              try {
+                const responseJson = JSON.parse(responseText);
+                console.error('❌ Response body JSON:', JSON.stringify(responseJson, null, 2));
+              } catch (parseError) {
+                console.error('❌ Could not parse response as JSON, raw text:', responseText);
+              }
+            } catch (readError) {
+              console.error('❌ Could not read response body stream:', readError);
+            }
+          }
+          
+          // Also check if error.context.body exists (might be the stream)
+          if (errorObj.context?.body) {
+            const body = errorObj.context.body;
+            if (body instanceof ReadableStream) {
+              console.error('❌ Found ReadableStream in error.context.body, attempting to read...');
+              try {
+                const reader = body.getReader();
+                const { value, done } = await reader.read();
+                if (!done && value) {
+                  const decoder = new TextDecoder();
+                  const text = decoder.decode(value);
+                  console.error('❌ Stream content:', text);
+                  try {
+                    const json = JSON.parse(text);
+                    console.error('❌ Stream content JSON:', JSON.stringify(json, null, 2));
+                  } catch (e) {
+                    console.error('❌ Stream content (raw):', text);
+                  }
+                }
+                reader.releaseLock();
+              } catch (streamError) {
+                console.error('❌ Could not read ReadableStream:', streamError);
+              }
+            } else {
+              console.error('❌ Error.context.body (not a stream):', body);
+            }
+          }
+          
+          // Check for other error properties
+          if (errorObj.message) {
+            console.error('❌ Error message:', errorObj.message);
+          }
+          if (errorObj.statusCode) {
+            console.error('❌ Status code:', errorObj.statusCode);
+          }
+        } catch (readError) {
+          console.error('❌ Could not read response body:', readError);
+        }
+        
+        return null;
+      }
+
+      if (data && data.make_model_id) {
+        console.log(`✅ Found make_model_id from CarAPI: ${data.make_model_id}`);
+        return data.make_model_id;
+      }
+
+      console.warn(`⚠️ make_model_id not found in CarAPI for ${year} ${make} ${model}`);
       return null;
     } catch (error) {
-      console.error('findMakeModelId: Error finding make_model_id:', error);
+      console.error('❌ findMakeModelId: Error finding make_model_id:', error);
       return null;
     }
   }
@@ -1210,9 +1409,28 @@ class VinService {
    * Transform API response to consistent VehicleData format - MANHEIM STYLE
    */
   private transformApiResponse(apiData: any): VehicleData {
+    // Check if this is the debug VIN
+    const isDebugVIN = apiData?.vin === 'WP0CD2Y18RSA84275' || 
+                       (apiData?.make?.toUpperCase() === 'PORSCHE' && 
+                        apiData?.model?.toUpperCase().includes('TAYCAN'));
+    
+    console.log('🔍 ========== TRANSFORM API RESPONSE ==========');
+    if (isDebugVIN) {
+      console.log('🔍 DEBUG VIN DETECTED - Enhanced logging enabled');
+    }
     console.log('transformApiResponse: Raw API data:', apiData);
     console.log('transformApiResponse: Raw API specs:', apiData?.specs);
     console.log('transformApiResponse: Raw API description:', apiData?.description);
+    console.log('transformApiResponse: Raw API model:', apiData?.model);
+    console.log('transformApiResponse: Raw API trim:', apiData?.trim);
+    
+    if (isDebugVIN) {
+      console.log('🔍 BEFORE TRANSFORMATION:');
+      console.log('🔍   Model (raw from API):', apiData?.model);
+      console.log('🔍   Model contains "ELECTRIC":', apiData?.model?.includes('ELECTRIC'));
+      console.log('🔍   Specs fuel_type_primary:', apiData?.specs?.fuel_type_primary);
+      console.log('🔍   Specs electrification_level:', apiData?.specs?.electrification_level);
+    }
     
     // Check if we have essential vehicle data
     const hasEssentialData = apiData?.year && apiData?.make && apiData?.model;
@@ -1250,34 +1468,61 @@ class VinService {
       };
     }
     
+    // Determine vehicle type BEFORE trim selection
+    const vehicleType = this.getVehicleType(apiData);
+    console.log('🔍 Vehicle type determined:', vehicleType);
+    
+    // Filter trims based on vehicle type compatibility
+    const compatibleTrims = this.filterCompatibleTrims(processedTrims, vehicleType, apiData);
+    console.log('🔍 Compatible trims after filtering:', compatibleTrims.length, 'out of', processedTrims.length);
+    
+    if (compatibleTrims.length === 0) {
+      console.warn('⚠️ No compatible trims found after filtering - using all trims');
+      // Fallback to all trims if filtering removed everything
+    }
+    
+    // Use filtered trims if available, otherwise use all trims
+    const trimsToMatch = compatibleTrims.length > 0 ? compatibleTrims : processedTrims;
+    
     // Intelligent trim matching from CarAPI response
     let selectedTrim: TrimOption | null = null;
 
-    if (processedTrims.length === 1) {
+    if (trimsToMatch.length === 1) {
       // Only one option - auto-select
-      selectedTrim = processedTrims[0];
+      selectedTrim = trimsToMatch[0];
+      console.log('🔍 Trim selection: Single trim available, auto-selected');
       
-    } else if (processedTrims.length > 1 && apiData.trim) {
+    } else if (trimsToMatch.length > 1 && apiData.trim) {
       // Multiple options - try to match using API trim field
       const apiTrimLower = apiData.trim.toLowerCase().trim();
+      console.log('🔍 Trim selection: Multiple trims available, matching against API trim:', apiTrimLower);
       
-      // Strategy 1: Exact match (case-insensitive)
-      selectedTrim = processedTrims.find(t => 
+      // Strategy 1: Exact match (case-insensitive) - prioritize compatible trims
+      selectedTrim = trimsToMatch.find(t => 
         t.name.toLowerCase() === apiTrimLower
       ) || null;
+      if (selectedTrim) {
+        console.log('🔍 Trim selection: Strategy 1 (exact match) - Found:', selectedTrim.name);
+      }
       
       // Strategy 2: API trim contains option name
       if (!selectedTrim) {
-        selectedTrim = processedTrims.find(t => 
+        selectedTrim = trimsToMatch.find(t => 
           apiTrimLower.includes(t.name.toLowerCase())
         ) || null;
+        if (selectedTrim) {
+          console.log('🔍 Trim selection: Strategy 2 (API contains trim) - Found:', selectedTrim.name);
+        }
       }
       
       // Strategy 3: Option name contains API trim
       if (!selectedTrim) {
-        selectedTrim = processedTrims.find(t => 
+        selectedTrim = trimsToMatch.find(t => 
           t.name.toLowerCase().includes(apiTrimLower)
         ) || null;
+        if (selectedTrim) {
+          console.log('🔍 Trim selection: Strategy 3 (trim contains API) - Found:', selectedTrim.name);
+        }
       }
       
       // Strategy 4: Fuzzy matching - extract key identifiers
@@ -1286,7 +1531,7 @@ class VinService {
         const apiWords = apiTrimLower.match(/\b\w+\b/g) || [];
         const apiNumbers = apiTrimLower.match(/\d+/g) || [];
         
-        selectedTrim = processedTrims.find(t => {
+        selectedTrim = trimsToMatch.find(t => {
           const optionLower = t.name.toLowerCase();
           const optionWords = optionLower.match(/\b\w+\b/g) || [];
           const optionNumbers = optionLower.match(/\d+/g) || [];
@@ -1304,18 +1549,101 @@ class VinService {
           
           return numbersMatch && hasKeyWordMatch;
         }) || null;
+        if (selectedTrim) {
+          console.log('🔍 Trim selection: Strategy 4 (fuzzy match) - Found:', selectedTrim.name);
+        }
       }
       
-    } else if (processedTrims.length > 1) {
+      // Strategy 5: For electric vehicles, filter out generic body style trims and rank by performance
+      if (!selectedTrim && vehicleType === 'BEV') {
+        // Filter out generic body style trims and rank by performance hierarchy
+        const validTrims = this.filterValidPerformanceTrims(trimsToMatch, apiData);
+        console.log('🔍 Trim selection: Strategy 5 - Valid performance trims after filtering:', validTrims.map(t => t.name));
+        
+        if (validTrims.length > 0) {
+          // Rank by performance hierarchy (if applicable) and select best match
+          selectedTrim = this.selectBestPerformanceTrim(validTrims, apiData);
+          if (selectedTrim) {
+            console.log('🔍 Trim selection: Strategy 5 (electric preference + performance ranking) - Found:', selectedTrim.name);
+          }
+        }
+      }
+      
+    } else if (trimsToMatch.length > 1) {
       // Multiple options but no API trim field
-      selectedTrim = null;
+      // For electric vehicles, filter out generic body style trims and rank by performance
+      if (vehicleType === 'BEV') {
+        const validTrims = this.filterValidPerformanceTrims(trimsToMatch, apiData);
+        console.log('🔍 Trim selection: No API trim - Valid performance trims after filtering:', validTrims.map(t => t.name));
+        
+        if (validTrims.length > 0) {
+          selectedTrim = this.selectBestPerformanceTrim(validTrims, apiData);
+          if (selectedTrim) {
+            console.log('🔍 Trim selection: No API trim, electric preference + performance ranking - Found:', selectedTrim.name);
+          }
+        }
+      }
+      
+      if (!selectedTrim) {
+        console.log('🔍 Trim selection: No API trim field, no auto-selection');
+        selectedTrim = null;
+      }
+    }
+    
+    // Validate selected trim matches vehicle type
+    if (selectedTrim) {
+      const isValid = this.validateTrimCompatibility(selectedTrim, vehicleType, apiData);
+      if (!isValid) {
+        console.warn('⚠️ Selected trim failed validation, trying alternative selection');
+        // Try to find a compatible trim
+        const alternative = trimsToMatch.find(t => 
+          this.validateTrimCompatibility(t, vehicleType, apiData)
+        );
+        if (alternative) {
+          console.log('🔍 Found alternative compatible trim:', alternative.name);
+          selectedTrim = alternative;
+        } else {
+          console.warn('⚠️ No compatible alternative found, keeping original selection');
+        }
+      }
     }
     
     console.log('transformApiResponse: Selected trim:', selectedTrim);
     
+    // ✅ ENHANCED LOGGING: Selected trim details
+    console.log('🔍 ========== SELECTED TRIM DETAILS ==========');
+    console.log('🔍 Selected Trim:', selectedTrim);
+    if (selectedTrim) {
+      console.log('🔍 Selected Trim Name:', selectedTrim.name);
+      console.log('🔍 Selected Trim Description:', selectedTrim.description);
+      console.log('🔍 Selected Trim Specs:', selectedTrim.specs);
+      console.log('🔍 Selected Trim Specs Engine:', selectedTrim.specs?.engine);
+      console.log('🔍 Selected Trim Specs Transmission:', selectedTrim.specs?.transmission);
+      console.log('🔍 Selected Trim Specs Drivetrain:', selectedTrim.specs?.drivetrain);
+    }
+    console.log('🔍 ==========================================');
+    
+    // Enhanced logging before transformation
+    if (isDebugVIN) {
+      console.log('🔍 BEFORE formatModelManheimStyle:');
+      console.log('🔍   apiData.model:', apiData?.model);
+      console.log('🔍   selectedTrim?.specs?.engine:', selectedTrim?.specs?.engine);
+      console.log('🔍   selectedTrim?.description:', selectedTrim?.description);
+    }
+    
     // Manheim-style formatting
     const manheimModel = this.formatModelManheimStyle(apiData, selectedTrim);
     const manheimTrim = this.formatTrimManheimStyle(selectedTrim, apiData);
+    
+    console.log('🔍 Formatted Model (before):', apiData?.model);
+    console.log('🔍 Formatted Model (after):', manheimModel);
+    console.log('🔍 Formatted Trim (after):', manheimTrim);
+    
+    if (isDebugVIN) {
+      console.log('🔍 AFTER formatModelManheimStyle:');
+      console.log('🔍   Model (formatted):', manheimModel);
+      console.log('🔍   Model should be "TAYCAN":', manheimModel === 'TAYCAN');
+    }
     
     const vehicleData = {
       year: (apiData?.year || "").toString(),
@@ -1335,14 +1663,92 @@ class VinService {
   }
 
   /**
+   * Models where "EV" is part of the official model name and should NOT be stripped
+   */
+  private getModelsWithOfficialEV(): string[] {
+    return [
+      'BOLT EV',
+      'BOLT EUV',
+      'KONA ELECTRIC',
+      'NIRO EV',
+      'EV6',
+      'IONIQ ELECTRIC',
+      'IONIQ 5',
+      'IONIQ 6',
+      'ID.4',
+      'ID.3',
+      'ID. BUZZ',
+      'E-GOLF',
+      'E-TRON',
+      'I-PACE',
+      'POLESTAR 2',
+      'RIO ELECTRIC'
+    ];
+  }
+
+  /**
    * Format model in Manheim style: MODEL ENGINE_TYPE
    * Example: "RANGE ROVER V8 HYBRID"
+   * 
+   * IMPORTANT: For electric vehicles, do NOT append "ELECTRIC" to model name.
+   * Electric vehicles should show clean model name (e.g., "TAYCAN" not "TAYCAN ELECTRIC").
+   * The engine/motor type should be in the engine field, not the model field.
+   * 
+   * Exception: Models where "EV" is part of the official name (e.g., "BOLT EV") should keep it.
    */
   private formatModelManheimStyle(apiData: any, selectedTrim?: TrimOption): string {
-    const baseModel = (apiData?.model || "").trim().toUpperCase();
+    let baseModel = (apiData?.model || "").trim().toUpperCase();
     if (!baseModel) return "";
     
-    // Extract engine type from various sources
+    // Check if this model has "EV" as part of its official name
+    const officialEVModels = this.getModelsWithOfficialEV();
+    const isOfficialEVModel = officialEVModels.some(model => 
+      baseModel.includes(model.toUpperCase()) || model.toUpperCase().includes(baseModel)
+    );
+    
+    // Only clean fuel type descriptors if they're clearly appended (not part of official name)
+    if (!isOfficialEVModel) {
+      // Check if fuel type appears at the END of the model name (appended, not part of name)
+      // Patterns that should be removed: "TAYCAN ELECTRIC", "CAYENNE HYBRID", etc.
+      // But NOT "BOLT EV" (which is official name)
+      const appendedPatterns = [
+        /\s+ELECTRIC\s*$/i,  // Only at end
+        /\s+BEV\s*$/i,       // Only at end
+        /\s+PHEV\s*$/i,      // Only at end
+        /\s+HYBRID\s*$/i     // Only at end
+      ];
+      
+      for (const pattern of appendedPatterns) {
+        if (pattern.test(baseModel)) {
+          console.log(`🔍 formatModelManheimStyle: Found appended fuel type in model name "${baseModel}", cleaning...`);
+          baseModel = baseModel.replace(pattern, '').trim();
+          console.log(`🔍 formatModelManheimStyle: Cleaned model name to "${baseModel}"`);
+        }
+      }
+    } else {
+      console.log(`🔍 formatModelManheimStyle: Model "${baseModel}" has "EV" as part of official name - keeping it`);
+    }
+    
+    // Check vehicle type (BEV, PHEV, or ICE)
+    const vehicleType = this.getVehicleType(apiData, selectedTrim);
+    
+    // For pure BEV vehicles, return clean model name without appending "ELECTRIC"
+    if (vehicleType === 'BEV') {
+      console.log('🔍 formatModelManheimStyle: Pure BEV detected - returning clean model name');
+      return baseModel;
+    }
+    
+    // For PHEV vehicles, we might append engine type but not "ELECTRIC" or "PHEV"
+    // (PHEV info goes in engine field, not model field)
+    if (vehicleType === 'PHEV') {
+      console.log('🔍 formatModelManheimStyle: PHEV detected - returning clean model name (engine info in engine field)');
+      // For PHEV, we might still want to show engine type if it's a performance variant
+      // But don't append "HYBRID" or "PHEV" - that goes in engine field
+      // For now, return clean model name
+      return baseModel;
+    }
+    
+    // For non-electric vehicles (including mild hybrids), extract engine type
     let engineType = "";
     
     // Try to get engine type from trim specs
@@ -1351,22 +1757,448 @@ class VinService {
       if (engine.includes('V8')) engineType = 'V8';
       else if (engine.includes('V6')) engineType = 'V6';
       else if (engine.includes('V12')) engineType = 'V12';
-      else if (engine.includes('HYBRID')) engineType = 'HYBRID';
-      else if (engine.includes('ELECTRIC')) engineType = 'ELECTRIC';
+      else if (engine.includes('HYBRID') && !engine.includes('ELECTRIC') && !engine.includes('PHEV')) {
+        // Mild hybrid - show engine type only
+        engineType = engine.match(/V\d+|INLINE\s*\d+/i)?.[0] || '';
+      }
     }
     
     // Try to extract from description
     if (!engineType && (selectedTrim?.description || apiData?.description)) {
       const description = (selectedTrim?.description || apiData?.description).toUpperCase();
-      if (description.includes('V8 HYBRID')) engineType = 'V8 HYBRID';
-      else if (description.includes('V8')) engineType = 'V8';
-      else if (description.includes('V6')) engineType = 'V6';
-      else if (description.includes('HYBRID')) engineType = 'HYBRID';
-      else if (description.includes('ELECTRIC')) engineType = 'ELECTRIC';
+      if (description.includes('V8 HYBRID') && !description.includes('ELECTRIC') && !description.includes('PHEV')) {
+        engineType = 'V8 HYBRID';
+      } else if (description.includes('V8')) {
+        engineType = 'V8';
+      } else if (description.includes('V6')) {
+        engineType = 'V6';
+      } else if (description.includes('HYBRID') && !description.includes('ELECTRIC') && !description.includes('PHEV')) {
+        // Mild hybrid - extract engine type
+        const engineMatch = description.match(/V\d+|INLINE\s*\d+/i);
+        engineType = engineMatch ? engineMatch[0] : '';
+      }
     }
     
     // Combine model with engine type
     return engineType ? `${baseModel} ${engineType}` : baseModel;
+  }
+  
+  /**
+   * Determine vehicle type: BEV (pure electric), PHEV (plug-in hybrid), or ICE (internal combustion)
+   * Returns: 'BEV' | 'PHEV' | 'ICE'
+   */
+  private getVehicleType(apiData: any, selectedTrim?: TrimOption | any): 'BEV' | 'PHEV' | 'ICE' {
+    console.log('🔍 ========== getVehicleType: DETECTION START ==========');
+    const specs = apiData?.specs || selectedTrim?.specs || {};
+    
+    // Log all detection inputs
+    console.log('🔍 getVehicleType: Checking specs:', {
+      engine_number_of_cylinders: specs.engine_number_of_cylinders,
+      displacement_l: specs.displacement_l,
+      transmission_speeds: specs.transmission_speeds,
+      transmission_style: specs.transmission_style,
+      electrification_level: specs.electrification_level,
+      fuel_type_primary: specs.fuel_type_primary
+    });
+    
+    // ✅ PRIORITY 1: Check electrification level (most reliable indicator)
+    const electrificationLevel = (specs.electrification_level || '').toLowerCase();
+    console.log('🔍 getVehicleType: Electrification level check:', electrificationLevel);
+    
+    // Handle full string like "BEV (Battery Electric Vehicle)" or just "BEV"
+    if (electrificationLevel.includes('bev') || electrificationLevel === 'electric') {
+      console.log('🔍 getVehicleType: ✅ BEV detected (electrification_level)');
+      return 'BEV';
+    }
+    if (electrificationLevel.includes('phev') || electrificationLevel.includes('plug-in')) {
+      console.log('🔍 getVehicleType: ✅ PHEV detected (electrification_level)');
+      return 'PHEV';
+    }
+    
+    // ✅ PRIORITY 2: Check fuel type (second most reliable)
+    const fuelType = (specs.fuel_type_primary || '').toLowerCase();
+    console.log('🔍 getVehicleType: Fuel type check:', fuelType);
+    if (fuelType === 'electric' || fuelType.includes('electric')) {
+      // Check if it has an engine (PHEV) or not (BEV)
+      const hasEngine = specs.engine_number_of_cylinders && 
+                       specs.engine_number_of_cylinders !== null &&
+                       specs.displacement_l && specs.displacement_l !== null;
+      console.log('🔍 getVehicleType: Has engine:', hasEngine);
+      const result = hasEngine ? 'PHEV' : 'BEV';
+      console.log(`🔍 getVehicleType: ✅ ${result} detected (fuel_type_primary)`);
+      return result;
+    }
+    
+    // Check engine specs - pure BEV has no cylinders, no displacement, single-speed transmission
+    const hasNoCylinders = specs.engine_number_of_cylinders === null || 
+                          specs.engine_number_of_cylinders === undefined;
+    const hasNoDisplacement = !specs.displacement_l || specs.displacement_l === null;
+    const hasSingleSpeedTransmission = specs.transmission_speeds === '1' || 
+                                      (specs.transmission_style && specs.transmission_style.toLowerCase().includes('single-speed'));
+    
+    console.log('🔍 getVehicleType: Engine specs check:', {
+      hasNoCylinders,
+      hasNoDisplacement,
+      hasSingleSpeedTransmission
+    });
+    
+    if (hasNoCylinders && hasNoDisplacement && hasSingleSpeedTransmission) {
+      console.log('🔍 getVehicleType: ✅ BEV detected (no cylinders, no displacement, single-speed)');
+      return 'BEV';
+    }
+    
+    // Check trims array for electric indicators
+    const trims = apiData?.trims || apiData?.availableTrims || [];
+    if (Array.isArray(trims) && trims.length > 0) {
+      console.log('🔍 getVehicleType: Checking trims array for electric indicators:', trims.length, 'trims');
+      const trimDescriptions = trims.map((t: any) => (t.description || '').toLowerCase()).join(' ');
+      const hasElectricInTrims = trimDescriptions.includes('electric') ||
+                                 trimDescriptions.includes('motor') ||
+                                 trimDescriptions.includes('ev') ||
+                                 trimDescriptions.includes('2a'); // Electric transmission code
+      
+      console.log('🔍 getVehicleType: Trim descriptions check:', {
+        trimDescriptions: trimDescriptions.substring(0, 200),
+        hasElectricInTrims
+      });
+      
+      // If trims have electric indicators and no engine specs, it's BEV
+      if (hasElectricInTrims && hasNoCylinders && hasNoDisplacement) {
+        console.log('🔍 getVehicleType: ✅ BEV detected (electric in trims + no engine specs)');
+        return 'BEV';
+      }
+    }
+    
+    // Check description fields
+    const description = (selectedTrim?.description || apiData?.description || '').toLowerCase();
+    console.log('🔍 getVehicleType: Description check:', description.substring(0, 200));
+    
+    // Check if engine field contains "Electric Motor" (from processed specs)
+    const engineField = (selectedTrim?.specs?.engine || apiData?.engineCylinders || '').toLowerCase();
+    const transmissionField = (selectedTrim?.specs?.transmission || apiData?.transmission || specs.transmission_style || '').toLowerCase();
+    
+    console.log('🔍 getVehicleType: Processed fields check:', {
+      engineField,
+      transmissionField
+    });
+    
+    // Check if engine field says "Electric Motor" or transmission is "Single-Speed"
+    if (engineField.includes('electric') || engineField.includes('motor')) {
+      if (hasNoCylinders && hasNoDisplacement) {
+        console.log('🔍 getVehicleType: ✅ BEV detected (engine field contains electric/motor + no engine specs)');
+        return 'BEV';
+      }
+    }
+    
+    if (transmissionField.includes('single-speed') || transmissionField === 'single-speed') {
+      if (hasNoCylinders && hasNoDisplacement) {
+        console.log('🔍 getVehicleType: ✅ BEV detected (single-speed transmission + no engine specs)');
+        return 'BEV';
+      }
+    }
+    
+    // Check if description has electric indicators
+    const hasElectricMention = description.includes('electric') || 
+                               description.includes('phev') ||
+                               description.includes('plug-in') ||
+                               description.includes('2a'); // Electric transmission code
+    
+    // Check if it has both engine AND electric (PHEV)
+    const hasEngine = specs.engine_number_of_cylinders && 
+                     specs.engine_number_of_cylinders !== null &&
+                     specs.displacement_l && specs.displacement_l !== null;
+    
+    console.log('🔍 getVehicleType: PHEV check:', {
+      hasEngine,
+      hasElectricMention
+    });
+    
+    if (hasEngine && hasElectricMention) {
+      console.log('🔍 getVehicleType: ✅ PHEV detected (has engine + electric mention)');
+      return 'PHEV';
+    }
+    
+    // If description has electric but no engine specs, it's BEV
+    if (hasElectricMention && hasNoCylinders && hasNoDisplacement) {
+      console.log('🔍 getVehicleType: ✅ BEV detected (electric mention in description + no engine specs)');
+      return 'BEV';
+    }
+    
+    // Default to ICE (including mild hybrids)
+    console.log('🔍 getVehicleType: ⚠️ Defaulting to ICE (no BEV/PHEV indicators found)');
+    console.log('🔍 ========== getVehicleType: DETECTION END ==========');
+    return 'ICE';
+  }
+  
+  /**
+   * Check if vehicle is electric (BEV or PHEV) based on multiple indicators
+   * @param apiData - The API response data (can include specs, description, etc.)
+   * @param selectedTrim - Optional TrimOption or raw trim data object
+   */
+  private isElectricVehicle(apiData: any, selectedTrim?: TrimOption | any): boolean {
+    const vehicleType = this.getVehicleType(apiData, selectedTrim);
+    return vehicleType === 'BEV' || vehicleType === 'PHEV';
+  }
+
+  /**
+   * Filter trims to only include those compatible with the vehicle type
+   */
+  private filterCompatibleTrims(trims: TrimOption[], vehicleType: 'BEV' | 'PHEV' | 'ICE', apiData: any): TrimOption[] {
+    console.log('🔍 filterCompatibleTrims: Filtering', trims.length, 'trims for vehicle type:', vehicleType);
+    
+    if (vehicleType === 'BEV') {
+      // For electric vehicles, filter out trims with gas engine specs
+      const filtered = trims.filter(trim => {
+        const description = (trim.description || '').toLowerCase();
+        const specs = trim.specs || {};
+        const engine = (specs.engine || '').toLowerCase();
+        
+        // Check for gas engine indicators (displacement like "4.0L", "cyl", "v6", "v8", etc.)
+        const hasGasEngine = description.match(/\d+\.?\d*l\s+\d+cyl/i) || // "4.0L 6cyl"
+                            description.match(/\d+cyl/i) || // "6cyl", "8cyl"
+                            description.includes('v6') || 
+                            description.includes('v8') ||
+                            description.includes('v12') ||
+                            description.includes('inline') ||
+                            engine.includes('cyl') ||
+                            engine.includes('v6') ||
+                            engine.includes('v8') ||
+                            (description.match(/\d+\.?\d*l/i) && description.includes('cyl')); // Displacement + cylinders
+        
+        // For BEV, reject ANY trim with gas engine specs
+        if (hasGasEngine) {
+          console.log('🔍 filterCompatibleTrims: Rejected trim (has gas engine specs):', trim.name, 'Description:', description);
+          return false;
+        }
+        
+        // Accept trims with electric indicators
+        const hasElectric = description.includes('electric') ||
+                           description.includes('motor') ||
+                           description.includes('ev') ||
+                           engine.includes('electric') ||
+                           engine.includes('motor') ||
+                           description.includes('2a') || // Electric transmission code
+                           description.includes('awd') && !description.includes('cyl'); // AWD without cylinders likely EV
+        
+        // For BEV, must have electric indicators
+        if (!hasElectric) {
+          console.log('🔍 filterCompatibleTrims: Rejected trim (no electric indicators):', trim.name, 'Description:', description);
+          return false;
+        }
+        
+        return true;
+      });
+      
+      console.log('🔍 filterCompatibleTrims: Filtered to', filtered.length, 'electric-compatible trims');
+      return filtered;
+    }
+    
+    if (vehicleType === 'PHEV') {
+      // For PHEV, accept trims with both engine and electric mentions, or just engine
+      const filtered = trims.filter(trim => {
+        const description = (trim.description || '').toLowerCase();
+        const hasEngine = description.includes('cyl') || 
+                         description.includes('l ') && description.match(/\d+\.?\d*l/i) ||
+                         description.includes('v6') || 
+                         description.includes('v8');
+        const hasElectric = description.includes('electric') ||
+                           description.includes('phev') ||
+                           description.includes('plug-in') ||
+                           description.includes('hybrid');
+        
+        // PHEV should have engine, and may have electric mention
+        return hasEngine || hasElectric;
+      });
+      
+      console.log('🔍 filterCompatibleTrims: Filtered to', filtered.length, 'PHEV-compatible trims');
+      return filtered;
+    }
+    
+    // For ICE, return all trims (no filtering needed)
+    console.log('🔍 filterCompatibleTrims: ICE vehicle - no filtering needed');
+    return trims;
+  }
+  
+  /**
+   * Filter out generic body style trims (like "Taycan Sedan", "Model 3 Sedan")
+   * and only keep valid performance/trim level designations
+   */
+  private filterValidPerformanceTrims(trims: TrimOption[], apiData: any): TrimOption[] {
+    const make = (apiData?.make || '').toUpperCase();
+    const model = (apiData?.model || '').toUpperCase();
+    
+    console.log('🔍 filterValidPerformanceTrims: Filtering', trims.length, 'trims for', make, model);
+    
+    // Generic body style words that should be rejected when they appear alone (without performance designation)
+    const genericBodyStyles = ['sedan', 'coupe', 'wagon', 'hatchback', 'suv', 'convertible'];
+    
+    const filtered = trims.filter(trim => {
+      const trimName = (trim.name || '').toLowerCase();
+      const description = (trim.description || '').toLowerCase();
+      
+      // Porsche Taycan specific validation
+      if (make === 'PORSCHE' && model.includes('TAYCAN')) {
+        // Official Porsche Taycan trim hierarchy: Base, 4S, GTS, Turbo, Turbo S
+        const validTaycanTrims = ['taycan', '4s', 'gts', 'turbo', 'turbo s'];
+        
+        // Check if trim name matches official designations
+        const isOfficialTrim = validTaycanTrims.some(valid => 
+          trimName.includes(valid) || trimName === valid
+        );
+        
+        // Check if it's just a generic body style (e.g., "Taycan Sedan" without performance designation)
+        const isGenericBodyStyle = genericBodyStyles.some(bodyStyle => {
+          const bodyStylePattern = new RegExp(`\\b${bodyStyle}\\b`, 'i');
+          const hasBodyStyle = bodyStylePattern.test(trimName) || bodyStylePattern.test(description);
+          // If it has body style but no performance designation, it's generic
+          const hasPerformanceDesignation = validTaycanTrims.some(perf => 
+            trimName.includes(perf) || description.includes(perf)
+          );
+          return hasBodyStyle && !hasPerformanceDesignation;
+        });
+        
+        if (isGenericBodyStyle) {
+          console.log('🔍 filterValidPerformanceTrims: Rejected generic body style trim:', trim.name);
+          return false;
+        }
+        
+        if (isOfficialTrim) {
+          console.log('🔍 filterValidPerformanceTrims: Accepted official Porsche trim:', trim.name);
+          return true;
+        }
+        
+        // If trim name doesn't match official designations, check description
+        const hasPerformanceInDescription = validTaycanTrims.some(perf => 
+          description.includes(perf)
+        );
+        
+        if (hasPerformanceInDescription) {
+          console.log('🔍 filterValidPerformanceTrims: Accepted trim (has performance designation in description):', trim.name);
+          return true;
+        }
+        
+        console.log('🔍 filterValidPerformanceTrims: Rejected trim (not official Porsche designation):', trim.name);
+        return false;
+      }
+      
+      // For other manufacturers, filter out generic body style trims
+      const isGenericBodyStyle = genericBodyStyles.some(bodyStyle => {
+        const bodyStylePattern = new RegExp(`\\b${bodyStyle}\\b`, 'i');
+        const hasBodyStyle = bodyStylePattern.test(trimName);
+        // Keep if it has performance designation (like "Model 3 Performance", "Mustang GT")
+        const hasPerformanceDesignation = trimName.match(/\b(performance|gt|turbo|sport|plaid|amg|m\d+|rs)\b/i);
+        return hasBodyStyle && !hasPerformanceDesignation;
+      });
+      
+      if (isGenericBodyStyle) {
+        console.log('🔍 filterValidPerformanceTrims: Rejected generic body style trim:', trim.name);
+        return false;
+      }
+      
+      return true;
+    });
+    
+    console.log('🔍 filterValidPerformanceTrims: Filtered to', filtered.length, 'valid performance trims');
+    return filtered;
+  }
+  
+  /**
+   * Select best trim based on performance hierarchy (for manufacturers with known hierarchies)
+   */
+  private selectBestPerformanceTrim(trims: TrimOption[], apiData: any): TrimOption | null {
+    const make = (apiData?.make || '').toUpperCase();
+    const model = (apiData?.model || '').toUpperCase();
+    
+    // Porsche Taycan performance hierarchy (highest to lowest)
+    if (make === 'PORSCHE' && model.includes('TAYCAN')) {
+      const hierarchy = ['turbo s', 'turbo', 'gts', '4s', 'taycan'];
+      
+      // Sort trims by hierarchy
+      const sorted = [...trims].sort((a, b) => {
+        const aName = (a.name || '').toLowerCase();
+        const bName = (b.name || '').toLowerCase();
+        
+        const aRank = hierarchy.findIndex(h => aName.includes(h));
+        const bRank = hierarchy.findIndex(h => bName.includes(h));
+        
+        // If both found in hierarchy, lower index (higher performance) comes first
+        if (aRank !== -1 && bRank !== -1) {
+          return aRank - bRank;
+        }
+        // If only one found, prioritize it
+        if (aRank !== -1) return -1;
+        if (bRank !== -1) return 1;
+        // If neither found, maintain original order
+        return 0;
+      });
+      
+      console.log('🔍 selectBestPerformanceTrim: Porsche Taycan hierarchy ranking:', sorted.map(t => t.name));
+      
+      // Prefer GTS if available (middle of hierarchy, commonly selected)
+      // But if VIN or API indicates specific trim, use that
+      const gtsTrim = sorted.find(t => (t.name || '').toLowerCase().includes('gts'));
+      if (gtsTrim) {
+        console.log('🔍 selectBestPerformanceTrim: Selected GTS (Porsche Taycan default)');
+        return gtsTrim;
+      }
+      
+      // Otherwise return highest ranked (Turbo S)
+      if (sorted.length > 0) {
+        console.log('🔍 selectBestPerformanceTrim: Selected highest performance trim:', sorted[0].name);
+        return sorted[0];
+      }
+    }
+    
+    // For other manufacturers, return first trim (no specific hierarchy)
+    return trims.length > 0 ? trims[0] : null;
+  }
+
+  /**
+   * Validate that a trim is compatible with the vehicle type
+   */
+  private validateTrimCompatibility(trim: TrimOption, vehicleType: 'BEV' | 'PHEV' | 'ICE', apiData: any): boolean {
+    const description = (trim.description || '').toLowerCase();
+    const specs = trim.specs || {};
+    const engine = (specs.engine || '').toLowerCase();
+    
+    if (vehicleType === 'BEV') {
+      // Electric vehicles should NOT have gas engine specs
+      const hasGasEngine = description.includes('cyl') || 
+                          (description.includes('l ') && description.match(/\d+\.?\d*l/i)) ||
+                          description.includes('v6') || 
+                          description.includes('v8') ||
+                          description.includes('v12') ||
+                          description.includes('inline') ||
+                          engine.includes('cyl') ||
+                          engine.includes('v6') ||
+                          engine.includes('v8');
+      
+      if (hasGasEngine) {
+        console.warn('⚠️ validateTrimCompatibility: BEV trim has gas engine specs:', trim.name, description);
+        return false;
+      }
+      
+      // Should have electric indicators
+      const hasElectric = description.includes('electric') ||
+                         description.includes('motor') ||
+                         description.includes('ev') ||
+                         engine.includes('electric') ||
+                         engine.includes('motor');
+      
+      return hasElectric;
+    }
+    
+    if (vehicleType === 'PHEV') {
+      // PHEV should have engine specs
+      const hasEngine = description.includes('cyl') || 
+                       (description.includes('l ') && description.match(/\d+\.?\d*l/i)) ||
+                       description.includes('v6') || 
+                       description.includes('v8');
+      return hasEngine;
+    }
+    
+    // ICE - no validation needed
+    return true;
   }
 
   /**
@@ -1585,6 +2417,111 @@ class VinService {
    * Extract engine with comprehensive fallback hierarchy
    */
   private extractEngineWithFallback(trimData: any, apiData: any): string {
+    // Check vehicle type first
+    const vehicleType = this.getVehicleType(apiData, trimData);
+    
+    // For pure BEV vehicles, format motor configuration
+    if (vehicleType === 'BEV') {
+      // Check for motor configuration (tri-motor, quad-motor, dual-motor, single-motor)
+      const description = (trimData?.description || apiData?.description || '').toLowerCase();
+      const drivetrain = (trimData?.specs?.drivetrain || apiData?.specs?.drive_type || '').toLowerCase();
+      
+      // Check for tri-motor or quad-motor first (most specific)
+      if (description.includes('quad-motor') || description.includes('quad motor') || 
+          description.includes('4-motor') || description.includes('4 motor')) {
+        return 'Quad-Motor';
+      }
+      
+      if (description.includes('tri-motor') || description.includes('tri motor') || 
+          description.includes('3-motor') || description.includes('3 motor')) {
+        return 'Tri-Motor';
+      }
+      
+      // Check for dual-motor configuration
+      const hasDualMotor = description.includes('dual-motor') || 
+                          description.includes('dual motor') ||
+                          (drivetrain.includes('awd') && !drivetrain.includes('rwd')); // AWD EVs often have dual motors
+      
+      // Check make/model for specific motor configurations
+      const make = (apiData?.make || '').toUpperCase();
+      const model = (apiData?.model || '').toUpperCase();
+      
+      // Tesla-specific motor configurations
+      if (make === 'TESLA') {
+        // Tesla Cybertruck Tri-Motor, Model S Plaid (tri-motor)
+        if (model.includes('CYBERTRUCK') || 
+            (model.includes('MODEL S') && description.includes('plaid'))) {
+          return 'Tri-Motor';
+        }
+        // Tesla Model 3 RWD is single motor, AWD is dual motor
+        if (model.includes('MODEL 3')) {
+          if (drivetrain.includes('awd') || description.includes('awd')) {
+            return 'Dual-Motor';
+          }
+          return 'Single-Motor';
+        }
+        // Tesla Model S/X Plaid+ or certain variants may have tri-motor
+        if ((model.includes('MODEL S') || model.includes('MODEL X')) && 
+            (description.includes('plaid') || description.includes('tri'))) {
+          return 'Tri-Motor';
+        }
+        // Default Tesla AWD to dual-motor
+        if (drivetrain.includes('awd') || description.includes('awd')) {
+          return 'Dual-Motor';
+        }
+      }
+      
+      // Rivian-specific (R1T, R1S can have quad-motor)
+      if (make === 'RIVIAN') {
+        if (description.includes('quad') || description.includes('4-motor')) {
+          return 'Quad-Motor';
+        }
+        // Rivian also has dual-motor variants
+        if (drivetrain.includes('awd') || description.includes('dual')) {
+          return 'Dual-Motor';
+        }
+      }
+      
+      // Chevrolet Bolt is single motor
+      if (make === 'CHEVROLET' && model.includes('BOLT')) {
+        return 'Single-Motor';
+      }
+      
+      // Generic AWD detection (likely dual-motor)
+      if (hasDualMotor) {
+        return 'Dual-Motor';
+      }
+      
+      // Default to Electric Motor if we can't determine
+      return 'Electric Motor';
+    }
+    
+    // For PHEV vehicles, show both engine and electric motor
+    if (vehicleType === 'PHEV') {
+      // Extract engine information
+      let engineInfo = '';
+      
+      // Try to get engine from specs
+      if (trimData.specs?.engine) {
+        engineInfo = trimData.specs.engine;
+      } else if (apiData.specs?.engine) {
+        engineInfo = apiData.specs.engine;
+      } else {
+        // Extract from description
+        const description = (trimData?.description || apiData?.description || '').toUpperCase();
+        const displacementMatch = description.match(/(\d+\.?\d*L)/i);
+        const cylinderMatch = description.match(/(V\d+|INLINE\s*\d+)/i);
+        const turboMatch = description.match(/(TURBO)/i);
+        
+        const parts = [displacementMatch?.[1], cylinderMatch?.[1], turboMatch?.[1]].filter(Boolean);
+        engineInfo = parts.join(' ');
+      }
+      
+      // Add PHEV designation
+      return engineInfo ? `${engineInfo} PHEV` : 'PHEV';
+    }
+    
+    // For ICE vehicles (including mild hybrids), extract engine normally
     // Priority 1: Direct specs
     if (trimData.specs?.engine) return trimData.specs.engine;
     
@@ -1795,6 +2732,218 @@ class VinService {
     }
     
     return "";
+  }
+
+  /**
+   * Extract motor configuration for electric vehicles
+   * Comprehensive 4-tier priority system for all EV manufacturers
+   * Returns normalized format: "Quad-Motor", "Tri-Motor", "Dual-Motor", "Single-Motor", etc.
+   */
+  extractMotorConfig(
+    trim: string, 
+    engine: string, 
+    drivetrain?: string, 
+    make?: string, 
+    model?: string
+  ): string {
+    // Guard: non-electric vehicles
+    if (!engine || !engine.toLowerCase().includes('electric')) {
+      return engine || '';
+    }
+
+    // Normalize inputs
+    const trimLower = (trim || '').toLowerCase();
+    const trimUpper = (trim || '').toUpperCase();
+    const drivetrainLower = (drivetrain || '').toLowerCase();
+    const makeUpper = (make || '').toUpperCase();
+    const modelUpper = (model || '').toUpperCase();
+
+    // TIER 1: Explicit Motor Patterns in Trim Name
+    // Check for explicit motor patterns: "Quad-Motor", "Tri-Motor", "Dual-Motor", "Single-Motor"
+    const explicitMotorPatterns = [
+      { pattern: /quad[\s-]?motor/i, value: 'Quad-Motor' },
+      { pattern: /tri[\s-]?motor|triple[\s-]?motor/i, value: 'Tri-Motor' },
+      { pattern: /dual[\s-]?motor|twin[\s-]?motor|dual[\s-]?ac[\s-]?electric[\s-]?motor/i, value: 'Dual-Motor' },
+      { pattern: /single[\s-]?motor|one[\s-]?motor/i, value: 'Single-Motor' },
+    ];
+
+    for (const { pattern, value } of explicitMotorPatterns) {
+      if (pattern.test(trimLower)) {
+        console.log(`extractMotorConfig: Tier 1 - Found explicit pattern in trim "${trim}" -> "${value}"`);
+        return value;
+      }
+    }
+
+    // TIER 2: Brand-Specific Lookup Tables
+    // TESLA
+    if (makeUpper.includes('TESLA')) {
+      if (trimLower.includes('plaid')) {
+        console.log(`extractMotorConfig: Tier 2 - Tesla Plaid -> Tri-Motor`);
+        return 'Tri-Motor';
+      }
+      if (trimLower.includes('performance') && (drivetrainLower.includes('awd') || !drivetrainLower)) {
+        console.log(`extractMotorConfig: Tier 2 - Tesla Performance + AWD -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+      if (trimLower.includes('long range') || trimLower.includes('long-range')) {
+        if (drivetrainLower.includes('awd') || !drivetrainLower) {
+          console.log(`extractMotorConfig: Tier 2 - Tesla Long Range + AWD -> Dual-Motor`);
+          return 'Dual-Motor';
+        }
+        if (drivetrainLower.includes('rwd')) {
+          console.log(`extractMotorConfig: Tier 2 - Tesla Long Range + RWD -> Single-Motor`);
+          return 'Single-Motor';
+        }
+      }
+      if (trimLower.includes('base') || trimLower.includes('standard range') || trimLower.includes('standard-range')) {
+        if (drivetrainLower.includes('awd')) {
+          console.log(`extractMotorConfig: Tier 2 - Tesla Base/Standard + AWD -> Dual-Motor`);
+          return 'Dual-Motor';
+        }
+        if (drivetrainLower.includes('rwd') || !drivetrainLower) {
+          console.log(`extractMotorConfig: Tier 2 - Tesla Base/Standard + RWD -> Single-Motor`);
+          return 'Single-Motor';
+        }
+      }
+    }
+
+    // LUCID
+    if (makeUpper.includes('LUCID')) {
+      if (trimLower.includes('sapphire')) {
+        console.log(`extractMotorConfig: Tier 2 - Lucid Sapphire -> Tri-Motor`);
+        return 'Tri-Motor';
+      }
+      if (trimLower.includes('pure')) {
+        console.log(`extractMotorConfig: Tier 2 - Lucid Pure -> Single-Motor`);
+        return 'Single-Motor';
+      }
+      if (trimLower.includes('touring') || trimLower.includes('grand touring')) {
+        console.log(`extractMotorConfig: Tier 2 - Lucid Touring/Grand Touring -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+    }
+
+    // RIVIAN
+    if (makeUpper.includes('RIVIAN')) {
+      if (modelUpper.includes('R1T') || modelUpper.includes('R1S')) {
+        if (drivetrainLower.includes('awd') || !drivetrainLower) {
+          console.log(`extractMotorConfig: Tier 2 - Rivian R1T/R1S + AWD -> Quad-Motor`);
+          return 'Quad-Motor';
+        }
+      }
+    }
+
+    // PORSCHE (Taycan)
+    if (makeUpper.includes('PORSCHE') && modelUpper.includes('TAYCAN')) {
+      if (trimLower.includes('turbo') || trimLower.includes('4s') || trimLower.includes('gts')) {
+        console.log(`extractMotorConfig: Tier 2 - Porsche Taycan Turbo/4S/GTS -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+      if (drivetrainLower.includes('rwd')) {
+        console.log(`extractMotorConfig: Tier 2 - Porsche Taycan RWD -> Single-Motor`);
+        return 'Single-Motor';
+      }
+    }
+
+    // BMW
+    if (makeUpper.includes('BMW')) {
+      if (trimLower.includes('xdrive') || trimLower.includes('m50') || trimLower.includes('m60') || trimLower.includes('m70')) {
+        console.log(`extractMotorConfig: Tier 2 - BMW xDrive/M50/M60/M70 -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+      if (trimLower.includes('edrive') || modelUpper.includes('EDRIVE')) {
+        console.log(`extractMotorConfig: Tier 2 - BMW eDrive -> Single-Motor`);
+        return 'Single-Motor';
+      }
+    }
+
+    // MERCEDES
+    if (makeUpper.includes('MERCEDES') || makeUpper.includes('MERCEDES-BENZ')) {
+      if (trimLower.includes('4matic') || trimLower.includes('amg')) {
+        console.log(`extractMotorConfig: Tier 2 - Mercedes 4MATIC/AMG -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+      if (trimLower.match(/\d{3}[+]/) || trimLower.includes('350') || trimLower.includes('250')) {
+        console.log(`extractMotorConfig: Tier 2 - Mercedes 350+/250+ -> Single-Motor`);
+        return 'Single-Motor';
+      }
+    }
+
+    // AUDI
+    if (makeUpper.includes('AUDI')) {
+      if (trimLower.includes('quattro')) {
+        console.log(`extractMotorConfig: Tier 2 - Audi quattro -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+      if (trimLower.includes('40') || modelUpper.includes('40')) {
+        console.log(`extractMotorConfig: Tier 2 - Audi 40 model -> Single-Motor`);
+        return 'Single-Motor';
+      }
+    }
+
+    // VOLVO/POLESTAR
+    if (makeUpper.includes('VOLVO') || makeUpper.includes('POLESTAR')) {
+      if (drivetrainLower.includes('awd')) {
+        console.log(`extractMotorConfig: Tier 2 - Volvo/Polestar AWD -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+      if (drivetrainLower.includes('fwd') || drivetrainLower.includes('rwd')) {
+        console.log(`extractMotorConfig: Tier 2 - Volvo/Polestar FWD/RWD -> Single-Motor`);
+        return 'Single-Motor';
+      }
+    }
+
+    // GENESIS
+    if (makeUpper.includes('GENESIS')) {
+      if (modelUpper.includes('GV60') || trimLower.includes('electrified')) {
+        console.log(`extractMotorConfig: Tier 2 - Genesis GV60/Electrified -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+    }
+
+    // JAGUAR
+    if (makeUpper.includes('JAGUAR')) {
+      if (modelUpper.includes('I-PACE') || modelUpper.includes('IPACE')) {
+        console.log(`extractMotorConfig: Tier 2 - Jaguar I-PACE -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+    }
+
+    // NISSAN
+    if (makeUpper.includes('NISSAN')) {
+      if (modelUpper.includes('LEAF')) {
+        console.log(`extractMotorConfig: Tier 2 - Nissan Leaf -> Single-Motor`);
+        return 'Single-Motor';
+      }
+      // Ariya uses Tier 3 drivetrain inference
+    }
+
+    // CHEVROLET/GMC/CADILLAC
+    if (makeUpper.includes('CHEVROLET') || makeUpper.includes('CHEVY') || 
+        makeUpper.includes('GMC') || makeUpper.includes('CADILLAC')) {
+      if (modelUpper.includes('BOLT')) {
+        console.log(`extractMotorConfig: Tier 2 - Chevy/GMC Bolt -> Single-Motor`);
+        return 'Single-Motor';
+      }
+      // Other models use Tier 3 drivetrain inference
+    }
+
+    // TIER 3: Generic Drivetrain Inference
+    // For all unlisted brands (Ford, Hyundai, Kia, VW, etc.)
+    if (drivetrainLower) {
+      if (drivetrainLower.includes('awd') || drivetrainLower.includes('4wd')) {
+        console.log(`extractMotorConfig: Tier 3 - Generic AWD/4WD -> Dual-Motor`);
+        return 'Dual-Motor';
+      }
+      if (drivetrainLower.includes('rwd') || drivetrainLower.includes('2wd') || drivetrainLower.includes('fwd')) {
+        console.log(`extractMotorConfig: Tier 3 - Generic RWD/FWD/2WD -> Single-Motor`);
+        return 'Single-Motor';
+      }
+    }
+
+    // TIER 4: Fallback
+    console.log(`extractMotorConfig: Tier 4 - No match found, using fallback "Electric Motor"`);
+    return 'Electric Motor';
   }
 
 }
