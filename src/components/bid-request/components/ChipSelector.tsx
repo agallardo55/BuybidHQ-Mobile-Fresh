@@ -60,7 +60,7 @@ const ChipSelector = ({
 
   return (
     <div>
-      <Label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
+      <Label htmlFor={name} className="block text-sm font-bold text-gray-700 mb-2">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
       <div className="flex flex-wrap gap-2">
@@ -107,12 +107,10 @@ const ChipSelector = ({
                 "px-4 py-2 rounded-full cursor-pointer transition-colors border",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
                 "flex items-center gap-2",
-                option.colorScheme
-                  ? isSelected
+                isSelected
+                  ? option.colorScheme
                     ? option.colorScheme.selected
-                    : option.colorScheme.unselected
-                  : isSelected
-                  ? "bg-gray-500 text-white border-gray-600 hover:bg-gray-600"
+                    : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
                   : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
               )}
               aria-pressed={isSelected}

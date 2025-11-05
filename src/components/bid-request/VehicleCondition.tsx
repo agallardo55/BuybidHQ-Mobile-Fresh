@@ -1,7 +1,6 @@
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
@@ -200,8 +199,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Clear', 
       icon: ThumbsUp,
       colorScheme: {
-        selected: "bg-green-600 text-white border-green-700 hover:bg-green-700",
-        unselected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+        selected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -209,8 +208,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Stars', 
       icon: Star,
       colorScheme: {
-        selected: "bg-yellow-600 text-white border-yellow-700 hover:bg-yellow-700",
-        unselected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
+        selected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -218,8 +217,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Cracks', 
       icon: Zap,
       colorScheme: {
-        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
-        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -227,8 +226,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Replace', 
       icon: AlertTriangle,
       colorScheme: {
-        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
-        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
   ];
@@ -239,8 +238,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'None', 
       icon: ThumbsUp,
       colorScheme: {
-        selected: "bg-green-600 text-white border-green-700 hover:bg-green-700",
-        unselected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+        selected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -248,8 +247,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Engine', 
       icon: AlertTriangle,
       colorScheme: {
-        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
-        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -257,8 +256,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Transmission', 
       icon: Cog,
       colorScheme: {
-        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
-        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -266,8 +265,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Drivetrain', 
       icon: Car,
       colorScheme: {
-        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
-        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -275,8 +274,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Multiple', 
       icon: List,
       colorScheme: {
-        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
-        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
   ];
@@ -301,8 +300,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Up to date', 
       icon: ThumbsUp,
       colorScheme: {
-        selected: "bg-green-600 text-white border-green-700 hover:bg-green-700",
-        unselected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+        selected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -310,8 +309,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Basic', 
       icon: OneWrench,
       colorScheme: {
-        selected: "bg-yellow-600 text-white border-yellow-700 hover:bg-yellow-700",
-        unselected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
+        selected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -319,8 +318,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Minor', 
       icon: TwoWrenches,
       colorScheme: {
-        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
-        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -328,8 +327,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Major', 
       icon: ThreeWrenches,
       colorScheme: {
-        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
-        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
   ];
@@ -340,8 +339,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'No Accidents', 
       icon: ThumbsUp,
       colorScheme: {
-        selected: "bg-green-600 text-white border-green-700 hover:bg-green-700",
-        unselected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+        selected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -349,8 +348,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Minor Accident', 
       icon: AlertTriangle,
       colorScheme: {
-        selected: "bg-yellow-600 text-white border-yellow-700 hover:bg-yellow-700",
-        unselected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
+        selected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -358,8 +357,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Odom Error', 
       icon: Gauge,
       colorScheme: {
-        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
-        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -367,8 +366,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Major Accident', 
       icon: TwoExclamations,
       colorScheme: {
-        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
-        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
     { 
@@ -376,8 +375,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Branded Title', 
       icon: ScrollText,
       colorScheme: {
-        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
-        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
   ];
@@ -386,62 +385,62 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     <div className="space-y-4">
       {/* Vehicle History Report Integrations */}
       <div className="mb-6">
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            Choose one
-          </label>
-          <div className="flex gap-8 justify-center">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleIntegrationClick("AutoCheck")}
-                className={`
-                  flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors
-                  ${selectedHistoryService === "AutoCheck" 
-                    ? "bg-blue-600 border-blue-600" 
-                    : "bg-white border-gray-300 hover:border-gray-400"
-                  }
-                `}
-              >
-                {selectedHistoryService === "AutoCheck" && (
-                  <Check className="h-4 w-4 text-white" />
-                )}
-              </button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleIntegrationClick("AutoCheck")}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 min-w-[120px] justify-center"
-              >
-                <img src={autocheckImage} alt="AutoCheck" className="h-6 w-auto" />
-              </Button>
+        <div className="grid grid-cols-2 gap-4">
+          {/* AutoCheck Column */}
+          <button
+            type="button"
+            onClick={() => handleIntegrationClick("AutoCheck")}
+            className={`
+              flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer
+              ${selectedHistoryService === "AutoCheck"
+                ? "border-blue-600 bg-blue-50"
+                : "border-gray-300 bg-white hover:border-blue-600"
+              }
+            `}
+          >
+            {/* Radio Button */}
+            <div className="flex items-center justify-center w-5 h-5 flex-shrink-0">
+              {selectedHistoryService === "AutoCheck" ? (
+                <div className="relative w-5 h-5">
+                  <div className="absolute inset-0 border-2 border-blue-600 bg-white rounded-full" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full" />
+                  </div>
+                </div>
+              ) : (
+                <div className="w-5 h-5 border-2 border-gray-400 rounded-full bg-white" />
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleIntegrationClick("CarFax")}
-                className={`
-                  flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors
-                  ${selectedHistoryService === "CarFax" 
-                    ? "bg-blue-600 border-blue-600" 
-                    : "bg-white border-gray-300 hover:border-gray-400"
-                  }
-                `}
-              >
-                {selectedHistoryService === "CarFax" && (
-                  <Check className="h-4 w-4 text-white" />
-                )}
-              </button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleIntegrationClick("CarFax")}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 min-w-[120px] justify-center"
-              >
-                <img src={carfaxImage} alt="CarFax" className="h-6 w-auto" />
-              </Button>
+            <img src={autocheckImage} alt="AutoCheck" className="h-6 w-auto" />
+          </button>
+
+          {/* CARFAX Column */}
+          <button
+            type="button"
+            onClick={() => handleIntegrationClick("CarFax")}
+            className={`
+              flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer
+              ${selectedHistoryService === "CarFax"
+                ? "border-blue-600 bg-blue-50"
+                : "border-gray-300 bg-white hover:border-blue-600"
+              }
+            `}
+          >
+            {/* Radio Button */}
+            <div className="flex items-center justify-center w-5 h-5 flex-shrink-0">
+              {selectedHistoryService === "CarFax" ? (
+                <div className="relative w-5 h-5">
+                  <div className="absolute inset-0 border-2 border-blue-600 bg-white rounded-full" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full" />
+                  </div>
+                </div>
+              ) : (
+                <div className="w-5 h-5 border-2 border-gray-400 rounded-full bg-white" />
+              )}
             </div>
-          </div>
+            <img src={carfaxImage} alt="CarFax" className="h-6 w-auto" />
+          </button>
         </div>
         <div className="mt-4">
           <ChipSelector
@@ -454,32 +453,41 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </div>
       </div>
 
-      {/* Windshield Condition Chips */}
-      <ChipSelector
-        options={windshieldOptions}
-        selectedValues={formData.windshield || ""}
-        onChange={handleChipChange}
-        label="Windshield"
-        name="windshield"
-      />
-
-      {/* Engine Lights Condition Chips */}
-      <ChipSelector
-        options={engineLightsOptions}
-        selectedValues={formData.engineLights || ""}
-        onChange={handleChipChange}
-        label="Engine Lights"
-        name="engineLights"
-      />
+      {/* Windshield and Engine Lights Condition Chips */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <ChipSelector
+            options={windshieldOptions}
+            selectedValues={formData.windshield || ""}
+            onChange={handleChipChange}
+            label="Windshield"
+            name="windshield"
+          />
+        </div>
+        <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <ChipSelector
+            options={engineLightsOptions}
+            selectedValues={formData.engineLights || ""}
+            onChange={handleChipChange}
+            label="Engine Lights"
+            name="engineLights"
+          />
+        </div>
+      </div>
 
       {/* Maintenance Condition Chips */}
-      <ChipSelector
-        options={maintenanceOptions}
-        selectedValues={formData.maintenance || ""}
-        onChange={handleChipChange}
-        label="Maintenance"
-        name="maintenance"
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <ChipSelector
+            options={maintenanceOptions}
+            selectedValues={formData.maintenance || ""}
+            onChange={handleChipChange}
+            label="Maintenance"
+            name="maintenance"
+          />
+        </div>
+        <div></div>
+      </div>
 
       {/* Brakes Quadrant Layout */}
       <QuadrantLayout
@@ -497,34 +505,35 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         onMeasurementChange={(position, value) => handleQuadrantMeasurementChange("tire", position, value)}
       />
 
-      <div>
-        <label htmlFor="reconEstimate" className="block text-sm font-medium text-gray-700 mb-1">
-          Recon Estimate
-        </label>
-        <Input
-          id="reconEstimate"
-          name="reconEstimate"
-          type="text"
-          inputMode="numeric"
-          value={displayValue}
-          onChange={handleReconEstimateChange}
-          placeholder="$0"
-          className="font-mono focus:ring-1 focus:ring-offset-0"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="reconDetails" className="block text-sm font-medium text-gray-700 mb-1">
-          Recon Details
-        </label>
-        <Textarea
-          id="reconDetails"
-          name="reconDetails"
-          value={formData.reconDetails}
-          onChange={onChange}
-          placeholder="Enter reconditioning details..."
-          className="min-h-[100px] focus-visible:ring-custom-blue"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="reconEstimate" className="block text-sm font-bold text-gray-700 mb-1">
+            Recon Estimate
+          </label>
+          <Input
+            id="reconEstimate"
+            name="reconEstimate"
+            type="text"
+            inputMode="numeric"
+            value={displayValue}
+            onChange={handleReconEstimateChange}
+            placeholder="$0"
+            className="font-mono focus:ring-1 focus:ring-offset-0"
+          />
+        </div>
+        <div>
+          <label htmlFor="reconDetails" className="block text-sm font-bold text-gray-700 mb-1">
+            Recon Details
+          </label>
+          <Textarea
+            id="reconDetails"
+            name="reconDetails"
+            value={formData.reconDetails}
+            onChange={onChange}
+            placeholder="Enter reconditioning details..."
+            className="min-h-[100px] focus-visible:ring-custom-blue"
+          />
+        </div>
       </div>
 
       {/* Alert Dialog */}
