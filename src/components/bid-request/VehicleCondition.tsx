@@ -1,13 +1,44 @@
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import autocheckImage from "@/assets/autocheck.png";
 import carfaxImage from "@/assets/carfax_logo.svg";
+import ChipSelector from "./components/ChipSelector";
+import QuadrantLayout from "./components/QuadrantLayout";
+import { ThumbsUp, Star, Zap, AlertTriangle, Cog, List, Car, Wrench, Check, Gauge, ScrollText } from "lucide-react";
+
+// Components for multiple wrench icons
+const OneWrench = ({ className }: { className?: string }) => (
+  <div className="flex items-center gap-0.5">
+    <Wrench className={className || "h-4 w-4"} />
+  </div>
+);
+
+const TwoWrenches = ({ className }: { className?: string }) => (
+  <div className="flex items-center gap-0.5">
+    <Wrench className={className || "h-4 w-4"} />
+    <Wrench className={className || "h-4 w-4"} />
+  </div>
+);
+
+const ThreeWrenches = ({ className }: { className?: string }) => (
+  <div className="flex items-center gap-0.5">
+    <Wrench className={className || "h-4 w-4"} />
+    <Wrench className={className || "h-4 w-4"} />
+    <Wrench className={className || "h-4 w-4"} />
+  </div>
+);
+
+const TwoExclamations = ({ className }: { className?: string }) => (
+  <div className="flex items-center gap-0.5">
+    <AlertTriangle className={className || "h-4 w-4"} />
+    <AlertTriangle className={className || "h-4 w-4"} />
+  </div>
+);
 
 interface VehicleConditionProps {
   formData: {
@@ -18,6 +49,7 @@ interface VehicleConditionProps {
     maintenance: string;
     reconEstimate: string;
     reconDetails: string;
+    history?: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSelectChange: (value: string, name: string) => void;
@@ -26,16 +58,16 @@ interface VehicleConditionProps {
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
   const [displayValue, setDisplayValue] = useState('$0');
   const [currentService, setCurrentService] = useState<string>('');
+  const [selectedHistoryService, setSelectedHistoryService] = useState<string | null>(null);
   const { alert, showAlert, closeAlert } = useAlertDialog();
 
   const handleIntegrationClick = (service: string) => {
-    setCurrentService(service);
-    const title = service === "AutoCheck" ? "Autocheck Coming soon !!!" : "Carfax Coming Soon !!!";
-    showAlert(
-      title,
-      `${service} integration is coming soon! Stay tuned for more integrations.`,
-      "info"
-    );
+    // Toggle selection
+    if (selectedHistoryService === service) {
+      setSelectedHistoryService(null);
+    } else {
+      setSelectedHistoryService(service);
+    }
   };
 
   const formatDollarAmount = (value: string | undefined | null) => {
@@ -110,114 +142,360 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     });
   };
 
+  // Handle chip selection changes - convert array to comma-separated string
+  const handleChipChange = (selectedValues: string[], fieldName: string) => {
+    // Convert array to comma-separated string for formData storage
+    const valueString = selectedValues.length > 0 ? selectedValues.join(',') : '';
+    onSelectChange(valueString, fieldName);
+  };
+
+  // Parse quadrant data from string format (for backward compatibility)
+  const parseQuadrantData = (value: string): { frontLeft: number | null; frontRight: number | null; rearLeft: number | null; rearRight: number | null } => {
+    // Default to all null
+    const defaultData = { frontLeft: null, frontRight: null, rearLeft: null, rearRight: null };
+    
+    if (!value || value === '') {
+      return defaultData;
+    }
+
+    // Parse format: "frontLeft:8.5,frontRight:6.2,rearLeft:4.0,rearRight:3.5"
+    const parts = value.split(',');
+    const data = { ...defaultData };
+
+    parts.forEach(part => {
+      const [position, measurementStr] = part.split(':');
+      if (position && measurementStr) {
+        const measurement = parseFloat(measurementStr);
+        if (!isNaN(measurement) && position in data) {
+          (data as any)[position] = measurement;
+        }
+      }
+    });
+
+    return data;
+  };
+
+  // Convert quadrant data to string format for formData storage
+  const quadrantDataToString = (data: { frontLeft: number | null; frontRight: number | null; rearLeft: number | null; rearRight: number | null }): string => {
+    const parts: string[] = [];
+    if (data.frontLeft !== null) parts.push(`frontLeft:${data.frontLeft}`);
+    if (data.frontRight !== null) parts.push(`frontRight:${data.frontRight}`);
+    if (data.rearLeft !== null) parts.push(`rearLeft:${data.rearLeft}`);
+    if (data.rearRight !== null) parts.push(`rearRight:${data.rearRight}`);
+    return parts.join(',');
+  };
+
+  // Handle quadrant measurement change
+  const handleQuadrantMeasurementChange = (fieldName: "brakes" | "tire", position: "frontLeft" | "frontRight" | "rearLeft" | "rearRight", value: number | null) => {
+    const currentData = parseQuadrantData(formData[fieldName]);
+    const newData = { ...currentData, [position]: value };
+    const valueString = quadrantDataToString(newData);
+    onSelectChange(valueString, fieldName);
+  };
+
+  // Define options for each condition field
+  const windshieldOptions = [
+    { 
+      value: 'clear', 
+      label: 'Clear', 
+      icon: ThumbsUp,
+      colorScheme: {
+        selected: "bg-green-600 text-white border-green-700 hover:bg-green-700",
+        unselected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+      }
+    },
+    { 
+      value: 'chips', 
+      label: 'Stars', 
+      icon: Star,
+      colorScheme: {
+        selected: "bg-yellow-600 text-white border-yellow-700 hover:bg-yellow-700",
+        unselected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
+      }
+    },
+    { 
+      value: 'smallCracks', 
+      label: 'Cracks', 
+      icon: Zap,
+      colorScheme: {
+        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
+        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+      }
+    },
+    { 
+      value: 'largeCracks', 
+      label: 'Replace', 
+      icon: AlertTriangle,
+      colorScheme: {
+        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
+        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+      }
+    },
+  ];
+
+  const engineLightsOptions = [
+    { 
+      value: 'none', 
+      label: 'None', 
+      icon: ThumbsUp,
+      colorScheme: {
+        selected: "bg-green-600 text-white border-green-700 hover:bg-green-700",
+        unselected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+      }
+    },
+    { 
+      value: 'engine', 
+      label: 'Engine', 
+      icon: AlertTriangle,
+      colorScheme: {
+        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
+        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+      }
+    },
+    { 
+      value: 'maintenance', 
+      label: 'Transmission', 
+      icon: Cog,
+      colorScheme: {
+        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
+        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+      }
+    },
+    { 
+      value: 'drivetrain', 
+      label: 'Drivetrain', 
+      icon: Car,
+      colorScheme: {
+        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
+        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+      }
+    },
+    { 
+      value: 'multiple', 
+      label: 'Multiple', 
+      icon: List,
+      colorScheme: {
+        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
+        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+      }
+    },
+  ];
+
+  const brakesOptions = [
+    { value: 'acceptable', label: 'Acceptable' },
+    { value: 'replaceFront', label: 'Replace front' },
+    { value: 'replaceRear', label: 'Replace rear' },
+    { value: 'replaceAll', label: 'Replace all' },
+  ];
+
+  const tireOptions = [
+    { value: 'acceptable', label: 'Acceptable' },
+    { value: 'replaceFront', label: 'Replace front' },
+    { value: 'replaceRear', label: 'Replace rear' },
+    { value: 'replaceAll', label: 'Replace all' },
+  ];
+
+  const maintenanceOptions = [
+    { 
+      value: 'upToDate', 
+      label: 'Up to date', 
+      icon: ThumbsUp,
+      colorScheme: {
+        selected: "bg-green-600 text-white border-green-700 hover:bg-green-700",
+        unselected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+      }
+    },
+    { 
+      value: 'basicService', 
+      label: 'Basic', 
+      icon: OneWrench,
+      colorScheme: {
+        selected: "bg-yellow-600 text-white border-yellow-700 hover:bg-yellow-700",
+        unselected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
+      }
+    },
+    { 
+      value: 'minorService', 
+      label: 'Minor', 
+      icon: TwoWrenches,
+      colorScheme: {
+        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
+        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+      }
+    },
+    { 
+      value: 'majorService', 
+      label: 'Major', 
+      icon: ThreeWrenches,
+      colorScheme: {
+        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
+        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+      }
+    },
+  ];
+
+  const historyOptions = [
+    { 
+      value: 'noAccidents', 
+      label: 'No Accidents', 
+      icon: ThumbsUp,
+      colorScheme: {
+        selected: "bg-green-600 text-white border-green-700 hover:bg-green-700",
+        unselected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+      }
+    },
+    { 
+      value: 'minorAccident', 
+      label: 'Minor Accident', 
+      icon: AlertTriangle,
+      colorScheme: {
+        selected: "bg-yellow-600 text-white border-yellow-700 hover:bg-yellow-700",
+        unselected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
+      }
+    },
+    { 
+      value: 'odomError', 
+      label: 'Odom Error', 
+      icon: Gauge,
+      colorScheme: {
+        selected: "bg-orange-600 text-white border-orange-700 hover:bg-orange-700",
+        unselected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+      }
+    },
+    { 
+      value: 'majorAccident', 
+      label: 'Major Accident', 
+      icon: TwoExclamations,
+      colorScheme: {
+        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
+        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+      }
+    },
+    { 
+      value: 'brandedIssue', 
+      label: 'Branded Title', 
+      icon: ScrollText,
+      colorScheme: {
+        selected: "bg-red-600 text-white border-red-700 hover:bg-red-700",
+        unselected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+      }
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* Vehicle History Report Integrations */}
       <div className="mb-6">
-        <div className="flex gap-8 justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => handleIntegrationClick("AutoCheck")}
-            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 min-w-[120px] justify-center"
-          >
-            <img src={autocheckImage} alt="AutoCheck" className="h-6 w-auto" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => handleIntegrationClick("CarFax")}
-            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 min-w-[120px] justify-center"
-          >
-            <img src={carfaxImage} alt="CarFax" className="h-6 w-auto" />
-          </Button>
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+            Choose one
+          </label>
+          <div className="flex gap-8 justify-center">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleIntegrationClick("AutoCheck")}
+                className={`
+                  flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors
+                  ${selectedHistoryService === "AutoCheck" 
+                    ? "bg-blue-600 border-blue-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400"
+                  }
+                `}
+              >
+                {selectedHistoryService === "AutoCheck" && (
+                  <Check className="h-4 w-4 text-white" />
+                )}
+              </button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleIntegrationClick("AutoCheck")}
+                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 min-w-[120px] justify-center"
+              >
+                <img src={autocheckImage} alt="AutoCheck" className="h-6 w-auto" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleIntegrationClick("CarFax")}
+                className={`
+                  flex items-center justify-center w-6 h-6 rounded-full border-2 transition-colors
+                  ${selectedHistoryService === "CarFax" 
+                    ? "bg-blue-600 border-blue-600" 
+                    : "bg-white border-gray-300 hover:border-gray-400"
+                  }
+                `}
+              >
+                {selectedHistoryService === "CarFax" && (
+                  <Check className="h-4 w-4 text-white" />
+                )}
+              </button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleIntegrationClick("CarFax")}
+                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 min-w-[120px] justify-center"
+              >
+                <img src={carfaxImage} alt="CarFax" className="h-6 w-auto" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4">
+          <ChipSelector
+            options={historyOptions}
+            selectedValues={formData.history || ""}
+            onChange={handleChipChange}
+            label="History"
+            name="history"
+          />
         </div>
       </div>
 
-      <div>
-        <label htmlFor="windshield" className="block text-sm font-medium text-gray-700 mb-1">
-          Windshield
-        </label>
-        <Select name="windshield" onValueChange={(value) => onSelectChange(value, "windshield")} value={formData.windshield || ""}>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Condition" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="clear">Clear</SelectItem>
-            <SelectItem value="chips">Chips</SelectItem>
-            <SelectItem value="smallCracks">Small cracks</SelectItem>
-            <SelectItem value="largeCracks">Large cracks</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Windshield Condition Chips */}
+      <ChipSelector
+        options={windshieldOptions}
+        selectedValues={formData.windshield || ""}
+        onChange={handleChipChange}
+        label="Windshield"
+        name="windshield"
+      />
 
-      <div>
-        <label htmlFor="engineLights" className="block text-sm font-medium text-gray-700 mb-1">
-          Engine Lights
-        </label>
-        <Select name="engineLights" onValueChange={(value) => onSelectChange(value, "engineLights")} value={formData.engineLights || ""}>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Condition" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            <SelectItem value="engine">Engine Light</SelectItem>
-            <SelectItem value="maintenance">Maintenance Required</SelectItem>
-            <SelectItem value="multiple">Multiple</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Engine Lights Condition Chips */}
+      <ChipSelector
+        options={engineLightsOptions}
+        selectedValues={formData.engineLights || ""}
+        onChange={handleChipChange}
+        label="Engine Lights"
+        name="engineLights"
+      />
 
-      <div>
-        <label htmlFor="brakes" className="block text-sm font-medium text-gray-700 mb-1">
-          Brakes
-        </label>
-        <Select name="brakes" onValueChange={(value) => onSelectChange(value, "brakes")} value={formData.brakes || ""}>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Condition" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="acceptable">Acceptable</SelectItem>
-            <SelectItem value="replaceFront">Replace front</SelectItem>
-            <SelectItem value="replaceRear">Replace rear</SelectItem>
-            <SelectItem value="replaceAll">Replace all</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Maintenance Condition Chips */}
+      <ChipSelector
+        options={maintenanceOptions}
+        selectedValues={formData.maintenance || ""}
+        onChange={handleChipChange}
+        label="Maintenance"
+        name="maintenance"
+      />
 
-      <div>
-        <label htmlFor="tire" className="block text-sm font-medium text-gray-700 mb-1">
-          Tire
-        </label>
-        <Select name="tire" onValueChange={(value) => onSelectChange(value, "tire")} value={formData.tire || ""}>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Condition" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="acceptable">Acceptable</SelectItem>
-            <SelectItem value="replaceFront">Replace front</SelectItem>
-            <SelectItem value="replaceRear">Replace rear</SelectItem>
-            <SelectItem value="replaceAll">Replace all</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Brakes Quadrant Layout */}
+      <QuadrantLayout
+        title="Brakes"
+        measurementType="brake"
+        data={parseQuadrantData(formData.brakes)}
+        onMeasurementChange={(position, value) => handleQuadrantMeasurementChange("brakes", position, value)}
+      />
 
-      <div>
-        <label htmlFor="maintenance" className="block text-sm font-medium text-gray-700 mb-1">
-          Maintenance
-        </label>
-        <Select name="maintenance" onValueChange={(value) => onSelectChange(value, "maintenance")} value={formData.maintenance || ""}>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Condition" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="upToDate">Up to date</SelectItem>
-            <SelectItem value="basicService">Basic service needed</SelectItem>
-            <SelectItem value="minorService">Minor service needed</SelectItem>
-            <SelectItem value="majorService">Major service needed</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Tire Quadrant Layout */}
+      <QuadrantLayout
+        title="Tires"
+        measurementType="tire"
+        data={parseQuadrantData(formData.tire)}
+        onMeasurementChange={(position, value) => handleQuadrantMeasurementChange("tire", position, value)}
+      />
 
       <div>
         <label htmlFor="reconEstimate" className="block text-sm font-medium text-gray-700 mb-1">
