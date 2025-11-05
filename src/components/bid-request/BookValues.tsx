@@ -44,15 +44,8 @@ const BookValues = ({
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="text-lg font-semibold mb-2">Book Values</h3>
-        <p className="text-muted-foreground text-sm">
-          Enter wholesale and retail values from different valuation services
-        </p>
-      </div>
-
       <div className="bg-gray-50 p-4 rounded-lg">
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-4 mb-3">
           <Label className="font-medium">Condition:</Label>
           <Select
             value={formData.bookValuesCondition || ''}
@@ -69,13 +62,16 @@ const BookValues = ({
             </SelectContent>
           </Select>
         </div>
+        <p className="text-muted-foreground text-sm text-center">
+          Enter wholesale and retail values from different valuation books
+        </p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b">
-              <th className="text-left py-3 px-4 font-medium">Service</th>
+              <th className="text-left py-3 px-4 font-medium">Books</th>
               <th className="text-center py-3 px-4 font-medium">Wholesale</th>
               <th className="text-center py-3 px-4 font-medium">Retail</th>
             </tr>
