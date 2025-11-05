@@ -13,15 +13,15 @@ const VehicleCondition = ({ request }: VehicleConditionProps) => {
       <div className="space-y-1">
         <div className="grid grid-cols-[100px_1fr] gap-1 text-sm">
           <div className="font-bold text-black">Windshield:</div>
-          <div className="font-normal bg-gray-50 p-2 rounded">{getConditionDisplay(request.windshield, 'windshield')}</div>
+          <div className="font-normal p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{getConditionDisplay(request.windshield, 'windshield')}</div>
           <div className="font-bold text-black">Engine Lights:</div>
-          <div className="font-normal bg-gray-50 p-2 rounded">{getConditionDisplay(request.engineLights, 'engineLights')}</div>
+          <div className="font-normal p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{getConditionDisplay(request.engineLights, 'engineLights')}</div>
           <div className="font-bold text-black">Brakes:</div>
-          <div className="font-normal bg-gray-50 p-2 rounded">{getConditionDisplay(request.brakes, 'brakesTires')}</div>
+          <div className="font-normal p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{getConditionDisplay(request.brakes, 'brakesTires')}</div>
           <div className="font-bold text-black">Tires:</div>
-          <div className="font-normal bg-gray-50 p-2 rounded">{getConditionDisplay(request.tire, 'brakesTires')}</div>
+          <div className="font-normal p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{getConditionDisplay(request.tire, 'brakesTires')}</div>
           <div className="font-bold text-black">Maintenance:</div>
-          <div className="font-normal bg-gray-50 p-2 rounded">{getConditionDisplay(request.maintenance, 'maintenance')}</div>
+          <div className="font-normal p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{getConditionDisplay(request.maintenance, 'maintenance')}</div>
         </div>
       </div>
     </div>

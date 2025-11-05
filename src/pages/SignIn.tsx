@@ -82,6 +82,7 @@ const SignIn = () => {
                 placeholder="Enter your email"
                 required
                 disabled={isLoading}
+                autoComplete="email"
               />
             </div>
             <div>
@@ -102,8 +103,9 @@ const SignIn = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
-            disabled={isLoading || isMFALoading}
+                disabled={isLoading || isMFALoading}
                 className="mt-1"
+                autoComplete="current-password"
               />
             </div>
             <div className="flex items-center space-x-2">

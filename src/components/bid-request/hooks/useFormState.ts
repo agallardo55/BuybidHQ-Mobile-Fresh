@@ -14,11 +14,12 @@ const initialFormData: BidRequestFormData = {
   exteriorColor: "",
   interiorColor: "",
   accessories: "",
-  windshield: "",
-  engineLights: "",
-  brakes: "",
-  tire: "",
-  maintenance: "",
+  windshield: "clear", // Default to "Clear" (optimal)
+  engineLights: "none", // Default to "None" (optimal)
+  brakes: "frontLeft:8,frontRight:8,rearLeft:8,rearRight:8", // Default to green range (≥8 mm)
+  tire: "frontLeft:9,frontRight:9,rearLeft:9,rearRight:9", // Default to green range (8-10/32")
+  maintenance: "upToDate", // Default to "Up to date" (optimal)
+  history: "noAccidents", // Default to "No Accidents" (optimal)
   reconEstimate: "0",
   reconDetails: "",
   engineCylinders: "",

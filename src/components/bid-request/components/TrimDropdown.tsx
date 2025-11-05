@@ -22,6 +22,11 @@ const TrimDropdown = ({
 }: TrimDropdownProps) => {
   const uniqueTrims = deduplicateTrims(trims);
 
+  console.log('🔍 DROPDOWN DEBUG:', {
+    selectedTrim,
+    itemValues: uniqueTrims.map(t => vinService.getDisplayTrim(t))
+  });
+
   return (
     <div>
       <label htmlFor="trim" className="block text-sm font-medium text-gray-700 mb-1">

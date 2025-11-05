@@ -1,5 +1,5 @@
 import { ReactNode, useState, useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
@@ -70,7 +70,23 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     checkMFARequirement();
   }, [user, isLoading]);
 
-  if (isLoading || mfaCheckLoading) {
+  // Add timeout for protected routes too - don't block forever
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  
+  useEffect(() => {
+    if (isLoading || mfaCheckLoading) {
+      const timeout = setTimeout(() => {
+        console.warn('ProtectedRoute: Loading timeout reached, allowing render');
+        setLoadingTimeout(true);
+      }, 2000); // 2 second timeout for protected routes
+      
+      return () => clearTimeout(timeout);
+    } else {
+      setLoadingTimeout(false);
+    }
+  }, [isLoading, mfaCheckLoading]);
+
+  if ((isLoading || mfaCheckLoading) && !loadingTimeout) {
     console.log('ProtectedRoute: Still loading, showing spinner');
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -106,66 +122,39 @@ export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 };
 
 export const AuthRoute = ({ children }: { children: ReactNode }) => {
-  console.log('AuthRoute component loaded successfully');
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
-  const [forceShow, setForceShow] = useState(false);
+  const navigate = useNavigate();
+  const [hasCheckedRedirect, setHasCheckedRedirect] = useState(false);
 
-  // Debug logging for AuthRoute
-  console.log('AuthRoute render:', {
-    isLoading,
-    hasUser: !!user,
-    userId: user?.id,
-    userEmail: user?.email,
-    forceShow,
-    pathname: location.pathname
-  });
-
-  // Add a timeout to prevent infinite loading
+  // If user exists, redirect immediately (no need to wait for full loading)
   useEffect(() => {
-    console.log('AuthRoute: Setting up timeout, isLoading:', isLoading);
-    const timeout = setTimeout(() => {
-      if (isLoading) {
-        console.warn('AuthRoute: Loading timeout reached, forcing display');
-        setForceShow(true);
-      }
-    }, 5000); // Reduced to 5 second timeout
-
-    return () => {
-      console.log('AuthRoute: Clearing timeout');
-      clearTimeout(timeout);
-    };
-  }, [isLoading]);
-
-  // Reset forceShow when loading completes
-  useEffect(() => {
-    if (!isLoading) {
-      console.log('AuthRoute: Loading completed, resetting forceShow');
-      setForceShow(false);
+    if (user && !hasCheckedRedirect) {
+      console.log('AuthRoute: User authenticated, redirecting to:', location.state);
+      const from = (location.state as any)?.from?.pathname || '/dashboard';
+      setHasCheckedRedirect(true);
+      // Use setTimeout to avoid navigation during render
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 0);
     }
-  }, [isLoading]);
+  }, [user, hasCheckedRedirect, location.state, navigate]);
 
-  if (isLoading && !forceShow) {
-    console.log('AuthRoute: Still loading, showing spinner');
+  // Show auth pages immediately - don't block on loading state
+  // If user loads later and exists, the useEffect will handle redirect
+  if (user) {
+    // User exists, show loading while redirecting
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Redirecting...</p>
         </div>
       </div>
     );
   }
 
-  if (user) {
-    console.log('AuthRoute: User authenticated, redirecting to:', location.state);
-    // If they're already signed in, redirect to the last page they were trying to visit
-    // or to the dashboard if there's no saved location
-    const from = (location.state as any)?.from?.pathname || '/dashboard';
-    console.log('AuthRoute: Redirecting to:', from);
-    return <Navigate to={from} replace />;
-  }
-
-  console.log('AuthRoute: No user, rendering children');
+  // No user yet (or still loading) - show auth pages immediately
+  // This provides instant access to sign-in/sign-up pages
   return <>{children}</>;
 };

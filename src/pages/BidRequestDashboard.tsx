@@ -87,10 +87,12 @@ const BidRequestDashboard = () => {
     const searchString = searchTerm.toLowerCase();
     return (
       request.year.toString().includes(searchString) ||
-      request.make.toLowerCase().includes(searchString) ||
-      request.model.toLowerCase().includes(searchString) ||
-      request.buyer.toLowerCase().includes(searchString) ||
-      request.status.toLowerCase().includes(searchString)
+      request.make?.toLowerCase().includes(searchString) ||
+      request.model?.toLowerCase().includes(searchString) ||
+      request.buyer?.toLowerCase().includes(searchString) ||
+      request.status.toLowerCase().includes(searchString) ||
+      request.vin?.toLowerCase().includes(searchString) ||
+      request.mileage?.toString().includes(searchString)
     );
   });
 

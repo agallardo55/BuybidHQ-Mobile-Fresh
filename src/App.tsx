@@ -44,7 +44,12 @@ const App = () => {
     <StrictMode>
       <ErrorBoundary>
         <TooltipProvider>
-          <BrowserRouter>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
             <PublicAppWrapper>
               <RecoveryRedirector />
               <Toaster />

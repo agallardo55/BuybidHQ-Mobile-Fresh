@@ -13,11 +13,11 @@ const Reconditioning = ({ request }: ReconditioningProps) => {
         <div className="space-y-2">
           <div className="text-sm">
             <div className="font-bold text-black mb-1">Estimate:</div>
-            <div className="font-normal text-lg bg-gray-50 p-2 rounded">${request.reconEstimate || '0'}</div>
+            <div className="font-normal text-lg p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>${request.reconEstimate || '0'}</div>
           </div>
           <div className="text-sm">
             <div className="font-bold text-black mb-1">Details:</div>
-            <div className="font-normal whitespace-pre-wrap bg-gray-50 p-2 rounded-md max-h-[200px] overflow-y-auto">
+            <div className="font-normal whitespace-pre-wrap p-2 rounded-md max-h-[200px] overflow-y-auto block w-full" style={{ backgroundColor: '#ECEEF0' }}>
               {request.reconDetails || 'No details provided'}
             </div>
           </div>

@@ -140,6 +140,7 @@ const ResetPassword = () => {
                 required
                 className="mt-1"
                 minLength={6}
+                autoComplete="new-password"
               />
               <p className="mt-1 text-sm text-gray-500">
                 Password must be at least 6 characters long
@@ -160,6 +161,7 @@ const ResetPassword = () => {
                   showMismatchError && "border-red-500 focus:ring-red-500 focus-visible:ring-red-500"
                 )}
                 minLength={6}
+                autoComplete="new-password"
               />
               {showMismatchError && (
                 <p className="mt-1 text-sm text-red-500">

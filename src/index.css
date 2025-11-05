@@ -153,3 +153,10 @@
   }
 }
 
+/* Vehicle details response value styling */
+.vehicle-detail-value {
+  background-color: #f9fafb !important;
+  padding: 0.5rem !important;
+  border-radius: 0.25rem !important;
+}
+

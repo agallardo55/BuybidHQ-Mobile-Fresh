@@ -42,5 +42,13 @@ export const getConditionDisplay = (value: string | undefined, type: ConditionTy
               type === 'engineLights' ? displayMaps.engineLights :
               displayMaps.windshield;
 
+  // Handle comma-separated values (multiple selections)
+  if (value.includes(',')) {
+    const values = value.split(',').map(v => v.trim()).filter(Boolean);
+    const displays = values.map(v => (map as Record<string, string>)[v] || v);
+    return displays.join(', ');
+  }
+
+  // Single value
   return (map as Record<string, string>)[value] || value;
 };

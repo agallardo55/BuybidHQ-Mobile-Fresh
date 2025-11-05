@@ -61,6 +61,7 @@ export const PasswordUpdateForm = () => {
                 onChange={handlePasswordChange}
                 placeholder="Enter new password"
                 required
+                autoComplete="new-password"
               />
               <PasswordStrengthMeter password={passwordData.newPassword} showRequirements />
               
@@ -88,6 +89,7 @@ export const PasswordUpdateForm = () => {
                 className={cn(
                   showMismatchError && "border-destructive"
                 )}
+                autoComplete="new-password"
               />
               {showMismatchError && (
                 <p className="mt-1 text-sm text-destructive">

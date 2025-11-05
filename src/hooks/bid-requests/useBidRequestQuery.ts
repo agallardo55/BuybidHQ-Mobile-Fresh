@@ -27,13 +27,15 @@ export const useBidRequestQuery = (enabled: boolean) => {
     queryKey: ['bidRequests'],
     queryFn: async () => {
       try {
+        // Check session but allow anonymous users (RLS policies will handle access control)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (!session || sessionError) {
-          console.error("No valid session:", sessionError);
+        // Note: We allow anonymous queries for Market View - RLS policies handle access control
+        if (sessionError && sessionError.message !== 'Session not found') {
+          console.error("Session error:", sessionError);
           return [];
         }
 
-        // Get all bid requests (RLS policies will handle access control)
+        // Get all bid requests (RLS policies will handle access control for both authenticated and anonymous users)
         const { data: requests, error: requestError } = await supabase
           .from('bid_requests')
           .select('id, created_at, status');

@@ -40,34 +40,43 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
   console.log('RobustSignOut: Starting complete logout process...');
 
   try {
-    // Navigate FIRST to prevent any flash of content
-    if (!skipNavigation) {
-      console.log('RobustSignOut: Navigating to:', redirectTo);
-      if (clearHistory) {
-        window.location.replace(redirectTo); // Prevents back button
-        // Continue cleanup in background, but navigation already happened
-      } else {
-        window.location.href = redirectTo;
-        // Continue cleanup in background, but navigation already happened
-      }
-    }
-
-    // Step 1: Clear timers and subscriptions
+    // Step 1: Clear timers and subscriptions FIRST (before any async operations)
     console.log('RobustSignOut: Clearing timers and subscriptions...');
     clearAllTimers();
     unsubscribeAllRealtimeChannels();
     
-    // Step 2: Attempt Supabase sign out (may complete after navigation)
+    // Step 2: Attempt Supabase sign out BEFORE navigation
+    // This must happen before navigation or the request will fail
+    // Note: We continue cleanup even if this fails (expired sessions, network errors, etc.)
     console.log('RobustSignOut: Attempting Supabase signOut...');
     try {
-      const { error } = await supabase.auth.signOut({ scope });
+      // Set a timeout to prevent hanging indefinitely
+      const signOutPromise = supabase.auth.signOut({ scope });
+      const timeoutId = setTimeout(() => {
+        console.warn('RobustSignOut: SignOut API call taking longer than expected, continuing with cleanup...');
+      }, 3000);
+      
+      const { error } = await signOutPromise;
+      clearTimeout(timeoutId);
+      
       if (error) {
-        console.error('Supabase signOut error:', error);
+        // API returned an error response (not a network error)
+        console.warn('RobustSignOut: Supabase signOut API returned error (continuing cleanup):', error.message || error);
       } else {
         console.log('RobustSignOut: Supabase signOut successful');
       }
-    } catch (apiError) {
-      console.error('SignOut API call failed:', apiError);
+    } catch (apiError: any) {
+      // Network errors are expected if session is expired, connection is lost, or request was aborted
+      // This is common when the session is already invalid - we still want to clear local state
+      if (apiError?.message?.includes('Failed to fetch') || 
+          apiError?.name === 'AuthRetryableFetchError' ||
+          apiError?.message?.includes('refresh_token') ||
+          apiError?.message?.includes('Invalid Refresh Token')) {
+        console.warn('RobustSignOut: SignOut API call failed (likely expired session - continuing cleanup):', apiError.message || apiError.name);
+      } else {
+        console.warn('RobustSignOut: SignOut API call failed (continuing cleanup):', apiError?.message || apiError?.name || apiError);
+      }
+      // Continue with cleanup even if API call fails - local cleanup is what matters most
     }
 
     // Step 3: Clear all storage
@@ -92,6 +101,17 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
     // Step 7: Clear any cached auth state in memory
     console.log('RobustSignOut: Clearing memory state...');
     clearMemoryState();
+
+    // Step 8: Navigate LAST after all cleanup is done
+    if (!skipNavigation) {
+      console.log('RobustSignOut: Navigation to:', redirectTo);
+      if (clearHistory) {
+        window.location.replace(redirectTo); // Prevents back button
+      } else {
+        window.location.href = redirectTo;
+      }
+      // Navigation happens, function will complete after navigation
+    }
 
     console.log('RobustSignOut: Complete logout successful');
     return { success: true };

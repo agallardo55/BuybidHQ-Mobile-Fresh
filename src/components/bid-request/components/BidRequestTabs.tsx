@@ -7,6 +7,7 @@ import VehicleDetails from "./VehicleDetails";
 import VehicleCondition from "./VehicleCondition";
 import Reconditioning from "./Reconditioning";
 import { Car, Eye, Wrench, DollarSign, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BidRequestTabsProps {
   request: BidRequest;
@@ -18,10 +19,85 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
   // Local state for optimistic UI updates
   const [localOfferStatuses, setLocalOfferStatuses] = useState<Record<string, "pending" | "accepted" | "declined">>({});
   const [loadingOffers, setLoadingOffers] = useState<Set<string>>(new Set());
+  const [invitedBuyers, setInvitedBuyers] = useState<Array<{
+    id: string;
+    buyer_name: string | null;
+    dealer_name: string | null;
+    hasResponded: boolean;
+    offerAmount?: number;
+    offerStatus?: string;
+    offerCreatedAt?: string;
+    responseId?: string;
+  }>>([]);
+  const [loadingBuyers, setLoadingBuyers] = useState(false);
 
   // Clear local state when request data changes (after successful update)
   useEffect(() => {
     setLocalOfferStatuses({});
+  }, [request.id, request.offers]);
+
+  // Fetch invited buyers for this bid request
+  useEffect(() => {
+    const fetchInvitedBuyers = async () => {
+      if (!request?.id) return;
+      
+      setLoadingBuyers(true);
+      try {
+        // Fetch buyers associated with this bid request via bid_submission_tokens
+        const { data: tokens, error: tokensError } = await supabase
+          .from('bid_submission_tokens')
+          .select(`
+            buyer_id,
+            buyers!inner(
+              id,
+              buyer_name,
+              dealer_name
+            )
+          `)
+          .eq('bid_request_id', request.id);
+
+        if (tokensError) {
+          console.error('Error fetching invited buyers:', tokensError);
+          setLoadingBuyers(false);
+          return;
+        }
+
+        // Fetch responses to check which buyers have responded
+        const { data: responses, error: responsesError } = await supabase
+          .from('bid_responses')
+          .select('id, buyer_id, offer_amount, status, created_at')
+          .eq('bid_request_id', request.id);
+
+        if (responsesError) {
+          console.error('Error fetching responses:', responsesError);
+        }
+
+        // Combine buyer data with response status
+        const buyersWithStatus = (tokens || []).map((token: any) => {
+          const buyer = token.buyers;
+          const response = responses?.find((r: any) => r.buyer_id === buyer.id);
+          
+          return {
+            id: buyer.id,
+            buyer_name: buyer.buyer_name || null,
+            dealer_name: buyer.dealer_name || null,
+            hasResponded: !!response,
+            offerAmount: response?.offer_amount,
+            offerStatus: response?.status,
+            offerCreatedAt: response?.created_at,
+            responseId: response?.id,
+          };
+        });
+
+        setInvitedBuyers(buyersWithStatus);
+      } catch (error) {
+        console.error('Error in fetchInvitedBuyers:', error);
+      } finally {
+        setLoadingBuyers(false);
+      }
+    };
+
+    fetchInvitedBuyers();
   }, [request.id, request.offers]);
 
   // Helper function to get display text for status
@@ -104,15 +180,15 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-bold text-black">Exterior Color</label>
-              <p className="text-sm font-normal mt-1 bg-gray-50 p-2 rounded">{request.exteriorColor || 'Not specified'}</p>
+              <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.exteriorColor || 'Not specified'}</p>
             </div>
             <div>
               <label className="text-sm font-bold text-black">Interior Color</label>
-              <p className="text-sm font-normal mt-1 bg-gray-50 p-2 rounded">{request.interiorColor || 'Not specified'}</p>
+              <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.interiorColor || 'Not specified'}</p>
             </div>
             <div className="col-span-2">
               <label className="text-sm font-bold text-black">Accessories & Options</label>
-              <p className="text-sm font-normal mt-1 bg-gray-50 p-2 rounded">{request.accessories || 'None listed'}</p>
+              <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.accessories || 'None listed'}</p>
             </div>
           </div>
         </div>
@@ -128,52 +204,71 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
       <TabsContent value="offers" className="min-h-[320px] overflow-y-auto">
         <div className="bg-white border rounded-lg p-4">
           <h3 className="text-lg font-semibold mb-3">Bid Offers</h3>
-          {request.offers.length > 0 ? (
+          {loadingBuyers ? (
+            <div className="text-center py-6">
+              <Loader2 className="h-6 w-6 animate-spin mx-auto text-gray-400 mb-2" />
+              <p className="text-gray-600">Loading buyers...</p>
+            </div>
+          ) : invitedBuyers.length > 0 ? (
             <div className="space-y-3">
-              {request.offers.map((offer, index) => (
-                <div key={offer.id} className="border rounded-lg p-3 bg-gray-50">
+              {invitedBuyers.map((buyer) => (
+                <div key={buyer.id} className="border rounded-lg p-3" style={{ backgroundColor: '#ECEEF0' }}>
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex-1">
-                      <h4 className="font-medium">{offer.buyerName}</h4>
-                      <p className="text-sm text-gray-600">
-                        Submitted on {new Date(offer.createdAt).toLocaleDateString()}
-                      </p>
+                      <h4 className="font-medium uppercase">
+                        {buyer.buyer_name || 'Unknown Buyer'}
+                        {buyer.dealer_name && ` (${buyer.dealer_name})`}
+                      </h4>
+                      {buyer.hasResponded && buyer.offerCreatedAt && (
+                        <p className="text-sm text-gray-600">
+                          Submitted on {new Date(buyer.offerCreatedAt).toLocaleDateString()}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-lg font-semibold text-green-600">
-                          ${offer.amount.toLocaleString()}
-                        </p>
-                      </div>
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <Select
-                          value={getCurrentStatus(offer.id, offer.status)}
-                          onValueChange={(value: "pending" | "accepted" | "declined") => {
-                            console.log('🎯 Select onValueChange:', { offerId: offer.id, currentStatus: offer.status, newValue: value });
-                            handleStatusUpdate(offer.id, value);
-                          }}
-                          disabled={loadingOffers.has(offer.id)}
-                        >
-                          <SelectTrigger className={`w-[110px] h-8 text-sm focus:ring-0 focus:ring-offset-0 ${loadingOffers.has(offer.id) ? 'opacity-50' : ''}
-                            ${getCurrentStatus(offer.id, offer.status) === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
-                            ${getCurrentStatus(offer.id, offer.status) === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
-                          `}>
-                            {loadingOffers.has(offer.id) ? (
-                              <div className="flex items-center gap-1">
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                                <span className="text-xs">Updating...</span>
-                              </div>
-                            ) : (
-                              <SelectValue>{getStatusDisplayText(getCurrentStatus(offer.id, offer.status))}</SelectValue>
-                            )}
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending" className="data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-700 focus:!bg-gray-100 focus:!text-gray-700 [&>span:first-child]:hidden">Pending</SelectItem>
-                            <SelectItem value="accepted" className="data-[highlighted]:!bg-green-100 data-[highlighted]:!text-green-700 focus:!bg-green-100 focus:!text-green-700 [&>span:first-child]:hidden">Accepted</SelectItem>
-                            <SelectItem value="declined" className="data-[highlighted]:!bg-red-100 data-[highlighted]:!text-red-700 focus:!bg-red-100 focus:!text-red-700 [&>span:first-child]:hidden">Not Selected</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {buyer.hasResponded && buyer.offerAmount !== undefined ? (
+                        <>
+                          <div className="text-right">
+                            <p className="text-lg font-semibold text-green-600">
+                              ${buyer.offerAmount.toLocaleString()}
+                            </p>
+                          </div>
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <Select
+                              value={getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending')}
+                              onValueChange={(value: "pending" | "accepted" | "declined") => {
+                                if (buyer.responseId) {
+                                  handleStatusUpdate(buyer.responseId, value);
+                                }
+                              }}
+                              disabled={loadingOffers.has(buyer.responseId || buyer.id)}
+                            >
+                              <SelectTrigger className={`w-[110px] h-8 text-sm focus:ring-0 focus:ring-offset-0 ${loadingOffers.has(buyer.responseId || buyer.id) ? 'opacity-50' : ''}
+                                ${getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending') === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
+                                ${getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending') === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
+                              `}>
+                                {loadingOffers.has(buyer.responseId || buyer.id) ? (
+                                  <div className="flex items-center gap-1">
+                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                    <span className="text-xs">Updating...</span>
+                                  </div>
+                                ) : (
+                                  <SelectValue>{getStatusDisplayText(getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending'))}</SelectValue>
+                                )}
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending" className="data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-700 focus:!bg-gray-100 focus:!text-gray-700 [&>span:first-child]:hidden">Pending</SelectItem>
+                                <SelectItem value="accepted" className="data-[highlighted]:!bg-green-100 data-[highlighted]:!text-green-700 focus:!bg-green-100 focus:!text-green-700 [&>span:first-child]:hidden">Accepted</SelectItem>
+                                <SelectItem value="declined" className="data-[highlighted]:!bg-red-100 data-[highlighted]:!text-red-700 focus:!bg-red-100 focus:!text-red-700 [&>span:first-child]:hidden">Not Selected</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500">Pending</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -182,7 +277,7 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
           ) : (
             <div className="text-center py-6">
               <DollarSign size={40} className="mx-auto text-gray-400 mb-2" />
-              <p className="text-gray-600">No offers received yet</p>
+              <p className="text-gray-600">No buyers invited yet</p>
             </div>
           )}
         </div>

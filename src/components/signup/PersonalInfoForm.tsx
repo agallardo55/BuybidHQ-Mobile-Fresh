@@ -151,6 +151,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           value={formData.password}
           onChange={onChange}
           placeholder="Enter password"
+          autoComplete="new-password"
         />
         <p className="mt-1 text-sm text-gray-500">
           Password must be at least 6 characters long
@@ -167,6 +168,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           onChange={onChange}
           placeholder="Confirm password"
           className={passwordError ? 'border-red-500 focus:ring-red-500' : ''}
+          autoComplete="new-password"
         />
         {passwordError && (
           <p className="mt-1 text-sm text-red-600">{passwordError}</p>

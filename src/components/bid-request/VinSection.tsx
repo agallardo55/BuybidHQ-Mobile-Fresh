@@ -75,6 +75,9 @@ const VinSection = ({
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [isLoadingTrims, setIsLoadingTrims] = useState(false);
   
+  // Track where trims came from to prevent redundant fetches
+  const [trimsSource, setTrimsSource] = useState<'vin' | 'manual' | null>(null);
+  
   const { isScanning, videoRef, startScan, stopScan } = useVinScanner((scannedVin) => {
     const syntheticEvent = {
       target: { name: 'vin', value: scannedVin }
@@ -89,6 +92,9 @@ const VinSection = ({
   // Notify parent when VIN decode succeeds
   useEffect(() => {
     if (vehicleData && onVehicleDataFetched) {
+      // Mark trims as coming from VIN decode
+      setTrimsSource('vin');
+      console.log('📥 VIN decode data received, setting trimsSource to "vin"');
       onVehicleDataFetched(vehicleData);
     }
   }, [vehicleData]);
@@ -176,12 +182,21 @@ const VinSection = ({
       model: formData?.model,
       availableTrimsLength: formData?.availableTrims?.length,
       isLoadingTrims,
-      hasOnTrimsUpdate: !!onTrimsUpdate
+      hasOnTrimsUpdate: !!onTrimsUpdate,
+      trimsSource
     });
     
+    // Skip fetch if trims just came from VIN decode
+    if (trimsSource === 'vin') {
+      console.log('⏭️ Skipping trim fetch - just populated from VIN decode');
+      setTrimsSource(null); // Reset flag for future manual changes
+      return;
+    }
+    
+    // Normal fetch logic for manual selection
     if (formData?.year && formData?.make && formData?.model && onTrimsUpdate && !isLoadingTrims) {
-      // Always fetch fresh trims when year/make/model changes
-      console.log('🚀 Fetching fresh trims for:', { year: formData.year, make: formData.make, model: formData.model });
+      console.log('🚀 Fetching trims for manual selection');
+      setTrimsSource('manual'); // Mark as manual fetch
       
       setIsLoadingTrims(true);
       vinService.fetchTrimsByYearMakeModel(formData.year, formData.make, formData.model)
@@ -195,7 +210,7 @@ const VinSection = ({
           setIsLoadingTrims(false);
         });
     }
-  }, [formData?.year, formData?.make, formData?.model]);
+  }, [formData?.year, formData?.make, formData?.model]); // CRITICAL: Only year/make/model in dependencies
 
   const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e);
@@ -482,12 +497,27 @@ const VinSection = ({
       {(formData?.engineCylinders || formData?.transmission || formData?.drivetrain) && (
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="grid grid-cols-3 gap-4 text-sm">
-            {formData?.engineCylinders && (
-              <div>
-                <span className="font-medium text-gray-700">Engine:</span>
-                <p className="text-gray-600 mt-1">{formData.engineCylinders}</p>
-              </div>
-            )}
+            {formData?.engineCylinders && (() => {
+              const engine = formData.engineCylinders;
+              const isElectric = engine?.toLowerCase().includes('electric');
+              const engineLabel = isElectric ? 'Motor' : 'Engine';
+              const engineValue = isElectric
+                ? vinService.extractMotorConfig(
+                    formData.trim || formData.displayTrim || '', 
+                    engine,
+                    formData.drivetrain,
+                    formData.make,
+                    formData.model
+                  )
+                : engine;
+              
+              return (
+                <div>
+                  <span className="font-medium text-gray-700">{engineLabel}:</span>
+                  <p className="text-gray-600 mt-1">{engineValue}</p>
+                </div>
+              );
+            })()}
             {formData?.transmission && (
               <div>
                 <span className="font-medium text-gray-700">Transmission:</span>
