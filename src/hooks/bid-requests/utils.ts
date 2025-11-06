@@ -26,6 +26,7 @@ interface BidRequestDetails {
   recon_estimate: string;
   recon_details: string;
   primary_image?: string | null;
+  user_id?: string;
 }
 
 interface BidOffer {
@@ -100,7 +101,7 @@ export const transformBidRequest = (
     id: item.request_id,
     createdAt: item.created_at,
     status,
-    userId: "unknown", // Add required property
+    userId: item.user_id || "unknown",
     accountId: "unknown", // Add required property  
     vehicleId: "unknown", // Add required property
     year: parseInt(item.year) || 0,

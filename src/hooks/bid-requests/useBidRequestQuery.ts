@@ -38,7 +38,7 @@ export const useBidRequestQuery = (enabled: boolean) => {
         // Get all bid requests (RLS policies will handle access control for both authenticated and anonymous users)
         const { data: requests, error: requestError } = await supabase
           .from('bid_requests')
-          .select('id, created_at, status');
+          .select('id, created_at, status, user_id');
 
         if (requestError) {
           console.error("Error fetching bid requests:", requestError);
@@ -76,7 +76,8 @@ export const useBidRequestQuery = (enabled: boolean) => {
             ...data?.[0],
             created_at: request.created_at,
             status: convertFromDbStatus(request.status),
-            primary_image: primaryImage
+            primary_image: primaryImage,
+            user_id: request.user_id
           };
         });
 
