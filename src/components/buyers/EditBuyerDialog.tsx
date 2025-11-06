@@ -106,17 +106,17 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         onConfirm={handleConfirmDelete}
       />
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] h-[500px] flex flex-col">
+        <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[600px] h-[90vh] sm:h-[500px] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Edit Buyer</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">Edit Buyer</DialogTitle>
           </DialogHeader>
           
           <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-y-auto px-1">
+            <div className="flex-1 overflow-y-auto px-1 sm:px-2">
               <Tabs defaultValue="buyer" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="buyer">Buyer Information</TabsTrigger>
-                  <TabsTrigger value="dealership">Dealership Information</TabsTrigger>
+                  <TabsTrigger value="buyer" className="text-xs sm:text-sm">Buyer Information</TabsTrigger>
+                  <TabsTrigger value="dealership" className="text-xs sm:text-sm">Dealership Information</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="buyer" className="space-y-4 mt-4">

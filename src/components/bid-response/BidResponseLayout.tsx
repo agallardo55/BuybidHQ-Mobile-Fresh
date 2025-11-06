@@ -10,10 +10,10 @@ const BidResponseLayout = ({ children }: BidResponseLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="w-full bg-white shadow-sm py-4">
-        <div className="max-w-2xl mx-auto px-4 flex justify-between items-center">
-          <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-8" />
+        <div className="max-w-full sm:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto px-4 flex justify-between items-center">
+          <img src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png" alt="BuyBid Logo" className="h-6 sm:h-8" />
           <Link to="/signup">
-            <Button variant="default" size="sm" className="bg-custom-blue hover:bg-custom-blue/90">
+            <Button variant="default" size="sm" className="bg-custom-blue hover:bg-custom-blue/90 text-xs sm:text-sm">
               Free Trial
             </Button>
           </Link>

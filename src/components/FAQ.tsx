@@ -7,74 +7,74 @@ import {
 
 const FAQ = () => {
   return (
-    <section id="faq" className="py-20 px-6 bg-gray-50">
+    <section id="faq" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gray-50">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
             Get answers to common questions about BuybidHQ and how our platform works
           </p>
         </div>
 
-        <Accordion type="single" collapsible className="space-y-4">
-          <AccordionItem value="item-1" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+        <Accordion type="single" collapsible className="space-y-3 sm:space-y-4">
+          <AccordionItem value="item-1" className="border border-gray-200 rounded-lg px-4 sm:px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-sm sm:text-base text-gray-900 hover:text-blue-600">
               How does BuybidHQ work?
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-sm sm:text-base text-gray-700">
               BuybidHQ allows auto dealers and wholesalers to send bid requests via SMS to their dealer network. Buyers respond with their offers, and you can track all responses in one central dashboard.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-1b" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+          <AccordionItem value="item-1b" className="border border-gray-200 rounded-lg px-4 sm:px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-sm sm:text-base text-gray-900 hover:text-blue-600">
               What model years are available?
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-sm sm:text-base text-gray-700">
               BuybidHQ supports vehicles from model year 1990 to the current year. Our VIN decoder and vehicle information system can retrieve detailed specifications for any vehicle within this range.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-2" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+          <AccordionItem value="item-2" className="border border-gray-200 rounded-lg px-4 sm:px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-sm sm:text-base text-gray-900 hover:text-blue-600">
               Are there any additional fees?
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-sm sm:text-base text-gray-700">
               No, there are no additional auction or processing fees. The offer you accept is the offer you and your buyer agree too.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-3" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+          <AccordionItem value="item-3" className="border border-gray-200 rounded-lg px-4 sm:px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-sm sm:text-base text-gray-900 hover:text-blue-600">
               How are my bid requests sent?
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-sm sm:text-base text-gray-700">
               All bid requests are sent by SMS from our cloud text service.  At no point will the SMS come from your personal account
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-3a" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+          <AccordionItem value="item-3a" className="border border-gray-200 rounded-lg px-4 sm:px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-sm sm:text-base text-gray-900 hover:text-blue-600">
               What offers will win the bid request?
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-sm sm:text-base text-gray-700">
               You have complete control over which offer to accept. While the highest offer often wins, you can choose any offer based on factors like buyer relationship, payment terms, or timing that best meets your needs.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-6" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+          <AccordionItem value="item-6" className="border border-gray-200 rounded-lg px-4 sm:px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-sm sm:text-base text-gray-900 hover:text-blue-600">
               Is there a mobile app available?
             </AccordionTrigger>
-            <AccordionContent className="text-gray-700">
+            <AccordionContent className="text-sm sm:text-base text-gray-700">
               Yes but coming soon! BuybidHQ is available as a web application but once we are generally available on the App Store and Google Play Store we will formally announce its availability. The mobile app includes all features including VIN scanning, photo capture, and bid management on the go.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-7" className="border border-gray-200 rounded-lg px-6 bg-white shadow-sm">
-            <AccordionTrigger className="text-left text-gray-900 hover:text-blue-600">
+          <AccordionItem value="item-7" className="border border-gray-200 rounded-lg px-4 sm:px-6 bg-white shadow-sm">
+            <AccordionTrigger className="text-left text-sm sm:text-base text-gray-900 hover:text-blue-600">
               How do I get started with BuybidHQ?
             </AccordionTrigger>
             <AccordionContent className="text-gray-700">

@@ -62,18 +62,19 @@ const DealershipList = ({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="whitespace-nowrap text-xs">Dealership Name</TableHead>
-            <TableHead className="whitespace-nowrap text-xs">Dealer ID</TableHead>
-            <TableHead className="whitespace-nowrap text-xs">Contact</TableHead>
-            <TableHead className="whitespace-nowrap text-xs">Location</TableHead>
-            <TableHead className="whitespace-nowrap text-xs">Account Admin</TableHead>
-            <TableHead className="whitespace-nowrap text-xs">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
+    <div className="overflow-x-auto -mx-4 sm:-mx-6 scrollbar-thin scrollbar-thumb-gray-300">
+      <div className="inline-block min-w-full align-middle px-4 sm:px-6">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="whitespace-nowrap text-xs">Dealership Name</TableHead>
+              <TableHead className="whitespace-nowrap text-xs">Dealer ID</TableHead>
+              <TableHead className="whitespace-nowrap text-xs">Contact</TableHead>
+              <TableHead className="whitespace-nowrap text-xs">Location</TableHead>
+              <TableHead className="whitespace-nowrap text-xs">Account Admin</TableHead>
+              <TableHead className="whitespace-nowrap text-xs">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
         <TableBody>
           {dealerships.map((dealership) => (
             <TableRow key={dealership.id} className="text-sm hover:bg-muted/50">
@@ -107,7 +108,8 @@ const DealershipList = ({
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+        </Table>
+      </div>
     </div>
   );
 };

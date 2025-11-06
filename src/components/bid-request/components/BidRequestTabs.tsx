@@ -146,22 +146,22 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
   };
   return (
     <Tabs defaultValue="details" className="mt-2">
-      <TabsList className="grid w-full grid-cols-4 mb-3">
-        <TabsTrigger value="details" className="flex items-center gap-2 text-xs px-2 py-1.5">
+      <TabsList className="flex w-full overflow-x-auto mb-3 scrollbar-thin scrollbar-thumb-gray-300 md:grid md:grid-cols-4">
+        <TabsTrigger value="details" className="flex items-center gap-1 md:gap-2 text-xs px-2 py-1.5 whitespace-nowrap flex-shrink-0 md:flex-shrink">
           <Car size={14} />
-          Details
+          <span className="hidden sm:inline">Details</span>
         </TabsTrigger>
-        <TabsTrigger value="appearance" className="flex items-center gap-2 text-xs px-2 py-1.5">
+        <TabsTrigger value="appearance" className="flex items-center gap-1 md:gap-2 text-xs px-2 py-1.5 whitespace-nowrap flex-shrink-0 md:flex-shrink">
           <Eye size={14} />
-          Appearance
+          <span className="hidden sm:inline">Appearance</span>
         </TabsTrigger>
-        <TabsTrigger value="condition" className="flex items-center gap-2 text-xs px-2 py-1.5">
+        <TabsTrigger value="condition" className="flex items-center gap-1 md:gap-2 text-xs px-2 py-1.5 whitespace-nowrap flex-shrink-0 md:flex-shrink">
           <Wrench size={14} />
-          Condition
+          <span className="hidden sm:inline">Condition</span>
         </TabsTrigger>
-        <TabsTrigger value="offers" className="flex items-center gap-2 text-xs px-2 py-1.5">
+        <TabsTrigger value="offers" className="flex items-center gap-1 md:gap-2 text-xs px-2 py-1.5 whitespace-nowrap flex-shrink-0 md:flex-shrink">
           <DollarSign size={14} />
-          Offers
+          <span className="hidden sm:inline">Offers</span>
           {request.offers.length > 0 && (
             <Badge variant="secondary" className="ml-1 text-xs px-1 py-0">
               {request.offers.length}
@@ -176,8 +176,8 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
       
       <TabsContent value="appearance" className="min-h-[320px] overflow-y-auto">
         <div className="bg-white border rounded-lg p-4">
-          <h3 className="text-lg font-semibold mb-3">Vehicle Appearance</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <h3 className="text-base md:text-lg font-semibold mb-3">Vehicle Appearance</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-bold text-black">Exterior Color</label>
               <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.exteriorColor || 'Not specified'}</p>
@@ -186,7 +186,7 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
               <label className="text-sm font-bold text-black">Interior Color</label>
               <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.interiorColor || 'Not specified'}</p>
             </div>
-            <div className="col-span-2">
+            <div className="col-span-1 sm:col-span-2">
               <label className="text-sm font-bold text-black">Accessories & Options</label>
               <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.accessories || 'None listed'}</p>
             </div>
@@ -203,7 +203,7 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
       
       <TabsContent value="offers" className="min-h-[320px] overflow-y-auto">
         <div className="bg-white border rounded-lg p-4">
-          <h3 className="text-lg font-semibold mb-3">Bid Offers</h3>
+          <h3 className="text-base md:text-lg font-semibold mb-3">Bid Offers</h3>
           {loadingBuyers ? (
             <div className="text-center py-6">
               <Loader2 className="h-6 w-6 animate-spin mx-auto text-gray-400 mb-2" />
@@ -213,19 +213,19 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
             <div className="space-y-3">
               {invitedBuyers.map((buyer) => (
                 <div key={buyer.id} className="border rounded-lg p-3" style={{ backgroundColor: '#ECEEF0' }}>
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                     <div className="flex-1">
-                      <h4 className="font-medium uppercase">
+                      <h4 className="font-medium uppercase text-sm sm:text-base">
                         {buyer.buyer_name || 'Unknown Buyer'}
                         {buyer.dealer_name && ` (${buyer.dealer_name})`}
                       </h4>
                       {buyer.hasResponded && buyer.offerCreatedAt && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs sm:text-sm text-gray-600">
                           Submitted on {new Date(buyer.offerCreatedAt).toLocaleDateString()}
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       {buyer.hasResponded && buyer.offerAmount !== undefined ? (
                         <>
                           <div className="text-right">
@@ -243,7 +243,7 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
                               }}
                               disabled={loadingOffers.has(buyer.responseId || buyer.id)}
                             >
-                              <SelectTrigger className={`w-[110px] h-8 text-sm focus:ring-0 focus:ring-offset-0 ${loadingOffers.has(buyer.responseId || buyer.id) ? 'opacity-50' : ''}
+                              <SelectTrigger className={`w-full sm:w-[110px] h-8 text-xs sm:text-sm focus:ring-0 focus:ring-offset-0 ${loadingOffers.has(buyer.responseId || buyer.id) ? 'opacity-50' : ''}
                                 ${getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending') === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
                                 ${getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending') === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
                               `}>
