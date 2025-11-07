@@ -385,13 +385,13 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     <div className="space-y-4">
       {/* Vehicle History Report Integrations */}
       <div className="mb-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* AutoCheck Column */}
           <button
             type="button"
             onClick={() => handleIntegrationClick("AutoCheck")}
             className={`
-              flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer
+              flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 transition-all cursor-pointer w-full
               ${selectedHistoryService === "AutoCheck"
                 ? "border-blue-600 bg-blue-50"
                 : "border-gray-300 bg-white hover:border-blue-600"
@@ -411,7 +411,11 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
                 <div className="w-5 h-5 border-2 border-gray-400 rounded-full bg-white" />
               )}
             </div>
-            <img src={autocheckImage} alt="AutoCheck" className="h-6 w-auto" />
+            <img 
+              src={autocheckImage} 
+              alt="AutoCheck" 
+              className="h-5 sm:h-6 w-auto max-w-full object-contain flex-shrink" 
+            />
           </button>
 
           {/* CARFAX Column */}
@@ -419,7 +423,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             type="button"
             onClick={() => handleIntegrationClick("CarFax")}
             className={`
-              flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer
+              flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 transition-all cursor-pointer w-full
               ${selectedHistoryService === "CarFax"
                 ? "border-blue-600 bg-blue-50"
                 : "border-gray-300 bg-white hover:border-blue-600"
@@ -439,7 +443,11 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
                 <div className="w-5 h-5 border-2 border-gray-400 rounded-full bg-white" />
               )}
             </div>
-            <img src={carfaxImage} alt="CarFax" className="h-6 w-auto" />
+            <img 
+              src={carfaxImage} 
+              alt="CarFax" 
+              className="h-5 sm:h-6 w-auto max-w-full object-contain flex-shrink" 
+            />
           </button>
         </div>
         <div className="mt-4">
@@ -454,7 +462,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       </div>
 
       {/* Windshield and Engine Lights Condition Chips */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <ChipSelector
             options={windshieldOptions}
@@ -476,7 +484,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       </div>
 
       {/* Maintenance Condition Chips */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <ChipSelector
             options={maintenanceOptions}
@@ -505,7 +513,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         onMeasurementChange={(position, value) => handleQuadrantMeasurementChange("tire", position, value)}
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="reconEstimate" className="block text-sm font-bold text-gray-700 mb-1">
             Recon Estimate

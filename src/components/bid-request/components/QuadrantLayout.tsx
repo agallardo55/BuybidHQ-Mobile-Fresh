@@ -26,7 +26,7 @@ const QuadrantLayout = ({ title, measurementType, data, onMeasurementChange }: Q
   return (
     <div>
       <h2 className="text-lg font-bold text-gray-900 mb-4">{title}</h2>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {positions.map(({ key, label }) => (
           <QuadrantCard
             key={key}

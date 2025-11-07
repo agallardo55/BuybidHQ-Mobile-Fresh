@@ -135,7 +135,7 @@ const VehicleDropdownsGrid = ({
   };
 
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       {/* Year Dropdown */}
       <DropdownField
         id="year"

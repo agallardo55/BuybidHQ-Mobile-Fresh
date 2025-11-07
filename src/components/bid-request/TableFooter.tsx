@@ -35,8 +35,8 @@ const TableFooter = ({
   getPageNumbers,
 }: TableFooterProps) => {
   return (
-    <div className="mt-4 flex flex-row justify-between items-center gap-2">
-      <div className="flex items-center gap-1 min-w-[280px] whitespace-nowrap">
+    <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-2">
+      <div className="flex items-center gap-1 w-full sm:w-auto sm:min-w-[280px] whitespace-nowrap">
         <span className="text-sm text-gray-500 hidden sm:inline">Rows per page:</span>
         <span className="text-sm text-gray-500 sm:hidden">Per page:</span>
         <Select
@@ -57,7 +57,7 @@ const TableFooter = ({
           {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalItems)} of {totalItems}
         </span>
       </div>
-      <Pagination>
+      <Pagination className="w-full sm:w-auto justify-center sm:justify-end">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious

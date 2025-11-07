@@ -1,5 +1,8 @@
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { createPortal } from "react-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import SearchHeader from "@/components/bid-request/SearchHeader";
 import BidRequestTable from "@/components/bid-request/BidRequestTable";
@@ -9,6 +12,8 @@ import { BidRequest } from "@/components/bid-request/types";
 import { DeleteBidRequestDialog } from "@/components/bid-request/DeleteBidRequestDialog";
 import { useBidRequestDelete } from "@/hooks/bid-requests/useBidRequestDelete";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type SortConfig = {
   field: keyof BidRequest | null;
@@ -20,6 +25,13 @@ const BidRequestDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isMounted, setIsMounted] = useState(false);
+  const isMobile = useIsMobile(); // Use the existing hook instead
+
+  // Ensure component is mounted before rendering portal
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Trigger enrichment once after login
   useEffect(() => {
@@ -149,7 +161,7 @@ const BidRequestDashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
+      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-20 sm:pb-6 flex-grow">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <SearchHeader 
@@ -189,6 +201,23 @@ const BidRequestDashboard = () => {
         onConfirm={handleConfirmDelete}
         bidRequest={bidRequestToDelete}
       />
+
+      {/* Mobile FAB - adjust bottom spacing to account for footer */}
+      {isMounted && isMobile && typeof document !== 'undefined' && createPortal(
+        <Link 
+          to="/create-bid-request" 
+          className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] block"
+        >
+          <Button 
+            variant="default" 
+            className="w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            aria-label="Create Bid Request"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        </Link>,
+        document.body
+      )}
     </DashboardLayout>
   );
 };
