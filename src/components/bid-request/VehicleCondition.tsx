@@ -384,7 +384,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   return (
     <div className="space-y-4">
       {/* Vehicle History Report Integrations */}
-      <div className="mb-6">
+      <div className="bg-white rounded-lg p-4 border border-gray-200 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* AutoCheck Column */}
           <button

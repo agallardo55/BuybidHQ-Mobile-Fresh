@@ -21,10 +21,14 @@ const TrimDropdown = ({
   showValidation 
 }: TrimDropdownProps) => {
   const uniqueTrims = deduplicateTrims(trims);
+  const hasMultipleTrims = uniqueTrims.length > 1;
+  const placeholder = hasMultipleTrims ? "Choose one" : "Select Trim";
 
   console.log('🔍 DROPDOWN DEBUG:', {
     selectedTrim,
-    itemValues: uniqueTrims.map(t => vinService.getDisplayTrim(t))
+    itemValues: uniqueTrims.map(t => vinService.getDisplayTrim(t)),
+    trimCount: uniqueTrims.length,
+    hasMultipleTrims
   });
 
   return (
@@ -42,7 +46,7 @@ const TrimDropdown = ({
           name="trim"
           className={`w-full bg-white hover:bg-gray-50 transition-colors [&>span]:!line-clamp-none ${error && showValidation ? "border-red-500" : ""}`}
         >
-          <SelectValue placeholder="Select Trim" />
+          <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent className="bg-white">
           {uniqueTrims && uniqueTrims.length > 0 ? (

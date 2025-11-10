@@ -101,6 +101,15 @@ const VehicleDropdownsGrid = ({
         .then(trims => {
           console.log('Received trims:', trims);
           onTrimsUpdate(trims);
+          
+          // Auto-select if only one trim available
+          if (trims.length === 1 && onTrimChange) {
+            const singleTrim = trims[0];
+            const displayValue = vinService.getDisplayTrim(singleTrim);
+            console.log('🔍 Auto-selecting single trim:', displayValue);
+            onTrimChange(displayValue);
+          }
+          
           setIsLoadingTrims(false);
         })
         .catch(error => {

@@ -5,11 +5,22 @@ import MultiStepForm from "@/components/bid-request/MultiStepForm";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const CreateBidRequest = () => {
-  const { currentUser } = useCurrentUser();
-  const { buyers } = useBuyers();
+  const { currentUser, isLoading: isLoadingUser } = useCurrentUser();
+  const { buyers, isLoading: isLoadingBuyers } = useBuyers();
+  
+  useEffect(() => {
+    console.log('🔍 CreateBidRequest: State update', {
+      hasCurrentUser: !!currentUser,
+      isLoadingUser,
+      buyersCount: buyers?.length || 0,
+      isLoadingBuyers
+    });
+  }, [currentUser, isLoadingUser, buyers, isLoadingBuyers]);
   const {
     formData,
     errors,
@@ -32,6 +43,63 @@ const CreateBidRequest = () => {
 
   const [showValidation, setShowValidation] = useState(false);
 
+  // Show loading state while critical data is fetching, but with timeout
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  
+  useEffect(() => {
+    if (isLoadingUser) {
+      const timeout = setTimeout(() => {
+        console.warn('CreateBidRequest: User loading timeout, proceeding anyway');
+        setLoadingTimeout(true);
+      }, 2000); // 2 second timeout
+      return () => clearTimeout(timeout);
+    } else {
+      setLoadingTimeout(false);
+    }
+  }, [isLoadingUser]);
+  
+  if (isLoadingUser && !loadingTimeout) {
+    console.log('🔍 CreateBidRequest: Showing user loading state');
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-600">Loading user data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if user data failed to load
+  if (!currentUser) {
+    console.log('🔍 CreateBidRequest: No current user, showing error');
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Failed to load user data</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('🔍 CreateBidRequest: Rendering form', {
+    buyersCount: buyers?.length || 0,
+    isLoadingBuyers
+  });
+
+  // Show loading state while buyers are fetching (but allow form to render with empty buyers)
+  // Only show spinner if buyers are critical for initial render
+  if (isLoadingBuyers && buyers?.length === 0) {
+    // Allow form to render but show a loading indicator
+    // The form can work with empty buyers initially
+  }
+
   // Map buyers to the format expected by the components
   const mappedBuyers = buyers?.map(buyer => ({
     id: buyer.id,
@@ -47,7 +115,12 @@ const CreateBidRequest = () => {
   );
 
   const onSubmit = () => {
-    if (!currentUser?.id || !currentUser?.account_id) {
+    if (!currentUser?.id) {
+      toast.error("User not found. Please try signing out and back in.");
+      return;
+    }
+    if (!currentUser?.account_id) {
+      toast.error("Account not found. Please contact support.");
       return;
     }
     handleSubmit(currentUser.id, currentUser.account_id);

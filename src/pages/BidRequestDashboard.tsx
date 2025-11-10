@@ -204,18 +204,16 @@ const BidRequestDashboard = () => {
 
       {/* Mobile FAB - adjust bottom spacing to account for footer */}
       {isMounted && isMobile && typeof document !== 'undefined' && createPortal(
-        <Link 
-          to="/create-bid-request" 
-          className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] block"
+        <Button 
+          asChild
+          variant="default" 
+          className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          aria-label="Create Bid Request"
         >
-          <Button 
-            variant="default" 
-            className="w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-            aria-label="Create Bid Request"
-          >
+          <Link to="/create-bid-request">
             <Plus className="h-6 w-6" />
-          </Button>
-        </Link>,
+          </Link>
+        </Button>,
         document.body
       )}
     </DashboardLayout>

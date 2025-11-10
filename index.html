@@ -42,10 +42,73 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/lovable-uploads/d6ea8017-6324-46cf-be34-da796b5cfac7.png" />
+    
+    <!-- Debug: Test if scripts can execute -->
+    <script>
+      console.log('🔍 HTML: Script tag executing');
+      
+      // Global error handler to catch any errors
+      window.addEventListener('error', (event) => {
+        console.error('❌ Global error:', event.error);
+        console.error('❌ Error message:', event.message);
+        console.error('❌ Error source:', event.filename, 'line', event.lineno);
+      });
+      
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('❌ Unhandled promise rejection:', event.reason);
+      });
+      
+      window.addEventListener('DOMContentLoaded', () => {
+        console.log('🔍 HTML: DOM loaded');
+      });
+      
+      window.addEventListener('load', () => {
+        console.log('🔍 HTML: Window loaded');
+      });
+    </script>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div style="padding: 20px; background: #f0f0f0; text-align: center;">
+        <p>If you see this, HTML loaded but JavaScript hasn't executed yet...</p>
+        <p id="js-test" style="color: red; font-weight: bold;">JavaScript is NOT running</p>
+      </div>
+    </div>
+    <script>
+      // Immediate test - should execute before module scripts
+      console.log('🔍 HTML: Inline script executing');
+      console.log('🔍 HTML: Console is working!');
+      console.log('🔍 HTML: Timestamp:', new Date().toISOString());
+      
+      // Test if localStorage is accessible
+      try {
+        localStorage.setItem('__test__', 'test');
+        localStorage.removeItem('__test__');
+        console.log('✅ HTML: localStorage is accessible');
+      } catch (e) {
+        console.error('❌ HTML: localStorage error:', e);
+      }
+      
+      const testEl = document.getElementById('js-test');
+      if (testEl) {
+        testEl.textContent = '✅ JavaScript IS running!';
+        testEl.style.color = 'green';
+      } else {
+        console.error('❌ HTML: Root element not found!');
+      }
+      
+      // Catch any module load errors
+      window.addEventListener('error', (event) => {
+        console.error('❌ HTML: Script error caught:', {
+          message: event.message,
+          filename: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+          error: event.error
+        });
+      }, true);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
   </body>

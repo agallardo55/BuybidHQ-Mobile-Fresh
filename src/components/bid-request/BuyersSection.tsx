@@ -184,6 +184,7 @@ const BuyersSection = ({
           Back
         </Button>
         <Button 
+          type="button"
           onClick={onSubmit}
           className="bg-custom-blue hover:bg-custom-blue/90"
           disabled={isSubmitting}

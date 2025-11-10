@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AuthProvider } from '@/contexts/AuthContext';
 
 interface PublicAppWrapperProps {
   children: ReactNode;
@@ -8,16 +7,18 @@ interface PublicAppWrapperProps {
 
 export const PublicAppWrapper = ({ children }: PublicAppWrapperProps) => {
   const location = useLocation();
+  console.log('🔍 PublicAppWrapper: Rendering', { pathname: location.pathname });
   
   // Check if current route is a public bid response page
+  // Note: AuthProvider is now at App.tsx level, so we just render children
+  // Public bid pages don't need special handling since they're already wrapped
   const isPublicBidPage = location.pathname.startsWith('/bid-response/') || 
                          location.pathname.startsWith('/quick-bid/');
   
-  // For public bid pages, render without AuthProvider to avoid any auth initialization
   if (isPublicBidPage) {
-    return <>{children}</>;
+    console.log('🔍 PublicAppWrapper: Public bid page detected');
   }
   
-  // For all other pages, wrap with AuthProvider
-  return <AuthProvider>{children}</AuthProvider>;
+  // Just render children - AuthProvider is now in App.tsx
+  return <>{children}</>;
 };

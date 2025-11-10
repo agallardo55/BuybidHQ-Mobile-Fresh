@@ -2,82 +2,109 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+console.log('🔍 Supabase client: Module loaded, imports completed');
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
+console.log('🔍 Supabase client: Environment variables checked', { 
+  hasUrl: !!SUPABASE_URL, 
+  hasKey: !!SUPABASE_PUBLISHABLE_KEY 
+});
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    storage: {
-      getItem: (key) => {
-        try {
-          return localStorage.getItem(key)
-        } catch {
-          return null
-        }
-      },
-      setItem: (key, value) => {
-        try {
-          localStorage.setItem(key, value)
-        } catch {}
-      },
-      removeItem: (key) => {
-        try {
-          localStorage.removeItem(key)
-        } catch {}
-      },
-    },
-  },
-  db: {
-    schema: 'public'
-  },
-  global: {
-    headers: {
-      'apikey': SUPABASE_PUBLISHABLE_KEY,
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-  },
-});
+console.log('🔍 Supabase client: Creating client instance...');
 
-// Validate session on initialization
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'TOKEN_REFRESHED') {
-    console.log('Token refreshed successfully')
-  }
-  
-  if (event === 'SIGNED_OUT') {
-    localStorage.clear() // Clear all stored data
-  }
-})
+// Wrap client creation in try-catch to prevent blocking on errors
+let supabase: ReturnType<typeof createClient<Database>>;
 
-// Clear invalid sessions on startup
-const clearInvalidSession = async () => {
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  const error = new Error('Missing Supabase environment variables. Please check your .env file.');
+  console.error('❌ Supabase client: Configuration error', error);
+  console.error('❌ Supabase client: SUPABASE_URL:', SUPABASE_URL ? 'present' : 'MISSING');
+  console.error('❌ Supabase client: SUPABASE_PUBLISHABLE_KEY:', SUPABASE_PUBLISHABLE_KEY ? 'present' : 'MISSING');
+  // Don't throw - create a dummy client to prevent blocking
+  // The app will show errors when trying to use Supabase, but at least it will load
+  console.warn('⚠️ Supabase client: Creating dummy client to prevent blocking');
+  supabase = createClient<Database>('https://dummy.supabase.co', 'dummy-key', {
+    auth: { persistSession: false, autoRefreshToken: false }
+  }) as any;
+  console.warn('⚠️ Supabase client: Dummy client created - Supabase features will not work');
+} else {
   try {
-    const { data: { session }, error } = await supabase.auth.getSession()
-    
-    if (error || !session) {
-      await supabase.auth.signOut()
-      localStorage.clear()
-    }
-  } catch (err) {
-    console.error('Session validation failed:', err)
-    await supabase.auth.signOut()
-    localStorage.clear()
+    supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        storage: {
+          getItem: (key) => {
+            try {
+              return localStorage.getItem(key)
+            } catch (e) {
+              console.warn('Supabase client: localStorage.getItem failed', e);
+              return null
+            }
+          },
+          setItem: (key, value) => {
+            try {
+              localStorage.setItem(key, value)
+            } catch (e) {
+              console.warn('Supabase client: localStorage.setItem failed', e);
+            }
+          },
+          removeItem: (key) => {
+            try {
+              localStorage.removeItem(key)
+            } catch (e) {
+              console.warn('Supabase client: localStorage.removeItem failed', e);
+            }
+          },
+        },
+      },
+      db: {
+        schema: 'public'
+      },
+      global: {
+        headers: {
+          'apikey': SUPABASE_PUBLISHABLE_KEY,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      },
+    });
+
+    console.log('✅ Supabase client: Client instance created');
+  } catch (error) {
+    console.error('❌ Supabase client: Failed to create client', error);
+    // Don't throw - create a dummy client to prevent blocking
+    console.warn('⚠️ Supabase client: Creating dummy client after error');
+    supabase = createClient<Database>('https://dummy.supabase.co', 'dummy-key', {
+      auth: { persistSession: false, autoRefreshToken: false }
+    }) as any;
   }
 }
 
-clearInvalidSession()
+export { supabase };
+
+// REMOVED: onAuthStateChange listener at module level
+// This was causing duplicate listeners and potential race conditions.
+// AuthContext.tsx already handles all auth state changes properly.
+// If you need to clear localStorage on sign out, do it in AuthContext.
+
+console.log('✅ Supabase client: Module initialization complete');
+
+// REMOVED: clearInvalidSession() call at module load
+// Even with timeout, calling getSession() at module initialization can block the app
+// if getSession() hangs before returning a promise. This prevents React from even starting.
+//
+// Session validation is handled safely in AuthContext.tsx useEffect instead,
+// which runs after React mounts and can properly handle timeouts and errors.
+//
+// If you need to clear invalid sessions, do it in AuthContext or after app initialization.

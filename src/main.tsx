@@ -31,14 +31,40 @@ const queryClient = new QueryClient({
   },
 });
 
+// CRITICAL: This should be the FIRST log that appears
+console.log('🚀 main.tsx: Starting app initialization');
+console.log('🚀 main.tsx: If you see this, JavaScript is executing!');
+console.log('🚀 main.tsx: Timestamp:', new Date().toISOString());
+
 const rootElement = document.getElementById('root');
 if (!rootElement) {
+  console.error('❌ main.tsx: Failed to find root element');
+  document.body.innerHTML = '<div style="padding: 20px; color: red;">Error: Root element not found</div>';
   throw new Error('Failed to find the root element');
 }
 
-createRoot(rootElement).render(
-  <QueryClientProvider client={queryClient}>
-    <App />
-    {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-  </QueryClientProvider>
-);
+console.log('✅ main.tsx: Root element found, rendering app');
+
+try {
+  const root = createRoot(rootElement);
+  root.render(
+    <QueryClientProvider client={queryClient}>
+      <App />
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+    </QueryClientProvider>
+  );
+  console.log('✅ main.tsx: App rendered successfully');
+} catch (error) {
+  console.error('❌ main.tsx: Failed to render app', error);
+  // Only set innerHTML if React failed to mount
+  if (rootElement && !rootElement.hasChildNodes()) {
+    rootElement.innerHTML = `
+      <div style="padding: 20px; color: red;">
+        <h2>Failed to load app</h2>
+        <p>Error: ${error instanceof Error ? error.message : String(error)}</p>
+        <p>Check the browser console for details.</p>
+      </div>
+    `;
+  }
+  throw error;
+}

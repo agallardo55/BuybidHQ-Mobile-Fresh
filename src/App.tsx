@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PublicAppWrapper } from "@/components/PublicAppWrapper";
 import { ProtectedRoute, AuthRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useSessionRecovery } from "@/hooks/useSessionRecovery";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 import { RecoveryRedirector } from "@/components/RecoveryRedirector";
 import { StrictMode, lazy, Suspense } from "react";
@@ -38,8 +38,9 @@ const PageLoader = () => (
 );
 
 const App = () => {
-  useSessionRecovery(); // Add session recovery
+  console.log('🚀 App.tsx: Component rendering');
   
+  console.log('🚀 App.tsx: Returning JSX');
   return (
     <StrictMode>
       <ErrorBoundary>
@@ -50,7 +51,8 @@ const App = () => {
               v7_relativeSplatPath: true,
             }}
           >
-            <PublicAppWrapper>
+            <AuthProvider>
+              <PublicAppWrapper>
               <RecoveryRedirector />
               <Toaster />
               <Sonner position="top-center" />
@@ -182,7 +184,8 @@ const App = () => {
                   </Suspense>
                 } />
               </Routes>
-            </PublicAppWrapper>
+              </PublicAppWrapper>
+            </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ErrorBoundary>

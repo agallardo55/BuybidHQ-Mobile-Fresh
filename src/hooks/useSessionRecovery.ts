@@ -1,24 +1,16 @@
 import { useEffect } from 'react'
-import { supabase } from '@/integrations/supabase/client'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const useSessionRecovery = () => {
+  const { session, isLoading } = useAuth()
+  
   useEffect(() => {
-    const recoverSession = async () => {
-      try {
-        const { error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Session recovery failed:', error)
-          // Don't sign out on session errors - let auth context handle it
-          // await supabase.auth.signOut()
-          // localStorage.clear()
-        }
-      } catch (err) {
-        console.error('Fatal session error:', err)
-        localStorage.clear()
-      }
+    // Only check for session errors after auth context has loaded
+    // AuthContext already handles getSession(), so we just monitor for errors
+    if (!isLoading && !session) {
+      // Session recovery is handled by AuthContext
+      // This hook just monitors for any issues
+      console.log('Session recovery: No active session (user may need to sign in)')
     }
-
-    recoverSession()
-  }, [])
+  }, [session, isLoading])
 }

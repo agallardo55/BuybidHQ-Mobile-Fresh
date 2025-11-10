@@ -43,6 +43,7 @@ interface VinSectionProps {
   onModelChange?: (value: string) => void;
   onTrimChange?: (value: string) => void;
   onTrimsUpdate?: (trims: TrimOption[]) => void;
+  hideDropdowns?: boolean; // ✅ ADD THIS
 }
 
 const VinSection = ({ 
@@ -57,7 +58,8 @@ const VinSection = ({
   onMakeChange,
   onModelChange,
   onTrimChange,
-  onTrimsUpdate
+  onTrimsUpdate,
+  hideDropdowns = false // ✅ ADD THIS
 }: VinSectionProps) => {
   const isMobile = useIsMobile();
   
@@ -203,6 +205,15 @@ const VinSection = ({
         .then(trims => {
           console.log('✅ Received trims:', trims.length, 'trims');
           onTrimsUpdate(trims);
+          
+          // Auto-select if only one trim available
+          if (trims.length === 1 && onTrimChange) {
+            const singleTrim = trims[0];
+            const displayValue = vinService.getDisplayTrim(singleTrim);
+            console.log('🔍 Auto-selecting single trim:', displayValue);
+            onTrimChange(displayValue);
+          }
+          
           setIsLoadingTrims(false);
         })
         .catch(error => {
@@ -297,204 +308,9 @@ const VinSection = ({
 
   return (
     <div className="space-y-4">
-      {/* VIN and Mileage Input Section - Single Row */}
-      <div className="space-y-2">
-        {isMobile && (
-          <div className="space-y-2">
-            <Button 
-              type="button"
-              onClick={startScan}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-              disabled={isScanning || isLoading}
-            >
-              <Barcode className="h-4 w-4 mr-2" />
-              {isScanning ? 'Scanning...' : 'Scan VIN'}
-            </Button>
-            {isScanning && (
-              <p className="text-xs text-gray-500 text-center">
-                Hold device steady and position barcode in center of screen
-              </p>
-            )}
-          </div>
-        )}
-        
-        {/* Desktop: Single row layout */}
-        <div className="hidden md:flex gap-6 items-end">
-          {/* VIN Input - takes most space */}
-          <div className="flex-1">
-            <Label htmlFor="vin">
-              VIN
-            </Label>
-            <div className="flex gap-2">
-              <Input
-                id="vin"
-                name="vin"
-                type="text"
-                value={vin}
-                onChange={handleVinChange}
-                required={false}
-                placeholder="1HGCM82633A123456"
-                className={`${showError ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
-                maxLength={17}
-              />
-              <Button 
-                type="button"
-                className="bg-custom-blue hover:bg-custom-blue/90 px-6"
-                onClick={handleGoClick}
-                disabled={isLoading || isScanning}
-              >
-                {isLoading ? "Loading..." : "Go"}
-              </Button>
-            </div>
-            {showError && (
-              <p className="text-red-500 text-sm mt-1">{error || decodeError}</p>
-            )}
-          </div>
-          
-          {/* Mileage Input - fixed width */}
-          <div className="w-64">
-            <Label htmlFor="mileage">
-              Mileage
-            </Label>
-            <div className="flex gap-2 items-center">
-              <Input
-                id="mileage"
-                name="mileage"
-                type="text"
-                value={formData?.mileage || ''}
-                onChange={handleMileageChange}
-                placeholder="35,000"
-                className={`${errors?.mileage && showValidation ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
-                inputMode="numeric"
-                pattern="[0-9,]*"
-              />
-              <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border border-gray-300 flex-shrink-0">
-                <img 
-                  src={gaugeIcon} 
-                  alt="Mileage gauge" 
-                  className="w-5 h-5"
-                />
-              </div>
-            </div>
-            {errors?.mileage && showValidation && (
-              <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile: Stacked layout */}
-        <div className="md:hidden space-y-4">
-          <div>
-            <Label htmlFor="vin">
-              VIN
-            </Label>
-            <div className="flex gap-2">
-              <Input
-                id="vin"
-                name="vin"
-                type="text"
-                value={vin}
-                onChange={handleVinChange}
-                required={false}
-                placeholder="1HGCM82633A123456"
-                className={`${showError ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
-                maxLength={17}
-              />
-              <Button 
-                type="button"
-                className="bg-custom-blue hover:bg-custom-blue/90 px-6"
-                onClick={handleGoClick}
-                disabled={isLoading || isScanning}
-              >
-                {isLoading ? "Loading..." : "Go"}
-              </Button>
-            </div>
-            {showError && (
-              <p className="text-red-500 text-sm mt-1">{error || decodeError}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="mileage">
-              Mileage
-            </Label>
-            <div className="flex gap-2 items-center">
-              <Input
-                id="mileage"
-                name="mileage"
-                type="text"
-                value={formData?.mileage || ''}
-                onChange={handleMileageChange}
-                placeholder="35,000"
-                className={`${errors?.mileage && showValidation ? "border-red-500" : ""} focus:ring-1 focus:ring-offset-0`}
-                inputMode="numeric"
-                pattern="[0-9,]*"
-              />
-              <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border border-gray-300 flex-shrink-0">
-                <img 
-                  src={gaugeIcon} 
-                  alt="Mileage gauge" 
-                  className="w-5 h-5"
-                />
-              </div>
-            </div>
-            {errors?.mileage && showValidation && (
-              <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Vehicle Dropdowns - Always editable */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Year Dropdown */}
-        <DropdownField
-          id="year"
-          label="Year"
-          value={formData?.year || ''}
-          options={yearOptions}
-          onChange={handleYearChange}
-          error={errors?.year}
-          showValidation={showValidation}
-          placeholder="Select Year"
-        />
-
-        {/* Make Dropdown */}
-        <DropdownField
-          id="make"
-          label="Make"
-          value={formData?.make || ''}
-          options={availableMakes}
-          onChange={handleMakeChange}
-          error={errors?.make}
-          showValidation={showValidation}
-          placeholder={isLoadingMakes ? "Loading..." : "Select Make"}
-        />
-
-        {/* Model Dropdown */}
-        <DropdownField
-          id="model"
-          label="Model"
-          value={formData?.model || ''}
-          options={availableModels}
-          onChange={handleModelChange}
-          error={errors?.model}
-          showValidation={showValidation}
-          placeholder={isLoadingModels ? "Loading..." : "Select Model"}
-        />
-
-        {/* Trim Dropdown */}
-        <TrimDropdown
-          trims={formData?.availableTrims || []}
-          selectedTrim={formData?.displayTrim || ''}
-          onTrimChange={onTrimChange || (() => {})}
-          error={errors?.trim}
-          showValidation={showValidation}
-        />
-      </div>
-
-      {/* Engine/Transmission/Drivetrain - Read-only display below dropdowns */}
-      {(formData?.engineCylinders || formData?.transmission || formData?.drivetrain) && (
+      {/* Show summary view when fully decoded and trim selected - ABOVE VinSection */}
+      {/* Only show if dropdowns are hidden (summary view) */}
+      {hideDropdowns && (formData?.engineCylinders || formData?.transmission || formData?.drivetrain) && (
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="grid grid-cols-3 gap-4 text-sm">
             {formData?.engineCylinders && (() => {
@@ -533,6 +349,23 @@ const VinSection = ({
           </div>
         </div>
       )}
+      
+      {/* VIN Input Section - Always show */}
+      <VinSection
+        vin={formData.vin}
+        onChange={onChange}
+        error={errors.vin}
+        onVehicleDataFetched={onVehicleDataFetched}
+        showValidation={showValidation}
+        formData={formData}
+        errors={errors}
+        onYearChange={onYearChange}
+        onMakeChange={onMakeChange}
+        onModelChange={onModelChange}
+        onTrimChange={onTrimChange}
+        onTrimsUpdate={onTrimsUpdate}
+        hideDropdowns={hideDropdowns}
+      />
 
       {isScanning && (
         <ScannerModal

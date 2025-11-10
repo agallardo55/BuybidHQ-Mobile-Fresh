@@ -30,12 +30,16 @@ const SearchHeader = ({ searchTerm, setSearchTerm }: SearchHeaderProps) => {
 
         {/* Buttons container */}
         <div className="flex items-center gap-2">
-        <Link to="/create-bid-request">
-          <Button variant="default" className="hidden md:flex items-center gap-1 bg-accent hover:bg-accent/90 text-white h-9">
+        <Button 
+          asChild
+          variant="default" 
+          className="hidden md:flex items-center gap-1 bg-accent hover:bg-accent/90 text-white h-9"
+        >
+          <Link to="/create-bid-request">
             <Plus className="h-4 w-4" />
             <span>Bid Request</span>
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         </div>
       </div>
     </div>

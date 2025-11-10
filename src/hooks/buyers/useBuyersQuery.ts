@@ -11,40 +11,80 @@ export const useBuyersQuery = () => {
   const navigate = useNavigate();
 
   return useQuery({
-    queryKey: ['buyers', currentUser?.role],
+    queryKey: ['buyers', currentUser?.id, currentUser?.role],
     queryFn: async ({ signal }) => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (!session || sessionError) {
-          console.error("No valid session:", sessionError);
-          navigate('/signin');
+        // Use currentUser from hook instead of calling getSession() again
+        if (!currentUser?.id) {
+          console.log("No current user available");
           return [];
         }
 
-        console.log("Current user role:", currentUser?.role);
+        console.log("🔍 useBuyersQuery: Fetching buyers for user:", currentUser.id, "role:", currentUser?.role);
 
-        // Fetch buyers data - add proper error handling for 406
-        const { data: buyersData, error: buyersError } = await supabase
-          .from('buyers')
-          .select(`
-            id,
-            user_id,
-            buyer_name,
-            email,
-            dealer_name,
-            dealer_id,
-            buyer_mobile,
-            buyer_phone,
-            city,
-            state,
-            zip_code,
-            address,
-            phone_carrier,
-            phone_validation_status
-          `)
-          .is('deleted_at', null)
-          .abortSignal(signal)
-          .order('created_at', { ascending: false });
+        // Fetch buyers data with timeout to prevent hanging
+        const queryController = new AbortController();
+        const queryTimeout = setTimeout(() => {
+          console.warn('⚠️ useBuyersQuery: Query timeout reached, aborting...');
+          queryController.abort();
+        }, 8000); // 8 second timeout
+        
+        // Combine React Query signal with our timeout signal
+        const combinedSignal = signal ? (() => {
+          const combined = new AbortController();
+          signal.addEventListener('abort', () => combined.abort());
+          queryController.signal.addEventListener('abort', () => combined.abort());
+          return combined.signal;
+        })() : queryController.signal;
+
+        let buyersData, buyersError;
+        try {
+          console.log('🔍 useBuyersQuery: Executing buyers query...');
+          const result = await supabase
+            .from('buyers')
+            .select(`
+              id,
+              user_id,
+              buyer_name,
+              email,
+              dealer_name,
+              dealer_id,
+              buyer_mobile,
+              buyer_phone,
+              city,
+              state,
+              zip_code,
+              address,
+              phone_carrier,
+              phone_validation_status
+            `)
+            .is('deleted_at', null)
+            .abortSignal(combinedSignal)
+            .order('created_at', { ascending: false });
+          
+          clearTimeout(queryTimeout);
+          console.log('✅ useBuyersQuery: Query completed', { 
+            hasData: !!result?.data, 
+            hasError: !!result?.error,
+            dataLength: result?.data?.length 
+          });
+          
+          buyersData = result.data;
+          buyersError = result.error;
+        } catch (queryError: any) {
+          clearTimeout(queryTimeout);
+          console.error('❌ useBuyersQuery: Query error', queryError);
+          
+          // Check if it was aborted (timeout or cancellation)
+          if (queryError?.name === 'AbortError' || 
+              queryError?.code === '20' || 
+              queryError?.message?.includes('aborted') ||
+              queryController.signal.aborted) {
+            console.warn('⚠️ useBuyersQuery: Query was aborted/timed out - returning empty array');
+            return []; // Return empty array on timeout/abort
+          }
+          throw queryError;
+        }
 
         if (buyersError) {
           console.error("Buyer fetch error:", buyersError);
@@ -60,13 +100,35 @@ export const useBuyersQuery = () => {
           return [];
         }
 
-        // Fetch bid response counts for all buyers
-        const { data: bidCounts, error: countsError } = await supabase
-          .from('bid_responses')
-          .select('buyer_id, status');
-
-        if (countsError) {
-          console.error("Bid counts fetch error:", countsError);
+        // Fetch bid response counts for all buyers (with timeout to prevent hanging)
+        let bidCounts = null;
+        let countsError = null;
+        try {
+          console.log('🔍 useBuyersQuery: Fetching bid counts...');
+          const countsPromise = supabase
+            .from('bid_responses')
+            .select('buyer_id, status');
+          
+          const countsTimeout = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Bid counts query timeout')), 5000)
+          );
+          
+          const countsResult = await Promise.race([countsPromise, countsTimeout]) as any;
+          bidCounts = countsResult.data;
+          countsError = countsResult.error;
+          
+          if (countsError) {
+            console.warn("⚠️ Bid counts fetch error (non-critical):", countsError);
+          } else {
+            console.log('✅ useBuyersQuery: Bid counts fetched successfully');
+          }
+        } catch (timeoutError: any) {
+          if (timeoutError?.message?.includes('timeout')) {
+            console.warn('⚠️ Bid counts query timed out (non-critical, continuing without counts)');
+            bidCounts = null; // Continue without counts
+          } else {
+            console.error("Bid counts fetch error:", timeoutError);
+          }
         }
 
         // Calculate counts per buyer
@@ -153,8 +215,9 @@ export const useBuyersQuery = () => {
         throw error;
       }
     },
-    enabled: !!currentUser,
+    enabled: !!currentUser?.id, // Only run if we have a user ID
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes cache time
     retry: (failureCount, error: any) => {
       // Don't retry aborted queries or auth errors
       if (error?.message?.includes('JWT') || 

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import VinSection from "./VinSection";
+import VehicleSummaryDisplay from "./components/VehicleSummaryDisplay"; // ✅ ADD THIS IMPORT
 import { TrimOption } from "./types";
 import { vinService } from "@/services/vinService";
 
@@ -200,9 +201,35 @@ const BasicVehicleInfo = ({
     }
   };
 
+  // ✅ ADD THIS: Check if vehicle is fully decoded AND trim is selected
+  const isFullyDecoded = !!(
+    formData.year && 
+    formData.make && 
+    formData.model && 
+    formData.availableTrims?.length > 0 && 
+    formData.displayTrim
+  );
+
   return (
     <div className="space-y-4">
-      {/* Single section: VIN input + Vehicle dropdowns with smart display logic */}
+      {/* Show summary view when fully decoded and trim selected - ABOVE VinSection */}
+      {isFullyDecoded && (
+        <VehicleSummaryDisplay 
+          year={formData.year}
+          make={formData.make}
+          model={formData.model}
+          trim={formData.displayTrim}
+          exteriorColor={formData.exteriorColor || '-'}
+          interiorColor={formData.interiorColor || '-'}
+          engine={formData.engineCylinders}
+          transmission={formData.transmission || '-'}
+          drivetrain={formData.drivetrain}
+          style={formData.displayTrim}
+          vin={formData.vin}
+        />
+      )}
+      
+      {/* VIN Input Section - Always show */}
       <VinSection
         vin={formData.vin}
         onChange={onChange}
@@ -216,6 +243,7 @@ const BasicVehicleInfo = ({
         onModelChange={handleDropdownChange('model')}
         onTrimChange={handleTrimChange}
         onTrimsUpdate={handleTrimsUpdate}
+        hideDropdowns={isFullyDecoded}
       />
     </div>
   );
