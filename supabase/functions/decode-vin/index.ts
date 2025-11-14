@@ -121,21 +121,61 @@ Deno.serve(async (req) => {
       }
       
       // All fields present, proceed with lookup
-      console.log(`✅ EDGE FUNCTION: Received make_model_id lookup request for: ${body.year} ${body.make} ${body.model}`);
+      const lookupId = `EDGE_LOOKUP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      console.log(`✅ [${lookupId}] EDGE FUNCTION: Received make_model_id lookup request for: ${body.year} ${body.make} ${body.model}`);
+      console.log(`🔍 [${lookupId}] Request details:`, {
+        year: body.year,
+        make: body.make,
+        model: body.model,
+        yearType: typeof body.year,
+        makeType: typeof body.make,
+        modelType: typeof body.model,
+        makeLength: body.make?.length,
+        modelLength: body.model?.length,
+        makeTrimmed: body.make?.trim(),
+        modelTrimmed: body.model?.trim()
+      });
+      
+      // Case normalization function
+      const toTitleCase = (str: string): string => {
+        return str
+          .toLowerCase()
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      };
+      
+      // Normalize make and model for CarAPI (which uses title case)
+      const normalizedMake = toTitleCase(body.make);
+      const normalizedModel = toTitleCase(body.model);
+      
+      // Special handling for all-caps brands
+      const allCapsBrands = ['BMW', 'GMC', 'MINI'];
+      const finalMake = allCapsBrands.includes(body.make.toUpperCase()) ? body.make.toUpperCase() : normalizedMake;
+      
+      console.log(`🔄 [${lookupId}] Case normalization:`, {
+        originalMake: body.make,
+        normalizedMake: normalizedMake,
+        finalMake: finalMake,
+        originalModel: body.model,
+        normalizedModel: normalizedModel
+      });
       
       try {
         // Get JWT token for CarAPI
         const jwtToken = await getValidJWTToken();
         if (!jwtToken) {
-          console.error('Failed to obtain JWT token for make_model_id lookup');
+          console.error(`❌ [${lookupId}] Failed to obtain JWT token for make_model_id lookup`);
           return new Response(JSON.stringify({ error: 'Authentication failed' }), {
             status: 500,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
 
-        // Fetch models from CarAPI to get make_model_id
-        const modelsResponse = await fetchData<any>(`https://carapi.app/api/models?year=${body.year}&make=${encodeURIComponent(body.make)}`, {
+        // Fetch models from CarAPI to get make_model_id (use normalized make)
+        const carApiUrl = `https://carapi.app/api/models?year=${body.year}&make=${encodeURIComponent(finalMake)}`;
+        console.log(`🔍 [${lookupId}] Calling CarAPI with normalized make:`, carApiUrl);
+        const modelsResponse = await fetchData<any>(carApiUrl, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -143,34 +183,85 @@ Deno.serve(async (req) => {
           }
         });
 
+        console.log(`🔍 [${lookupId}] CarAPI response type:`, typeof modelsResponse);
+        console.log(`🔍 [${lookupId}] CarAPI response is array:`, Array.isArray(modelsResponse));
+        console.log(`🔍 [${lookupId}] CarAPI response keys:`, modelsResponse && typeof modelsResponse === 'object' ? Object.keys(modelsResponse) : 'N/A');
+
         // Extract models array from response
         let modelsArray: any[] = [];
         if (Array.isArray(modelsResponse)) {
           modelsArray = modelsResponse;
+          console.log(`✅ [${lookupId}] Models array extracted directly (array response), count:`, modelsArray.length);
         } else if (modelsResponse && Array.isArray(modelsResponse.data)) {
           modelsArray = modelsResponse.data;
+          console.log(`✅ [${lookupId}] Models array extracted from .data property, count:`, modelsArray.length);
         } else if (modelsResponse && Array.isArray(modelsResponse.collection)) {
           modelsArray = modelsResponse.collection;
+          console.log(`✅ [${lookupId}] Models array extracted from .collection property, count:`, modelsArray.length);
+        } else {
+          console.warn(`⚠️ [${lookupId}] Could not extract models array from response:`, JSON.stringify(modelsResponse, null, 2).substring(0, 500));
         }
 
-        // Find matching model by name (case-insensitive, flexible matching)
+        console.log(`🔍 [${lookupId}] Available models from CarAPI (first 10):`, modelsArray.slice(0, 10).map((m: any) => ({
+          name: m.name || m.model || m.ModelName,
+          make_model_id: m.make_model_id,
+          id: m.id
+        })));
+        console.log(`🔍 [${lookupId}] All available model names from CarAPI:`, modelsArray.map((m: any) => m.name || m.model || m.ModelName));
+        console.log(`🔍 [${lookupId}] Searching for model:`, {
+          original: body.model,
+          normalized: normalizedModel,
+          normalizedUppercase: normalizedModel.toUpperCase()
+        });
+
+        // Find matching model by name (case-insensitive, using normalized model)
         const matchingModel = modelsArray.find((m: any) => {
-          const modelName = (m.name || m.model || m.ModelName || '').toUpperCase();
-          const searchModel = (body.model || '').toUpperCase();
-          return modelName === searchModel || 
-                 modelName.includes(searchModel) || 
-                 searchModel.includes(modelName);
+          const carApiModelName = (m.name || m.model || m.ModelName || '').trim();
+          const carApiModelNameUpper = carApiModelName.toUpperCase();
+          const searchModelUpper = normalizedModel.toUpperCase();
+          
+          // Try exact match first (case-insensitive)
+          const exactMatch = carApiModelNameUpper === searchModelUpper;
+          
+          // Try includes match (case-insensitive)
+          const includesMatch = carApiModelNameUpper.includes(searchModelUpper) || searchModelUpper.includes(carApiModelNameUpper);
+          
+          if (exactMatch || includesMatch) {
+            console.log(`✅ [${lookupId}] MATCH FOUND:`, {
+              carApiModelName: carApiModelName,
+              searchModelOriginal: body.model,
+              searchModelNormalized: normalizedModel,
+              exactMatch,
+              includesMatch,
+              make_model_id: m.make_model_id
+            });
+          }
+          
+          return exactMatch || includesMatch;
         });
 
         if (!matchingModel || !matchingModel.make_model_id) {
-          console.log('make_model_id not found for model:', body.model);
+          console.warn(`⚠️⚠️⚠️ [${lookupId}] ❌❌❌ make_model_id not found for model:`, {
+            original: body.model,
+            normalized: normalizedModel,
+            normalizedUppercase: normalizedModel.toUpperCase()
+          });
+          console.warn(`⚠️⚠️⚠️ [${lookupId}] Available model names from CarAPI:`, modelsArray.map((m: any) => m.name || m.model || m.ModelName));
+          console.warn(`⚠️⚠️⚠️ [${lookupId}] Available model names (uppercase):`, modelsArray.map((m: any) => (m.name || m.model || m.ModelName || '').toUpperCase()));
+          console.warn(`⚠️⚠️⚠️ [${lookupId}] This will cause fallback to NHTSA or generic trims`);
           return new Response(JSON.stringify({ make_model_id: null }), {
             status: 200,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
 
-        console.log(`Found make_model_id: ${matchingModel.make_model_id} for ${body.year} ${body.make} ${body.model}`);
+        console.log(`✅ [${lookupId}] Found make_model_id: ${matchingModel.make_model_id} for ${body.year} ${finalMake} ${normalizedModel}`);
+        console.log(`✅ [${lookupId}] Matched model details:`, {
+          carApiModelName: matchingModel.name || matchingModel.model || matchingModel.ModelName,
+          searchModelOriginal: body.model,
+          searchModelNormalized: normalizedModel,
+          make_model_id: matchingModel.make_model_id
+        });
         return new Response(JSON.stringify({ make_model_id: matchingModel.make_model_id }), {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -557,19 +648,6 @@ Deno.serve(async (req) => {
       });
 
       console.log('GT3 RS detection results:', { isGT3RS, hasGT3RS });
-
-      // Force add GT3 RS for testing
-      if (!hasGT3RS) {
-        console.log('Adding GT3 RS trim to list');
-        processedTrims = [
-          {
-            name: 'GT3 RS',
-            description: 'GT3 RS 2dr Coupe (4.0L 6cyl 7AM)',
-            year: Number(vehicleData.year)
-          },
-          ...processedTrims
-        ];
-      }
     }
 
     console.log('Final trims after processing:', processedTrims);

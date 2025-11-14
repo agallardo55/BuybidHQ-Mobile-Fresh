@@ -31,6 +31,9 @@ export function useVinDecoder() {
     try {
       const result = await vinService.decodeVin(vin);
       
+      // ✅ DIAGNOSTIC LOGGING: Raw VIN decode result
+      console.log('🔍🔍🔍 RAW VIN DECODE RESULT:', JSON.stringify(result, null, 2));
+      
       if (result.success && result.data) {
         const vehicleData = result.data;
         const availableTrims = vehicleData.availableTrims || [];
@@ -39,6 +42,23 @@ export function useVinDecoder() {
         // If vinService didn't find a match, selectedTrim will be null
         const selectedTrim = vehicleData.selectedTrim || 
           (availableTrims.length === 1 ? availableTrims[0] : null);
+        
+        // 🔍 DEBUG: Log vehicleData after decode
+        console.log('🔍 useVinDecoder: vehicleData after decode:', {
+          displayTrim: vehicleData.displayTrim,
+          trim: vehicleData.trim,
+          availableTrimsCount: availableTrims.length,
+          selectedTrim: selectedTrim ? {
+            name: selectedTrim.name,
+            description: selectedTrim.description,
+            getDisplayTrim: vinService.getDisplayTrim(selectedTrim)
+          } : null,
+          availableTrimsDisplayValues: availableTrims.map(t => ({
+            name: t.name,
+            description: t.description,
+            getDisplayTrim: vinService.getDisplayTrim(t)
+          }))
+        });
         
         // ✅ FIX: Use functional update to ensure we get the latest state
         setState(prevState => {
