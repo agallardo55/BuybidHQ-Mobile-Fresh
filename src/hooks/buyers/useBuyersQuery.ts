@@ -22,69 +22,28 @@ export const useBuyersQuery = () => {
 
         console.log("🔍 useBuyersQuery: Fetching buyers for user:", currentUser.id, "role:", currentUser?.role);
 
-        // Fetch buyers data with timeout to prevent hanging
-        const queryController = new AbortController();
-        const queryTimeout = setTimeout(() => {
-          console.warn('⚠️ useBuyersQuery: Query timeout reached, aborting...');
-          queryController.abort();
-        }, 8000); // 8 second timeout
-        
-        // Combine React Query signal with our timeout signal
-        const combinedSignal = signal ? (() => {
-          const combined = new AbortController();
-          signal.addEventListener('abort', () => combined.abort());
-          queryController.signal.addEventListener('abort', () => combined.abort());
-          return combined.signal;
-        })() : queryController.signal;
-
-        let buyersData, buyersError;
-        try {
-          console.log('🔍 useBuyersQuery: Executing buyers query...');
-          const result = await supabase
-            .from('buyers')
-            .select(`
-              id,
-              user_id,
-              buyer_name,
-              email,
-              dealer_name,
-              dealer_id,
-              buyer_mobile,
-              buyer_phone,
-              city,
-              state,
-              zip_code,
-              address,
-              phone_carrier,
-              phone_validation_status
-            `)
-            .is('deleted_at', null)
-            .abortSignal(combinedSignal)
-            .order('created_at', { ascending: false });
-          
-          clearTimeout(queryTimeout);
-          console.log('✅ useBuyersQuery: Query completed', { 
-            hasData: !!result?.data, 
-            hasError: !!result?.error,
-            dataLength: result?.data?.length 
-          });
-          
-          buyersData = result.data;
-          buyersError = result.error;
-        } catch (queryError: any) {
-          clearTimeout(queryTimeout);
-          console.error('❌ useBuyersQuery: Query error', queryError);
-          
-          // Check if it was aborted (timeout or cancellation)
-          if (queryError?.name === 'AbortError' || 
-              queryError?.code === '20' || 
-              queryError?.message?.includes('aborted') ||
-              queryController.signal.aborted) {
-            console.warn('⚠️ useBuyersQuery: Query was aborted/timed out - returning empty array');
-            return []; // Return empty array on timeout/abort
-          }
-          throw queryError;
-        }
+        // Fetch buyers data - add proper error handling for 406
+        const { data: buyersData, error: buyersError } = await supabase
+          .from('buyers')
+          .select(`
+            id,
+            user_id,
+            buyer_name,
+            email,
+            dealer_name,
+            dealer_id,
+            buyer_mobile,
+            buyer_phone,
+            city,
+            state,
+            zip_code,
+            address,
+            phone_carrier,
+            phone_validation_status
+          `)
+          .is('deleted_at', null)
+          .abortSignal(signal as AbortSignal)
+          .order('created_at', { ascending: false });
 
         if (buyersError) {
           console.error("Buyer fetch error:", buyersError);
@@ -100,35 +59,17 @@ export const useBuyersQuery = () => {
           return [];
         }
 
-        // Fetch bid response counts for all buyers (with timeout to prevent hanging)
-        let bidCounts = null;
-        let countsError = null;
-        try {
-          console.log('🔍 useBuyersQuery: Fetching bid counts...');
-          const countsPromise = supabase
-            .from('bid_responses')
-            .select('buyer_id, status');
-          
-          const countsTimeout = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Bid counts query timeout')), 5000)
-          );
-          
-          const countsResult = await Promise.race([countsPromise, countsTimeout]) as any;
-          bidCounts = countsResult.data;
-          countsError = countsResult.error;
-          
-          if (countsError) {
-            console.warn("⚠️ Bid counts fetch error (non-critical):", countsError);
-          } else {
-            console.log('✅ useBuyersQuery: Bid counts fetched successfully');
-          }
-        } catch (timeoutError: any) {
-          if (timeoutError?.message?.includes('timeout')) {
-            console.warn('⚠️ Bid counts query timed out (non-critical, continuing without counts)');
-            bidCounts = null; // Continue without counts
-          } else {
-            console.error("Bid counts fetch error:", timeoutError);
-          }
+        // Fetch bid response counts for all buyers
+        const { data: bidCounts, error: countsError } = await supabase
+          .from('bid_responses')
+          .select('buyer_id, status')
+          .returns<Array<{
+            buyer_id: string;
+            status: 'accepted' | 'pending' | 'declined';
+          }>>();
+
+        if (countsError) {
+          console.error("Bid counts fetch error:", countsError);
         }
 
         // Calculate counts per buyer
@@ -146,26 +87,9 @@ export const useBuyersQuery = () => {
           });
         }
 
-        const data = buyersData;
-        const error = buyersError;
+        console.log("Raw buyers data:", buyersData);
 
-        if (error) {
-          console.error("Buyer fetch error:", error);
-          if (error.code === 'PGRST116') {
-            navigate('/signin');
-            return [];
-          }
-          throw error;
-        }
-
-        if (!data) {
-          console.log("No data returned from query");
-          return [];
-        }
-
-        console.log("Raw buyers data:", data);
-
-        const typedData = data as unknown as BuyerResponse[];
+        const typedData = buyersData as unknown as BuyerResponse[];
         const mappedBuyers: MappedBuyer[] = typedData.map(buyer => {
           console.log("Mapping buyer data:", buyer);
           
@@ -187,6 +111,7 @@ export const useBuyersQuery = () => {
             city: buyer.city || '',
             state: buyer.state || '',
             zipCode: buyer.zip_code || '',
+            phoneCarrier: buyer.phone_carrier || '',
             acceptedBids: countsMap.get(buyer.id)?.accepted || 0,
             pendingBids: countsMap.get(buyer.id)?.pending || 0,
             declinedBids: countsMap.get(buyer.id)?.declined || 0,

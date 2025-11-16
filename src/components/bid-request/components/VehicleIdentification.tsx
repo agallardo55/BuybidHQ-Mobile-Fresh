@@ -1,12 +1,9 @@
-import { useState } from "react";
-import FormField from "./FormField";
+import { useState, useEffect } from "react";
 import DropdownField from "./DropdownField";
 import VinSection from "../VinSection";
 import { TrimOption } from "../types";
 import TrimDropdown from "./TrimDropdown";
-import { vinService } from "@/services/vinService";
-import { toast } from 'sonner';
-import VehicleSummaryDisplay from "./VehicleSummaryDisplay";
+import { vinService, type TrimOption as VinServiceTrimOption } from "@/services/vinService";
 
 interface VehicleIdentificationProps {
   formData: {
@@ -17,11 +14,9 @@ interface VehicleIdentificationProps {
     displayTrim: string;
     vin: string;
     availableTrims: TrimOption[];
-    exteriorColor?: string;
-    interiorColor?: string;
-    engineCylinders: string;
-    transmission: string;
-    drivetrain: string;
+    drivetrain?: string;
+    engineCylinders?: string;
+    transmission?: string;
   };
   errors: {
     year?: string;
@@ -43,6 +38,7 @@ interface VehicleIdentificationProps {
     availableTrims: TrimOption[];
   }) => void;
   onSelectChange: (value: string, name: string) => void;
+  onBatchChange?: (changes: Array<{ name: string; value: any }>) => void;
   showValidation?: boolean;
 }
 
@@ -52,17 +48,102 @@ const VehicleIdentification = ({
   onChange,
   onVehicleDataFetched,
   onSelectChange,
+  onBatchChange,
   showValidation
 }: VehicleIdentificationProps) => {
   // Use derived state: VIN decode succeeded if we have vehicle data
   const vinDecodedSuccessfully = !!(formData.year && formData.make && formData.model && formData.availableTrims?.length > 0);
+  
+  // Track if trims came from VIN decode to prevent fetching on manual changes
+  const [trimsSource, setTrimsSource] = useState<'vin' | 'manual' | null>(null);
+  const [isLoadingTrims, setIsLoadingTrims] = useState(false);
 
   // Add debug logging for the callback
   const handleVehicleDataFetched = (data: any) => {
     console.log('📦 VehicleIdentification handleVehicleDataFetched called with:', data);
+    console.log('📦 VehicleIdentification: data.displayTrim:', data.displayTrim);
+    console.log('📦 VehicleIdentification: data.availableTrims:', data.availableTrims?.map((t: any) => ({
+      name: t.name,
+      description: t.description,
+      getDisplayTrim: vinService.getDisplayTrim(t)
+    })));
     console.log('📦 Current formData before update:', formData);
+    // Mark trims as coming from VIN decode
+    setTrimsSource('vin');
     onVehicleDataFetched(data);
   };
+  
+  // 🔍 FIX: Fetch trims when year/make/model changes (manual selection)
+  useEffect(() => {
+    const timestamp = new Date().toISOString();
+    console.log(`🕐 [${timestamp}] VehicleIdentification useEffect triggered:`, {
+      year: formData.year,
+      make: formData.make,
+      model: formData.model,
+      trimsSource,
+      isLoadingTrims,
+      vinDecodedSuccessfully,
+      hasOnBatchChange: !!onBatchChange,
+      availableTrimsCount: formData.availableTrims?.length || 0
+    });
+    
+    // Skip if VIN decode just populated trims
+    if (trimsSource === 'vin') {
+      console.log('⏭️ VehicleIdentification: Skipping trim fetch - trims from VIN decode');
+      setTrimsSource(null); // Reset for future manual changes
+      return;
+    }
+    
+    // Only fetch if all three are present and we have onBatchChange
+    if (formData.year && formData.make && formData.model && onBatchChange && !isLoadingTrims && !vinDecodedSuccessfully) {
+      console.log('🚀🚀🚀 MANUAL TRIM FETCH CALLED 🚀🚀🚀');
+      console.log('🚀 VehicleIdentification: Fetching trims for manual selection:', {
+        year: formData.year,
+        make: formData.make,
+        model: formData.model,
+        yearType: typeof formData.year,
+        makeType: typeof formData.make,
+        modelType: typeof formData.model,
+        makeLength: formData.make.length,
+        modelLength: formData.model.length,
+        makeTrimmed: formData.make.trim(),
+        modelTrimmed: formData.model.trim()
+      });
+      
+      setIsLoadingTrims(true);
+      setTrimsSource('manual');
+      
+      vinService.fetchTrimsByYearMakeModel(formData.year, formData.make, formData.model)
+        .then(trims => {
+          console.log('✅ VehicleIdentification: Received trims:', trims.length, 'trims');
+          console.log('✅ VehicleIdentification: Trim names:', trims.map(t => t.name));
+          console.log('✅ VehicleIdentification: First 3 trims:', JSON.stringify(trims.slice(0, 3), null, 2));
+          
+          // Update availableTrims via onBatchChange
+          onBatchChange([{ name: 'availableTrims', value: trims }]);
+          
+          // Clear displayTrim when new trims are fetched (user needs to select)
+          onSelectChange('', 'displayTrim');
+          onSelectChange('', 'trim');
+          
+          setIsLoadingTrims(false);
+        })
+        .catch(error => {
+          console.error('❌ VehicleIdentification: Error fetching trims:', error);
+          console.error('❌ VehicleIdentification: Error stack:', error.stack);
+          setIsLoadingTrims(false);
+        });
+    } else {
+      console.log('⏭️ VehicleIdentification: Skipping trim fetch - conditions not met:', {
+        hasYear: !!formData.year,
+        hasMake: !!formData.make,
+        hasModel: !!formData.model,
+        hasOnBatchChange: !!onBatchChange,
+        isLoadingTrims,
+        vinDecodedSuccessfully
+      });
+    }
+  }, [formData.year, formData.make, formData.model]); // Only watch year/make/model
 
   // Add comprehensive debug logging
   console.log('🔍 VIN Decode Debug:', {
@@ -84,6 +165,18 @@ const VehicleIdentification = ({
     trimsLength: formData.availableTrims?.length,
     result: vinDecodedSuccessfully,
     rawFormData: formData,
+  });
+
+  // 🔍 DEBUG: Log trim dropdown matching
+  console.log('🔍 Trim Dropdown Matching Debug:', {
+    formDataDisplayTrim: formData.displayTrim,
+    availableTrims: formData.availableTrims?.map(t => ({
+      name: t.name,
+      description: t.description,
+      getDisplayTrim: vinService.getDisplayTrim(t as VinServiceTrimOption),
+      matches: vinService.getDisplayTrim(t as VinServiceTrimOption) === formData.displayTrim
+    })),
+    trimDropdownSelectedTrim: formData.displayTrim || ''
   });
 
   // Generate dropdown options from available trims (Manheim style)
@@ -159,7 +252,7 @@ const VehicleIdentification = ({
   const handleTrimChange = async (value: string) => {
     // Find the selected trim to auto-populate related fields
     const selectedTrim = formData.availableTrims.find(trim => 
-      vinService.getDisplayTrim(trim) === value
+      vinService.getDisplayTrim(trim as VinServiceTrimOption) === value
     );
 
     if (!selectedTrim) {
@@ -171,7 +264,7 @@ const VehicleIdentification = ({
     }
 
     // Store both display and database values
-    const cleanedTrimValue = vinService.getDisplayTrim(selectedTrim);
+    const cleanedTrimValue = vinService.getDisplayTrim(selectedTrim as VinServiceTrimOption);
     onSelectChange(selectedTrim.name, 'trim'); // For database - use actual trim name
     onSelectChange(cleanedTrimValue, 'displayTrim'); // For dropdown display
 
@@ -254,32 +347,6 @@ const VehicleIdentification = ({
     }
   };
 
-  const handleEditManually = () => {
-    // Clear VIN to force manual entry
-    onChange({
-      target: { name: 'vin', value: '' }
-    } as React.ChangeEvent<HTMLInputElement>);
-    
-    // Clear vehicle data to reset derived state
-    onVehicleDataFetched({
-      year: '',
-      make: '',
-      model: '',
-      trim: '',
-      displayTrim: '',
-      engineCylinders: '',
-      transmission: '',
-      drivetrain: '',
-      availableTrims: []
-    });
-    
-    // Show toast message
-    toast.info('Switched to manual entry. Correct any incorrect information.');
-  };
-
-  // Check if vehicle is fully decoded AND trim is selected
-  const isFullyDecoded = vinDecodedSuccessfully && formData.displayTrim;
-  
   return (
     <div className="space-y-4">
       <VinSection 
@@ -288,81 +355,54 @@ const VehicleIdentification = ({
         error={errors.vin}
         onVehicleDataFetched={handleVehicleDataFetched}
         showValidation={showValidation}
-        onEditManually={handleEditManually}
-        onTrimChange={handleTrimChange}  // ✅ ADD THIS LINE
-        formData={formData}  // ✅ Also need to pass formData
-        errors={errors}  // ✅ And errors
-        onYearChange={handleDropdownChange('year')}  // ✅ And other handlers
-        onMakeChange={handleDropdownChange('make')}
-        onModelChange={handleDropdownChange('model')}
-        onTrimsUpdate={(trims) => {
-          // Handle trims update if needed
-        }}
       />
       
-      {/* Show summary view when fully decoded and trim selected */}
-      {isFullyDecoded ? (
-        <VehicleSummaryDisplay 
-          year={formData.year}
-          make={formData.make}
-          model={formData.model}
-          trim={formData.displayTrim}
-          exteriorColor={formData.exteriorColor || '-'}
-          interiorColor={formData.interiorColor || '-'}
-          engine={formData.engineCylinders}
-          transmission={formData.transmission || '-'}
-          drivetrain={formData.drivetrain}
-          style={formData.displayTrim} // or extract style from trim
-          vin={formData.vin}
-        />
-      ) : (
-        // Only show manual dropdowns if VIN decode hasn't succeeded
-        !vinDecodedSuccessfully && (
-          <>
-            {/* Year Dropdown */}
-            <DropdownField
-              id="year"
-              label="Year"
-              value={formData.year}
-              options={yearOptions}
-              onChange={handleDropdownChange('year')}
-              error={errors.year}
-              showValidation={showValidation}
-            />
+      {/* Dropdowns always visible, disabled when VIN decode succeeds */}
+      {/* Year Dropdown */}
+      <DropdownField
+        id="year"
+        label="Year"
+        value={formData.year}
+        options={yearOptions}
+        onChange={handleDropdownChange('year')}
+        error={errors.year}
+        showValidation={showValidation}
+        disabled={vinDecodedSuccessfully}
+      />
 
-            {/* Make Dropdown */}
-            <DropdownField
-              id="make"
-              label="Make"
-              value={formData.make}
-              options={makeOptions}
-              onChange={handleDropdownChange('make')}
-              error={errors.make}
-              showValidation={showValidation}
-            />
+      {/* Make Dropdown */}
+      <DropdownField
+        id="make"
+        label="Make"
+        value={formData.make}
+        options={makeOptions}
+        onChange={handleDropdownChange('make')}
+        error={errors.make}
+        showValidation={showValidation}
+        disabled={vinDecodedSuccessfully}
+      />
 
-            {/* Model Dropdown (Manheim Style - includes engine type) */}
-            <DropdownField
-              id="model"
-              label="Model"
-              value={formData.model}
-              options={modelOptions}
-              onChange={handleDropdownChange('model')}
-              error={errors.model}
-              showValidation={showValidation}
-            />
+      {/* Model Dropdown (Manheim Style - includes engine type) */}
+      <DropdownField
+        id="model"
+        label="Model"
+        value={formData.model}
+        options={modelOptions}
+        onChange={handleDropdownChange('model')}
+        error={errors.model}
+        showValidation={showValidation}
+        disabled={vinDecodedSuccessfully}
+      />
 
-            {/* Trim Dropdown (Body Style + Trim Level) */}
-            <TrimDropdown
-              trims={formData.availableTrims}
-              selectedTrim={formData.displayTrim || ''}
-              onTrimChange={handleTrimChange}
-              error={errors.trim}
-              showValidation={showValidation}
-            />
-          </>
-        )
-      )}
+      {/* Trim Dropdown (Body Style + Trim Level) */}
+      <TrimDropdown
+        trims={formData.availableTrims}
+        selectedTrim={formData.displayTrim || ''}
+        onTrimChange={handleTrimChange}
+        error={errors.trim}
+        showValidation={showValidation}
+        disabled={vinDecodedSuccessfully || isLoadingTrims}
+      />
     </div>
   );
 };

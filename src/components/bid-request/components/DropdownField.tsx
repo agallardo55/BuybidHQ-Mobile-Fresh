@@ -11,6 +11,7 @@ interface DropdownFieldProps {
   required?: boolean;
   placeholder?: string;
   showValidation?: boolean;
+  disabled?: boolean;
 }
 
 const DropdownField = ({
@@ -22,7 +23,8 @@ const DropdownField = ({
   error,
   required = true,
   placeholder = "Select...",
-  showValidation = false
+  showValidation = false,
+  disabled = false
 }: DropdownFieldProps) => {
   const isEmpty = required && value === "";
   const showError = error || (showValidation && isEmpty);
@@ -32,8 +34,8 @@ const DropdownField = ({
       <Label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
-      <Select value={value} onValueChange={onChange} name={id}>
-        <SelectTrigger id={id} name={id} className="w-full">
+      <Select value={value} onValueChange={onChange} name={id} disabled={disabled}>
+        <SelectTrigger id={id} name={id} className="w-full" disabled={disabled}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

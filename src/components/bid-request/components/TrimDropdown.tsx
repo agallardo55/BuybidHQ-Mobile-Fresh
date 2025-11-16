@@ -11,6 +11,7 @@ interface TrimDropdownProps {
   onTrimChange: (value: string) => void;
   error?: string;
   showValidation?: boolean;
+  disabled?: boolean;
 }
 
 const TrimDropdown = ({ 
@@ -18,17 +19,29 @@ const TrimDropdown = ({
   selectedTrim, 
   onTrimChange, 
   error, 
-  showValidation 
+  showValidation,
+  disabled = false
 }: TrimDropdownProps) => {
   const uniqueTrims = deduplicateTrims(trims);
   const hasMultipleTrims = uniqueTrims.length > 1;
   const placeholder = hasMultipleTrims ? "Choose one" : "Select Trim";
 
-  console.log('🔍 DROPDOWN DEBUG:', {
+  const displayValues = uniqueTrims.map(t => vinService.getDisplayTrim(t));
+  const matchesSelected = displayValues.includes(selectedTrim);
+
+  console.log('🔍 TrimDropdown DEBUG:', {
     selectedTrim,
-    itemValues: uniqueTrims.map(t => vinService.getDisplayTrim(t)),
-    trimCount: uniqueTrims.length,
-    hasMultipleTrims
+    selectedTrimType: typeof selectedTrim,
+    selectedTrimLength: selectedTrim?.length,
+    itemValues: displayValues,
+    matchesSelected,
+    trimsCount: uniqueTrims.length,
+    trims: uniqueTrims.map(t => ({
+      name: t.name,
+      description: t.description,
+      getDisplayTrim: vinService.getDisplayTrim(t),
+      matches: vinService.getDisplayTrim(t) === selectedTrim
+    }))
   });
 
   return (
@@ -40,11 +53,13 @@ const TrimDropdown = ({
         value={selectedTrim || ''} 
         onValueChange={onTrimChange}
         name="trim"
+        disabled={disabled}
       >
         <SelectTrigger 
           id="trim"
           name="trim"
           className={`w-full bg-white hover:bg-gray-50 transition-colors [&>span]:!line-clamp-none ${error && showValidation ? "border-red-500" : ""}`}
+          disabled={disabled}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

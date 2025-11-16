@@ -97,6 +97,20 @@ const VinSection = ({
       // Mark trims as coming from VIN decode
       setTrimsSource('vin');
       console.log('📥 VIN decode data received, setting trimsSource to "vin"');
+      console.log('📥 VinSection: vehicleData being passed to onVehicleDataFetched:', {
+        displayTrim: vehicleData.displayTrim,
+        trim: vehicleData.trim,
+        availableTrims: vehicleData.availableTrims?.map(t => ({
+          name: t.name,
+          description: t.description,
+          getDisplayTrim: vinService.getDisplayTrim(t)
+        })),
+        selectedTrim: vehicleData.selectedTrim ? {
+          name: vehicleData.selectedTrim.name,
+          description: vehicleData.selectedTrim.description,
+          getDisplayTrim: vinService.getDisplayTrim(vehicleData.selectedTrim)
+        } : null
+      });
       onVehicleDataFetched(vehicleData);
     }
   }, [vehicleData]);
