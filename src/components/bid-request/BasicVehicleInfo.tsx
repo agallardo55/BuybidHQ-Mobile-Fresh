@@ -47,6 +47,19 @@ const BasicVehicleInfo = ({
   const handleVehicleDataFetched = (data: any) => {
     console.log('BasicVehicleInfo: Received vehicle data:', data);
     
+    // 🔍 FIX: Ensure displayTrim is set from selectedTrim if it exists
+    // This ensures the dropdown pre-selects the matched trim after VIN decode
+    if (data.selectedTrim && !data.displayTrim) {
+      data.displayTrim = vinService.getDisplayTrim(data.selectedTrim);
+      console.log('BasicVehicleInfo: Set displayTrim from selectedTrim:', data.displayTrim);
+    }
+    
+    // Also ensure trim name is set from selectedTrim if missing
+    if (data.selectedTrim && !data.trim) {
+      data.trim = data.selectedTrim.name;
+      console.log('BasicVehicleInfo: Set trim from selectedTrim.name:', data.trim);
+    }
+    
     if (!onBatchChange) {
       console.log('BasicVehicleInfo: Using fallback onChange method');
       // Fallback for simple string values
@@ -72,6 +85,7 @@ const BasicVehicleInfo = ({
       .map(([name, value]) => ({ name, value }));
     
     console.log('BasicVehicleInfo: Applying batch changes:', changes);
+    console.log('BasicVehicleInfo: displayTrim in changes:', changes.find(c => c.name === 'displayTrim'));
     onBatchChange(changes);
   };
 

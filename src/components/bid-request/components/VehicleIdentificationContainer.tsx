@@ -1,5 +1,5 @@
 import React from "react";
-import { VehicleData } from "@/services/vinService";
+import { VehicleData, vinService } from "@/services/vinService";
 import VehicleIdentification from "./VehicleIdentification";
 import { TrimOption } from "../types";
 
@@ -37,6 +37,20 @@ const VehicleIdentificationContainer = ({
     console.log('VehicleIdentificationContainer: data.availableTrims:', data.availableTrims);
     console.log('VehicleIdentificationContainer: data.model:', data.model);
     console.log('VehicleIdentificationContainer: data.displayTrim:', data.displayTrim);
+    console.log('VehicleIdentificationContainer: data.selectedTrim:', data.selectedTrim);
+    
+    // 🔍 FIX: Ensure displayTrim is set from selectedTrim if it exists
+    // This ensures the dropdown pre-selects the matched trim after VIN decode
+    if (data.selectedTrim && !data.displayTrim) {
+      data.displayTrim = vinService.getDisplayTrim(data.selectedTrim);
+      console.log('VehicleIdentificationContainer: Set displayTrim from selectedTrim:', data.displayTrim);
+    }
+    
+    // Also ensure trim name is set from selectedTrim if missing
+    if (data.selectedTrim && !data.trim) {
+      data.trim = data.selectedTrim.name;
+      console.log('VehicleIdentificationContainer: Set trim from selectedTrim.name:', data.trim);
+    }
     
     if (!onBatchChange) {
       console.log('VehicleIdentificationContainer: Using fallback onChange method');
@@ -61,6 +75,7 @@ const VehicleIdentificationContainer = ({
       .map(([name, value]) => ({ name, value }));
     
     console.log('VehicleIdentificationContainer: Applying batch changes:', changes);
+    console.log('VehicleIdentificationContainer: displayTrim in changes:', changes.find(c => c.name === 'displayTrim'));
     onBatchChange(changes);
   };
 
@@ -71,6 +86,7 @@ const VehicleIdentificationContainer = ({
       onChange={onChange}
       onVehicleDataFetched={handleVehicleDataFetched}
       onSelectChange={onSelectChange}
+      onBatchChange={onBatchChange}
       showValidation={showValidation}
     />
   );

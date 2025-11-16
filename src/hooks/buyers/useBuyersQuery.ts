@@ -43,7 +43,7 @@ export const useBuyersQuery = () => {
             phone_validation_status
           `)
           .is('deleted_at', null)
-          .abortSignal(signal)
+          .abortSignal(signal as AbortSignal)
           .order('created_at', { ascending: false });
 
         if (buyersError) {
@@ -63,7 +63,11 @@ export const useBuyersQuery = () => {
         // Fetch bid response counts for all buyers
         const { data: bidCounts, error: countsError } = await supabase
           .from('bid_responses')
-          .select('buyer_id, status');
+          .select('buyer_id, status')
+          .returns<Array<{
+            buyer_id: string;
+            status: 'accepted' | 'pending' | 'declined';
+          }>>();
 
         if (countsError) {
           console.error("Bid counts fetch error:", countsError);
@@ -125,6 +129,7 @@ export const useBuyersQuery = () => {
             city: buyer.city || '',
             state: buyer.state || '',
             zipCode: buyer.zip_code || '',
+            phoneCarrier: buyer.phone_carrier || '',
             acceptedBids: countsMap.get(buyer.id)?.accepted || 0,
             pendingBids: countsMap.get(buyer.id)?.pending || 0,
             declinedBids: countsMap.get(buyer.id)?.declined || 0,

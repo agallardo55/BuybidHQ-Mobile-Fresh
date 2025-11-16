@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +31,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Guards to prevent concurrent/same-user enrichment
+  const enrichmentInProgress = useRef(false);
+  const lastEnrichmentUserId = useRef<string | null>(null);
+  // Prevent duplicate initialization and duplicate SIGNED_IN handling
+  const hasAuthInit = useRef(false);
+  const lastAuthEventUserId = useRef<string | null>(null);
+
   // Public method to enrich user after login (non-blocking)
   const enrichUserProfile = async () => {
     if (!user) return;
@@ -61,6 +68,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Helper function to enrich user with profile data and roles
   const enrichUserWithProfile = async (authUser: User): Promise<AuthUser> => {
+    // Guards to prevent concurrent or duplicate enrich calls
+    if (enrichmentInProgress.current) {
+      console.log('AuthContext: Enrichment already in progress, skipping duplicate call');
+      return user || ({ ...authUser } as AuthUser);
+    }
+    if (lastEnrichmentUserId.current === authUser.id && user?.id === authUser.id) {
+      console.log('AuthContext: User already enriched, skipping');
+      return user || ({ ...authUser } as AuthUser);
+    }
+    enrichmentInProgress.current = true;
+    lastEnrichmentUserId.current = authUser.id;
+
     console.log('AuthContext: Starting user enrichment for:', authUser.id);
     
     try {
@@ -74,7 +93,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const { data: profile, error: profileError } = await supabase
           .from('buybidhq_users')
-          .select('account_id, dealership_id, role')
+          .select('id, account_id, dealership_id, role')
+          // @ts-expect-error - Supabase type inference limitation for .eq()
           .eq('id', authUser.id)
           .abortSignal(controller.signal)
           .single();
@@ -85,9 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           
         if (profileError) {
           // Check if this was an abort/timeout error
-          const isAbortError = profileError.code === '20' || 
-                              profileError.message?.includes('aborted') ||
-                              profileError.name === 'AbortError';
+          const isAbortError = profileError.message?.includes('aborted');
           
           if (isAbortError) {
             console.warn('AuthContext: Profile query timed out (returning basic user)');
@@ -123,6 +141,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           } as AuthUser;
         }
 
+        // Type assertion: profile is guaranteed to exist here after null check
+        const userProfile = profile as {
+          role?: string;
+          account_id?: string;
+          dealership_id?: string;
+        };
+
         // Fetch user roles from secure user_roles table (optional)
         let highestRole = 'member';
         try {
@@ -132,14 +157,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           try {
             const { data: roles, error: rolesError } = await supabase
               .from('user_roles')
-              .select('role')
+              .select('role, user_id, is_active')
+              // @ts-expect-error - Supabase type inference limitation for .eq()
               .eq('user_id', authUser.id)
+              // @ts-expect-error - Supabase type inference limitation for .eq()
               .eq('is_active', true)
               .abortSignal(rolesController.signal);
 
             clearTimeout(rolesTimeoutId);
 
-            if (!rolesError && roles && !rolesController.signal.aborted) {
+            // Check abort signal before processing results
+            if (rolesController.signal.aborted) {
+              console.warn('AuthContext: Roles query was aborted');
+            } else if (!rolesError && roles && Array.isArray(roles)) {
               // Determine highest role (prioritize super_admin > account_admin > manager > member)
               const roleHierarchy = { 
                 member: 1, 
@@ -148,7 +178,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 super_admin: 4 
               };
               
-              highestRole = roles.reduce((highest, r) => {
+              // Type assertion: roles is an array after Array.isArray check
+              const validRoles = roles as Array<{ role: string; user_id: string; is_active: boolean }>;
+              highestRole = validRoles.reduce((highest, r) => {
                 const currentLevel = roleHierarchy[r.role as keyof typeof roleHierarchy] || 0;
                 const highestLevel = roleHierarchy[highest as keyof typeof roleHierarchy] || 0;
                 return currentLevel > highestLevel ? r.role : highest;
@@ -171,23 +203,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           ...authUser,
           app_metadata: {
             ...authUser.app_metadata,
-            role: profile.role, // Keep legacy role for backwards compatibility
+            role: userProfile.role, // Keep legacy role for backwards compatibility
             app_role: highestRole, // Use highest role from user_roles table
-            account_id: profile.account_id,
-            dealership_id: profile.dealership_id,
+            account_id: userProfile.account_id,
+            dealership_id: userProfile.dealership_id,
           }
         } as AuthUser;
-      } catch (queryError: any) {
+      } catch (queryError: unknown) {
         clearTimeout(timeoutId);
         
         // Handle timeout (AbortError when timeout triggers) or other query errors
-        if (queryError?.name === 'AbortError' || 
-            queryError?.code === '20' || 
-            queryError?.message?.includes('aborted') ||
-            queryError?.message?.includes('Query timeout')) {
+        const error = queryError as { name?: string; code?: string; message?: string };
+        if (error?.name === 'AbortError' || 
+            error?.message?.includes('aborted') ||
+            error?.message?.includes('Query timeout')) {
           console.warn('AuthContext: Profile query timed out (returning basic user)');
         } else {
-          console.warn('AuthContext: Profile query error:', queryError?.message || queryError);
+          console.warn('AuthContext: Profile query error:', error?.message || queryError);
         }
         
         // Return basic user as fallback
@@ -216,13 +248,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           dealership_id: null,
         }
       } as AuthUser;
+    } finally {
+      enrichmentInProgress.current = false;
     }
   };
 
   useEffect(() => {
-    let warningTimer: NodeJS.Timeout;
-    let refreshTimer: NodeJS.Timeout;
-    let timeoutId: NodeJS.Timeout;
+    // Guard: Initialize only once per mount (prevents duplicate listeners in StrictMode)
+    if (hasAuthInit.current) {
+      console.log('🔍 AuthContext: Already initialized, skipping');
+      return;
+    }
+    hasAuthInit.current = true;
+    console.log('🔍 AuthContext: useEffect started');
+    let warningTimer: ReturnType<typeof setTimeout>;
+    let refreshTimer: ReturnType<typeof setTimeout>;
+    let timeoutId: ReturnType<typeof setTimeout>;
     let hasCompleted = false;
 
     // Set a timeout to stop loading after 2 seconds max - don't block the app
@@ -322,6 +363,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         if (event === 'SIGNED_IN' && session?.user) {
+          // Guard: Skip duplicate SIGNED_IN for same user
+          if (lastAuthEventUserId.current === session.user.id) {
+            console.log('AuthContext: Duplicate SIGNED_IN ignored for', session.user.id);
+            return;
+          }
+          lastAuthEventUserId.current = session.user.id;
           console.log('AuthContext: Processing user from auth state change:', session.user.id);
           
           // Set user immediately without enrichment to avoid blocking login
@@ -362,19 +409,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthContext: User signed out');
-          setUser(null);
-          setSession(null);
-        } else if (event === 'TOKEN_REFRESHED' && session) {
-          console.log('AuthContext: Token refreshed');
-          setSession(session);
-          // Don't re-enrich on token refresh, just update session
-        } else if (event === 'TOKEN_REFRESH_FAILED') {
-          console.error('AuthContext: Token refresh failed, signing out');
-          await supabase.auth.signOut();
           localStorage.clear();
           setUser(null);
           setSession(null);
           navigate('/signin');
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          console.log('AuthContext: Token refreshed');
+          setSession(session);
+          // Don't re-enrich on token refresh, just update session
         } else if (event === 'USER_UPDATED' && session?.user) {
           console.log('AuthContext: User updated');
           
@@ -437,6 +479,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (warningTimer) clearTimeout(warningTimer);
       if (refreshTimer) clearTimeout(refreshTimer);
       if (timeoutId) clearTimeout(timeoutId);
+      hasAuthInit.current = false;
+      lastAuthEventUserId.current = null;
     };
   }, [navigate]);
 

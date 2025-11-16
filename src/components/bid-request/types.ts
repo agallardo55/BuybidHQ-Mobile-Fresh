@@ -92,6 +92,7 @@ export interface BidRequest {
 export interface TrimOption {
   name: string;
   description: string;
+  year: number;
   specs?: {
     engine?: string;
     transmission?: string;
