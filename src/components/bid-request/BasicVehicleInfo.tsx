@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import VinSection from "./VinSection";
 import VehicleSummaryDisplay from "./components/VehicleSummaryDisplay"; // ✅ ADD THIS IMPORT
 import { TrimOption } from "./types";
@@ -45,7 +45,7 @@ const BasicVehicleInfo = ({
 }: BasicVehicleInfoProps) => {
   
   // Handle VIN decoding - preserves all specs (engineCylinders, transmission, drivetrain)
-  const handleVehicleDataFetched = (data: any) => {
+  const handleVehicleDataFetched = useCallback((data: any) => {
     console.log('BasicVehicleInfo: Received vehicle data:', data);
     
     // 🔍 FIX: Ensure displayTrim is set from selectedTrim if it exists
@@ -88,22 +88,22 @@ const BasicVehicleInfo = ({
     console.log('BasicVehicleInfo: Applying batch changes:', changes);
     console.log('BasicVehicleInfo: displayTrim in changes:', changes.find(c => c.name === 'displayTrim'));
     onBatchChange(changes);
-  };
+  }, [onBatchChange, onChange]);
 
   // Handle dropdown changes
-  const handleDropdownChange = (field: string) => (value: string) => {
+  const handleDropdownChange = useCallback((field: string) => (value: string) => {
     const syntheticEvent = {
       target: { name: field, value: value }
     } as React.ChangeEvent<HTMLInputElement>;
     onChange(syntheticEvent);
-  };
+  }, [onChange]);
 
   // Cache specs by trim to prevent duplicate API calls
   const [specsCache, setSpecsCache] = useState<Record<string, { engine: string; transmission: string; drivetrain: string }>>({});
   const [loadingSpecs, setLoadingSpecs] = useState(false);
 
   // Handle trim change with auto-population and fallback priority
-  const handleTrimChange = async (value: string) => {
+  const handleTrimChange = useCallback(async (value: string) => {
     console.log('🔍 TRIM DEBUG:', {
       receivedValue: value,
       availableTrims: formData.availableTrims?.length,
@@ -206,14 +206,14 @@ const BasicVehicleInfo = ({
         setLoadingSpecs(false);
       }
     }
-  };
+  }, [formData.year, formData.make, formData.model, formData.availableTrims, formData.displayTrim, formData.drivetrain, onSelectChange, specsCache]);
 
   // Handle trims update from manual selection
-  const handleTrimsUpdate = (trims: TrimOption[]) => {
+  const handleTrimsUpdate = useCallback((trims: TrimOption[]) => {
     if (onBatchChange) {
       onBatchChange([{ name: 'availableTrims', value: trims }]);
     }
-  };
+  }, [onBatchChange]);
 
   // ✅ ADD THIS: Check if vehicle is fully decoded AND trim is selected
   const isFullyDecoded = !!(

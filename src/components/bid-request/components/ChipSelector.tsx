@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { LucideIcon } from "lucide-react";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 
 interface ChipOption {
   value: string;
@@ -41,10 +41,18 @@ const ChipSelector = ({
     return [];
   };
 
-  const selectedArray = parseSelectedValues();
+  const selectedArray = useMemo(() => parseSelectedValues(), [selectedValues]);
 
-  const handleChipClick = (value: string) => {
-    const currentSelected = parseSelectedValues();
+  const handleChipClick = useCallback((value: string) => {
+    // Parse selectedValues inline to avoid stale closure
+    let currentSelected: string[];
+    if (Array.isArray(selectedValues)) {
+      currentSelected = selectedValues.filter(Boolean);
+    } else if (typeof selectedValues === 'string' && selectedValues.trim() !== '') {
+      currentSelected = selectedValues.split(',').map(v => v.trim()).filter(Boolean);
+    } else {
+      currentSelected = [];
+    }
     
     // Toggle selection
     if (currentSelected.includes(value)) {
@@ -56,7 +64,7 @@ const ChipSelector = ({
       const newSelected = [...currentSelected, value];
       onChange(newSelected, name);
     }
-  };
+  }, [selectedValues, onChange, name]);
 
   return (
     <div>

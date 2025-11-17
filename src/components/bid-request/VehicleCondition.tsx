@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
 import autocheckImage from "@/assets/autocheck.png";
 import carfaxImage from "@/assets/carfax_logo.svg";
@@ -142,11 +142,11 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   };
 
   // Handle chip selection changes - convert array to comma-separated string
-  const handleChipChange = (selectedValues: string[], fieldName: string) => {
+  const handleChipChange = useCallback((selectedValues: string[], fieldName: string) => {
     // Convert array to comma-separated string for formData storage
     const valueString = selectedValues.length > 0 ? selectedValues.join(',') : '';
     onSelectChange(valueString, fieldName);
-  };
+  }, [onSelectChange]);
 
   // Parse quadrant data from string format (for backward compatibility)
   const parseQuadrantData = (value: string): { frontLeft: number | null; frontRight: number | null; rearLeft: number | null; rearRight: number | null } => {

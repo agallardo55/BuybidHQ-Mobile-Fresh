@@ -5,7 +5,7 @@ import MultiStepForm from "@/components/bid-request/MultiStepForm";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -103,24 +103,20 @@ const CreateBidRequest = () => {
   }
 
   // Map buyers to the format expected by the components
-  const mappedBuyers = useMemo(() => 
-    buyers?.map(buyer => ({
-      id: buyer.id,
-      name: buyer.name,
-      dealership: buyer.dealership,
-      mobile: buyer.mobileNumber,
-      email: buyer.email
-    })) || []
-  , [buyers]);
+  const mappedBuyers = buyers?.map(buyer => ({
+    id: buyer.id,
+    name: buyer.name,
+    dealership: buyer.dealership,
+    mobile: buyer.mobileNumber,
+    email: buyer.email
+  })) || [];
 
-  const filteredBuyers = useMemo(() =>
-    mappedBuyers.filter(buyer => 
-      buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (buyer.dealership && buyer.dealership.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-  , [mappedBuyers, searchTerm]);
+  const filteredBuyers = mappedBuyers.filter(buyer => 
+    buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (buyer.dealership && buyer.dealership.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = () => {
     if (!currentUser?.id) {
       toast.error("User not found. Please try signing out and back in.");
       return;
@@ -130,10 +126,10 @@ const CreateBidRequest = () => {
       return;
     }
     handleSubmit(currentUser.id, currentUser.account_id);
-  }, [currentUser?.id, currentUser?.account_id, handleSubmit]);
+  };
 
   // Handler for image deletion
-  const handleDeleteImage = useCallback(async (url: string, isUploaded: boolean) => {
+  const handleDeleteImage = async (url: string, isUploaded: boolean) => {
     if (isUploaded) {
       try {
         await removeUploadedImage(url);
@@ -143,7 +139,7 @@ const CreateBidRequest = () => {
         console.error('Error deleting image:', error);
       }
     }
-  }, [removeUploadedImage, setUploadedImageUrls, uploadedImageUrls]);
+  };
 
   console.log('🔴 CreateBidRequest: About to return JSX', Date.now());
 
