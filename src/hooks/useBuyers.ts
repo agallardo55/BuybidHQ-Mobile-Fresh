@@ -1,4 +1,5 @@
 
+import { useCallback } from 'react';
 import { useBuyersQuery } from "./buyers/useBuyersQuery";
 import { useBuyersMutations } from "./buyers/useBuyersMutations";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +9,7 @@ export const useBuyers = () => {
   const { data: buyers = [], isLoading } = useBuyersQuery();
   const { createBuyer, updateBuyer, deleteBuyer } = useBuyersMutations();
 
-  const validateCarrier = async (userId: string, phoneNumber: string) => {
+  const validateCarrier = useCallback(async (userId: string, phoneNumber: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('validate-carrier', {
         body: { user_id: userId, phone_number: phoneNumber }
@@ -27,7 +28,7 @@ export const useBuyers = () => {
       toast.error('An error occurred during carrier validation');
       return null;
     }
-  };
+  }, []);
 
   return {
     buyers,

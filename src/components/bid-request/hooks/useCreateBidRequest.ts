@@ -1,4 +1,5 @@
 
+import { useMemo } from 'react';
 import { useFormState } from "./useFormState";
 import { useFormValidation } from "./useFormValidation";
 import { useBidRequestSubmission } from "./useBidRequestSubmission";
@@ -37,9 +38,9 @@ export const useCreateBidRequest = () => {
     }
   };
 
-  return {
+  return useMemo(() => ({
     ...formState,
     handleSubmit,
     handleBatchChanges: formState.handleBatchChanges, // Explicitly expose handleBatchChanges
-  };
+  }), [formState, handleSubmit]);
 };

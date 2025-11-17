@@ -5,11 +5,13 @@ import MultiStepForm from "@/components/bid-request/MultiStepForm";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const CreateBidRequest = () => {
+  console.log('🔴 CreateBidRequest: COMPONENT CALLED', Date.now());
+  
   const { currentUser, isLoading: isLoadingUser } = useCurrentUser();
   const { buyers, isLoading: isLoadingBuyers } = useBuyers();
   
@@ -20,7 +22,7 @@ const CreateBidRequest = () => {
       buyersCount: buyers?.length || 0,
       isLoadingBuyers
     });
-  }, [currentUser, isLoadingUser, buyers, isLoadingBuyers]);
+  }, [currentUser, isLoadingUser, buyers?.length, isLoadingBuyers]);
   const {
     formData,
     errors,
@@ -101,20 +103,24 @@ const CreateBidRequest = () => {
   }
 
   // Map buyers to the format expected by the components
-  const mappedBuyers = buyers?.map(buyer => ({
-    id: buyer.id,
-    name: buyer.name,
-    dealership: buyer.dealership,
-    mobile: buyer.mobileNumber,
-    email: buyer.email
-  })) || [];
+  const mappedBuyers = useMemo(() => 
+    buyers?.map(buyer => ({
+      id: buyer.id,
+      name: buyer.name,
+      dealership: buyer.dealership,
+      mobile: buyer.mobileNumber,
+      email: buyer.email
+    })) || []
+  , [buyers]);
 
-  const filteredBuyers = mappedBuyers.filter(buyer => 
-    buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (buyer.dealership && buyer.dealership.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredBuyers = useMemo(() =>
+    mappedBuyers.filter(buyer => 
+      buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (buyer.dealership && buyer.dealership.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+  , [mappedBuyers, searchTerm]);
 
-  const onSubmit = () => {
+  const onSubmit = useCallback(() => {
     if (!currentUser?.id) {
       toast.error("User not found. Please try signing out and back in.");
       return;
@@ -124,10 +130,10 @@ const CreateBidRequest = () => {
       return;
     }
     handleSubmit(currentUser.id, currentUser.account_id);
-  };
+  }, [currentUser?.id, currentUser?.account_id, handleSubmit]);
 
   // Handler for image deletion
-  const handleDeleteImage = async (url: string, isUploaded: boolean) => {
+  const handleDeleteImage = useCallback(async (url: string, isUploaded: boolean) => {
     if (isUploaded) {
       try {
         await removeUploadedImage(url);
@@ -137,7 +143,9 @@ const CreateBidRequest = () => {
         console.error('Error deleting image:', error);
       }
     }
-  };
+  }, [removeUploadedImage, setUploadedImageUrls, uploadedImageUrls]);
+
+  console.log('🔴 CreateBidRequest: About to return JSX', Date.now());
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">

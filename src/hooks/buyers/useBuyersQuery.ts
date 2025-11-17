@@ -1,5 +1,6 @@
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useCurrentUser } from "../useCurrentUser";
@@ -7,12 +8,33 @@ import { useNavigate } from "react-router-dom";
 import { BuyerResponse, MappedBuyer } from "./types";
 
 export const useBuyersQuery = () => {
-  const { currentUser } = useCurrentUser();
+  const { currentUser, isLoading: isLoadingUser } = useCurrentUser();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const userId = currentUser?.id;
+  const userRole = currentUser?.role;
+  
+  console.log('🔍 useBuyersQuery: Called with', { userId, userRole, isLoadingUser });
+
+  const isEnabled = !!userId && !isLoadingUser;
+  console.log('🔍 useBuyersQuery: Query enabled?', isEnabled, { userId, isLoadingUser });
+
+  // Force clear this query's cache on mount
+  useEffect(() => {
+    if (currentUser?.id) {
+      console.log('🔍 useBuyersQuery: Clearing cache for', ['buyers', currentUser?.id, currentUser?.role]);
+      queryClient.invalidateQueries({ queryKey: ['buyers', currentUser?.id, currentUser?.role] });
+    } else {
+      console.log('🔍 useBuyersQuery: Skipping cache clear - no user ID yet');
+    }
+  }, [currentUser?.id, currentUser?.role, queryClient]);
 
   return useQuery({
     queryKey: ['buyers', currentUser?.id, currentUser?.role],
     queryFn: async ({ signal }) => {
+      console.log('🔍 useBuyersQuery: queryFn EXECUTING', { userId, userRole });
+      
       try {
         // Use currentUser from hook instead of calling getSession() again
         if (!currentUser?.id) {
@@ -21,6 +43,8 @@ export const useBuyersQuery = () => {
         }
 
         console.log("🔍 useBuyersQuery: Fetching buyers for user:", currentUser.id, "role:", currentUser?.role);
+
+        console.log('🔍 useBuyersQuery: About to query Supabase', { userId, userRole });
 
         // Fetch buyers data - add proper error handling for 406
         const { data: buyersData, error: buyersError } = await supabase
@@ -140,9 +164,11 @@ export const useBuyersQuery = () => {
         throw error;
       }
     },
-    enabled: !!currentUser?.id, // Only run if we have a user ID
+    enabled: isEnabled, // Wait for user to load, then run if we have a user ID
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes cache time
+    refetchOnMount: true, // Always refetch when component mounts (even if data is fresh)
+    refetchOnWindowFocus: false, // Don't refetch on window focus
     retry: (failureCount, error: any) => {
       // Don't retry aborted queries or auth errors
       if (error?.message?.includes('JWT') || 

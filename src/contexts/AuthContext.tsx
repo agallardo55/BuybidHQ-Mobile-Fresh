@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState, ReactNode, useMemo, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +26,11 @@ const AuthContext = createContext<EnhancedAuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  useEffect(() => {
+    console.log('🔴 AUTH PROVIDER RENDERED');
+    return () => console.log('🔴 AUTH PROVIDER UNMOUNTED');
+  });
+
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const lastAuthEventUserId = useRef<string | null>(null);
 
   // Public method to enrich user after login (non-blocking)
-  const enrichUserProfile = async () => {
+  const enrichUserProfile = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -50,10 +55,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.warn('AuthContext: Background enrichment failed (non-blocking):', error);
     }
-  };
+  }, [user]);
 
   // Robust sign out function
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     console.log('AuthContext: Initiating sign out...');
     try {
       await robustSignOut({ scope: 'global', clearHistory: true });
@@ -64,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(null);
       navigate('/signin', { replace: true });
     }
-  };
+  }, [navigate]);
 
   // Helper function to enrich user with profile data and roles
   const enrichUserWithProfile = async (authUser: User): Promise<AuthUser> => {
@@ -482,10 +487,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       hasAuthInit.current = false;
       lastAuthEventUserId.current = null;
     };
-  }, [navigate]);
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    user,
+    session,
+    isLoading,
+    enrichUserProfile,
+    signOut
+  }), [user, session, isLoading, enrichUserProfile, signOut]);
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, enrichUserProfile, signOut }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
