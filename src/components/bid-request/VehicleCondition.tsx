@@ -8,7 +8,8 @@ import autocheckImage from "@/assets/autocheck.png";
 import carfaxImage from "@/assets/carfax_logo.svg";
 import ChipSelector from "./components/ChipSelector";
 import QuadrantLayout from "./components/QuadrantLayout";
-import { ThumbsUp, Star, Zap, AlertTriangle, Cog, List, Car, Wrench, Check, Gauge, ScrollText } from "lucide-react";
+import QuadrantCard from "./components/QuadrantCard";
+import { ThumbsUp, Star, Zap, AlertTriangle, Cog, List, Car, Wrench, Check, Gauge, ScrollText, HelpCircle } from "lucide-react";
 
 // Components for multiple wrench icons
 const OneWrench = ({ className }: { className?: string }) => (
@@ -379,6 +380,15 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
       }
     },
+    { 
+      value: 'unknown', 
+      label: 'Unknown', 
+      icon: HelpCircle,
+      colorScheme: {
+        selected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200",
+        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+      }
+    },
   ];
 
   return (
@@ -461,8 +471,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </div>
       </div>
 
-      {/* Windshield and Engine Lights Condition Chips */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Windshield, Engine Lights, and Maintenance Condition Chips */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <ChipSelector
             options={windshieldOptions}
@@ -481,10 +491,6 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             name="engineLights"
           />
         </div>
-      </div>
-
-      {/* Maintenance Condition Chips */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-white rounded-lg p-4 border border-gray-200">
           <ChipSelector
             options={maintenanceOptions}
@@ -494,24 +500,69 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             name="maintenance"
           />
         </div>
-        <div></div>
       </div>
 
-      {/* Brakes Quadrant Layout */}
-      <QuadrantLayout
-        title="Brakes"
-        measurementType="brake"
-        data={parseQuadrantData(formData.brakes)}
-        onMeasurementChange={(position, value) => handleQuadrantMeasurementChange("brakes", position, value)}
-      />
-
-      {/* Tire Quadrant Layout */}
-      <QuadrantLayout
-        title="Tires"
-        measurementType="tire"
-        data={parseQuadrantData(formData.tire)}
-        onMeasurementChange={(position, value) => handleQuadrantMeasurementChange("tire", position, value)}
-      />
+      {/* Brakes and Tires Quadrant Layout - Combined 4 Column Grid */}
+      <div>
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Brakes</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <QuadrantCard
+              position="Front Left"
+              measurement={parseQuadrantData(formData.brakes).frontLeft}
+              measurementType="brake"
+              onMeasurementChange={(value) => handleQuadrantMeasurementChange("brakes", "frontLeft", value)}
+            />
+            <QuadrantCard
+              position="Front Right"
+              measurement={parseQuadrantData(formData.brakes).frontRight}
+              measurementType="brake"
+              onMeasurementChange={(value) => handleQuadrantMeasurementChange("brakes", "frontRight", value)}
+            />
+            <QuadrantCard
+              position="Rear Left"
+              measurement={parseQuadrantData(formData.brakes).rearLeft}
+              measurementType="brake"
+              onMeasurementChange={(value) => handleQuadrantMeasurementChange("brakes", "rearLeft", value)}
+            />
+            <QuadrantCard
+              position="Rear Right"
+              measurement={parseQuadrantData(formData.brakes).rearRight}
+              measurementType="brake"
+              onMeasurementChange={(value) => handleQuadrantMeasurementChange("brakes", "rearRight", value)}
+            />
+          </div>
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Tires</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <QuadrantCard
+              position="Front Left"
+              measurement={parseQuadrantData(formData.tire).frontLeft}
+              measurementType="tire"
+              onMeasurementChange={(value) => handleQuadrantMeasurementChange("tire", "frontLeft", value)}
+            />
+            <QuadrantCard
+              position="Front Right"
+              measurement={parseQuadrantData(formData.tire).frontRight}
+              measurementType="tire"
+              onMeasurementChange={(value) => handleQuadrantMeasurementChange("tire", "frontRight", value)}
+            />
+            <QuadrantCard
+              position="Rear Left"
+              measurement={parseQuadrantData(formData.tire).rearLeft}
+              measurementType="tire"
+              onMeasurementChange={(value) => handleQuadrantMeasurementChange("tire", "rearLeft", value)}
+            />
+            <QuadrantCard
+              position="Rear Right"
+              measurement={parseQuadrantData(formData.tire).rearRight}
+              measurementType="tire"
+              onMeasurementChange={(value) => handleQuadrantMeasurementChange("tire", "rearRight", value)}
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>

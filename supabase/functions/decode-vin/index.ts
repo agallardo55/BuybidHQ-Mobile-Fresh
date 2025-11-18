@@ -1,6 +1,6 @@
 
 import { cleanTrimValue, findBestTrimMatch, cleanEngineDescription } from "./utils/trimUtils.ts";
-import { fetchCarApiData, fetchAllTrimsForModel, fetchNHTSAData, fetchMakesFromCarAPI, fetchModelsFromCarAPI } from "./api/carApi.ts";
+import { fetchCarApiData, fetchAllTrimsForModel, fetchNHTSAData, fetchMakesFromCarAPI, fetchModelsFromCarAPI, fetchTrimsByYearMakeModel } from "./api/carApi.ts";
 import { getValidJWTToken } from "./api/carApi.ts";
 import { fetchData } from "./api/fetchData.ts";
 import { CarApiResult } from "./types.ts";
@@ -12,6 +12,79 @@ Deno.serve(async (req) => {
     return new Response(null, {
       status: 204,
       headers: corsHeaders
+    });
+  }
+
+  // TEMPORARY DEBUG ENDPOINT: Remove after testing
+  if (req.url.includes('/debug-credentials') || req.url.includes('debug-credentials')) {
+    const apiToken = Deno.env.get('VIN_API_TOKEN') || Deno.env.get('VIN_API_KEY');
+    const apiSecret = Deno.env.get('VIN_API_SECRET');
+    
+    // Generate JWT to verify it works
+    let jwtToken = null;
+    let jwtError = null;
+    let jwtStatus = null;
+    try {
+      const loginResponse = await fetch('https://carapi.app/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_token: apiToken,
+          api_secret: apiSecret
+        })
+      });
+      
+      jwtStatus = loginResponse.status;
+      if (loginResponse.ok) {
+        jwtToken = await loginResponse.text();
+      } else {
+        jwtError = await loginResponse.text();
+      }
+    } catch (e) {
+      jwtError = String(e);
+    }
+    
+    // Test the JWT with a 2023 VIN
+    let vinTestResult = null;
+    if (jwtToken) {
+      try {
+        const vinResponse = await fetch('https://carapi.app/api/vin/WAUAUDGYXPA051082', {
+          headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            'Accept': 'application/json'
+          }
+        });
+        const vinData = await vinResponse.json();
+        vinTestResult = {
+          status: vinResponse.status,
+          has2023Data: vinData.year === 2023 || vinData.year === '2023',
+          year: vinData.year,
+          make: vinData.make,
+          model: vinData.model,
+          errorMessage: vinData.message || vinData.error || null
+        };
+      } catch (e) {
+        vinTestResult = { error: String(e) };
+      }
+    }
+    
+    return new Response(JSON.stringify({
+      credentials: {
+        api_token: apiToken,
+        api_secret: apiSecret,
+        token_source: Deno.env.get('VIN_API_TOKEN') ? 'VIN_API_TOKEN' : (Deno.env.get('VIN_API_KEY') ? 'VIN_API_KEY' : 'NONE')
+      },
+      jwt_test: {
+        success: !!jwtToken,
+        status: jwtStatus,
+        token_preview: jwtToken ? jwtToken.substring(0, 50) + '...' : null,
+        token_length: jwtToken ? jwtToken.length : 0,
+        error: jwtError
+      },
+      vin_test_2023: vinTestResult,
+      warning: "⚠️ DELETE THIS ENDPOINT AFTER TESTING ⚠️"
+    }, null, 2), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 
@@ -27,6 +100,7 @@ Deno.serve(async (req) => {
       model?: string;
       trim?: string;
       trim_lookup?: boolean; 
+      trims_lookup?: boolean;  // ADD THIS LINE
       make_lookup?: boolean;
       model_lookup?: boolean;
       specs_lookup?: boolean;
@@ -87,6 +161,7 @@ Deno.serve(async (req) => {
     }
 
     // Handle make_model_id lookup request (for dynamic trim fetching)
+    // @deprecated Use trims_lookup with year/make/model instead. This requires an extra API call.
     // 🔍 Enhanced logging for debugging 400 errors
     console.log('🔍 EDGE FUNCTION: Checking make_model_id_lookup condition');
     console.log('🔍 EDGE FUNCTION: body =', JSON.stringify(body, null, 2));
@@ -275,7 +350,66 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Handle trim lookup request (for manual dropdown selection)
+    // Handle direct trims lookup by year/make/model (preferred method for manual dropdown selection)
+    if (body.trims_lookup && body.year && body.make && body.model) {
+      console.log(`🔍 TRIMS_LOOKUP: Handler triggered`);
+      console.log(`🔍 TRIMS_LOOKUP: Request body:`, { 
+        year: body.year, 
+        make: body.make, 
+        model: body.model,
+        trims_lookup: body.trims_lookup
+      });
+      
+      try {
+        const allTrims = await fetchTrimsByYearMakeModel(String(body.year), body.make, body.model);
+        
+        console.log(`🔍 TRIMS_LOOKUP: fetchTrimsByYearMakeModel returned:`, {
+          count: allTrims?.length || 0,
+          trims: allTrims?.map((t: any) => ({ 
+            id: t.id, 
+            name: t.name || t.trim_name, 
+            description: t.description?.substring(0, 50) 
+          }))
+        });
+        
+        if (allTrims && allTrims.length > 0) {
+          console.log(`✅ TRIMS_LOOKUP: Successfully fetched ${allTrims.length} trims for ${body.year} ${body.make} ${body.model}`);
+          console.log(`📋 TRIMS_LOOKUP: Trim names:`, allTrims.map((t: any) => t.name || t.trim_name));
+          return new Response(JSON.stringify({ trims: allTrims }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        } else {
+          console.log(`⚠️ TRIMS_LOOKUP: No trims found for ${body.year} ${body.make} ${body.model}`);
+          return new Response(JSON.stringify({ trims: [] }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } catch (error) {
+        console.error(`❌ TRIMS_LOOKUP: Error occurred:`, error);
+        console.error(`❌ TRIMS_LOOKUP: Error stack:`, error instanceof Error ? error.stack : 'No stack trace');
+        console.error(`❌ TRIMS_LOOKUP: Error details:`, {
+          message: error instanceof Error ? error.message : String(error),
+          name: error instanceof Error ? error.name : 'Unknown',
+          year: body.year,
+          make: body.make,
+          model: body.model
+        });
+        
+        // Return error response instead of letting it bubble up
+        return new Response(JSON.stringify({ 
+          error: 'Failed to fetch trims',
+          details: error instanceof Error ? error.message : String(error),
+          trims: [] 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Handle trim lookup request with make_model_id (deprecated, kept for backward compatibility)
     if (body.trim_lookup && body.make_model_id && body.year) {
       console.log(`🔍 Edge Function: Received trim lookup request: make_model_id=${body.make_model_id}, year=${body.year}`);
       
@@ -389,10 +523,16 @@ Deno.serve(async (req) => {
         const drivetrain = matchingTrim.specs?.drivetrain || 
           (description.match(/(AWD|FWD|RWD|4WD)/i)?.[1] || 'AWD');
 
+        // Extract body style from trim specs or description
+        const bodyStyle = matchingTrim.specs?.body_class || 
+          matchingTrim.body_class || 
+          (description.match(/(Sedan|Coupe|SUV|Wagon|Hatchback|Convertible|Truck|Van)/i)?.[1] || '');
+
         const specs = {
           engine: engine.trim() || '',
           transmission: transmission.trim() || '',
-          drivetrain: drivetrain.trim() || ''
+          drivetrain: drivetrain.trim() || '',
+          bodyStyle: bodyStyle.trim() || ''
         };
 
         console.log('Specs found for trim:', specs);
@@ -441,6 +581,11 @@ Deno.serve(async (req) => {
     }
 
     const vehicleData = apiResult;
+
+    // 🔍 DEBUG: Log edge function result before processing
+    console.log('🔍 EDGE FUNCTION RESULT - Sending to frontend:', JSON.stringify(apiResult, null, 2));
+    console.log('🔍 EDGE FUNCTION RESULT - body_class value:', apiResult?.specs?.body_class);
+    console.log('🔍 EDGE FUNCTION RESULT - transmission_style value:', apiResult?.specs?.transmission_style);
 
     // Detailed logging for troubleshooting
     console.log('=== RAW API RESULT ===');
@@ -679,13 +824,22 @@ Deno.serve(async (req) => {
           `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`
         );
 
-      const transmission = isElectric
-        ? 'Single-Speed'
-        : (
-          vehicleData.specs?.transmission_speeds ? 
-            `${vehicleData.specs.transmission_speeds}-Speed ${vehicleData.specs.transmission_style}` :
-            vehicleData.specs?.transmission_style || '7-Speed Automatic'
-        );
+      let transmission: string;
+      if (isElectric) {
+        transmission = 'Single-Speed';
+      } else if (vehicleData.specs?.transmission_speeds && vehicleData.specs?.transmission_style) {
+        // Both speeds and style available
+        transmission = `${vehicleData.specs.transmission_speeds}-Speed ${vehicleData.specs.transmission_style}`;
+      } else if (vehicleData.specs?.transmission_speeds) {
+        // Only speeds available, no style
+        transmission = `${vehicleData.specs.transmission_speeds}-Speed`;
+      } else if (vehicleData.specs?.transmission_style) {
+        // Only style available, no speeds
+        transmission = vehicleData.specs.transmission_style;
+      } else {
+        // Nothing available, use fallback
+        transmission = '7-Speed Automatic';
+      }
 
       return {
         // Generate stable IDs using VIN prefix for uniqueness
@@ -728,6 +882,30 @@ Deno.serve(async (req) => {
     console.log('🔍 Displacement:', fullSpecs.displacement_l);
     console.log('🔍 ======================================================');
 
+    // Extract body style from multiple possible field names
+    const bodyStyle = 
+      vehicleData.specs?.body_class || 
+      vehicleData.specs?.bodyStyle || 
+      vehicleData.specs?.body_type || 
+      vehicleData.specs?.bodyType || 
+      vehicleData.specs?.style ||
+      vehicleData?.body_class ||
+      vehicleData?.bodyStyle ||
+      availableTrims[0]?.specs?.bodyStyle || 
+      null;
+    
+    console.log('🔍 Edge Function: Body Style Extraction:', {
+      'specs.body_class': vehicleData.specs?.body_class,
+      'specs.bodyStyle': vehicleData.specs?.bodyStyle,
+      'specs.body_type': vehicleData.specs?.body_type,
+      'specs.bodyType': vehicleData.specs?.bodyType,
+      'specs.style': vehicleData.specs?.style,
+      'body_class': vehicleData?.body_class,
+      'bodyStyle': vehicleData?.bodyStyle,
+      'availableTrims[0].specs.bodyStyle': availableTrims[0]?.specs?.bodyStyle,
+      'finalValue': bodyStyle
+    });
+    
     const responseData = {
       year: vehicleData.year,
       make: vehicleData.make,
@@ -736,11 +914,19 @@ Deno.serve(async (req) => {
       engineCylinders: availableTrims[0]?.specs?.engine || (isElectric ? 'Electric Motor' : `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`),
       transmission: availableTrims[0]?.specs?.transmission || (isElectric ? 'Single-Speed' : "7-Speed Automatic"),
       drivetrain: availableTrims[0]?.specs?.drivetrain || "AWD",
+      bodyStyle: bodyStyle || "",
       availableTrims: availableTrims,
       // ✅ CRITICAL: Include full specs object for frontend vehicle type detection
       specs: fullSpecs,
     };
 
+    // 🔍 DEBUG: Log final response data being sent
+    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - Full responseData:', JSON.stringify(responseData, null, 2));
+    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - bodyStyle value:', responseData.bodyStyle);
+    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - specs.body_class:', responseData.specs?.body_class);
+    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - transmission value:', responseData.transmission);
+    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - specs.transmission_style:', responseData.specs?.transmission_style);
+    
     console.log('Returning VIN decode response:', JSON.stringify(responseData, null, 2));
 
     return new Response(JSON.stringify(responseData), {

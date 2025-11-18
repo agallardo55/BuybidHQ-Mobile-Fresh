@@ -21,6 +21,13 @@ async function generateJWTToken(): Promise<string | null> {
       console.log('VIN_API_SECRET first 8 chars:', apiSecret.substring(0, 8));
     }
     
+    // TEMPORARY: Full credentials logging for Postman testing (REMOVE AFTER DEBUGGING)
+    console.log('=== FULL CREDENTIALS DEBUG (REMOVE AFTER TESTING) ===');
+    console.log('API Token (full):', apiToken);
+    console.log('API Secret (full):', apiSecret);
+    console.log('Token source:', Deno.env.get('VIN_API_TOKEN') ? 'VIN_API_TOKEN' : (Deno.env.get('VIN_API_KEY') ? 'VIN_API_KEY' : 'NONE'));
+    console.log('=== END CREDENTIALS DEBUG ===');
+    
     if (!apiToken || !apiSecret) {
       console.error('VIN_API_TOKEN and VIN_API_SECRET are required for JWT authentication');
       return null;
@@ -52,6 +59,11 @@ async function generateJWTToken(): Promise<string | null> {
     // Get the JWT token as plain text
     const jwtToken = await response.text();
     console.log('CarAPI auth response received:', jwtToken.substring(0, 20) + '...');
+    // TEMPORARY: Log full JWT for comparison with Postman (REMOVE AFTER DEBUGGING)
+    console.log('=== JWT TOKEN DEBUG (REMOVE AFTER TESTING) ===');
+    console.log('JWT Token (first 50 chars):', jwtToken.substring(0, 50));
+    console.log('JWT Token (full length):', jwtToken.length);
+    console.log('=== END JWT DEBUG ===');
 
     if (!jwtToken || jwtToken.length < 10) {
       console.error('Invalid JWT token received from CarAPI');
@@ -186,6 +198,12 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
       return null;
     }
 
+    // 🔍 DEBUG: Log raw CarAPI response
+    console.log('🔍 RAW CARAPI RESPONSE - Full vehicle object:', JSON.stringify(vehicle, null, 2));
+    console.log('🔍 RAW CARAPI RESPONSE - Specs object:', JSON.stringify(vehicle.specs, null, 2));
+    console.log('🔍 EXTRACTED body_class:', vehicle.specs?.body_class);
+    console.log('🔍 EXTRACTED transmission_style:', vehicle.specs?.transmission_style);
+
     // Log the trims specifically
     console.log('CarAPI trims data:', JSON.stringify(vehicle.trims, null, 2));
 
@@ -204,12 +222,18 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
         trim: vehicle.specs?.trim,
         series: vehicle.specs?.series,
         fuel_type_primary: vehicle.specs?.fuel_type_primary,
-        electrification_level: vehicle.specs?.electrification_level
+        electrification_level: vehicle.specs?.electrification_level,
+        body_class: vehicle.specs?.body_class
       },
       trims: Array.isArray(vehicle.trims) ? vehicle.trims : []
     };
 
     console.log('Processed CarAPI data:', JSON.stringify(processedData, null, 2));
+    
+    // 🔍 DEBUG: Log processed data with body_class
+    console.log('🔍 PROCESSED DATA - Full object:', JSON.stringify(processedData, null, 2));
+    console.log('🔍 PROCESSED DATA - body_class in specs:', processedData.specs.body_class);
+    console.log('🔍 PROCESSED DATA - transmission_style in specs:', processedData.specs.transmission_style);
     
     // Enhanced logging for debug VIN
     if (vin === 'WP0CD2Y18RSA84275') {
@@ -282,6 +306,164 @@ export async function fetchNHTSAData(vin: string): Promise<any> {
   }
 }
 
+/**
+ * Fetch trims directly by year, make, and model using CarAPI's dedicated trims endpoint
+ * This is the preferred method for manual dropdown selection (simpler and more reliable)
+ */
+/**
+ * Helper function to fetch trims for a specific year
+ */
+async function fetchTrimsForYear(
+  callId: string,
+  year: string,
+  normalizedMake: string,
+  normalizedModel: string,
+  jwtToken: string
+): Promise<any[]> {
+  // Use CarAPI's V2 trims endpoint with year/make/model parameters
+  const API_URL = `https://carapi.app/api/trims/v2?year=${year}&make=${encodeURIComponent(normalizedMake)}&model=${encodeURIComponent(normalizedModel)}`;
+  
+  console.log(`🔍 [${callId}] Attempting year ${year}:`, API_URL);
+
+  // Make the API request with JWT authentication
+  const response = await fetchData<any>(API_URL, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${jwtToken}`
+    }
+  });
+
+  if (response === null) {
+    console.log(`⚠️ [${callId}] Year ${year} returned null (API error or not found)`);
+    return [];
+  }
+
+  // The API can return either an array directly or an object with data property
+  let trimsArray = [];
+  if (Array.isArray(response)) {
+    trimsArray = response;
+  } else if (response && Array.isArray(response.data)) {
+    trimsArray = response.data;
+  } else if (response && Array.isArray(response.collection)) {
+    trimsArray = response.collection;
+  } else if (response && response.trims && Array.isArray(response.trims)) {
+    trimsArray = response.trims;
+  }
+
+  if (trimsArray && trimsArray.length > 0) {
+    console.log(`✅ [${callId}] Year ${year} returned ${trimsArray.length} trims`);
+    return trimsArray;
+  }
+
+  console.log(`⚠️ [${callId}] Year ${year} returned empty array`);
+  return [];
+}
+
+export async function fetchTrimsByYearMakeModel(year: string, make: string, model: string): Promise<any[]> {
+  const callId = `TRIMS_API_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  console.log(`🔍 [${callId}] ========== TRIMS API CALL START ==========`);
+  console.log(`🔍 [${callId}] Input parameters:`, {
+    year,
+    make,
+    model,
+    yearType: typeof year,
+    makeType: typeof make,
+    modelType: typeof model,
+    makeLength: make?.length,
+    modelLength: model?.length
+  });
+  
+  try {
+    // Get JWT token using existing auth function
+    console.log(`🔍 [${callId}] Step 1: Getting JWT token...`);
+    const jwtToken = await getValidJWTToken();
+    if (!jwtToken) {
+      console.error(`❌ [${callId}] Failed to obtain JWT token for trims API`);
+      return [];
+    }
+    console.log(`✅ [${callId}] JWT token obtained (length: ${jwtToken.length}, preview: ${jwtToken.substring(0, 20)}...)`);
+
+    // Normalize make to title case (CarAPI expects "Audi", not "AUDI" or "audi")
+    // But preserve special cases like "BMW", "GMC", "MINI" which are all-caps
+    const allCapsBrands = ['BMW', 'GMC', 'MINI'];
+    const normalizedMake = allCapsBrands.includes(make.toUpperCase()) 
+      ? make.toUpperCase() 
+      : make.charAt(0).toUpperCase() + make.slice(1).toLowerCase();
+    
+    // Normalize model to title case
+    const normalizedModel = model
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+
+    console.log(`🔍 [${callId}] Case normalization:`, {
+      originalMake: make,
+      normalizedMake: normalizedMake,
+      originalModel: model,
+      normalizedModel: normalizedModel
+    });
+
+    // Parse requested year
+    const requestedYear = parseInt(year);
+    if (isNaN(requestedYear)) {
+      console.error(`❌ [${callId}] Invalid year: ${year}`);
+      return [];
+    }
+
+    // Try requested year first
+    console.log(`🔍 [${callId}] Step 2: Trying requested year ${requestedYear}...`);
+    let trimsArray = await fetchTrimsForYear(callId, year, normalizedMake, normalizedModel, jwtToken);
+
+    // If requested year returns empty and year is > 2020, try fallback years
+    // Demo dataset only has 2015-2020 data, so fallback to recent years
+    if ((!trimsArray || trimsArray.length === 0) && requestedYear > 2020) {
+      console.log(`🔍 [${callId}] Step 3: Requested year ${requestedYear} returned empty, trying fallback years...`);
+      
+      // Try years in descending order: 2020, 2019, 2018, 2017, 2016, 2015
+      const fallbackYears = [2020, 2019, 2018, 2017, 2016, 2015];
+      
+      for (const fallbackYear of fallbackYears) {
+        if (fallbackYear >= requestedYear) continue; // Don't try years >= requested year
+        
+        console.log(`🔍 [${callId}] Trying fallback year ${fallbackYear}...`);
+        trimsArray = await fetchTrimsForYear(callId, String(fallbackYear), normalizedMake, normalizedModel, jwtToken);
+        
+        if (trimsArray && trimsArray.length > 0) {
+          console.log(`✅ [${callId}] Found ${trimsArray.length} trims using fallback year ${fallbackYear} (requested: ${requestedYear})`);
+          break;
+        }
+      }
+    }
+
+    if (!trimsArray || trimsArray.length === 0) {
+      console.warn(`⚠️ [${callId}] No trims found for ${year} ${normalizedMake} ${normalizedModel} (tried fallback years if applicable)`);
+      return [];
+    }
+
+    console.log(`✅ [${callId}] Found ${trimsArray.length} total trims for ${normalizedMake} ${normalizedModel}`);
+    console.log(`📋 [${callId}] Trim names:`, trimsArray.map((t: any) => t.name || t.trim_name || 'Unknown'));
+    console.log(`🔍 [${callId}] ========== TRIMS API CALL END: SUCCESS ==========`);
+    return trimsArray;
+  } catch (error) {
+    console.error(`❌ [${callId}] Error fetching trims by year/make/model:`, error);
+    console.error(`❌ [${callId}] Error stack:`, error instanceof Error ? error.stack : 'No stack trace');
+    console.error(`❌ [${callId}] Error details:`, {
+      message: error instanceof Error ? error.message : String(error),
+      name: error instanceof Error ? error.name : 'Unknown',
+      year,
+      make,
+      model
+    });
+    console.log(`🔍 [${callId}] ========== TRIMS API CALL END: ERROR ==========`);
+    return [];
+  }
+}
+
+/**
+ * @deprecated Use fetchTrimsByYearMakeModel instead. This function requires make_model_id lookup.
+ * Kept for backward compatibility with VIN decode flow.
+ */
 export async function fetchAllTrimsForModel(makeModelId: number, year: number): Promise<any[]> {
   try {
     // Get JWT token using existing auth function

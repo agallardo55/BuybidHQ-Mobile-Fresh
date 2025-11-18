@@ -322,64 +322,123 @@ const VinSection = ({
 
   return (
     <div className="space-y-4">
-      {/* Show summary view when fully decoded and trim selected - ABOVE VinSection */}
-      {/* Only show if dropdowns are hidden (summary view) */}
-      {hideDropdowns && (formData?.engineCylinders || formData?.transmission || formData?.drivetrain) && (
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            {formData?.engineCylinders && (() => {
-              const engine = formData.engineCylinders;
-              const isElectric = engine?.toLowerCase().includes('electric');
-              const engineLabel = isElectric ? 'Motor' : 'Engine';
-              const engineValue = isElectric
-                ? vinService.extractMotorConfig(
-                    formData.trim || formData.displayTrim || '', 
-                    engine,
-                    formData.drivetrain,
-                    formData.make,
-                    formData.model
-                  )
-                : engine;
-              
-              return (
-                <div>
-                  <span className="font-medium text-gray-700">{engineLabel}:</span>
-                  <p className="text-gray-600 mt-1">{engineValue}</p>
-                </div>
-              );
-            })()}
-            {formData?.transmission && (
-              <div>
-                <span className="font-medium text-gray-700">Transmission:</span>
-                <p className="text-gray-600 mt-1">{formData.transmission}</p>
-              </div>
-            )}
-            {formData?.drivetrain && (
-              <div>
-                <span className="font-medium text-gray-700">Drivetrain:</span>
-                <p className="text-gray-600 mt-1">{formData.drivetrain}</p>
-              </div>
-            )}
+      {/* VIN Input Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* VIN Input */}
+        <div className="space-y-1 md:col-span-2">
+          <Label htmlFor="vin" className="text-sm font-medium text-gray-700">
+            VIN <span className="text-red-500">*</span>
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="vin"
+              name="vin"
+              value={vin}
+              onChange={handleVinChange}
+              placeholder="Enter 17-character VIN"
+              autoComplete="off"
+              className={showError ? "border-red-500" : ""}
+            />
+            <Button
+              type="button"
+              onClick={startScan}
+              variant="outline"
+              className="px-3 md:hidden"
+            >
+              <Barcode className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              onClick={handleGoClick}
+              className="bg-custom-blue hover:bg-custom-blue/90 text-white px-4 py-2"
+              disabled={vin.length !== 17 || isLoading}
+            >
+              {isLoading ? "Decoding..." : "Go"}
+            </Button>
           </div>
+          {showError && (
+            <p className="text-red-500 text-sm">
+              {error || decodeError || "VIN is required"}
+            </p>
+          )}
+        </div>
+
+        {/* Mileage Input */}
+        <div className="space-y-1">
+          <Label htmlFor="mileage" className="text-sm font-medium text-gray-700">
+            Mileage <span className="text-red-500">*</span>
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="mileage"
+              name="mileage"
+              type="text"
+              value={formData?.mileage || ''}
+              onChange={handleMileageChange}
+              placeholder="35,000"
+              autoComplete="off"
+              className={errors?.mileage && showValidation ? "border-red-500" : ""}
+            />
+            <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border">
+              <img 
+                src={gaugeIcon} 
+                alt="Mileage gauge" 
+                className="w-4 h-4"
+              />
+            </div>
+          </div>
+          {errors?.mileage && showValidation && (
+            <p className="text-red-500 text-sm">{errors.mileage}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Dropdowns - Only show if not hidden */}
+      {!hideDropdowns && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <DropdownField
+            id="year"
+            label="Year"
+            value={formData?.year || ''}
+            options={yearOptions}
+            onChange={handleYearChange}
+            error={errors?.year}
+            showValidation={showValidation}
+            disabled={isLoading}
+          />
+
+          <DropdownField
+            id="make"
+            label="Make"
+            value={formData?.make || ''}
+            options={availableMakes}
+            onChange={handleMakeChange}
+            error={errors?.make}
+            showValidation={showValidation}
+            disabled={isLoading || isLoadingMakes || !formData?.year}
+          />
+
+          <DropdownField
+            id="model"
+            label="Model"
+            value={formData?.model || ''}
+            options={availableModels}
+            onChange={handleModelChange}
+            error={errors?.model}
+            showValidation={showValidation}
+            disabled={isLoading || isLoadingModels || !formData?.make}
+          />
+
+          <TrimDropdown
+            trims={formData?.availableTrims || []}
+            selectedTrim={formData?.displayTrim || ''}
+            onTrimChange={onTrimChange || (() => {})}
+            error={errors?.trim}
+            showValidation={showValidation}
+            disabled={isLoading || isLoadingTrims || !formData?.model}
+          />
         </div>
       )}
-      
-      {/* VIN Input Section - Always show */}
-      <VinSection
-        vin={formData.vin}
-        onChange={onChange}
-        error={errors.vin}
-        onVehicleDataFetched={onVehicleDataFetched}
-        showValidation={showValidation}
-        formData={formData}
-        errors={errors}
-        onYearChange={onYearChange}
-        onMakeChange={onMakeChange}
-        onModelChange={onModelChange}
-        onTrimChange={onTrimChange}
-        onTrimsUpdate={onTrimsUpdate}
-        hideDropdowns={hideDropdowns}
-      />
 
       {isScanning && (
         <ScannerModal

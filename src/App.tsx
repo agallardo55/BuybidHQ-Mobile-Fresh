@@ -8,7 +8,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 import { RecoveryRedirector } from "@/components/RecoveryRedirector";
-import { StrictMode, lazy, Suspense } from "react";
+import { StrictMode, lazy, Suspense, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 // Eager load landing and auth pages for faster initial load
@@ -38,6 +38,11 @@ const PageLoader = () => (
 );
 
 const App = () => {
+  useEffect(() => {
+    console.log('🔴 APP COMPONENT RENDERED');
+    return () => console.log('🔴 APP COMPONENT UNMOUNTED');
+  });
+
   console.log('🚀 App.tsx: Component rendering');
   
   console.log('🚀 App.tsx: Returning JSX');

@@ -123,6 +123,7 @@ export interface BidRequestFormData {
   engineCylinders: string;
   transmission: string;
   drivetrain: string;
+  bodyStyle: string;
   // Book Values
   mmrWholesale: string;
   mmrRetail: string;

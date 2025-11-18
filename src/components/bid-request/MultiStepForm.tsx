@@ -114,7 +114,6 @@ const MultiStepForm = ({
       <FormTabs />
 
       <div className="mt-6">
-        {/* DEBUGGING: Testing BasicVehicleInfo alone
         <TabsContent value="appearance">
           <ColorsAndAccessories 
             formData={formData}
@@ -128,9 +127,7 @@ const MultiStepForm = ({
             onNext={handleNext}
           />
         </TabsContent>
-        */}
 
-        {/* DEBUGGING: Testing tabs one at a time - START WITH APPEARANCE ONLY
         <TabsContent value="condition">
           <VehicleCondition 
             formData={formData}
@@ -170,7 +167,6 @@ const MultiStepForm = ({
             isSubmitting={isSubmitting}
           />
         </TabsContent>
-        */}
       </div>
 
       <AddBuyerDialog 

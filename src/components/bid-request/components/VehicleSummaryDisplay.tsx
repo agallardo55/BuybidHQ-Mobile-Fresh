@@ -1,21 +1,22 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Copy } from "lucide-react";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
+import { vinService } from "@/services/vinService";
 
 interface VehicleSummaryDisplayProps {
   year: string;
   make: string;
   model: string;
   trim: string;
-  exteriorColor?: string;
-  interiorColor?: string;
   engine: string;
   transmission: string;
   drivetrain: string;
-  style: string;
   vin: string;
+  mileage?: string;
+  bodyStyle?: string;
+  onEdit: () => void;
 }
 
 const VehicleSummaryDisplay = ({
@@ -23,98 +24,91 @@ const VehicleSummaryDisplay = ({
   make,
   model,
   trim,
-  exteriorColor = "-",
-  interiorColor = "-",
   engine,
-  transmission = "-",
+  transmission,
   drivetrain,
-  style,
-  vin
+  vin,
+  mileage,
+  bodyStyle,
+  onEdit
 }: VehicleSummaryDisplayProps) => {
-  const handleCopyVin = async () => {
-    try {
-      await navigator.clipboard.writeText(vin);
-      toast.success('VIN copied to clipboard');
-    } catch (error) {
-      console.error('Error copying VIN:', error);
-      toast.error('Failed to copy VIN');
-    }
+  // ✅ FIX 4: Don't treat hybrids as pure electric (check for "electric" but not "hybrid" or "gas/electric")
+  const isPureElectric = engine?.toLowerCase().includes('electric') && 
+                         !engine?.toLowerCase().includes('hybrid') &&
+                         !engine?.toLowerCase().includes('gas');
+  const engineLabel = isPureElectric ? 'Motor' : 'Engine';
+  const engineValue = isPureElectric
+    ? vinService.extractMotorConfig(trim || '', engine, drivetrain, make, model)
+    : engine;
+
+  // ✅ FIX 1: VIN display logic - show "Not available" when empty (manual dropdown flow)
+  const displayVin = () => {
+    if (!vin || vin.trim() === '') return "Not available";
+    return vin;
   };
 
-  // Extract style from trim if not provided (e.g., "RWD" from "Model Y RWD")
-  const displayStyle = style || trim || drivetrain || "-";
-  
-  // Format engine display (handle electric motor)
-  const displayEngine = engine || "-";
-  
-  // Format drivetrain display
-  const displayDrivetrain = drivetrain || "-";
+  // Other fields show "Not available" if empty
+  const displayValue = (value: string | undefined) => {
+    if (value === undefined || value === null || value.trim() === '') return "Not available";
+    return value;
+  };
 
   return (
     <Card>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-2xl">
-          {year} {make} {model} {trim}
-        </CardTitle>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-2xl">
+            {year} {make} {model} {trim}
+          </CardTitle>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onEdit}
+            className="h-8 w-8"
+            title="Edit vehicle details"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
-      <Separator className="mb-6" />
-      <CardContent>
-        <div className="grid gap-1.5">
-          {/* EXTERIOR */}
-          <div className="grid grid-cols-5 gap-1.5 py-2">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">EXTERIOR:</p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">{exteriorColor}</p>
-          </div>
-          <Separator />
-          
-          {/* INTERIOR */}
-          <div className="grid grid-cols-5 gap-1.5 py-2">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">INTERIOR:</p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">{interiorColor}</p>
-          </div>
-          <Separator />
-          
-          {/* ENGINE */}
-          <div className="grid grid-cols-5 gap-1.5 py-2">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">ENGINE:</p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">{displayEngine}</p>
-          </div>
-          <Separator />
-          
-          {/* TRANSMISSION */}
-          <div className="grid grid-cols-5 gap-1.5 py-2">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">TRANSMISSION:</p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">{transmission}</p>
-          </div>
-          <Separator />
-          
-          {/* DRIVE TRAIN */}
-          <div className="grid grid-cols-5 gap-1.5 py-2">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">DRIVE TRAIN:</p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">{displayDrivetrain}</p>
-          </div>
-          <Separator />
-          
-          {/* STYLE */}
-          <div className="grid grid-cols-5 gap-1.5 py-2">
-            <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">STYLE:</p>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal">{displayStyle}</p>
-          </div>
-          <Separator />
-          
-          {/* VIN */}
-          <div className="grid grid-cols-5 gap-1.5 py-2">
-            <div className="col-span-2 flex items-center gap-2">
-              <p className="text-base lg:text-base text-lg font-bold text-black">VIN:</p>
-              <button
-                onClick={handleCopyVin}
-                className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
-                title="Copy VIN"
-              >
-                <Copy className="h-4 w-4" />
-              </button>
+      <Separator className="mb-3" />
+      <CardContent className="pt-4">
+        <div className="bg-gray-100 p-4 rounded-lg">
+          <div className="grid grid-cols-3 gap-4 text-sm mb-4">
+            <div>
+              <span className="font-medium text-gray-700">VIN #:</span>
+              <p className="text-gray-600 mt-1">{displayVin()}</p>
             </div>
-            <p className="col-span-3 text-base lg:text-base text-lg font-normal break-all">{vin}</p>
+            
+            <div>
+              <span className="font-medium text-gray-700">Mileage:</span>
+              <p className="text-gray-600 mt-1">{displayValue(mileage)}</p>
+            </div>
+            
+            {bodyStyle ? (
+              <div>
+                <span className="font-medium text-gray-700">Body Style:</span>
+                <p className="text-gray-600 mt-1">{bodyStyle}</p>
+              </div>
+            ) : null}
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-medium text-gray-700">{engineLabel}:</span>
+              <p className="text-gray-600 mt-1">{displayValue(engineValue)}</p>
+            </div>
+            
+            <div>
+              <span className="font-medium text-gray-700">Transmission:</span>
+              <p className="text-gray-600 mt-1">{displayValue(transmission)}</p>
+            </div>
+            
+            <div>
+              <span className="font-medium text-gray-700">Drivetrain:</span>
+              <p className="text-gray-600 mt-1">{displayValue(drivetrain)}</p>
+            </div>
           </div>
         </div>
       </CardContent>

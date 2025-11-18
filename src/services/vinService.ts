@@ -13,6 +13,7 @@ export interface VehicleData {
   engineCylinders: string;
   transmission: string;
   drivetrain: string;
+  bodyStyle?: string;
   availableTrims: TrimOption[];
   selectedTrim?: TrimOption | null; // Add this line
 }
@@ -25,6 +26,7 @@ export interface TrimOption {
     engine: string;
     transmission: string;
     drivetrain: string;
+    bodyStyle?: string;
   };
   year: number;
   source?: 'carapi' | 'nhtsa'; // Track data source
@@ -44,6 +46,38 @@ export interface VinDecodeResult {
 
 class VinService {
   /**
+   * ✅ Normalize to title case - works for 99% of makes/models
+   * CarAPI is case-insensitive for most brands, but title case is the standard format
+   * 
+   * Examples:
+   * - "PORSCHE" → "Porsche"
+   * - "BMW" → "Bmw" (CarAPI accepts both "BMW" and "Bmw")
+   * - "MERCEDES-BENZ" → "Mercedes-Benz"
+   * - "AUDI" → "Audi"
+   * - "INFINITI" → "Infiniti"
+   * - "FIAT" → "Fiat"
+   * - "RAM" → "Ram"
+   */
+  private normalizeToTitleCase(value: string): string {
+    if (!value) return value;
+    
+    return value
+      .split(' ')
+      .map(word => {
+        if (!word) return word;
+        // Handle hyphenated words (e.g., "MERCEDES-BENZ" → "Mercedes-Benz")
+        if (word.includes('-')) {
+          return word
+            .split('-')
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+            .join('-');
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(' ');
+  }
+
+  /**
    * Decode VIN and return structured vehicle data
    */
   async decodeVin(vin: string): Promise<VinDecodeResult> {
@@ -59,6 +93,11 @@ class VinService {
       const { data: response, error } = await supabase.functions.invoke('decode-vin', {
         body: requestBody
       });
+
+      // 🔍 DEBUG: Log frontend received response
+      console.log('🔍 FRONTEND RECEIVED - Full response:', JSON.stringify(response, null, 2));
+      console.log('🔍 FRONTEND RECEIVED - body_class value:', response?.specs?.body_class);
+      console.log('🔍 FRONTEND RECEIVED - transmission_style value:', response?.specs?.transmission_style);
 
       // ✅ ENHANCED LOGGING: Debug Tesla VIN decode
       console.log('🔍 ========== VIN DECODE RAW RESPONSE ==========');
@@ -97,6 +136,19 @@ class VinService {
       if (response?.drivetrain) {
         console.log('🔍 Response Drivetrain (raw):', response.drivetrain);
       }
+      
+      // ✅ ENHANCED LOGGING: Debug body style extraction
+      console.log('🔍 ========== BODY STYLE DEBUG ==========');
+      console.log('🔍 Response Specs:', JSON.stringify(response?.specs, null, 2));
+      console.log('🔍 Body Class (specs.body_class):', response?.specs?.body_class);
+      console.log('🔍 Body Style (specs.bodyStyle):', response?.specs?.bodyStyle);
+      console.log('🔍 Body Type (specs.body_type):', response?.specs?.body_type);
+      console.log('🔍 Body Type (specs.bodyType):', response?.specs?.bodyType);
+      console.log('🔍 Style (specs.style):', response?.specs?.style);
+      console.log('🔍 Body Class (top level):', response?.body_class);
+      console.log('🔍 Body Style (top level):', response?.bodyStyle);
+      console.log('🔍 All Specs Keys:', response?.specs ? Object.keys(response.specs) : 'No specs');
+      console.log('🔍 ======================================');
       console.log('🔍 ============================================');
 
       if (error) {
@@ -117,6 +169,10 @@ class VinService {
 
       // Transform API response to consistent format
       const vehicleData: VehicleData = this.transformApiResponse(response);
+      
+      // 🔍 DEBUG: Log transformed vehicle data
+      console.log('🔍 TRANSFORM OUTPUT - Final vehicleData:', JSON.stringify(vehicleData, null, 2));
+      console.log('🔍 TRANSFORM OUTPUT - bodyStyle value:', vehicleData.bodyStyle);
       
       // Check if we got essential vehicle data
       if (!vehicleData.year || !vehicleData.make || !vehicleData.model) {
@@ -310,11 +366,14 @@ class VinService {
    */
   private async fetchModelsFromCarAPI(year: string, make: string): Promise<string[]> {
     try {
+      // ✅ Normalize make to title case for CarAPI
+      const normalizedMake = this.normalizeToTitleCase(make.trim());
+      
       const { data: response, error } = await supabase.functions.invoke('decode-vin', {
         body: { 
           model_lookup: true,
           year: parseInt(year),
-          make: make
+          make: normalizedMake
         }
       });
 
@@ -428,16 +487,23 @@ class VinService {
 
   /**
    * Fetch trims based on year, make, and model selection
-   * Tries CarAPI first (for consistency with VIN decoder and latest data), 
-   * then comprehensive database, then NHTSA, then generic fallback
+   * Uses CarAPI's dedicated trims endpoint directly (simpler and more reliable)
+   * Falls back to NHTSA, then generic trims if CarAPI fails
    */
   async fetchTrimsByYearMakeModel(year: string, make: string, model: string): Promise<TrimOption[]> {
     const callId = `TRIM_FETCH_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // ✅ Normalize make and model to title case for CarAPI
+    const normalizedMake = this.normalizeToTitleCase(make.trim());
+    const normalizedModel = this.normalizeToTitleCase(model.trim());
+    
     console.log(`🚗 ========== TRIM FETCH START [${callId}] ==========`);
     console.log(`🚗 [${callId}] fetchTrimsByYearMakeModel: Starting trim fetch for`, { 
       year, 
       make, 
       model,
+      normalizedMake,
+      normalizedModel,
       yearType: typeof year,
       makeType: typeof make,
       modelType: typeof model,
@@ -449,39 +515,26 @@ class VinService {
     console.log(`🚗 [${callId}] ======================================`);
     
     try {
-      // Step 1: Try CarAPI first (same API as VIN decoder for consistency and latest data)
-      console.log(`🔍 [${callId}] [STEP 1/3] Trying CarAPI for trims...`);
-      console.log(`🔍 [${callId}] [STEP 1] Calling findMakeModelId with:`, { year, make, model });
-      const makeModelId = await this.findMakeModelId(year, make, model);
-      console.log(`🔍 [${callId}] [STEP 1] makeModelId result:`, makeModelId, `(type: ${typeof makeModelId}, null: ${makeModelId === null})`);
+      // Step 1: Try CarAPI trims endpoint directly (preferred method)
+      console.log(`🔍 [${callId}] [STEP 1/3] Calling CarAPI trims endpoint directly...`);
+      const carApiTrims = await this.fetchTrimsDirectly(year, normalizedMake, normalizedModel);
+      console.log(`🔍 [${callId}] [STEP 1] carApiTrims received:`, carApiTrims?.length, 'trims');
       
-      if (makeModelId) {
-        console.log(`✅ [${callId}] [STEP 1] Found make_model_id:`, makeModelId, 'fetching trims from CarAPI...');
-        const carApiTrims = await this.fetchTrimsFromSupabase(makeModelId, parseInt(year));
-        console.log(`🔍 [${callId}] [STEP 1] carApiTrims received:`, carApiTrims?.length, 'trims');
-        
-        if (carApiTrims && carApiTrims.length > 0) {
-          console.log(`✅✅✅ [${callId}] [STEP 1] CARAPI SUCCESS: Got`, carApiTrims.length, 'REAL API trims from CarAPI');
-          console.log(`📋 [${callId}] [STEP 1] CarAPI Trims (raw):`, JSON.stringify(carApiTrims.slice(0, 3), null, 2), '... (showing first 3)');
-          console.log(`📋 [${callId}] [STEP 1] CarAPI Trim names:`, carApiTrims.map(t => t.name || t.trim_name));
-          const transformed = this.transformCarApiTrimsToTrimOptions(carApiTrims, year, make, model);
-          console.log(`📋 [${callId}] [STEP 1] CarAPI Trims (transformed):`, transformed.map(t => t.name));
-          console.log(`🚗 [${callId}] ========== TRIM FETCH END: CARAPI SUCCESS ==========`);
-          return transformed;
-        } else {
-          console.warn(`⚠️ [${callId}] [STEP 1] CarAPI returned empty trims array, makeModelId was:`, makeModelId);
-        }
-      } else {
-        console.warn(`⚠️⚠️⚠️ [${callId}] [STEP 1] ❌❌❌ CRITICAL: No make_model_id found for`, { year, make, model });
-        console.warn(`⚠️⚠️⚠️ [${callId}] [STEP 1] This means findMakeModelId() returned null - check logs above for why`);
-        console.warn(`⚠️⚠️⚠️ [${callId}] [STEP 1] This will cause fallback to NHTSA or generic hardcoded trims`);
+      if (carApiTrims && carApiTrims.length > 0) {
+        console.log(`✅✅✅ [${callId}] [STEP 1] CARAPI SUCCESS: Got`, carApiTrims.length, 'REAL API trims from CarAPI');
+        console.log(`📋 [${callId}] [STEP 1] CarAPI Trims (raw):`, JSON.stringify(carApiTrims.slice(0, 3), null, 2), '... (showing first 3)');
+        console.log(`📋 [${callId}] [STEP 1] CarAPI Trim names:`, carApiTrims.map(t => t.trim || t.submodel || t.name || t.trim_name));
+        const transformed = this.transformCarApiTrimsToTrimOptions(carApiTrims, year, make, model);
+        console.log(`📋 [${callId}] [STEP 1] CarAPI Trims (transformed):`, transformed.map(t => t.name));
+        console.log(`🚗 [${callId}] ========== TRIM FETCH END: CARAPI SUCCESS ==========`);
+        return transformed;
       }
       
       console.log(`⚠️ [${callId}] [STEP 1] CarAPI FAILED - moving to Step 2 (NHTSA)...`);
       
       // Step 2: Try NHTSA as fallback (real API)
       console.log(`🌐 [${callId}] [STEP 2/3] Trying NHTSA API...`);
-      const nhtsaTrims = await this.fetchTrimsFromNHTSA(year, make, model);
+      const nhtsaTrims = await this.fetchTrimsFromNHTSA(year, normalizedMake, normalizedModel);
       if (nhtsaTrims.length > 0) {
         console.log(`✅✅✅ [${callId}] [STEP 2] NHTSA SUCCESS: Got`, nhtsaTrims.length, 'REAL API trims from NHTSA');
         console.log(`📋 [${callId}] [STEP 2] NHTSA Trims:`, nhtsaTrims.map(t => t.name));
@@ -494,7 +547,7 @@ class VinService {
       // Step 3: Generic fallback (only if both APIs fail)
       console.log(`⚠️⚠️⚠️ [${callId}] [STEP 3/3] Using GENERIC FALLBACK (HARDCODED)...`);
       console.log(`⚠️⚠️⚠️ [${callId}] WARNING: Both CarAPI and NHTSA failed - using generic hardcoded fallback trims!`);
-      const genericTrims = this.getGenericTrims(year, make, model);
+      const genericTrims = this.getGenericTrims(year, normalizedMake, normalizedModel);
       console.log(`📋 [${callId}] [STEP 3] Generic Trims (HARDCODED):`, genericTrims.map(t => t.name));
       console.log(`🚗 [${callId}] ========== TRIM FETCH END: GENERIC FALLBACK (HARDCODED) ==========`);
       return genericTrims;
@@ -503,10 +556,54 @@ class VinService {
       console.error(`❌❌❌ [${callId}] [ERROR] fetchTrimsByYearMakeModel: Error in trim fetch:`, error);
       console.error(`❌❌❌ [${callId}] [ERROR] Error stack:`, error instanceof Error ? error.stack : 'No stack trace');
       console.log(`🔄 [${callId}] [ERROR] Falling back to generic trims due to error...`);
-      const genericTrims = this.getGenericTrims(year, make, model);
+      const genericTrims = this.getGenericTrims(year, normalizedMake, normalizedModel);
       console.log(`⚠️⚠️⚠️ [${callId}] [ERROR] Error Fallback Trims (HARDCODED):`, genericTrims.map(t => t.name));
       console.log(`🚗 [${callId}] ========== TRIM FETCH END: ERROR FALLBACK (HARDCODED) ==========`);
       return genericTrims;
+    }
+  }
+
+  /**
+   * Fetch trims directly from CarAPI using the dedicated trims endpoint
+   * This is the preferred method - simpler and more reliable than make_model_id lookup
+   */
+  private async fetchTrimsDirectly(year: string, make: string, model: string): Promise<any[]> {
+    try {
+      console.log('🔍 fetchTrimsDirectly: Calling edge function with year/make/model', { year, make, model });
+      
+      // Import supabase client
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      // Call the decode-vin function with trims_lookup flag
+      const { data, error } = await supabase.functions.invoke('decode-vin', {
+        body: {
+          year: parseInt(year),
+          make: make,
+          model: model,
+          trims_lookup: true // Flag to use direct trims endpoint
+        }
+      });
+
+      console.log('🔍 fetchTrimsDirectly: Edge function response:', { data, error });
+
+      if (error) {
+        console.error('❌ Error calling Supabase function:', error);
+        return [];
+      }
+
+      if (data && data.trims) {
+        console.log('✅✅✅ fetchTrimsDirectly: Got REAL API trims from edge function:', data.trims.length);
+        console.log('📋 fetchTrimsDirectly: Trim names:', data.trims.map((t: any) => t.trim || t.submodel || t.name || t.trim_name));
+        console.log('📋 fetchTrimsDirectly: Raw trim data (first 2):', JSON.stringify(data.trims.slice(0, 2), null, 2));
+        return data.trims;
+      }
+
+      console.warn('⚠️ fetchTrimsDirectly: No trims in response, data:', data);
+      console.warn('⚠️ fetchTrimsDirectly: This will trigger fallback to NHTSA or generic trims');
+      return [];
+    } catch (error) {
+      console.error('❌ Error fetching trims directly:', error);
+      return [];
     }
   }
 
@@ -525,15 +622,26 @@ class VinService {
     make: string,
     model: string,
     trim: string
-  ): Promise<{ engine: string; transmission: string; drivetrain: string } | null> {
-    console.log('🔍 fetchSpecsByYearMakeModelTrim: Fetching specs for', { year, make, model, trim });
+  ): Promise<{ engine: string; transmission: string; drivetrain: string; bodyStyle?: string } | null> {
+    // ✅ Normalize make and model to title case for CarAPI
+    const normalizedMake = this.normalizeToTitleCase(make.trim());
+    const normalizedModel = this.normalizeToTitleCase(model.trim());
+    
+    console.log('🔍 fetchSpecsByYearMakeModelTrim: Fetching specs for', { 
+      year, 
+      make, 
+      model, 
+      trim,
+      normalizedMake,
+      normalizedModel
+    });
     
     try {
       const { data: response, error } = await supabase.functions.invoke('decode-vin', {
         body: {
           year: parseInt(year),
-          make: make,
-          model: model,
+          make: normalizedMake,
+          model: normalizedModel,
           trim: trim,
           specs_lookup: true
         }
@@ -549,7 +657,8 @@ class VinService {
         return {
           engine: response.specs.engine || '',
           transmission: response.specs.transmission || '',
-          drivetrain: response.specs.drivetrain || ''
+          drivetrain: response.specs.drivetrain || '',
+          bodyStyle: response.specs.bodyStyle || ''
         };
       }
 
@@ -1150,6 +1259,11 @@ class VinService {
   /**
    * Fetch trims from Supabase function
    */
+  /**
+   * @deprecated Use fetchTrimsDirectly() instead. This function requires make_model_id lookup.
+   * The direct trims endpoint eliminates the need for this intermediate step.
+   * Kept for backward compatibility.
+   */
   private async fetchTrimsFromSupabase(makeModelId: number, year: number): Promise<any[]> {
     try {
       console.log('🔍 fetchTrimsFromSupabase: Calling edge function with', { makeModelId, year });
@@ -1175,7 +1289,7 @@ class VinService {
 
       if (data && data.trims) {
         console.log('✅✅✅ fetchTrimsFromSupabase: Got REAL API trims from edge function:', data.trims.length);
-        console.log('📋 fetchTrimsFromSupabase: Trim names:', data.trims.map((t: any) => t.name || t.trim_name));
+        console.log('📋 fetchTrimsFromSupabase: Trim names:', data.trims.map((t: any) => t.trim || t.submodel || t.name || t.trim_name));
         console.log('📋 fetchTrimsFromSupabase: Raw trim data (first 2):', JSON.stringify(data.trims.slice(0, 2), null, 2));
         return data.trims;
       }
@@ -1190,16 +1304,26 @@ class VinService {
   }
 
   /**
+   * @deprecated Use fetchTrimsDirectly() instead. This function is no longer needed for manual dropdown selection.
+   * The direct trims endpoint (GET /api/trims?year=X&make=Y&model=Z) eliminates the need for make_model_id lookup.
+   * Kept for backward compatibility with VIN decode flow if needed.
+   * 
    * Find make_model_id from CarAPI based on year, make, and model
    * First tries hardcoded map (performance optimization), then queries CarAPI dynamically
    */
   private async findMakeModelId(year: string, make: string, model: string): Promise<number | null> {
+    // ✅ Normalize make and model to title case for CarAPI
+    const normalizedMake = this.normalizeToTitleCase(make.trim());
+    const normalizedModel = this.normalizeToTitleCase(model.trim());
+    
     const lookupId = `FIND_MAKE_MODEL_ID_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     console.log(`🔍 [${lookupId}] ========== FIND MAKE_MODEL_ID START ==========`);
     console.log(`🔍 [${lookupId}] Input parameters:`, {
       year,
       make,
       model,
+      normalizedMake,
+      normalizedModel,
       yearType: typeof year,
       makeType: typeof make,
       modelType: typeof model,
@@ -1213,6 +1337,7 @@ class VinService {
     
     try {
       // Step 1: Try hardcoded map first (performance optimization for known models)
+      // Note: Hardcoded map uses uppercase for matching, but we'll use normalized values for API calls
       const makeModelMap: Record<string, Record<string, number>> = {
         "BMW": {
           "3 SERIES": 1,
@@ -1266,7 +1391,7 @@ class VinService {
       }
 
       // Step 2: Not in hardcoded map, query CarAPI dynamically
-      console.log(`🔍 [${lookupId}] [STEP 2] make_model_id not in hardcoded map, querying CarAPI for ${year} ${make} ${model}...`);
+      console.log(`🔍 [${lookupId}] [STEP 2] make_model_id not in hardcoded map, querying CarAPI for ${year} ${normalizedMake} ${normalizedModel}...`);
       
       const { supabase } = await import('@/integrations/supabase/client');
       
@@ -1274,8 +1399,8 @@ class VinService {
       const requestBody = {
         make_model_id_lookup: true,
         year: parseInt(year),
-        make: make,
-        model: model
+        make: normalizedMake,
+        model: normalizedModel
       };
       console.log(`🔍 [${lookupId}] [STEP 2] VIN SERVICE: Invoking make_model_id_lookup`);
       console.log(`🔍 [${lookupId}] [STEP 2] VIN SERVICE: Request body =`, JSON.stringify(requestBody, null, 2));
@@ -1390,16 +1515,35 @@ class VinService {
    * Transform CarAPI trim data to TrimOption format
    */
   private transformCarApiTrimsToTrimOptions(carApiTrims: any[], year: string, make: string, model: string): TrimOption[] {
-    return carApiTrims.map(trim => ({
-      name: trim.name || trim.trim_name || "Base",
-      description: trim.description || `${year} ${make} ${model} ${trim.name || "Base"}`,
-      specs: {
-        engine: this.extractEngineFromDescription(trim.description || ""),
-        transmission: this.extractTransmissionFromDescription(trim.description || ""),
-        drivetrain: this.extractDrivetrainFromDescription(trim.description || "")
-      },
-      year: parseInt(year)
-    }));
+    return carApiTrims.map(trim => {
+      // ✅ FIX: Check trim name fields in correct order (CarAPI V2 format first)
+      // 1. trim.trim (CarAPI V2 format)
+      // 2. trim.submodel (alternative CarAPI field)
+      // 3. trim.name (old format)
+      // 4. trim.trim_name (NHTSA format)
+      const trimName = trim.trim || trim.submodel || trim.name || trim.trim_name || "Base";
+      
+      // ✅ FIX 5: Extract drivetrain from CarAPI response fields first, then description
+      const drivetrain = trim.specs?.drivetrain || 
+                        trim.specs?.drive_type || 
+                        trim.drive_type ||
+                        this.extractDrivetrainFromDescription(trim.description || "");
+      
+      // ✅ FIX 3: Extract body style from description
+      const bodyStyle = this.extractBodyStyleFromDescription(trim.description || "");
+      
+      return {
+        name: trimName,
+        description: trim.description || `${year} ${make} ${model} ${trimName}`,
+        specs: {
+          engine: this.extractEngineFromDescription(trim.description || ""),
+          transmission: this.extractTransmissionFromDescription(trim.description || ""),
+          drivetrain: drivetrain,
+          bodyStyle: bodyStyle || undefined // ✅ FIX 3: Include bodyStyle in specs
+        },
+        year: parseInt(year)
+      };
+    });
   }
 
   /**
@@ -1465,6 +1609,24 @@ class VinService {
    * Transform API response to consistent VehicleData format - MANHEIM STYLE
    */
   private transformApiResponse(apiData: any): VehicleData {
+    // 🔍 DEBUG: Log transform input
+    console.log('🔍 TRANSFORM INPUT - apiData:', JSON.stringify(apiData, null, 2));
+    console.log('🔍 TRANSFORM - bodyStyle extraction:', {
+      fromBodyClass: apiData?.specs?.body_class,
+      fromBodyStyle: apiData?.specs?.bodyStyle,
+      fromBodyType: apiData?.specs?.body_type,
+      fromBodyTypeCamel: apiData?.specs?.bodyType,
+      fromStyle: apiData?.specs?.style,
+      fromTopLevelBodyClass: apiData?.body_class,
+      fromTopLevelBodyStyle: apiData?.bodyStyle,
+      finalValue: apiData?.specs?.body_class || apiData?.specs?.bodyStyle || apiData?.specs?.body_type || apiData?.specs?.bodyType || apiData?.specs?.style || apiData?.body_class || apiData?.bodyStyle || ''
+    });
+    console.log('🔍 TRANSFORM - transmission_style extraction:', {
+      fromSpecs: apiData?.specs?.transmission_style,
+      fromTopLevel: apiData?.transmission_style,
+      finalValue: apiData?.specs?.transmission_style || apiData?.transmission_style || ''
+    });
+    
     // ✅ ENHANCED LOGGING: Show raw API data at start
     console.log('🔍 ========== TRANSFORM API RESPONSE START ==========');
     console.log('🔍 Raw apiData.trim value:', apiData?.trim);
@@ -1513,6 +1675,7 @@ class VinService {
         engineCylinders: "",
         transmission: "",
         drivetrain: "",
+        bodyStyle: "",
         availableTrims: []
       };
     }
@@ -1523,15 +1686,18 @@ class VinService {
     // Check if no trims are available - fallback to manual entry
     if (processedTrims.length === 0) {
       console.warn('⚠️ No trims returned from CarAPI');
+      // Return empty VehicleData structure - this will trigger an error in the calling code
       return {
-        success: false,
-        error: 'Trim data unavailable from VIN. Please enter vehicle details manually.',
-        fallbackToManual: true,
-        partialData: {
-          year: apiData.year,
-          make: apiData.make,
-          model: apiData.model
-        }
+        year: (apiData?.year || "").toString(),
+        make: (apiData?.make || "").trim(),
+        model: (apiData?.model || "").trim(),
+        trim: "",
+        displayTrim: "",
+        engineCylinders: "",
+        transmission: "",
+        drivetrain: "",
+        bodyStyle: "",
+        availableTrims: []
       };
     }
     
@@ -1569,22 +1735,34 @@ class VinService {
       selectedTrim = trimsToMatch[0];
       console.log('🔍 Trim selection: Single trim available, auto-selected');
       
-    } else if (trimsToMatch.length > 1 && apiData.trim) {
+    } else if (trimsToMatch.length > 1) {
       // Multiple options - try to match using API trim field
-      const apiTrimLower = apiData.trim.toLowerCase().trim();
+      // Priority: specs.trim > specs.series > top-level trim
+      const rawTrim = apiData.specs?.trim || apiData.specs?.series || apiData.trim || '';
+      
+      if (!rawTrim) {
+        console.log('🔍 Trim selection: No trim data available (no specs.trim, specs.series, or top-level trim)');
+        selectedTrim = null;
+      } else {
+        const apiTrimLower = rawTrim.toLowerCase().trim();
       
       // ✅ ENHANCED LOGGING: Show raw API data at start
       console.log('🔍 ========== TRIM SELECTION DEBUG ==========');
-      console.log('🔍 Raw API trim value:', apiData.trim);
+      console.log('🔍 Raw trim value (specs.trim):', apiData.specs?.trim);
+      console.log('🔍 Raw series value (specs.series):', apiData.specs?.series);
+      console.log('🔍 Raw top-level trim:', apiData.trim);
+      console.log('🔍 Selected rawTrim (priority order):', rawTrim);
       console.log('🔍 API trim (lowercase):', apiTrimLower);
       console.log('🔍 Available trims to match:', trimsToMatch.map(t => ({ name: t.name, description: t.description })));
       console.log('🔍 Trims array from API:', apiData.trims || apiData.availableTrims || 'Not present');
       
-      // ✅ FIX: Handle "Turbo / Turbo S" format by splitting on "/"
-      const apiTrimParts = apiTrimLower.split('/').map(part => part.trim()).filter(part => part.length > 0);
+      // ✅ FIX: Handle split trims (e.g., "Carrera S / Carrera 4S")
+      const apiTrimParts = rawTrim.includes('/') 
+        ? rawTrim.split('/').map(part => part.trim()).filter(part => part.length > 0)
+        : [rawTrim];
       console.log('🔍 Trim selection: Split API trim into parts:', apiTrimParts);
       
-      // Strategy 1: Exact match (case-insensitive) - prioritize compatible trims
+      // Strategy 1: Exact match against full trim string (case-insensitive)
       selectedTrim = trimsToMatch.find(t => 
         t.name.toLowerCase() === apiTrimLower
       ) || null;
@@ -1592,11 +1770,13 @@ class VinService {
         console.log('🔍 Trim selection: Strategy 1 (exact match) - Found:', selectedTrim.name);
       }
       
-      // Strategy 1.5: Match against split parts (for "Turbo / Turbo S" format)
-      if (!selectedTrim && apiTrimParts.length > 0) {
+      // Strategy 1.5: Match against split parts (for "Carrera S / Carrera 4S" format)
+      // Try each part in order and use first match
+      if (!selectedTrim && apiTrimParts.length > 1) {
         for (const part of apiTrimParts) {
+          const partLower = part.toLowerCase();
           selectedTrim = trimsToMatch.find(t => 
-            t.name.toLowerCase() === part
+            t.name.toLowerCase() === partLower
           ) || null;
           if (selectedTrim) {
             console.log('🔍 Trim selection: Strategy 1.5 (split part exact match) - Found:', selectedTrim.name, 'from part:', part);
@@ -1654,13 +1834,17 @@ class VinService {
       // Strategy 4: Fuzzy matching - extract key identifiers
       if (!selectedTrim) {
         // Extract numbers and key words from API trim
-        const apiWords = apiTrimLower.match(/\b\w+\b/g) || [];
-        const apiNumbers = apiTrimLower.match(/\d+/g) || [];
+        const apiWordsMatch = apiTrimLower.match(/\b\w+\b/g);
+        const apiNumbersMatch = apiTrimLower.match(/\d+/g);
+        const apiWords: string[] = apiWordsMatch || [];
+        const apiNumbers: string[] = apiNumbersMatch || [];
         
         selectedTrim = trimsToMatch.find(t => {
           const optionLower = t.name.toLowerCase();
-          const optionWords = optionLower.match(/\b\w+\b/g) || [];
-          const optionNumbers = optionLower.match(/\d+/g) || [];
+          const optionWordsMatch = optionLower.match(/\b\w+\b/g);
+          const optionNumbersMatch = optionLower.match(/\d+/g);
+          const optionWords: string[] = optionWordsMatch || [];
+          const optionNumbers: string[] = optionNumbersMatch || [];
           
           // Must match all numbers (e.g., "90", "110", "130", "P400")
           const numbersMatch = apiNumbers.every(num => 
@@ -1694,27 +1878,8 @@ class VinService {
           }
         }
       }
-      
-    } else if (trimsToMatch.length > 1) {
-      // Multiple options but no API trim field
-      // For electric vehicles, filter out generic body style trims and rank by performance
-      if (vehicleType === 'BEV') {
-        const validTrims = this.filterValidPerformanceTrims(trimsToMatch, apiData);
-        console.log('🔍 Trim selection: No API trim - Valid performance trims after filtering:', validTrims.map(t => t.name));
-        
-        if (validTrims.length > 0) {
-          selectedTrim = this.selectBestPerformanceTrim(validTrims, apiData);
-          if (selectedTrim) {
-            console.log('🔍 Trim selection: No API trim, electric preference + performance ranking - Found:', selectedTrim.name);
-          }
-        }
-      }
-      
-      if (!selectedTrim) {
-        console.log('🔍 Trim selection: No API trim field, no auto-selection');
-        selectedTrim = null;
-      }
-    }
+      } // Close else block for rawTrim check
+    } // Close else if (trimsToMatch.length > 1) block
     
     // Validate selected trim matches vehicle type
     if (selectedTrim) {
@@ -1800,6 +1965,28 @@ class VinService {
       selectedTrimDescription: selectedTrim?.description
     });
     
+    // Extract body style from multiple possible field names
+    const bodyStyle = 
+      apiData?.specs?.body_class || 
+      apiData?.specs?.bodyStyle || 
+      apiData?.specs?.body_type || 
+      apiData?.specs?.bodyType || 
+      apiData?.specs?.style ||
+      apiData?.body_class ||
+      apiData?.bodyStyle ||
+      "";
+    
+    console.log('🔍 Body Style Extraction:', {
+      'specs.body_class': apiData?.specs?.body_class,
+      'specs.bodyStyle': apiData?.specs?.bodyStyle,
+      'specs.body_type': apiData?.specs?.body_type,
+      'specs.bodyType': apiData?.specs?.bodyType,
+      'specs.style': apiData?.specs?.style,
+      'body_class': apiData?.body_class,
+      'bodyStyle': apiData?.bodyStyle,
+      'finalValue': bodyStyle
+    });
+    
     const vehicleData = {
       year: (apiData?.year || "").toString(),
       make: (apiData?.make || "").trim(),
@@ -1809,6 +1996,7 @@ class VinService {
       engineCylinders: selectedTrim?.specs?.engine || "",
       transmission: selectedTrim?.specs?.transmission || "",
       drivetrain: selectedTrim?.specs?.drivetrain || "",
+      bodyStyle: bodyStyle,
       availableTrims: processedTrims,
       selectedTrim: selectedTrim // Pass the matched trim to hook
     };
@@ -2105,7 +2293,7 @@ class VinService {
       // For electric vehicles, filter out trims with gas engine specs
       const filtered = trims.filter(trim => {
         const description = (trim.description || '').toLowerCase();
-        const specs = trim.specs || {};
+        const specs = trim.specs || { engine: '', transmission: '', drivetrain: '' };
         const engine = (specs.engine || '').toLowerCase();
         
         // Check for gas engine indicators (displacement like "4.0L", "cyl", "v6", "v8", etc.)
@@ -2313,7 +2501,7 @@ class VinService {
    */
   private validateTrimCompatibility(trim: TrimOption, vehicleType: 'BEV' | 'PHEV' | 'ICE', apiData: any): boolean {
     const description = (trim.description || '').toLowerCase();
-    const specs = trim.specs || {};
+    const specs = trim.specs || { engine: '', transmission: '', drivetrain: '' };
     const engine = (specs.engine || '').toLowerCase();
     
     if (vehicleType === 'BEV') {
@@ -2346,7 +2534,7 @@ class VinService {
     if (vehicleType === 'PHEV') {
       // PHEV should have engine specs
       const hasEngine = description.includes('cyl') || 
-                       (description.includes('l ') && description.match(/\d+\.?\d*l/i)) ||
+                       !!(description.includes('l ') && description.match(/\d+\.?\d*l/i)) ||
                        description.includes('v6') || 
                        description.includes('v8');
       return hasEngine;
@@ -2789,37 +2977,62 @@ class VinService {
 
   /**
    * Extract engine information from description
+   * ✅ FIX 4: Properly handle hybrid detection (don't treat "gas/electric mild hybrid" as pure EV)
+   * ✅ Made public so BasicVehicleInfo can use it for fallback extraction
    */
-  private extractEngineFromDescription(description: string): string {
+  extractEngineFromDescription(description: string): string {
     if (!description) return "";
     
     console.log('extractEngineFromDescription: Processing description:', description);
+    
+    // ✅ FIX 4: Check for hybrid patterns first (mild hybrid, plug-in hybrid, etc.)
+    // Don't treat "gas/electric mild hybrid" as pure electric
+    const isMildHybrid = /mild\s*hybrid|gas\/electric\s*mild\s*hybrid/i.test(description);
+    const isPlugInHybrid = /plug[-\s]?in\s*hybrid|phev/i.test(description);
+    const isPureElectric = /pure\s*electric|bev|electric\s*motor(?!.*gas|.*hybrid)/i.test(description);
     
     // Extract displacement (4.0L, 3.0L, etc.)
     const displacementMatch = description.match(/(\d+\.?\d*L)/i);
     const displacement = displacementMatch ? displacementMatch[1] : "";
     
-    // Extract cylinder configuration (V8, V12, V6, Inline 4, etc.)
-    const cylinderMatch = description.match(/(V\d+|Inline\s*\d+|I\d+)/i);
+    // Extract cylinder configuration (V8, V12, V6, Inline 4, 4cyl, etc.)
+    const cylinderMatch = description.match(/(V\d+|Inline\s*\d+|I\d+|\d+cyl)/i);
     const cylinders = cylinderMatch ? cylinderMatch[1] : "";
     
     // Extract additional engine features
     const turboMatch = description.match(/(Twin-?Turbo|Turbo(?:charged)?|Supercharged)/i);
     const turbo = turboMatch ? turboMatch[1] : "";
     
-    const hybridMatch = description.match(/(Hybrid|Electric)/i);
-    const hybrid = hybridMatch ? hybridMatch[1] : "";
+    // ✅ FIX 4: Handle hybrid types properly
+    let hybrid = "";
+    if (isPlugInHybrid) {
+      hybrid = "PHEV";
+    } else if (isMildHybrid) {
+      hybrid = "Hybrid";
+    } else if (isPureElectric) {
+      hybrid = "Electric";
+    } else {
+      // Fallback: check for generic hybrid/electric mentions
+      const hybridMatch = description.match(/(Hybrid|Electric)/i);
+      hybrid = hybridMatch ? hybridMatch[1] : "";
+    }
     
-    // Extract fuel type
+    // Extract fuel type (but don't include if it's part of hybrid description)
     const fuelMatch = description.match(/(Gasoline|Diesel|Electric)/i);
-    const fuel = fuelMatch ? fuelMatch[1] : "";
+    let fuel = fuelMatch ? fuelMatch[1] : "";
+    
+    // ✅ FIX 4: Don't include "Electric" as fuel type if it's a hybrid (has gas)
+    if (isMildHybrid || isPlugInHybrid) {
+      fuel = ""; // Hybrids have both gas and electric, don't show "Electric" as fuel
+    }
     
     // Combine components intelligently
     const components = [displacement, cylinders, turbo, hybrid, fuel].filter(Boolean);
     const result = components.join(' ');
     
     console.log('extractEngineFromDescription: Components found:', {
-      displacement, cylinders, turbo, hybrid, fuel, result
+      displacement, cylinders, turbo, hybrid, fuel, result,
+      isMildHybrid, isPlugInHybrid, isPureElectric
     });
     
     return result;
@@ -2827,17 +3040,19 @@ class VinService {
 
   /**
    * Extract transmission information from description
+   * ✅ FIX: Added support for "8A", "7A", "9A" patterns (e.g., "8A" = 8-Speed Automatic)
+   * ✅ Made public so BasicVehicleInfo can use it for fallback extraction
    */
-  private extractTransmissionFromDescription(description: string): string {
+  extractTransmissionFromDescription(description: string): string {
     if (!description) return "";
     
     console.log('extractTransmissionFromDescription: Processing description:', description);
     
     const patterns = [
+      // ✅ FIX: XA patterns (8A, 7A, 9A = X-Speed Automatic)
+      /(\d+[AM])/i,
       // Speed patterns (8-Speed Automatic, 7-Speed Manual, etc.)
       /(\d+)\s*Speed\s*(?:Automatic|Manual|CVT)/i,
-      // AM patterns (7AM, 8AM, etc.)
-      /(\d+AM)/i,
       // Automatic patterns
       /(Automatic)/i,
       // Manual patterns
@@ -2853,8 +3068,17 @@ class VinService {
     for (const pattern of patterns) {
       const match = description.match(pattern);
       if (match) {
-        console.log('extractTransmissionFromDescription: Found match:', match[1]);
-        return match[1];
+        const matched = match[1];
+        // ✅ FIX: Convert "8A" to "8-Speed Automatic" for better display
+        if (/^\d+[AM]$/i.test(matched)) {
+          const speed = matched.replace(/[AM]/i, '');
+          const type = matched.toUpperCase().endsWith('A') ? 'Automatic' : 'Manual';
+          const result = `${speed}-Speed ${type}`;
+          console.log('extractTransmissionFromDescription: Found XA pattern:', matched, '→', result);
+          return result;
+        }
+        console.log('extractTransmissionFromDescription: Found match:', matched);
+        return matched;
       }
     }
     
@@ -2864,8 +3088,9 @@ class VinService {
 
   /**
    * Extract drivetrain information from description
+   * ✅ Made public so BasicVehicleInfo can use it for fallback extraction
    */
-  private extractDrivetrainFromDescription(description: string): string {
+  extractDrivetrainFromDescription(description: string): string {
     if (!description) return "";
     
     const patterns = [
@@ -2883,6 +3108,44 @@ class VinService {
       const match = description.match(pattern);
       if (match) {
         return match[1];
+      }
+    }
+    
+    return "";
+  }
+
+  /**
+   * ✅ FIX 3: Extract body style from description
+   * CarAPI returns: "Premium 4dr Sedan w/40 TFSI..."
+   * Extract: "4dr Sedan" or "Sedan"
+   */
+  private extractBodyStyleFromDescription(description: string): string {
+    if (!description) return "";
+    
+    // Patterns to match body styles
+    const bodyStylePatterns = [
+      // Xdr Sedan patterns (4dr Sedan, 2dr Sedan, etc.)
+      /(\d+dr\s*Sedan)/i,
+      // Xdr Hatchback patterns
+      /(\d+dr\s*Hatchback)/i,
+      // Xdr Coupe patterns
+      /(\d+dr\s*Coupe)/i,
+      // Xdr Wagon patterns
+      /(\d+dr\s*Wagon)/i,
+      // Xdr SUV patterns
+      /(\d+dr\s*SUV)/i,
+      // Simple body style patterns (without door count)
+      /(Sedan|Hatchback|Coupe|Convertible|Wagon|SUV|Truck|Van|Pickup)/i
+    ];
+    
+    for (const pattern of bodyStylePatterns) {
+      const match = description.match(pattern);
+      if (match) {
+        // Return the matched body style, capitalize first letter of each word
+        const bodyStyle = match[1];
+        return bodyStyle.split(/\s+/).map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ).join(' ');
       }
     }
     

@@ -52,3 +52,45 @@ Done. No essays, no extras.
 - Reading migration files for HTTP errors
 - Checking database schemas for frontend issues
 - Writing todos or documentation mid-fix
+
+## File Cleanup Rules
+- Delete any test files created after completing them - they are no longer needed
+
+## Code Quality Rules
+- When adding UI elements that repeat between pages, either reuse an existing shared component or refactor the repeated markup into a shared component before finishing the task
+
+## Platform-Specific Guidelines
+- Always provide Mac-specific keyboard shortcuts and terminal commands (use Command instead of Control, etc.)
+- User is on macOS - modify instructions for Windows/Linux users if needed
+
+## Bug Fixing Workflow
+- Critical: When fixing a bug, identify the root cause, implement the fix, verify with linting, and always end with a simple one-sentence summary with exactly three alarm emojis 🚨🚨🚨 (mandatory, must be in the very last sentence)
+
+## Documentation Organization
+
+### Permanent Documentation (Version Controlled)
+- **Location**: `/docs/` subdirectories
+- **Structure**:
+  - `/docs/specs/` - Technical specifications (spec.md, architecture docs)
+  - `/docs/prds/` - Product requirements documents
+  - `/docs/architecture/` - System design, data models, security practices, migration guides
+  - `/docs/api/` - API documentation, testing guides, feature documentation
+  - `/docs/` - General project documentation (README, QUICK_START, TODO)
+- **Naming**: Keep original descriptive names
+- **Workflow**: 
+  - Check existing specs/PRDs before building features
+  - Reference relevant specs when implementing
+  - Update permanent docs if requirements change significantly
+
+### Temporary AI Working Files (Gitignored)
+- **Location**: `/docs-ai/` subdirectories
+- **Structure**:
+  - `/docs-ai/analyses/` - Investigation, analysis, and summary files
+  - `/docs-ai/context/` - Working context files for AI sessions
+- **Naming**: Use date-prefixed format: `YYYY-MM-DD-description.md` (e.g., `2025-11-17-auth-fix-summary.md`)
+- **Patterns**: Files matching `*_ANALYSIS.md`, `*_SUMMARY.md`, `*_INVESTIGATION.md`, `*_COMPLETE.md`, `*_FIX.md`, `*_DEBUG_GUIDE.md` should go in `/docs-ai/analyses/`
+- **Workflow**: 
+  - Create analysis files for working context during investigations
+  - Use date prefixes for chronological organization
+  - These files are automatically gitignored and not committed
+

@@ -25,6 +25,7 @@ const initialFormData: BidRequestFormData = {
   engineCylinders: "",
   transmission: "",
   drivetrain: "",
+  bodyStyle: "",
   // Book Values
   mmrWholesale: "",
   mmrRetail: "",
