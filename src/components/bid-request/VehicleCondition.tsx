@@ -4,12 +4,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState, useEffect, useCallback } from "react";
 import { useAlertDialog } from "@/hooks/useAlertDialog";
+import { cn } from "@/lib/utils";
 import autocheckImage from "@/assets/autocheck.png";
 import carfaxImage from "@/assets/carfax_logo.svg";
 import ChipSelector from "./components/ChipSelector";
-import QuadrantLayout from "./components/QuadrantLayout";
-import QuadrantCard from "./components/QuadrantCard";
-import { ThumbsUp, Star, Zap, AlertTriangle, Cog, List, Car, Wrench, Check, Gauge, ScrollText, HelpCircle } from "lucide-react";
+import BrakesAndTiresSection from "./components/BrakesAndTiresSection";
+import { DEFAULT_BRAKES, DEFAULT_TIRES } from "./constants/defaultValues";
+import { ThumbsUp, Star, Zap, AlertTriangle, Cog, List, Car, Wrench, Check, Gauge, ScrollText, HelpCircle, Sparkles, FileText } from "lucide-react";
 
 // Components for multiple wrench icons
 const OneWrench = ({ className }: { className?: string }) => (
@@ -60,6 +61,11 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   const [currentService, setCurrentService] = useState<string>('');
   const [selectedHistoryService, setSelectedHistoryService] = useState<string | null>(null);
   const { alert, showAlert, closeAlert } = useAlertDialog();
+
+  // Defaults are already set in useFormState.ts initialFormData
+  // Just use formData values (with fallback for defensive programming)
+  const brakesValue = formData.brakes || DEFAULT_BRAKES;
+  const tiresValue = formData.tire || DEFAULT_TIRES;
 
   const handleIntegrationClick = (service: string) => {
     // Toggle selection
@@ -149,6 +155,29 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     onSelectChange(valueString, fieldName);
   }, [onSelectChange]);
 
+  // Handle Warning Lights multi-select toggle
+  const handleWarningLightsToggle = useCallback((value: string) => {
+    // Parse current selection (could be single value or comma-separated string)
+    const currentValue = formData.engineLights || '';
+    const currentSelections = currentValue 
+      ? currentValue.split(',').map(v => v.trim()).filter(Boolean)
+      : [];
+    
+    // Toggle selection
+    let newSelections: string[];
+    if (currentSelections.includes(value)) {
+      // Remove if already selected
+      newSelections = currentSelections.filter(v => v !== value);
+    } else {
+      // Add if not selected
+      newSelections = [...currentSelections, value];
+    }
+    
+    // Convert back to comma-separated string
+    const valueString = newSelections.length > 0 ? newSelections.join(',') : '';
+    onSelectChange(valueString, 'engineLights');
+  }, [formData.engineLights, onSelectChange]);
+
   // Parse quadrant data from string format (for backward compatibility)
   const parseQuadrantData = (value: string): { frontLeft: number | null; frontRight: number | null; rearLeft: number | null; rearRight: number | null } => {
     // Default to all null
@@ -200,17 +229,17 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Clear', 
       icon: ThumbsUp,
       colorScheme: {
-        selected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-green-50 border-green-400 text-green-700 hover:bg-green-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
       value: 'chips', 
       label: 'Stars', 
-      icon: Star,
+      icon: Sparkles,
       colorScheme: {
-        selected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-yellow-50 border-yellow-400 text-yellow-700 hover:bg-yellow-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
@@ -218,8 +247,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Cracks', 
       icon: Zap,
       colorScheme: {
-        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-orange-50 border-orange-400 text-orange-700 hover:bg-orange-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
@@ -227,8 +256,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Replace', 
       icon: AlertTriangle,
       colorScheme: {
-        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-red-50 border-red-400 text-red-700 hover:bg-red-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
   ];
@@ -239,8 +268,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'None', 
       icon: ThumbsUp,
       colorScheme: {
-        selected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-green-50 border-green-400 text-green-700 hover:bg-green-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
@@ -248,8 +277,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Engine', 
       icon: AlertTriangle,
       colorScheme: {
-        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-yellow-50 border-yellow-400 text-yellow-700 hover:bg-yellow-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
@@ -257,26 +286,35 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Transmission', 
       icon: Cog,
       colorScheme: {
-        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-yellow-50 border-yellow-400 text-yellow-700 hover:bg-yellow-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
       value: 'drivetrain', 
       label: 'Drivetrain', 
-      icon: Car,
+      icon: Wrench,
       colorScheme: {
-        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-yellow-50 border-yellow-400 text-yellow-700 hover:bg-yellow-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+      }
+    },
+    { 
+      value: 'airbag', 
+      label: 'Airbags', 
+      icon: AlertTriangle,
+      colorScheme: {
+        selected: "bg-yellow-50 border-yellow-400 text-yellow-700 hover:bg-yellow-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
       value: 'multiple', 
-      label: 'Multiple', 
+      label: 'Others', 
       icon: List,
       colorScheme: {
-        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-red-50 border-red-400 text-red-700 hover:bg-red-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
   ];
@@ -301,8 +339,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Up to date', 
       icon: ThumbsUp,
       colorScheme: {
-        selected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-green-50 border-green-400 text-green-700 hover:bg-green-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
@@ -310,8 +348,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Basic', 
       icon: OneWrench,
       colorScheme: {
-        selected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-yellow-50 border-yellow-400 text-yellow-700 hover:bg-yellow-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
@@ -319,8 +357,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Minor', 
       icon: TwoWrenches,
       colorScheme: {
-        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-orange-50 border-orange-400 text-orange-700 hover:bg-orange-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
     { 
@@ -328,8 +366,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       label: 'Major', 
       icon: ThreeWrenches,
       colorScheme: {
-        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+        selected: "bg-red-50 border-red-400 text-red-700 hover:bg-red-100",
+        unselected: "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
       }
     },
   ];
@@ -339,62 +377,44 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       value: 'noAccidents', 
       label: 'No Accidents', 
       icon: ThumbsUp,
-      colorScheme: {
-        selected: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-      }
+      severity: 'green' as const
     },
     { 
       value: 'minorAccident', 
       label: 'Minor Accident', 
       icon: AlertTriangle,
-      colorScheme: {
-        selected: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-      }
+      severity: 'yellow' as const
     },
     { 
       value: 'odomError', 
       label: 'Odom Error', 
       icon: Gauge,
-      colorScheme: {
-        selected: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-      }
+      severity: 'yellow' as const
     },
     { 
       value: 'majorAccident', 
       label: 'Major Accident', 
-      icon: TwoExclamations,
-      colorScheme: {
-        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-      }
+      icon: AlertTriangle,
+      severity: 'red' as const
     },
     { 
       value: 'brandedIssue', 
       label: 'Branded Title', 
-      icon: ScrollText,
-      colorScheme: {
-        selected: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-      }
+      icon: FileText,
+      severity: 'red' as const
     },
     { 
       value: 'unknown', 
       label: 'Unknown', 
       icon: HelpCircle,
-      colorScheme: {
-        selected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200",
-        unselected: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-      }
+      severity: 'gray' as const
     },
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
       {/* Vehicle History Report Integrations */}
-      <div className="bg-white rounded-lg p-4 border border-gray-200 mb-6">
+      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200 mb-4 sm:mb-5 md:mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* AutoCheck Column */}
           <button
@@ -460,113 +480,161 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             />
           </button>
         </div>
-        <div className="mt-4">
-          <ChipSelector
-            options={historyOptions}
-            selectedValues={formData.history || ""}
-            onChange={handleChipChange}
-            label="History"
-            name="history"
-          />
+        <div className="mt-3 sm:mt-4">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">History</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
+            {historyOptions.map((option) => {
+              const isSelected = formData.history === option.value;
+              const Icon = option.icon;
+              
+              // Define color classes based on severity
+              const severityColors = {
+                green: isSelected 
+                  ? 'bg-green-50 border-green-400 text-green-700 hover:bg-green-100'
+                  : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50',
+                yellow: isSelected
+                  ? 'bg-yellow-50 border-yellow-400 text-yellow-700 hover:bg-yellow-100'
+                  : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50',
+                red: isSelected
+                  ? 'bg-red-50 border-red-400 text-red-700 hover:bg-red-100'
+                  : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50',
+                gray: isSelected
+                  ? 'bg-gray-50 border-gray-400 text-gray-700 hover:bg-gray-100'
+                  : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+              };
+              
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => onSelectChange(option.value, 'history')}
+                  aria-label={`Accident history: ${option.label}`}
+                  className={cn(
+                    "h-10 w-full rounded-md border-2 px-3 py-2 text-sm font-medium transition-all",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
+                    "inline-flex items-center justify-center gap-1.5",
+                    severityColors[option.severity]
+                  )}
+                  aria-pressed={isSelected}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* Windshield, Engine Lights, and Maintenance Condition Chips */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
-          <ChipSelector
-            options={windshieldOptions}
-            selectedValues={formData.windshield || ""}
-            onChange={handleChipChange}
-            label="Windshield"
-            name="windshield"
-          />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        {/* Windshield Section */}
+        <div className="bg-white rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Windshield</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            {windshieldOptions.map((option) => {
+              const isSelected = formData.windshield === option.value;
+              const Icon = option.icon;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => onSelectChange(option.value, "windshield")}
+                  className={cn(
+                    "h-10 w-full rounded-md border-2 px-3 py-2 text-sm font-medium transition-all",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
+                    "inline-flex items-center justify-center gap-1.5",
+                    isSelected ? option.colorScheme.selected : option.colorScheme.unselected
+                  )}
+                  aria-pressed={isSelected}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
-          <ChipSelector
-            options={engineLightsOptions}
-            selectedValues={formData.engineLights || ""}
-            onChange={handleChipChange}
-            label="Engine Lights"
-            name="engineLights"
-          />
+
+        {/* Engine Lights Section */}
+        <div className="bg-white rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Warning Lights</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            {engineLightsOptions.map((option) => {
+              // Parse current selection to check if this option is selected
+              const currentValue = formData.engineLights || '';
+              const currentSelections = currentValue 
+                ? currentValue.split(',').map(v => v.trim()).filter(Boolean)
+                : [];
+              const isSelected = currentSelections.includes(option.value);
+              const Icon = option.icon;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleWarningLightsToggle(option.value)}
+                  className={cn(
+                    "h-10 w-full rounded-md border-2 px-3 py-2 text-sm font-medium transition-all",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
+                    "inline-flex items-center justify-center gap-1.5",
+                    isSelected ? option.colorScheme.selected : option.colorScheme.unselected
+                  )}
+                  aria-pressed={isSelected}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
-          <ChipSelector
-            options={maintenanceOptions}
-            selectedValues={formData.maintenance || ""}
-            onChange={handleChipChange}
-            label="Maintenance"
-            name="maintenance"
-          />
+
+        {/* Maintenance Section */}
+        <div className="bg-white rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Maintenance</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            {maintenanceOptions.map((option) => {
+              const isSelected = formData.maintenance === option.value;
+              const Icon = option.icon;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => onSelectChange(option.value, "maintenance")}
+                  className={cn(
+                    "h-10 w-full rounded-md border-2 px-3 py-2 text-sm font-medium transition-all",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
+                    "inline-flex items-center justify-center gap-1.5",
+                    isSelected ? option.colorScheme.selected : option.colorScheme.unselected
+                  )}
+                  aria-pressed={isSelected}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Brakes and Tires Quadrant Layout - Combined 4 Column Grid */}
-      <div>
-        <div className="mb-4">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Brakes</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <QuadrantCard
-              position="Front Left"
-              measurement={parseQuadrantData(formData.brakes).frontLeft}
-              measurementType="brake"
-              onMeasurementChange={(value) => handleQuadrantMeasurementChange("brakes", "frontLeft", value)}
-            />
-            <QuadrantCard
-              position="Front Right"
-              measurement={parseQuadrantData(formData.brakes).frontRight}
-              measurementType="brake"
-              onMeasurementChange={(value) => handleQuadrantMeasurementChange("brakes", "frontRight", value)}
-            />
-            <QuadrantCard
-              position="Rear Left"
-              measurement={parseQuadrantData(formData.brakes).rearLeft}
-              measurementType="brake"
-              onMeasurementChange={(value) => handleQuadrantMeasurementChange("brakes", "rearLeft", value)}
-            />
-            <QuadrantCard
-              position="Rear Right"
-              measurement={parseQuadrantData(formData.brakes).rearRight}
-              measurementType="brake"
-              onMeasurementChange={(value) => handleQuadrantMeasurementChange("brakes", "rearRight", value)}
-            />
-          </div>
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Tires</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <QuadrantCard
-              position="Front Left"
-              measurement={parseQuadrantData(formData.tire).frontLeft}
-              measurementType="tire"
-              onMeasurementChange={(value) => handleQuadrantMeasurementChange("tire", "frontLeft", value)}
-            />
-            <QuadrantCard
-              position="Front Right"
-              measurement={parseQuadrantData(formData.tire).frontRight}
-              measurementType="tire"
-              onMeasurementChange={(value) => handleQuadrantMeasurementChange("tire", "frontRight", value)}
-            />
-            <QuadrantCard
-              position="Rear Left"
-              measurement={parseQuadrantData(formData.tire).rearLeft}
-              measurementType="tire"
-              onMeasurementChange={(value) => handleQuadrantMeasurementChange("tire", "rearLeft", value)}
-            />
-            <QuadrantCard
-              position="Rear Right"
-              measurement={parseQuadrantData(formData.tire).rearRight}
-              measurementType="tire"
-              onMeasurementChange={(value) => handleQuadrantMeasurementChange("tire", "rearRight", value)}
-            />
-          </div>
-        </div>
-      </div>
+      {/* Brakes and Tires Combined Section */}
+      <BrakesAndTiresSection
+        brakesData={parseQuadrantData(brakesValue)}
+        tiresData={parseQuadrantData(tiresValue)}
+        onBrakesChange={(data) => {
+          const valueString = quadrantDataToString(data);
+          onSelectChange(valueString, "brakes");
+        }}
+        onTiresChange={(data) => {
+          const valueString = quadrantDataToString(data);
+          onSelectChange(valueString, "tire");
+        }}
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4">
         <div>
-          <label htmlFor="reconEstimate" className="block text-sm font-bold text-gray-700 mb-1">
+          <label htmlFor="reconEstimate" className="block text-sm sm:text-base font-bold text-gray-700 mb-1 sm:mb-2">
             Recon Estimate
           </label>
           <Input
@@ -581,7 +649,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
           />
         </div>
         <div>
-          <label htmlFor="reconDetails" className="block text-sm font-bold text-gray-700 mb-1">
+          <label htmlFor="reconDetails" className="block text-sm sm:text-base font-bold text-gray-700 mb-1 sm:mb-2">
             Recon Details
           </label>
           <Textarea

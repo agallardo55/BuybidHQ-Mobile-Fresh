@@ -70,7 +70,7 @@ const QuadrantCard = ({ position, measurement, measurementType, onMeasurementCha
               type="button"
               onClick={() => handleBadgeClick(range)}
               className={cn(
-                "px-3 py-2 rounded-full cursor-pointer transition-colors border text-sm font-medium",
+                "px-3 py-1.5 rounded-full cursor-pointer transition-colors border text-sm font-medium",
                 isSelected ? colors.active : colors.inactive
               )}
             >

@@ -1,6 +1,8 @@
 
 import { fetchData } from "./fetchData.ts";
 import { CarApiResult } from "../types.ts";
+import { isNotPowersports } from "../utils/vehicleTypeFilters.ts";
+import { getSafeBodyStyle } from "../utils/bodyStyleMapper.ts";
 
 // JWT token cache
 let cachedJWT: { token: string; expiresAt: number } | null = null;
@@ -207,6 +209,10 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
     // Log the trims specifically
     console.log('CarAPI trims data:', JSON.stringify(vehicle.trims, null, 2));
 
+    // Normalize body_class to approved list
+    const rawBodyClass = vehicle.specs?.body_class;
+    const normalizedBodyClass = getSafeBodyStyle(rawBodyClass);
+
     const processedData = {
       year: vehicle.year,
       make: vehicle.make,
@@ -223,7 +229,7 @@ export async function fetchCarApiData(vin: string): Promise<CarApiResult | null>
         series: vehicle.specs?.series,
         fuel_type_primary: vehicle.specs?.fuel_type_primary,
         electrification_level: vehicle.specs?.electrification_level,
-        body_class: vehicle.specs?.body_class
+        body_class: normalizedBodyClass
       },
       trims: Array.isArray(vehicle.trims) ? vehicle.trims : []
     };
@@ -274,6 +280,10 @@ export async function fetchNHTSAData(vin: string): Promise<any> {
     
     const result = data.Results[0];
     
+    // Normalize body_class from NHTSA
+    const rawBodyClass = result.BodyClass || '';
+    const normalizedBodyClass = getSafeBodyStyle(rawBodyClass);
+    
     // Extract basic vehicle information
     const vehicleData = {
       year: result.ModelYear || '',
@@ -288,7 +298,8 @@ export async function fetchNHTSAData(vin: string): Promise<any> {
         turbo: result.Turbo || false,
         trim: result.Trim || '',
         series: result.Series || '',
-        body_class: result.BodyClass || '',
+        body_class: normalizedBodyClass,
+        vehicle_type: result.VehicleType || result.Vehicle_Type || '',
         doors: result.Doors || ''
       },
       trims: result.Trim ? [{
@@ -441,10 +452,42 @@ export async function fetchTrimsByYearMakeModel(year: string, make: string, mode
       return [];
     }
 
-    console.log(`✅ [${callId}] Found ${trimsArray.length} total trims for ${normalizedMake} ${normalizedModel}`);
-    console.log(`📋 [${callId}] Trim names:`, trimsArray.map((t: any) => t.name || t.trim_name || 'Unknown'));
+    // Filter out powersports vehicles (motorcycles, ATVs, UTVs, etc.) and normalize body_class
+    const filteredTrims = trimsArray
+      .filter((trim: any) => {
+        const bodyClass = trim.body_class || trim.bodyClass;
+        return isNotPowersports(undefined, bodyClass);
+      })
+      .map((trim: any) => {
+        // Normalize body_class in trim specs
+        if (trim.body_class || trim.bodyClass || trim.specs?.body_class) {
+          const rawBodyClass = trim.body_class || trim.bodyClass || trim.specs?.body_class;
+          const normalizedBodyClass = getSafeBodyStyle(rawBodyClass);
+          
+          // Update trim with normalized body_class
+          return {
+            ...trim,
+            body_class: normalizedBodyClass,
+            bodyClass: normalizedBodyClass,
+            specs: {
+              ...trim.specs,
+              body_class: normalizedBodyClass,
+              bodyStyle: normalizedBodyClass
+            }
+          };
+        }
+        return trim;
+      });
+
+    const filteredCount = trimsArray.length - filteredTrims.length;
+    if (filteredCount > 0) {
+      console.log(`🚫 [${callId}] Filtered out ${filteredCount} powersports trims`);
+    }
+
+    console.log(`✅ [${callId}] Found ${filteredTrims.length} total trims for ${normalizedMake} ${normalizedModel} (after filtering)`);
+    console.log(`📋 [${callId}] Trim names:`, filteredTrims.map((t: any) => t.name || t.trim_name || 'Unknown'));
     console.log(`🔍 [${callId}] ========== TRIMS API CALL END: SUCCESS ==========`);
-    return trimsArray;
+    return filteredTrims;
   } catch (error) {
     console.error(`❌ [${callId}] Error fetching trims by year/make/model:`, error);
     console.error(`❌ [${callId}] Error stack:`, error instanceof Error ? error.stack : 'No stack trace');

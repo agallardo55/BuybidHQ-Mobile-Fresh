@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { BidRequestFormData, FormErrors, FormState, FormStateActions } from "../types";
+import { DEFAULT_BRAKES, DEFAULT_TIRES } from "../constants/defaultValues";
 
 const initialFormData: BidRequestFormData = {
   year: "",
@@ -16,8 +17,8 @@ const initialFormData: BidRequestFormData = {
   accessories: "",
   windshield: "clear", // Default to "Clear" (optimal)
   engineLights: "none", // Default to "None" (optimal)
-  brakes: "frontLeft:8,frontRight:8,rearLeft:8,rearRight:8", // Default to green range (≥8 mm)
-  tire: "frontLeft:9,frontRight:9,rearLeft:9,rearRight:9", // Default to green range (8-10/32")
+  brakes: DEFAULT_BRAKES, // Default to green range (≥8 mm)
+  tire: DEFAULT_TIRES, // Default to green range (8-10/32")
   maintenance: "upToDate", // Default to "Up to date" (optimal)
   history: "noAccidents", // Default to "No Accidents" (optimal)
   reconEstimate: "0",

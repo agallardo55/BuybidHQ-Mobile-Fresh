@@ -20,6 +20,7 @@ interface ChipSelectorProps {
   label: string;
   name: string;
   required?: boolean;
+  size?: 'sm' | 'md' | 'lg'; // Chip size: sm (px-2 py-1), md (px-3 py-1.5), lg (px-4 py-2)
 }
 
 const ChipSelector = ({
@@ -29,6 +30,7 @@ const ChipSelector = ({
   label,
   name,
   required = false,
+  size = 'lg', // Default to large (px-4 py-2)
 }: ChipSelectorProps) => {
   // Parse selectedValues: handle both comma-separated string and array
   const parseSelectedValues = (): string[] => {
@@ -42,6 +44,20 @@ const ChipSelector = ({
   };
 
   const selectedArray = useMemo(() => parseSelectedValues(), [selectedValues]);
+
+  // Size-based padding classes
+  const sizeClasses = {
+    sm: 'px-2 py-1 text-xs',
+    md: 'px-3 py-1.5 text-sm',
+    lg: 'px-4 py-2 text-sm',
+  };
+
+  // Size-based icon classes
+  const iconSizeClasses = {
+    sm: 'h-3 w-3',
+    md: 'h-3.5 w-3.5',
+    lg: 'h-4 w-4',
+  };
 
   const handleChipClick = useCallback((value: string) => {
     // Parse selectedValues inline to avoid stale closure
@@ -97,7 +113,7 @@ const ChipSelector = ({
               try {
                 // Handle both function components and forwardRef components
                 const Icon = IconComponent as React.ComponentType<{ className?: string }>;
-                IconElement = <Icon className="h-4 w-4" />;
+                IconElement = <Icon className={iconSizeClasses[size]} />;
               } catch (error) {
                 console.error('Error rendering icon component:', error, IconComponent);
               }
@@ -112,7 +128,8 @@ const ChipSelector = ({
               type="button"
               onClick={() => handleChipClick(option.value)}
               className={cn(
-                "px-4 py-2 rounded-full cursor-pointer transition-colors border",
+                sizeClasses[size],
+                "rounded-full cursor-pointer transition-colors border",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
                 "flex items-center gap-2",
                 isSelected

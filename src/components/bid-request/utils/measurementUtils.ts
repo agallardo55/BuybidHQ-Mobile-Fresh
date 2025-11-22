@@ -23,7 +23,7 @@ export const getTireRanges = (): MeasurementRange[] => [
     min: 8,
     max: 10,
     representativeValue: 9,
-    displayText: "8-10/32\""
+    displayText: "8-10"
   },
   {
     color: "yellow",
@@ -31,7 +31,7 @@ export const getTireRanges = (): MeasurementRange[] => [
     min: 5,
     max: 7,
     representativeValue: 6,
-    displayText: "5-7/32\""
+    displayText: "5-7"
   },
   {
     color: "orange",
@@ -39,7 +39,7 @@ export const getTireRanges = (): MeasurementRange[] => [
     min: 3,
     max: 4,
     representativeValue: 3.5,
-    displayText: "3-4/32\""
+    displayText: "3-4"
   },
   {
     color: "red",
@@ -47,7 +47,7 @@ export const getTireRanges = (): MeasurementRange[] => [
     min: 0,
     max: 2,
     representativeValue: 1,
-    displayText: "0-2/32\""
+    displayText: "0-2"
   }
 ];
 
@@ -61,7 +61,7 @@ export const getBrakeRanges = (): MeasurementRange[] => [
     min: 8,
     max: null, // ≥8mm
     representativeValue: 8,
-    displayText: "≥8 mm"
+    displayText: "≥8"
   },
   {
     color: "yellow",
@@ -69,7 +69,7 @@ export const getBrakeRanges = (): MeasurementRange[] => [
     min: 5,
     max: 7,
     representativeValue: 6,
-    displayText: "5-7 mm"
+    displayText: "5-7"
   },
   {
     color: "orange",
@@ -77,7 +77,7 @@ export const getBrakeRanges = (): MeasurementRange[] => [
     min: 3,
     max: 4,
     representativeValue: 3.5,
-    displayText: "3-4 mm"
+    displayText: "3-4"
   },
   {
     color: "red",
@@ -85,7 +85,7 @@ export const getBrakeRanges = (): MeasurementRange[] => [
     min: 0,
     max: 2,
     representativeValue: 1,
-    displayText: "0-2 mm"
+    displayText: "0-2"
   }
 ];
 

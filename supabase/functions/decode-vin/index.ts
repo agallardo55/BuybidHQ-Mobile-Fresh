@@ -5,6 +5,7 @@ import { getValidJWTToken } from "./api/carApi.ts";
 import { fetchData } from "./api/fetchData.ts";
 import { CarApiResult } from "./types.ts";
 import { corsHeaders } from "./config.ts";
+import { isNotPowersports, getPowersportsRejectionMessage } from "./utils/vehicleTypeFilters.ts";
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -581,6 +582,28 @@ Deno.serve(async (req) => {
     }
 
     const vehicleData = apiResult;
+
+    // Check if vehicle is powersports (motorcycle, ATV, UTV, etc.)
+    const vehicleType = vehicleData.specs?.vehicle_type || vehicleData.vehicle_type;
+    const bodyClass = vehicleData.specs?.body_class || vehicleData.body_class;
+    
+    if (!isNotPowersports(vehicleType, bodyClass)) {
+      const rejectionMessage = getPowersportsRejectionMessage(vehicleType, bodyClass);
+      console.log('🚫 Powersports vehicle detected and rejected:', {
+        vehicleType,
+        bodyClass,
+        message: rejectionMessage
+      });
+      
+      return new Response(JSON.stringify({
+        error: rejectionMessage,
+        vehicleType: vehicleType || null,
+        bodyClass: bodyClass || null
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // 🔍 DEBUG: Log edge function result before processing
     console.log('🔍 EDGE FUNCTION RESULT - Sending to frontend:', JSON.stringify(apiResult, null, 2));

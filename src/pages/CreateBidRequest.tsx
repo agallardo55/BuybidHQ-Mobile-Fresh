@@ -147,9 +147,9 @@ const CreateBidRequest = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <DashboardNavigation />
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <h1 className="text-lg font-bold text-gray-900 mb-6">Create Bid Request</h1>
+        <div className="w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-5 md:p-6 lg:p-8">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-5 md:mb-6">Create Bid Request</h1>
             <MultiStepForm
               formData={formData}
               errors={errors}

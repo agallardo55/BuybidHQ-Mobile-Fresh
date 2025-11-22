@@ -3,6 +3,8 @@
  * Single source of truth for all VIN-related operations
  */
 import { supabase } from "@/integrations/supabase/client";
+import { isNotPowersports, getPowersportsRejectionMessage } from "@/utils/vehicleTypeFilters";
+import { getSafeBodyStyle } from "@/utils/bodyStyleMapper";
 
 export interface VehicleData {
   year: string;
@@ -167,6 +169,35 @@ class VinService {
         };
       }
 
+      // Check if vehicle is powersports (motorcycle, ATV, UTV, etc.)
+      // Check all possible field locations for vehicle type and body class
+      const vehicleType = response.specs?.vehicle_type || response.vehicle_type || response.specs?.vehicleType;
+      const bodyClass = response.specs?.body_class || response.body_class || response.specs?.bodyStyle || response.bodyStyle || response.specs?.body_type || response.specs?.bodyType;
+      
+      console.log('Checking vehicle:', {
+        vehicleType: vehicleType,
+        bodyClass: bodyClass,
+        'response.specs?.body_class': response.specs?.body_class,
+        'response.body_class': response.body_class,
+        'response.specs?.bodyStyle': response.specs?.bodyStyle,
+        'response.bodyStyle': response.bodyStyle,
+        'response.specs': response.specs
+      });
+
+      if (!isNotPowersports(vehicleType, bodyClass)) {
+        const message = getPowersportsRejectionMessage(vehicleType, bodyClass);
+        console.log('🚫 Powersports vehicle detected and rejected:', {
+          vehicleType,
+          bodyClass,
+          message
+        });
+        
+        return {
+          success: false,
+          error: message
+        };
+      }
+
       // Transform API response to consistent format
       const vehicleData: VehicleData = this.transformApiResponse(response);
       
@@ -274,11 +305,13 @@ class VinService {
 
   /**
    * Fetch makes from NHTSA API
+   * Filters to passenger cars only (excludes motorcycles and powersports)
    */
   private async fetchMakesFromNHTSA(year: string): Promise<string[]> {
     try {
-      // Use NHTSA API to get makes for the specific model year
-      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForModelYear/${year}?format=json`;
+      // Use NHTSA API to get makes for passenger cars only (excludes motorcycles)
+      // vehicletype parameter filters to "passenger car" which excludes motorcycles/powersports
+      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/passenger%20car?format=json`;
       
       const response = await fetch(url);
       
@@ -400,13 +433,15 @@ class VinService {
 
   /**
    * Fetch models from NHTSA API
+   * Filters to passenger cars only (excludes motorcycles and powersports)
    */
   private async fetchModelsFromNHTSA(year: string, make: string): Promise<string[]> {
     try {
-      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear/makeId/${make}/modelyear/${year}?format=json`;
+      // Use NHTSA API with vehicletype parameter to filter to passenger cars only
+      // This excludes motorcycles and powersports vehicles
+      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/${encodeURIComponent(make)}/modelyear/${year}/vehicletype/passenger%20car?format=json`;
       
-      // First try by make name
-      let response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/${encodeURIComponent(make)}/modelyear/${year}?format=json`);
+      let response = await fetch(url);
       
       if (!response.ok) {
         return [];
@@ -1966,7 +2001,7 @@ class VinService {
     });
     
     // Extract body style from multiple possible field names
-    const bodyStyle = 
+    const rawBodyStyle = 
       apiData?.specs?.body_class || 
       apiData?.specs?.bodyStyle || 
       apiData?.specs?.body_type || 
@@ -1976,6 +2011,9 @@ class VinService {
       apiData?.bodyStyle ||
       "";
     
+    // Normalize body style to approved list
+    const bodyStyle = getSafeBodyStyle(rawBodyStyle);
+    
     console.log('🔍 Body Style Extraction:', {
       'specs.body_class': apiData?.specs?.body_class,
       'specs.bodyStyle': apiData?.specs?.bodyStyle,
@@ -1984,7 +2022,8 @@ class VinService {
       'specs.style': apiData?.specs?.style,
       'body_class': apiData?.body_class,
       'bodyStyle': apiData?.bodyStyle,
-      'finalValue': bodyStyle
+      'rawValue': rawBodyStyle,
+      'normalizedValue': bodyStyle
     });
     
     const vehicleData = {
@@ -2648,11 +2687,33 @@ class VinService {
   private processTrims(apiData: any): TrimOption[] {
     console.log('processTrims: Starting processing with API data:', apiData);
     
-    // ✅ FIX: If Edge Function already processed trims, return as-is
+    // ✅ FIX: If Edge Function already processed trims, filter and return
     if (apiData.availableTrims && Array.isArray(apiData.availableTrims)) {
       console.log('processTrims: Using pre-processed trims from Edge Function');
+      
+      // Filter out powersports vehicles (motorcycles, ATVs, UTVs, etc.)
+      const filteredTrims = apiData.availableTrims.filter((trim: any) => {
+        const vehicleType = trim.specs?.vehicle_type || trim.vehicle_type;
+        const bodyClass = trim.specs?.body_class || trim.specs?.bodyStyle || trim.body_class;
+        const allowed = isNotPowersports(vehicleType, bodyClass);
+        
+        if (!allowed) {
+          console.log('🚫 Filtered out powersports trim:', {
+            name: trim.name,
+            vehicleType,
+            bodyClass
+          });
+        }
+        return allowed;
+      });
+
+      const filteredCount = apiData.availableTrims.length - filteredTrims.length;
+      if (filteredCount > 0) {
+        console.log(`🚫 processTrims: Filtered out ${filteredCount} powersports trims from Edge Function`);
+      }
+
       // Don't transform - preserve IDs and structure
-      return apiData.availableTrims;
+      return filteredTrims;
     }
     
     // Otherwise, process raw API data (CarAPI/NHTSA)
@@ -2691,7 +2752,7 @@ class VinService {
     console.log('processTrims: Total trim sources found:', trimSources.length);
     
     // Process all trim sources with unified logic
-    return trimSources.map((trimData: any, index: number) => {
+    const processedTrims = trimSources.map((trimData: any, index: number) => {
       console.log(`processTrims: Processing trim ${index} from ${trimData.source}:`, trimData);
       
       const processedTrim: TrimOption = {
@@ -2706,6 +2767,31 @@ class VinService {
       console.log(`processTrims: Processed trim ${index}:`, processedTrim);
       return processedTrim;
     });
+
+    // Filter out powersports vehicles (motorcycles, ATVs, UTVs, etc.)
+    const filteredTrims = processedTrims.filter((trim: TrimOption) => {
+      // Access vehicle_type and body_class from trim object (may be in specs or top-level)
+      const trimAny = trim as any;
+      const vehicleType = trimAny.specs?.vehicle_type || trimAny.vehicle_type;
+      const bodyClass = trimAny.specs?.body_class || trimAny.specs?.bodyStyle || trimAny.body_class;
+      const allowed = isNotPowersports(vehicleType, bodyClass);
+      
+      if (!allowed) {
+        console.log('🚫 Filtered out powersports trim:', {
+          name: trim.name,
+          vehicleType,
+          bodyClass
+        });
+      }
+      return allowed;
+    });
+
+    const filteredCount = processedTrims.length - filteredTrims.length;
+    if (filteredCount > 0) {
+      console.log(`🚫 processTrims: Filtered out ${filteredCount} powersports trims`);
+    }
+
+    return filteredTrims;
   }
 
   /**
