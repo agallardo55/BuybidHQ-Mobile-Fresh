@@ -51,6 +51,7 @@ interface VehicleConditionProps {
     reconEstimate: string;
     reconDetails: string;
     history?: string;
+    historyService?: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSelectChange: (value: string, name: string) => void;
@@ -59,8 +60,10 @@ interface VehicleConditionProps {
 const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditionProps) => {
   const [displayValue, setDisplayValue] = useState('$0');
   const [currentService, setCurrentService] = useState<string>('');
-  const [selectedHistoryService, setSelectedHistoryService] = useState<string | null>(null);
   const { alert, showAlert, closeAlert } = useAlertDialog();
+
+  // Use form state for history service selection (now persisted to database)
+  const selectedHistoryService = formData.historyService || '';
 
   // Defaults are already set in useFormState.ts initialFormData
   // Just use formData values (with fallback for defensive programming)
@@ -68,12 +71,9 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   const tiresValue = formData.tire || DEFAULT_TIRES;
 
   const handleIntegrationClick = (service: string) => {
-    // Toggle selection
-    if (selectedHistoryService === service) {
-      setSelectedHistoryService(null);
-    } else {
-      setSelectedHistoryService(service);
-    }
+    // Toggle selection - update form state instead of local state
+    const newValue = selectedHistoryService === service ? '' : service;
+    onSelectChange(newValue, 'historyService');
   };
 
   const formatDollarAmount = (value: string | undefined | null) => {

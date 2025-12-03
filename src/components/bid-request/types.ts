@@ -118,6 +118,7 @@ export interface BidRequestFormData {
   tire: string;
   maintenance: string;
   history?: string;
+  historyService: string;
   reconEstimate: string;
   reconDetails: string;
   engineCylinders: string;

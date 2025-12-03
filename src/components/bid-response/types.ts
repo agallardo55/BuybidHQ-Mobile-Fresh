@@ -23,6 +23,8 @@ export interface VehicleDetails extends Vehicle {
   maintenance: string;
   reconEstimate: string;
   reconDetails?: string;
+  history?: string;
+  historyService?: string;
   kbbWholesale?: number;
   kbbRetail?: number;
   jdPowerWholesale?: number;

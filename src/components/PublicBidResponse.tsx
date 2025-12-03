@@ -51,6 +51,9 @@ interface QuickBidDetails {
   maintenance?: string;
   recon_estimate?: string;
   recon_details?: string;
+  history?: string;
+  history_service?: string;
+  book_values_condition?: string;
 }
 
 interface UseBidSubmissionProps {
@@ -181,6 +184,9 @@ const useQuickBidDetails = () => {
         maintenance: request.maintenance,
         recon_estimate: request.recon_estimate,
         recon_details: request.recon_details,
+        history: request.history,
+        history_service: request.history_service,
+        book_values_condition: request.book_values_condition,
       };
     },
     enabled: !!(id && token),
@@ -252,6 +258,8 @@ const PublicBidResponse = () => {
             maintenance: data.maintenance || 'upToDate',
             reconEstimate: data.recon_estimate || '',
             reconDetails: data.recon_details || '',
+            history: data.history,
+            historyService: data.history_service,
               images: data.vehicle_images || [],
               kbbWholesale: data.kbb_wholesale,
               kbbRetail: data.kbb_retail,
@@ -261,6 +269,7 @@ const PublicBidResponse = () => {
               mmrRetail: data.mmr_retail,
               auctionWholesale: data.auction_wholesale,
               auctionRetail: data.auction_retail,
+              bookValuesCondition: data.book_values_condition,
             }}
             buyer={{
               name: data.buyer_name,

@@ -21,6 +21,7 @@ const initialFormData: BidRequestFormData = {
   tire: DEFAULT_TIRES, // Default to green range (8-10/32")
   maintenance: "upToDate", // Default to "Up to date" (optimal)
   history: "noAccidents", // Default to "No Accidents" (optimal)
+  historyService: "", // AutoCheck or CarFax selection
   reconEstimate: "0",
   reconDetails: "",
   engineCylinders: "",

@@ -16,6 +16,8 @@ import carPlaceholder from "@/assets/car-placeholder.png";
 import { formatCurrencyDisplay } from "@/utils/currencyUtils";
 import BookValuesCard from "./BookValuesCard";
 import ImageCarouselDialog from "./ImageCarouselDialog";
+import BrakesAndTiresDisplay from "./BrakesAndTiresDisplay";
+import { getHistoryDisplay } from "./utils/historyFormatting";
 
 interface VehicleDetailsSectionProps {
   vehicle: VehicleDetails;
@@ -207,16 +209,24 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Engine Lights :</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
               </div>
-              <Separator />
-              <div className="grid grid-cols-5 gap-1.5 py-2">
-                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Brakes :</p>
-                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.brakes, 'brakesTires')}</p>
-              </div>
-              <Separator />
-              <div className="grid grid-cols-5 gap-1.5 py-2">
-                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Tires :</p>
-                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.tire, 'brakesTires')}</p>
-              </div>
+              {vehicle.history && vehicle.history !== 'unknown' && (
+                <>
+                  <Separator />
+                  <div className="grid grid-cols-5 gap-1.5 py-2">
+                    <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">History :</p>
+                    <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getHistoryDisplay(vehicle.history)}</p>
+                  </div>
+                </>
+              )}
+              {vehicle.historyService && (
+                <>
+                  <Separator />
+                  <div className="grid grid-cols-5 gap-1.5 py-2">
+                    <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Report :</p>
+                    <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.historyService}</p>
+                  </div>
+                </>
+              )}
               <Separator />
               <div className="grid grid-cols-5 gap-1.5 py-2">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Maintenance :</p>
@@ -239,6 +249,11 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
             </div>
           </CardContent>
         </Card>
+
+        <BrakesAndTiresDisplay 
+          brakes={vehicle.brakes} 
+          tires={vehicle.tire} 
+        />
 
           <BookValuesCard
             kbbWholesale={vehicle.kbbWholesale}

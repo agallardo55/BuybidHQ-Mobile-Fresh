@@ -59,7 +59,8 @@ export const useBidRequestSubmission = () => {
         tires: formData.tire || 'notSpecified',
         maintenance: formData.maintenance || 'notSpecified',
         recon_estimate: extractNumericValue(formData.reconEstimate),
-        recon_details: formData.reconDetails || 'No additional details'
+        recon_details: formData.reconDetails || 'No additional details',
+        history: formData.history || 'unknown'
       };
 
       // Create the bid request
@@ -101,6 +102,7 @@ export const useBidRequestSubmission = () => {
             .from('bookValues')
             .insert({
               vehicle_id: bidRequest.vehicle_id,
+              condition: formData.bookValuesCondition || 'good',
               mmr_wholesale: formData.mmrWholesale ? parseFloat(extractNumericValue(formData.mmrWholesale)) : null,
               mmr_retail: formData.mmrRetail ? parseFloat(extractNumericValue(formData.mmrRetail)) : null,
               kbb_wholesale: formData.kbbWholesale ? parseFloat(extractNumericValue(formData.kbbWholesale)) : null,
@@ -116,6 +118,23 @@ export const useBidRequestSubmission = () => {
             // Don't throw - book values are optional, continue with the process
           } else {
             console.log(`[${requestId}] Book values saved successfully`);
+          }
+
+          // Save history service selection if provided
+          if (formData.historyService) {
+            const { error: historyError } = await supabase
+              .from('vehicle_history')
+              .insert({
+                vehicle_id: bidRequest.vehicle_id,
+                history_service: formData.historyService
+              });
+
+            if (historyError) {
+              console.error(`[${requestId}] Error saving vehicle history service:`, historyError);
+              // Don't throw - history service is optional
+            } else {
+              console.log(`[${requestId}] Vehicle history service saved successfully`);
+            }
           }
         }
       }
