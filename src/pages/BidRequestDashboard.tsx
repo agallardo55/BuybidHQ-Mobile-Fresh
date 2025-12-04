@@ -14,6 +14,8 @@ import { useBidRequestDelete } from "@/hooks/bid-requests/useBidRequestDelete";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { BetaNoticeModal } from "@/components/BetaNoticeModal";
+import { isAdmin } from "@/utils/auth-helpers";
 
 type SortConfig = {
   field: keyof BidRequest | null;
@@ -21,11 +23,12 @@ type SortConfig = {
 };
 
 const BidRequestDashboard = () => {
-  const { enrichUserProfile } = useAuth();
+  const { enrichUserProfile, user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isMounted, setIsMounted] = useState(false);
+  const [betaNoticeOpen, setBetaNoticeOpen] = useState(false);
   const isMobile = useIsMobile(); // Use the existing hook instead
 
   // Ensure component is mounted before rendering portal
@@ -39,6 +42,29 @@ const BidRequestDashboard = () => {
       console.log('Background enrichment failed:', err);
     });
   }, []); // Only run once on mount
+
+  // Show beta notice modal for non-super-admin users once per session
+  useEffect(() => {
+    if (!user) return;
+
+    // Don't show for super admins
+    if (isAdmin(user)) return;
+
+    // Check if modal has already been shown this session
+    const hasShownBetaNotice = sessionStorage.getItem('beta-notice-shown');
+    if (hasShownBetaNotice) return;
+
+    // Show the modal
+    setBetaNoticeOpen(true);
+  }, [user]);
+
+  // Handle modal close - set sessionStorage flag
+  const handleBetaNoticeClose = (open: boolean) => {
+    setBetaNoticeOpen(open);
+    if (!open) {
+      sessionStorage.setItem('beta-notice-shown', 'true');
+    }
+  };
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'createdAt', direction: 'desc' });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bidRequestToDelete, setBidRequestToDelete] = useState<BidRequest | null>(null);
@@ -201,6 +227,13 @@ const BidRequestDashboard = () => {
         onConfirm={handleConfirmDelete}
         bidRequest={bidRequestToDelete}
       />
+
+      {user && !isAdmin(user) && (
+        <BetaNoticeModal
+          open={betaNoticeOpen}
+          onOpenChange={handleBetaNoticeClose}
+        />
+      )}
 
       {/* Mobile FAB - adjust bottom spacing to account for footer */}
       {isMounted && isMobile && typeof document !== 'undefined' && createPortal(
