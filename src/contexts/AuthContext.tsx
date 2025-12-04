@@ -26,11 +26,6 @@ const AuthContext = createContext<EnhancedAuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  useEffect(() => {
-    console.log('🔴 AUTH PROVIDER RENDERED');
-    return () => console.log('🔴 AUTH PROVIDER UNMOUNTED');
-  });
-
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
