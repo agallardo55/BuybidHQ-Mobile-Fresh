@@ -42,17 +42,22 @@ export const useAuthWithMFA = () => {
         return false;
       }
 
-      // Step 2: Check if MFA required using Supabase's native MFA API
-      console.log('useAuthWithMFA: Checking MFA factors...');
-      const { data: factors, error: mfaError } = await supabase.auth.mfa.listFactors();
-      
-      console.log('useAuthWithMFA: MFA factors result:', { factors, mfaError });
+      // Step 2: Check if MFA required using mfa_settings table
+      console.log('useAuthWithMFA: Checking MFA settings...');
+      const { data: mfaSettings, error: mfaError } = await supabase
+        .from('mfa_settings')
+        .select('status, method')
+        .eq('user_id', authData.user.id)
+        .eq('status', 'enabled')
+        .eq('method', 'sms');
+
+      console.log('useAuthWithMFA: MFA settings result:', { mfaSettings, mfaError });
 
       if (mfaError) {
-        console.error('Error checking MFA factors:', mfaError);
+        console.error('Error checking MFA settings:', mfaError);
       }
 
-      const hasMFA = factors && (factors.totp?.length > 0 || factors.phone?.length > 0);
+      const hasMFA = mfaSettings && mfaSettings.length > 0;
       
       if (hasMFA) {
         // MFA required - session is AAL1 at this point

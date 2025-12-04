@@ -201,6 +201,16 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
           <CardContent>
             <div className="grid gap-1.5">
               <div className="grid grid-cols-5 gap-1.5 py-2">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Report :</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.historyService || 'Not Specified'}</p>
+              </div>
+              <Separator />
+              <div className="grid grid-cols-5 gap-1.5 py-2">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">History :</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getHistoryDisplay(vehicle.history)}</p>
+              </div>
+              <Separator />
+              <div className="grid grid-cols-5 gap-1.5 py-2">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Windshield :</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.windshield, 'windshield')}</p>
               </div>
@@ -209,24 +219,6 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Engine Lights :</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
               </div>
-              {vehicle.history && vehicle.history !== 'unknown' && (
-                <>
-                  <Separator />
-                  <div className="grid grid-cols-5 gap-1.5 py-2">
-                    <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">History :</p>
-                    <p className="col-span-3 text-base lg:text-base text-lg font-normal">{getHistoryDisplay(vehicle.history)}</p>
-                  </div>
-                </>
-              )}
-              {vehicle.historyService && (
-                <>
-                  <Separator />
-                  <div className="grid grid-cols-5 gap-1.5 py-2">
-                    <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Report :</p>
-                    <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.historyService}</p>
-                  </div>
-                </>
-              )}
               <Separator />
               <div className="grid grid-cols-5 gap-1.5 py-2">
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Maintenance :</p>

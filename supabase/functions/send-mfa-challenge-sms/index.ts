@@ -126,8 +126,21 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Mask phone number for display (e.g., +1234567890 -> +1***-***-7890)
+    const maskPhone = (phone: string): string => {
+      if (!phone || phone.length < 4) return phone;
+      const cleaned = phone.replace(/\D/g, '');
+      if (cleaned.length < 4) return phone;
+      const last4 = cleaned.slice(-4);
+      const prefix = cleaned.slice(0, -4);
+      return `+${prefix.replace(/\d/g, '*')}-***-${last4}`;
+    };
+
     return new Response(
-      JSON.stringify({ success: true }), 
+      JSON.stringify({ 
+        success: true,
+        maskedPhone: maskPhone(users.mobile_number)
+      }), 
       { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

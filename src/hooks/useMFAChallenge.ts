@@ -135,31 +135,18 @@ export const useMFAChallenge = (
       setIsVerifying(true);
       setError(null);
 
-      // Use Supabase's native MFA verification
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const phoneFactor = factors?.phone?.[0];
+      // Get current user ID from session
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (!phoneFactor) {
-        setError('No phone factor found');
+      if (userError || !user) {
+        setError('Session expired. Please sign in again.');
         return false;
       }
 
-      // Send challenge first
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: phoneFactor.id
-      });
-
-      if (challengeError) {
-        console.error('Error creating MFA challenge:', challengeError);
-        setError('Failed to create verification challenge');
-        return false;
-      }
-
-      // Verify the code
-      const { data: verifyData, error: verifyError } = await supabase.auth.mfa.verify({
-        factorId: phoneFactor.id,
-        challengeId: challengeData.id,
-        code: code
+      // Verify the code using the custom database function
+      const { data: verifyResult, error: verifyError } = await supabase.rpc('verify_mfa_code', {
+        p_user_id: user.id,
+        p_verification_code: code
       });
 
       if (verifyError) {
@@ -182,7 +169,26 @@ export const useMFAChallenge = (
         }
       }
 
-      // Success - session upgraded to AAL2
+      const result = verifyResult?.[0];
+      if (!result?.is_valid) {
+        setAttemptCount(prev => prev + 1);
+        setLastAttemptTime(Date.now());
+        
+        if (attemptCount + 1 >= 3) {
+          toast({
+            title: "Security Alert",
+            description: "Too many failed attempts. Logging out for security.",
+            variant: "destructive",
+          });
+          await supabase.auth.signOut();
+          return false;
+        } else {
+          setError(result?.error_message || 'Invalid code. Try again.');
+          return false;
+        }
+      }
+
+      // Success - code verified
       toast({
         title: "Verified!",
         description: "Multi-factor authentication successful",
