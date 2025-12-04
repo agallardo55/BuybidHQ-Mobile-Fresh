@@ -39,6 +39,29 @@ export const SubscriptionTab = () => {
     }
   };
 
+  const handleChangePlan = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-stripe-portal', {
+        method: 'POST',
+        body: {
+          returnUrl: `${window.location.origin}/account`,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error creating portal session:', error);
+      toast({
+        title: "Error",
+        description: "Unable to access subscription management. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePlanChange = async (planType?: PlanType) => {
     try {
       const currentPlan = account?.plan;
@@ -216,7 +239,14 @@ export const SubscriptionTab = () => {
       {account?.stripe_subscription_id && (
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900">Subscription Management</h3>
-          <div className="pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button
+              type="button"
+              onClick={handleChangePlan}
+              className="w-full sm:w-auto"
+            >
+              Change Plan
+            </Button>
             <Button
               type="button"
               onClick={handleManageSubscription}
@@ -228,7 +258,7 @@ export const SubscriptionTab = () => {
           </div>
           <div className="text-sm text-gray-500">
             <p>
-              Manage your subscription and payment methods securely through our payment provider.
+              Change your subscription plan or manage payment methods securely through our payment provider.
               Changes will be reflected immediately in your account.
             </p>
           </div>

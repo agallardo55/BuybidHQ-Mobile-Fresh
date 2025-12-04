@@ -217,6 +217,7 @@ serve(async (req) => {
           metadata: {
             account_id: account.id,
             requested_plan: planName,
+            user_id: user.id,
           },
         },
       });

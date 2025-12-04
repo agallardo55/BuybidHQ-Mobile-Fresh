@@ -127,6 +127,18 @@ Deno.serve(async (req) => {
           break;
         }
 
+        // Get user's account_id
+        const { data: userData } = await supabaseAdmin
+          .from('buybidhq_users')
+          .select('account_id')
+          .eq('id', userId)
+          .single();
+
+        if (!userData?.account_id) {
+          console.warn('No account found for user:', userId);
+          break;
+        }
+
         // Map Stripe subscription status to our database status
         const statusMap: Record<string, string> = {
           'active': 'active',
@@ -140,8 +152,28 @@ Deno.serve(async (req) => {
 
         const dbStatus = statusMap[subscription.status] || 'incomplete';
 
-        console.log(`Updating subscription for user ${userId} to status ${dbStatus}`);
+        // Determine plan type from subscription items
+        let accountPlan: string = 'free';
+        if (subscription.items.data.length > 0) {
+          const priceId = subscription.items.data[0].price.id;
+          const connectPriceId = Deno.env.get('STRIPE_CONNECT_PRICE_ID');
+          const annualPriceId = Deno.env.get('STRIPE_ANNUAL_PRICE_ID');
+          
+          if (priceId === annualPriceId) {
+            accountPlan = 'annual';
+          } else if (priceId === connectPriceId) {
+            accountPlan = 'connect';
+          } else {
+            // If subscription is canceled or no matching price, set to free
+            accountPlan = subscription.status === 'canceled' ? 'free' : accountPlan;
+          }
+        } else if (subscription.status === 'canceled') {
+          accountPlan = 'free';
+        }
 
+        console.log(`Updating subscription for user ${userId} to status ${dbStatus}, plan: ${accountPlan}`);
+
+        // Update subscriptions table
         const { error: updateError } = await supabaseAdmin
           .from('subscriptions')
           .update({
@@ -157,6 +189,24 @@ Deno.serve(async (req) => {
             JSON.stringify({ error: 'Database error', details: updateError.message }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
+        }
+
+        // Update accounts table with plan and billing status
+        const { error: accountUpdateError } = await supabaseAdmin
+          .from('accounts')
+          .update({
+            plan: accountPlan,
+            billing_status: dbStatus,
+            stripe_subscription_id: subscription.id,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userData.account_id);
+
+        if (accountUpdateError) {
+          console.error('Error updating account:', accountUpdateError);
+          // Don't fail the webhook, but log the error
+        } else {
+          console.log(`✅ Updated account ${userData.account_id} to plan ${accountPlan}, status ${dbStatus}`);
         }
 
         // Sync user status with subscription status for paid plans
@@ -195,8 +245,16 @@ Deno.serve(async (req) => {
           break;
         }
 
+        // Get user's account_id
+        const { data: userData } = await supabaseAdmin
+          .from('buybidhq_users')
+          .select('account_id')
+          .eq('id', userId)
+          .single();
+
         console.log(`Canceling subscription for user ${userId}`);
 
+        // Update subscriptions table
         const { error: updateError } = await supabaseAdmin
           .from('subscriptions')
           .update({
@@ -211,6 +269,25 @@ Deno.serve(async (req) => {
             JSON.stringify({ error: 'Database error', details: updateError.message }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
+        }
+
+        // Update accounts table to free plan
+        if (userData?.account_id) {
+          const { error: accountUpdateError } = await supabaseAdmin
+            .from('accounts')
+            .update({
+              plan: 'free',
+              billing_status: 'canceled',
+              stripe_subscription_id: null,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', userData.account_id);
+
+          if (accountUpdateError) {
+            console.error('Error updating account:', accountUpdateError);
+          } else {
+            console.log(`✅ Updated account ${userData.account_id} to free plan`);
+          }
         }
 
         // Update user status to inactive when subscription is canceled
