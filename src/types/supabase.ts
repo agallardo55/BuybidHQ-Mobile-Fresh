@@ -1085,72 +1085,6 @@ export type Database = {
           },
         ]
       }
-      mfa_settings: {
-        Row: {
-          created_at: string | null
-          id: string
-          last_verified: string | null
-          method: Database["public"]["Enums"]["mfa_method"]
-          status: Database["public"]["Enums"]["mfa_status"]
-          trusted_devices: Json | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          last_verified?: string | null
-          method?: Database["public"]["Enums"]["mfa_method"]
-          status?: Database["public"]["Enums"]["mfa_status"]
-          trusted_devices?: Json | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          last_verified?: string | null
-          method?: Database["public"]["Enums"]["mfa_method"]
-          status?: Database["public"]["Enums"]["mfa_status"]
-          trusted_devices?: Json | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      mfa_verifications: {
-        Row: {
-          attempts: number | null
-          created_at: string | null
-          expires_at: string
-          id: string
-          method: Database["public"]["Enums"]["mfa_method"]
-          user_id: string
-          verification_code: string
-          verified_at: string | null
-        }
-        Insert: {
-          attempts?: number | null
-          created_at?: string | null
-          expires_at: string
-          id?: string
-          method: Database["public"]["Enums"]["mfa_method"]
-          user_id: string
-          verification_code: string
-          verified_at?: string | null
-        }
-        Update: {
-          attempts?: number | null
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          method?: Database["public"]["Enums"]["mfa_method"]
-          user_id?: string
-          verification_code?: string
-          verified_at?: string | null
-        }
-        Relationships: []
-      }
       notifications: {
         Row: {
           cleared_at: string | null
@@ -1922,17 +1856,6 @@ export type Database = {
         }
         Returns: string
       }
-      create_mfa_verification: {
-        Args: {
-          p_method: Database["public"]["Enums"]["mfa_method"]
-          p_user_id: string
-        }
-        Returns: {
-          code: string
-          expires_at: string
-          verification_id: string
-        }[]
-      }
       current_user_account_id: { Args: never; Returns: string }
       current_user_in_account: { Args: { a_id: string }; Returns: boolean }
       current_user_role: { Args: never; Returns: string }
@@ -1940,7 +1863,6 @@ export type Database = {
         Args: { p_bid_request_id: string; p_buyer_id: string }
         Returns: string
       }
-      generate_verification_code: { Args: never; Returns: string }
       get_bid_notification_details: {
         Args: { p_bid_response_id: string }
         Returns: {
@@ -2289,14 +2211,6 @@ export type Database = {
         Args: { phone_input: string }
         Returns: Json
       }
-      verify_mfa_code: {
-        Args: { p_user_id: string; p_verification_code: string }
-        Returns: {
-          attempts_remaining: number
-          error_message: string
-          is_valid: boolean
-        }[]
-      }
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
@@ -2306,8 +2220,6 @@ export type Database = {
         | "invalid"
         | "processing"
       dealer_type: "individual" | "multi_user"
-      mfa_method: "email" | "sms"
-      mfa_status: "enabled" | "disabled" | "pending"
       notification_type:
         | "bid_request"
         | "bid_response"
@@ -2482,8 +2394,6 @@ export const Constants = {
         "processing",
       ],
       dealer_type: ["individual", "multi_user"],
-      mfa_method: ["email", "sms"],
-      mfa_status: ["enabled", "disabled", "pending"],
       notification_type: [
         "bid_request",
         "bid_response",

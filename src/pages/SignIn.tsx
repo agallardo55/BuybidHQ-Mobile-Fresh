@@ -9,7 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAuthWithMFA } from "@/hooks/useAuthWithMFA";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -18,40 +17,100 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
-  const { signInWithMFA, isLoading: isMFALoading } = useAuthWithMFA();
+  const { user, setIsAuthenticating } = useAuth();
 
+  // Reset authentication flag when component unmounts (user navigates away)
   useEffect(() => {
-    // Check if user is already authenticated
-    if (user) {
-      const from = (location.state as any)?.from?.pathname || '/dashboard';
-      navigate(from, { replace: true });
-    }
-  }, [user, navigate, location]);
+    return () => {
+      setIsAuthenticating(false);
+    };
+  }, [setIsAuthenticating]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    // Trim email and password to prevent whitespace issues
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    
+    if (!trimmedEmail || !trimmedPassword) {
       toast.error("Please enter both email and password");
       return;
     }
 
     setIsLoading(true);
+    setIsAuthenticating(true); // Set flag BEFORE calling signInWithPassword
 
     try {
-      const from = (location.state as any)?.from?.pathname || '/dashboard';
-      const success = await signInWithMFA(email, password, from);
+      // Log request details (without password) for debugging
+      console.log('SignIn: Attempting sign in with email:', trimmedEmail);
       
-      if (!success) {
-        // Error handling is done in the hook
+      // Sign in with password
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
+        password: trimmedPassword,
+      });
+
+      if (signInError) {
+        setIsAuthenticating(false);
+        
+        // Detailed error logging to capture full Supabase error response
+        console.error('Auth error full details:', {
+          message: signInError.message,
+          status: signInError.status,
+          code: (signInError as any).code,
+          cause: (signInError as any).cause,
+          error: signInError,
+        });
+        
+        toast.error(signInError.message);
         return;
       }
+
+      if (!signInData.user) {
+        setIsAuthenticating(false);
+        toast.error('Authentication failed');
+        return;
+      }
+
+      // Check if user needs MFA verification
+      const { data: mfaNeeded, error: mfaError } = await supabase.rpc('needs_daily_mfa');
+
+      if (mfaError) {
+        console.error('Error checking MFA status:', mfaError);
+        // Fail open - navigate to dashboard
+        setIsAuthenticating(false);
+        const from = (location.state as any)?.from?.pathname || '/dashboard';
+        navigate(from, { replace: true });
+        return;
+      }
+
+      setIsAuthenticating(false);
+
+      if (mfaNeeded === true) {
+        // User needs MFA - redirect to challenge
+        const from = (location.state as any)?.from?.pathname || '/dashboard';
+        navigate('/auth/mfa-challenge', { 
+          state: { from: { pathname: from } },
+          replace: true 
+        });
+      } else {
+        // User doesn't need MFA - go to original destination
+        const from = (location.state as any)?.from?.pathname || '/dashboard';
+        navigate(from, { replace: true });
+      }
       
-      // Success handling is also done in the hook (navigation to MFA or dashboard)
     } catch (error: any) {
-      console.error("Sign in error:", error);
-      toast.error(error.message || "Failed to sign in. Please check your credentials.");
+      console.error("Sign in error (catch block):", {
+        message: error?.message,
+        status: error?.status,
+        code: error?.code,
+        cause: error?.cause,
+        error: error,
+      });
+      setIsAuthenticating(false);
+      toast.error(error?.message || "Failed to sign in");
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +162,7 @@ const SignIn = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
-                disabled={isLoading || isMFALoading}
+                disabled={isLoading}
                 className="mt-1"
                 autoComplete="current-password"
               />
@@ -126,9 +185,9 @@ const SignIn = () => {
           <Button 
             type="submit" 
             className="w-full bg-accent hover:bg-accent/90"
-            disabled={isLoading || isMFALoading}
+            disabled={isLoading}
           >
-            {(isLoading || isMFALoading) ? (
+            {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Signing in...

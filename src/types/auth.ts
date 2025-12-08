@@ -48,9 +48,6 @@ export interface AuthContextType {
   user: AuthUser | null;
   session: Session | null;
   isLoading: boolean;
-  // TODO: Add MFA state when implementing MFA
-  // mfaRequired?: boolean;
-  // mfaVerified?: boolean;
 }
 
 // Role-based access control helpers
@@ -83,35 +80,6 @@ export type AuthAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'REFRESH_SESSION'; payload: Session }
   | { type: 'UPDATE_USER'; payload: Partial<AuthUser> };
-
-// MFA types (scaffolding for future implementation)
-// TODO: Implement MFA with Supabase schema:
-// - Create mfa_settings table with user_id, method, status columns
-// - Create mfa_verifications table for temporary codes
-// - Add MFA methods: 'email' | 'sms' | 'totp'
-
-export type MFAMethod = 'email' | 'sms' | 'totp';
-export type MFAStatus = 'disabled' | 'pending' | 'enabled';
-
-export interface MFASettings {
-  id: string;
-  user_id: string;
-  method: MFAMethod;
-  status: MFAStatus;
-  created_at: string;
-  updated_at: string;
-  // TODO: Add trusted_devices, backup_codes when implementing
-}
-
-export interface MFAChallenge {
-  id: string;
-  user_id: string;
-  method: MFAMethod;
-  code: string;
-  expires_at: string;
-  verified_at?: string;
-  attempts: number;
-}
 
 // Email confirmation types (scaffolding)
 // TODO: Enhance email confirmation flow

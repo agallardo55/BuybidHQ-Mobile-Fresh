@@ -5,14 +5,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { MFAPasswordResetForm } from "@/components/MFAPasswordResetForm";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const [showMFAForm, setShowMFAForm] = useState(false);
-  const [mfaMethods, setMfaMethods] = useState<('email' | 'sms')[]>([]);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,29 +17,13 @@ const ForgotPassword = () => {
     setIsLoading(true);
 
     try {
-      // First check if user has MFA enabled
-      const { data: mfaCheck, error: mfaError } = await supabase.functions.invoke('check-mfa-for-reset', {
-        body: { email }
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
-      if (mfaError) {
-        throw mfaError;
-      }
+      if (error) throw error;
 
-      if (mfaCheck?.hasMFA) {
-        // User has MFA - show MFA verification form
-        setMfaMethods(mfaCheck.methods || []);
-        setShowMFAForm(true);
-      } else {
-        // No MFA - proceed with standard reset
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-
-        if (error) throw error;
-
-        setEmailSent(true);
-      }
+      setEmailSent(true);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -52,11 +33,6 @@ const ForgotPassword = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleBackFromMFA = () => {
-    setShowMFAForm(false);
-    setMfaMethods([]);
   };
 
   return (
@@ -69,27 +45,19 @@ const ForgotPassword = () => {
             className="mx-auto h-12 w-auto"
           />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Reset Password</h2>
-          {!emailSent && !showMFAForm && (
+          {!emailSent && (
             <p className="mt-2 text-sm text-gray-600">
               Enter your email address and we'll send you instructions to reset your password.
             </p>
           )}
-          {emailSent && !showMFAForm && (
+          {emailSent && (
             <p className="mt-2 text-sm text-gray-600">
               Check your email for the password reset link. You can close this page.
             </p>
           )}
         </div>
         
-        {showMFAForm ? (
-          <div className="mt-8">
-            <MFAPasswordResetForm 
-              email={email} 
-              mfaMethods={mfaMethods} 
-              onBack={handleBackFromMFA}
-            />
-          </div>
-        ) : (
+        {!emailSent && (
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -122,6 +90,15 @@ const ForgotPassword = () => {
               ← Back to Sign In
             </Link>
           </form>
+        )}
+        
+        {emailSent && (
+          <Link 
+            to="/signin" 
+            className="block text-center text-sm text-[#325AE7] hover:text-[#325AE7]/90 mt-4"
+          >
+            ← Back to Sign In
+          </Link>
         )}
       </div>
     </div>

@@ -180,6 +180,7 @@ export type Database = {
           created_at: string
           id: string
           images_id: string | null
+          is_public: boolean | null
           recon: string | null
           status: Database["public"]["Enums"]["bid_status"] | null
           user_id: string | null
@@ -191,6 +192,7 @@ export type Database = {
           created_at?: string
           id?: string
           images_id?: string | null
+          is_public?: boolean | null
           recon?: string | null
           status?: Database["public"]["Enums"]["bid_status"] | null
           user_id?: string | null
@@ -202,6 +204,7 @@ export type Database = {
           created_at?: string
           id?: string
           images_id?: string | null
+          is_public?: boolean | null
           recon?: string | null
           status?: Database["public"]["Enums"]["bid_status"] | null
           user_id?: string | null
@@ -469,14 +472,14 @@ export type Database = {
           {
             foreignKeyName: "fk_values_vehicle"
             columns: ["vehicle_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "fk_values_vehicle"
             columns: ["vehicle_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1081,72 +1084,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      mfa_settings: {
-        Row: {
-          created_at: string | null
-          id: string
-          last_verified: string | null
-          method: Database["public"]["Enums"]["mfa_method"]
-          status: Database["public"]["Enums"]["mfa_status"]
-          trusted_devices: Json | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          last_verified?: string | null
-          method?: Database["public"]["Enums"]["mfa_method"]
-          status?: Database["public"]["Enums"]["mfa_status"]
-          trusted_devices?: Json | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          last_verified?: string | null
-          method?: Database["public"]["Enums"]["mfa_method"]
-          status?: Database["public"]["Enums"]["mfa_status"]
-          trusted_devices?: Json | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      mfa_verifications: {
-        Row: {
-          attempts: number | null
-          created_at: string | null
-          expires_at: string
-          id: string
-          method: Database["public"]["Enums"]["mfa_method"]
-          user_id: string
-          verification_code: string
-          verified_at: string | null
-        }
-        Insert: {
-          attempts?: number | null
-          created_at?: string | null
-          expires_at: string
-          id?: string
-          method: Database["public"]["Enums"]["mfa_method"]
-          user_id: string
-          verification_code: string
-          verified_at?: string | null
-        }
-        Update: {
-          attempts?: number | null
-          created_at?: string | null
-          expires_at?: string
-          id?: string
-          method?: Database["public"]["Enums"]["mfa_method"]
-          user_id?: string
-          verification_code?: string
-          verified_at?: string | null
-        }
-        Relationships: []
       }
       notifications: {
         Row: {
@@ -1847,7 +1784,7 @@ export type Database = {
     }
     Functions: {
       batch_process_carrier_detection: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           carriers_detected: number
           total_processed: number
@@ -1865,10 +1802,7 @@ export type Database = {
         Args: { checking_user_id: string }
         Returns: boolean
       }
-      can_create_bid_request: {
-        Args: { user_id: string }
-        Returns: Json
-      }
+      can_create_bid_request: { Args: { user_id: string }; Returns: Json }
       can_manage_dealership: {
         Args: { checking_user_id: string; target_dealership_id: string }
         Returns: boolean
@@ -1885,6 +1819,7 @@ export type Database = {
         Args: { checking_user_id: string }
         Returns: boolean
       }
+      check_email_exists: { Args: { email_to_check: string }; Returns: boolean }
       check_password_reset_rate_limit: {
         Args: { p_email: string }
         Returns: boolean
@@ -1901,7 +1836,7 @@ export type Database = {
         Returns: boolean
       }
       cleanup_phone_numbers: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           duplicates: number
           invalid: number
@@ -1909,58 +1844,23 @@ export type Database = {
           total_processed: number
         }[]
       }
-      clear_notifications: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      clear_notifications: { Args: never; Returns: undefined }
       create_complete_bid_request: {
-        Args:
-          | {
-              account_id: string
-              buyer_ids: string[]
-              creator_id: string
-              image_urls: string[]
-              recon_data: Json
-              vehicle_data: Json
-            }
-          | {
-              buyer_ids: string[]
-              creator_id: string
-              image_urls: string[]
-              recon_data: Json
-              vehicle_data: Json
-            }
-        Returns: string
-      }
-      create_mfa_verification: {
         Args: {
-          p_method: Database["public"]["Enums"]["mfa_method"]
-          p_user_id: string
+          account_id: string
+          buyer_ids: string[]
+          creator_id: string
+          image_urls: string[]
+          recon_data: Json
+          vehicle_data: Json
         }
-        Returns: {
-          code: string
-          expires_at: string
-          verification_id: string
-        }[]
-      }
-      current_user_account_id: {
-        Args: Record<PropertyKey, never>
         Returns: string
       }
-      current_user_in_account: {
-        Args: { a_id: string }
-        Returns: boolean
-      }
-      current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      current_user_account_id: { Args: never; Returns: string }
+      current_user_in_account: { Args: { a_id: string }; Returns: boolean }
+      current_user_role: { Args: never; Returns: string }
       generate_bid_submission_token: {
         Args: { p_bid_request_id: string; p_buyer_id: string }
-        Returns: string
-      }
-      generate_verification_code: {
-        Args: Record<PropertyKey, never>
         Returns: string
       }
       get_bid_notification_details: {
@@ -2056,7 +1956,7 @@ export type Database = {
         }[]
       }
       get_buyer_user_roles: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           id: string
           role: Database["public"]["Enums"]["user_role"]
@@ -2071,12 +1971,9 @@ export type Database = {
           number_type: Database["public"]["Enums"]["phone_number_type"]
         }[]
       }
-      get_current_user_account_admin_status: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      get_current_user_account_admin_status: { Args: never; Returns: boolean }
       get_current_user_data: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           account_id: string
           app_role: string
@@ -2086,10 +1983,7 @@ export type Database = {
           user_role: Database["public"]["Enums"]["user_role"]
         }[]
       }
-      get_current_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_id: { Args: never; Returns: string }
       get_public_bid_request_details: {
         Args: { p_token: string }
         Returns: {
@@ -2137,7 +2031,7 @@ export type Database = {
         Returns: string
       }
       get_unified_dealer_info: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           address: string
           business_email: string
@@ -2152,14 +2046,8 @@ export type Database = {
           zip_code: string
         }[]
       }
-      get_user_account_id_safe: {
-        Args: { p_user_id: string }
-        Returns: string
-      }
-      get_user_dealership: {
-        Args: { user_id: string }
-        Returns: string
-      }
+      get_user_account_id_safe: { Args: { p_user_id: string }; Returns: string }
+      get_user_dealership: { Args: { user_id: string }; Returns: string }
       get_user_effective_role: {
         Args: { checking_user_id: string }
         Returns: string
@@ -2167,11 +2055,14 @@ export type Database = {
       get_user_profile: {
         Args: { user_id: string }
         Returns: Database["public"]["CompositeTypes"]["user_profile_type"]
+        SetofOptions: {
+          from: "*"
+          to: "user_profile_type"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
-      get_user_role: {
-        Args: { user_id: string }
-        Returns: string
-      }
+      get_user_role: { Args: { user_id: string }; Returns: string }
       get_user_with_dealership: {
         Args: { user_id: string }
         Returns: {
@@ -2199,10 +2090,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      has_admin_access: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      has_admin_access: { Args: { user_id: string }; Returns: boolean }
       has_dealership_access: {
         Args: { target_dealership_id: string; user_id: string }
         Returns: boolean
@@ -2223,18 +2111,12 @@ export type Database = {
         Args: { p_target_account_id: string; p_user_id: string }
         Returns: boolean
       }
-      is_admin: {
-        Args: { checking_user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { checking_user_id: string }; Returns: boolean }
       is_basic_or_individual: {
         Args: { checking_user_id: string }
         Returns: boolean
       }
-      is_dealer: {
-        Args: { checking_user_id: string }
-        Returns: boolean
-      }
+      is_dealer: { Args: { checking_user_id: string }; Returns: boolean }
       is_dealership_admin: {
         Args: { checking_user_id: string; target_dealership_id: string }
         Returns: boolean
@@ -2243,14 +2125,8 @@ export type Database = {
         Args: { checking_user_id: string; dealership_id: string }
         Returns: boolean
       }
-      is_super_admin: {
-        Args: { checking_user_id: string }
-        Returns: boolean
-      }
-      is_superadmin: {
-        Args: { user_email: string }
-        Returns: boolean
-      }
+      is_super_admin: { Args: { checking_user_id: string }; Returns: boolean }
+      is_superadmin: { Args: { user_email: string }; Returns: boolean }
       log_security_event: {
         Args: {
           p_details?: Json
@@ -2265,29 +2141,23 @@ export type Database = {
         Args: { notification_ids: string[] }
         Returns: string[]
       }
-      migrate_individual_dealers: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      migrate_individual_dealers: { Args: never; Returns: undefined }
       process_carrier_detection_batch: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           carriers_detected: number
           total_processed: number
         }[]
       }
       process_phone_validation_batch: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           failed: number
           successful: number
           total_processed: number
         }[]
       }
-      reset_password_attempts: {
-        Args: { p_email: string }
-        Returns: undefined
-      }
+      reset_password_attempts: { Args: { p_email: string }; Returns: undefined }
       restore_deleted_account: {
         Args: {
           p_address: string
@@ -2310,10 +2180,7 @@ export type Database = {
         Args: { phone_input: string }
         Returns: string
       }
-      standardize_carrier_name: {
-        Args: { carrier: string }
-        Returns: string
-      }
+      standardize_carrier_name: { Args: { carrier: string }; Returns: string }
       standardize_phone_number: {
         Args: { phone_input: string }
         Returns: string
@@ -2344,14 +2211,6 @@ export type Database = {
         Args: { phone_input: string }
         Returns: Json
       }
-      verify_mfa_code: {
-        Args: { p_user_id: string; p_verification_code: string }
-        Returns: {
-          attempts_remaining: number
-          error_message: string
-          is_valid: boolean
-        }[]
-      }
     }
     Enums: {
       bid_status: "Pending" | "Approved" | "Declined"
@@ -2361,8 +2220,6 @@ export type Database = {
         | "invalid"
         | "processing"
       dealer_type: "individual" | "multi_user"
-      mfa_method: "email" | "sms"
-      mfa_status: "enabled" | "disabled" | "pending"
       notification_type:
         | "bid_request"
         | "bid_response"
@@ -2537,8 +2394,6 @@ export const Constants = {
         "processing",
       ],
       dealer_type: ["individual", "multi_user"],
-      mfa_method: ["email", "sms"],
-      mfa_status: ["enabled", "disabled", "pending"],
       notification_type: [
         "bid_request",
         "bid_response",

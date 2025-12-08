@@ -15,9 +15,6 @@ const getEventIcon = (eventType: string) => {
     case 'password_change':
     case 'password_reset':
       return Shield;
-    case 'mfa_enabled':
-    case 'mfa_disabled':
-      return Shield;
     case 'failed_login':
     case 'suspicious_activity':
       return AlertTriangle;
@@ -30,7 +27,6 @@ const getEventColor = (eventType: string) => {
   switch (eventType.toLowerCase()) {
     case 'login':
     case 'signin':
-    case 'mfa_enabled':
       return "text-green-600 dark:text-green-400";
     case 'logout':
     case 'signout':
@@ -41,8 +37,6 @@ const getEventColor = (eventType: string) => {
     case 'failed_login':
     case 'suspicious_activity':
       return "text-destructive";
-    case 'mfa_disabled':
-      return "text-yellow-600 dark:text-yellow-400";
     default:
       return "text-muted-foreground";
   }
@@ -93,8 +87,7 @@ export const SecurityDashboard = () => {
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {securityEvents.filter(event => 
-                  event.event_type.includes('password') || 
-                  event.event_type.includes('mfa')
+                  event.event_type.includes('password')
                 ).length}
               </div>
               <div className="text-sm text-muted-foreground">Security Changes</div>

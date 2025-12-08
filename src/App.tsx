@@ -27,7 +27,7 @@ const Marketplace = lazy(() => import("./pages/Marketplace"));
 const Account = lazy(() => import("./pages/Account"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const MFAChallenge = lazy(() => import("./pages/MFAChallenge"));
+const MFAChallenge = lazy(() => import("./pages/auth/MFAChallenge"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Loading component for lazy-loaded routes
@@ -89,13 +89,13 @@ const App = () => {
                   path="/password-reset" 
                   element={<Navigate to="/reset-password" replace />} 
                 />
-                <Route 
-                  path="/auth/mfa-challenge" 
+                <Route
+                  path="/auth/mfa-challenge"
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <MFAChallenge />
                     </Suspense>
-                  } 
+                  }
                 />
                 <Route
                   path="/dashboard"

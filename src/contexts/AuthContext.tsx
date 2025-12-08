@@ -12,9 +12,8 @@ interface EnhancedAuthContextType extends AuthContextType {
   user: AuthUser | null;
   enrichUserProfile: () => Promise<void>;
   signOut: () => Promise<void>;
-  // TODO: Add MFA state when implementing
-  // mfaRequired?: boolean;
-  // emailConfirmationRequired?: boolean;
+  isAuthenticating: boolean;
+  setIsAuthenticating: (value: boolean) => void;
 }
 
 const AuthContext = createContext<EnhancedAuthContextType>({
@@ -23,12 +22,15 @@ const AuthContext = createContext<EnhancedAuthContextType>({
   isLoading: true,
   enrichUserProfile: async () => {},
   signOut: async () => {},
+  isAuthenticating: false,
+  setIsAuthenticating: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const navigate = useNavigate();
 
   // Guards to prevent concurrent/same-user enrichment
@@ -56,12 +58,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = useCallback(async () => {
     console.log('AuthContext: Initiating sign out...');
     try {
+      // 1. Clear ALL auth state FIRST (before Supabase signOut)
+      setUser(null);
+      setSession(null);
+      setIsLoading(false);
+      
+      // 2. Reset all flags to allow proper re-initialization on next sign-in
+      hasAuthInit.current = false;
+      lastAuthEventUserId.current = null;
+      enrichmentInProgress.current = false;
+      lastEnrichmentUserId.current = null;
+      
+      // 3. Sign out from Supabase
       await robustSignOut({ scope: 'global', clearHistory: true });
     } catch (error) {
       console.error('AuthContext: Sign out error:', error);
-      // Fallback - clear local state and navigate
+      // Fallback - ensure clean state even if robustSignOut fails
       setUser(null);
       setSession(null);
+      setIsLoading(false);
+      hasAuthInit.current = false;
+      lastAuthEventUserId.current = null;
+      enrichmentInProgress.current = false;
+      lastEnrichmentUserId.current = null;
       navigate('/signin', { replace: true });
     }
   }, [navigate]);
@@ -355,9 +374,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('AuthContext: Auth state changed:', { event, session: session ? 'exists' : 'none' });
 
-      // Don't process during initial load (already handled by getSession)
+      // Handle INITIAL_SESSION properly - ensure clean state if no session
       if (event === 'INITIAL_SESSION') {
-        console.log('AuthContext: Skipping INITIAL_SESSION (already processed)');
+        console.log('AuthContext: INITIAL_SESSION event:', { hasSession: !!session });
+        if (session) {
+          // Has session - process it
+          console.log('AuthContext: Processing INITIAL_SESSION with session:', session.user.id);
+          try {
+            const basicUser = {
+              ...session.user,
+              app_metadata: {
+                ...session.user.app_metadata,
+                role: 'basic',
+                app_role: 'member',
+                account_id: null,
+                dealership_id: null,
+              }
+            } as AuthUser;
+            setUser(basicUser);
+            setSession(session);
+            // Enrich in background
+            enrichUserWithProfile(session.user).then((enrichedUser) => {
+              setUser(enrichedUser);
+            }).catch((enrichError) => {
+              console.warn('AuthContext: Background enrichment failed (non-blocking):', enrichError);
+            });
+          } catch (error) {
+            console.error('AuthContext: Error processing INITIAL_SESSION:', error);
+            setUser({
+              ...session.user,
+              app_metadata: session.user.app_metadata || {},
+              user_metadata: session.user.user_metadata || {},
+            } as AuthUser);
+            setSession(session);
+          }
+        } else {
+          // No session - ensure clean state (important after sign-out)
+          console.log('AuthContext: INITIAL_SESSION with no session - clearing state');
+          setUser(null);
+          setSession(null);
+        }
         return;
       }
 
@@ -369,6 +425,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return;
           }
           lastAuthEventUserId.current = session.user.id;
+          console.log('[TIMING] AuthContext: SIGNED_IN event fired at', Date.now());
           console.log('AuthContext: Processing user from auth state change:', session.user.id);
           
           // Set user immediately without enrichment to avoid blocking login
@@ -385,8 +442,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               }
             } as AuthUser;
             
+            console.log('[TIMING] AuthContext: About to setUser at', Date.now());
             setUser(basicUser);
             setSession(session);
+            console.log('[TIMING] AuthContext: setUser called at', Date.now());
             console.log('AuthContext: User set from auth state change (basic profile, enrichment deferred)');
             
             // Enrich in background (non-blocking)
@@ -409,13 +468,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         } else if (event === 'SIGNED_OUT') {
           console.log('AuthContext: User signed out');
-          localStorage.clear();
+          // Clear all state
           setUser(null);
           setSession(null);
+          setIsLoading(false);
+          // Reset all flags to allow proper re-initialization
+          hasAuthInit.current = false;
+          lastAuthEventUserId.current = null;
+          enrichmentInProgress.current = false;
+          lastEnrichmentUserId.current = null;
+          // Clear storage
+          localStorage.clear();
           navigate('/signin');
         } else if (event === 'TOKEN_REFRESHED' && session) {
           console.log('AuthContext: Token refreshed');
           setSession(session);
+          
           // Don't re-enrich on token refresh, just update session
         } else if (event === 'USER_UPDATED' && session?.user) {
           console.log('AuthContext: User updated');
@@ -489,8 +557,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     session,
     isLoading,
     enrichUserProfile,
-    signOut
-  }), [user, session, isLoading, enrichUserProfile, signOut]);
+    signOut,
+    isAuthenticating,
+    setIsAuthenticating
+  }), [user, session, isLoading, enrichUserProfile, signOut, isAuthenticating]);
 
   return (
     <AuthContext.Provider value={contextValue}>

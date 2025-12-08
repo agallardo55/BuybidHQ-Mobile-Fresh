@@ -1,7 +1,7 @@
 /**
  * Enhanced Authentication Hook
  * 
- * Extended auth hook with MFA support, email confirmation,
+ * Extended auth hook with email confirmation
  * and enhanced session management.
  */
 
@@ -9,15 +9,11 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { AuthUser, MFAMethod, EmailConfirmation } from '@/types/auth';
+import { AuthUser, EmailConfirmation } from '@/types/auth';
 
 interface EnhancedAuthState {
   // Email confirmation state
   emailConfirmation: EmailConfirmation;
-  // MFA state (scaffolding for future implementation)
-  mfaRequired: boolean;
-  mfaMethod?: MFAMethod;
-  mfaVerified: boolean;
   // Session state
   sessionExpiring: boolean;
   sessionRefreshing: boolean;
@@ -27,12 +23,6 @@ interface EnhancedAuthActions {
   // Email confirmation
   resendConfirmationEmail: () => Promise<boolean>;
   checkEmailConfirmation: () => Promise<boolean>;
-  
-  // MFA actions (scaffolding)
-  // TODO: Implement when MFA schema is ready
-  // setupMFA: (method: MFAMethod) => Promise<boolean>;
-  // verifyMFA: (code: string) => Promise<boolean>;
-  // disableMFA: (method: MFAMethod) => Promise<boolean>;
   
   // Session management
   refreshSession: () => Promise<boolean>;
@@ -46,8 +36,6 @@ export const useEnhancedAuth = () => {
   const { user, session, isLoading } = useAuth();
   const [enhancedState, setEnhancedState] = useState<EnhancedAuthState>({
     emailConfirmation: { required: false, resend_available: true },
-    mfaRequired: false,
-    mfaVerified: false,
     sessionExpiring: false,
     sessionRefreshing: false,
   });
@@ -216,60 +204,6 @@ export const useEnhancedAuth = () => {
       return false;
     }
   }, []);
-
-  // TODO: MFA Implementation
-  // When implementing MFA, add these functions:
-  
-  /*
-  const setupMFA = useCallback(async (method: MFAMethod): Promise<boolean> => {
-    try {
-      // Call edge function to setup MFA
-      const { data, error } = await supabase.functions.invoke('setup-mfa', {
-        body: { method }
-      });
-
-      if (error) {
-        toast.error('Failed to setup MFA');
-        return false;
-      }
-
-      setEnhancedState(prev => ({
-        ...prev,
-        mfaRequired: true,
-        mfaMethod: method
-      }));
-
-      return true;
-    } catch (error) {
-      console.error('Error setting up MFA:', error);
-      return false;
-    }
-  }, []);
-
-  const verifyMFA = useCallback(async (code: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase.functions.invoke('verify-mfa', {
-        body: { code, method: enhancedState.mfaMethod }
-      });
-
-      if (error) {
-        toast.error('Invalid MFA code');
-        return false;
-      }
-
-      setEnhancedState(prev => ({
-        ...prev,
-        mfaVerified: true
-      }));
-
-      toast.success('MFA verified successfully');
-      return true;
-    } catch (error) {
-      console.error('Error verifying MFA:', error);
-      return false;
-    }
-  }, [enhancedState.mfaMethod]);
-  */
 
   const actions: EnhancedAuthActions = {
     resendConfirmationEmail,
