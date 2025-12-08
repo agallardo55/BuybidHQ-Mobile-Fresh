@@ -141,21 +141,29 @@ const MFAChallenge = () => {
         },
       });
 
-      console.log('Edge Function response:', { data, error });
+      console.log('=== EDGE FUNCTION FULL RESPONSE ===');
+      console.log('Response data:', JSON.stringify(data, null, 2));
+      console.log('Response error:', JSON.stringify(error, null, 2));
 
       if (error) {
+        console.error('Edge Function error object:', error);
         setError(error.message || 'Verification failed. Please try again.');
         setLoading(false);
         setCode('');
         return;
       }
 
-      if (!data.success) {
-        setError(data.error || 'Invalid code. Please try again.');
+      if (!data || !data.success) {
+        console.error('Verification failed. Data:', data);
+        const errorMsg = data?.error || 'Invalid code. Please try again.';
+        console.error('Error message:', errorMsg);
+        setError(errorMsg);
         setLoading(false);
         setCode('');
         return;
       }
+
+      console.log('Verification successful!');
 
       // Success! The Edge Function already called record_mfa_verification
       // Navigate to original destination
