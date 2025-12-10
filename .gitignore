@@ -25,6 +25,7 @@ dist-ssr
 
 # Temporary AI working files
 /docs-ai/
+.cleanup-backup/
 *_ANALYSIS.md
 *_CONTEXT.md
 *_SUMMARY.md
