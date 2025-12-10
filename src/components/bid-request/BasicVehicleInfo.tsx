@@ -3,6 +3,7 @@ import VinSection from "./VinSection";
 import VehicleSummaryDisplay from "./components/VehicleSummaryDisplay"; // ✅ ADD THIS IMPORT
 import { TrimOption } from "./types";
 import { vinService } from "@/services/vinService";
+import { logger } from '@/utils/logger';
 
 interface BasicVehicleInfoProps {
   formData: {
@@ -47,24 +48,24 @@ const BasicVehicleInfo = ({
   
   // Handle VIN decoding - preserves all specs (engineCylinders, transmission, drivetrain)
   const handleVehicleDataFetched = useCallback((data: any) => {
-    console.log('BasicVehicleInfo: Received vehicle data:', data);
-    console.log('BasicVehicleInfo: bodyStyle value:', data.bodyStyle);
+    logger.debug('BasicVehicleInfo: Received vehicle data:', data);
+    logger.debug('BasicVehicleInfo: bodyStyle value:', data.bodyStyle);
     
     // 🔍 FIX: Ensure displayTrim is set from selectedTrim if it exists
     // This ensures the dropdown pre-selects the matched trim after VIN decode
     if (data.selectedTrim && !data.displayTrim) {
       data.displayTrim = vinService.getDisplayTrim(data.selectedTrim);
-      console.log('BasicVehicleInfo: Set displayTrim from selectedTrim:', data.displayTrim);
+      logger.debug('BasicVehicleInfo: Set displayTrim from selectedTrim:', data.displayTrim);
     }
     
     // Also ensure trim name is set from selectedTrim if missing
     if (data.selectedTrim && !data.trim) {
       data.trim = data.selectedTrim.name;
-      console.log('BasicVehicleInfo: Set trim from selectedTrim.name:', data.trim);
+      logger.debug('BasicVehicleInfo: Set trim from selectedTrim.name:', data.trim);
     }
     
     if (!onBatchChange) {
-      console.log('BasicVehicleInfo: Using fallback onChange method');
+      logger.debug('BasicVehicleInfo: Using fallback onChange method');
       // Fallback for simple string values
       Object.entries(data).forEach(([key, value]) => {
         if (typeof value === 'string') {
@@ -87,9 +88,9 @@ const BasicVehicleInfo = ({
       })
       .map(([name, value]) => ({ name, value }));
     
-    console.log('BasicVehicleInfo: Applying batch changes:', changes);
-    console.log('BasicVehicleInfo: displayTrim in changes:', changes.find(c => c.name === 'displayTrim'));
-    console.log('BasicVehicleInfo: bodyStyle in changes:', changes.find(c => c.name === 'bodyStyle'));
+    logger.debug('BasicVehicleInfo: Applying batch changes:', changes);
+    logger.debug('BasicVehicleInfo: displayTrim in changes:', changes.find(c => c.name === 'displayTrim'));
+    logger.debug('BasicVehicleInfo: bodyStyle in changes:', changes.find(c => c.name === 'bodyStyle'));
     onBatchChange(changes);
   }, [onBatchChange, onChange]);
 
@@ -107,7 +108,7 @@ const BasicVehicleInfo = ({
 
   // Handle trim change with auto-population and fallback priority
   const handleTrimChange = useCallback(async (value: string) => {
-    console.log('🔍 TRIM DEBUG:', {
+    logger.debug('🔍 TRIM DEBUG:', {
       receivedValue: value,
       availableTrims: formData.availableTrims?.length,
       displayTrims: formData.availableTrims?.map(t => vinService.getDisplayTrim(t)),
@@ -135,7 +136,7 @@ const BasicVehicleInfo = ({
     // ✅ FIX: PRIORITY 1: Use specs from trim object if engine exists (transmission can be extracted from description)
     // Don't require both engine AND transmission - if engine exists, use trim specs and extract missing fields
     if (selectedTrim.specs?.engine) {
-      console.log('✅ Using specs from trim object:', selectedTrim.specs);
+      logger.debug('✅ Using specs from trim object:', selectedTrim.specs);
       
       // Use engine from trim specs
       onSelectChange(selectedTrim.specs.engine, 'engineCylinders');
@@ -147,7 +148,7 @@ const BasicVehicleInfo = ({
         // ✅ FIX: Extract transmission from description if not in specs
         const extractedTransmission = vinService.extractTransmissionFromDescription(selectedTrim.description);
         if (extractedTransmission) {
-          console.log('✅ Extracted transmission from description:', extractedTransmission);
+          logger.debug('✅ Extracted transmission from description:', extractedTransmission);
           onSelectChange(extractedTransmission, 'transmission');
         }
       }
@@ -159,7 +160,7 @@ const BasicVehicleInfo = ({
         // ✅ FIX: Extract drivetrain from description if not in specs
         const extractedDrivetrain = vinService.extractDrivetrainFromDescription(selectedTrim.description);
         if (extractedDrivetrain) {
-          console.log('✅ Extracted drivetrain from description:', extractedDrivetrain);
+          logger.debug('✅ Extracted drivetrain from description:', extractedDrivetrain);
           onSelectChange(extractedDrivetrain, 'drivetrain');
         }
       }
@@ -175,7 +176,7 @@ const BasicVehicleInfo = ({
     // PRIORITY 2: Check cache
     const cacheKey = `${formData.year}-${formData.make}-${formData.model}-${selectedTrim.name}`;
     if (specsCache[cacheKey]) {
-      console.log('Using specs from cache:', specsCache[cacheKey]);
+      logger.debug('Using specs from cache:', specsCache[cacheKey]);
       const cachedSpecs = specsCache[cacheKey];
       if (cachedSpecs.engine) {
         onSelectChange(cachedSpecs.engine, 'engineCylinders');
@@ -197,7 +198,7 @@ const BasicVehicleInfo = ({
     if (!selectedTrim.specs?.engine) {
       setLoadingSpecs(true);
       try {
-        console.log('⚠️ Engine missing from trim specs, fetching from API for trim:', selectedTrim.name);
+        logger.debug('⚠️ Engine missing from trim specs, fetching from API for trim:', selectedTrim.name);
         const specs = await vinService.fetchSpecsByYearMakeModelTrim(
           formData.year, formData.make, formData.model, selectedTrim.name
         );
@@ -216,7 +217,7 @@ const BasicVehicleInfo = ({
             // ✅ FIX: Extract transmission from description if API didn't return it
             const extractedTransmission = vinService.extractTransmissionFromDescription(selectedTrim.description);
             if (extractedTransmission) {
-              console.log('✅ Extracted transmission from description (after API fetch):', extractedTransmission);
+              logger.debug('✅ Extracted transmission from description (after API fetch):', extractedTransmission);
               onSelectChange(extractedTransmission, 'transmission');
             }
           }
@@ -226,7 +227,7 @@ const BasicVehicleInfo = ({
             // ✅ FIX: Extract drivetrain from description if API didn't return it
             const extractedDrivetrain = vinService.extractDrivetrainFromDescription(selectedTrim.description);
             if (extractedDrivetrain) {
-              console.log('✅ Extracted drivetrain from description (after API fetch):', extractedDrivetrain);
+              logger.debug('✅ Extracted drivetrain from description (after API fetch):', extractedDrivetrain);
               onSelectChange(extractedDrivetrain, 'drivetrain');
             }
           }
@@ -235,9 +236,9 @@ const BasicVehicleInfo = ({
           }
         } else {
           // PRIORITY 4: Try extracting from description as last resort
-          console.warn('⚠️ Specs not available from API for trim:', selectedTrim.name);
+          logger.warn('⚠️ Specs not available from API for trim:', selectedTrim.name);
           if (selectedTrim.description) {
-            console.log('⚠️ Attempting to extract specs from description as fallback');
+            logger.debug('⚠️ Attempting to extract specs from description as fallback');
             const extractedEngine = vinService.extractEngineFromDescription(selectedTrim.description);
             const extractedTransmission = vinService.extractTransmissionFromDescription(selectedTrim.description);
             const extractedDrivetrain = vinService.extractDrivetrainFromDescription(selectedTrim.description);
@@ -269,10 +270,10 @@ const BasicVehicleInfo = ({
           }
         }
       } catch (error) {
-        console.error('❌ Error fetching specs:', error);
+        logger.error('❌ Error fetching specs:', error);
         // ✅ FIX: Try extracting from description on error instead of just showing "Not Available"
         if (selectedTrim.description) {
-          console.log('⚠️ API failed, attempting to extract specs from description');
+          logger.warn('⚠️ API failed, attempting to extract specs from description');
           const extractedEngine = vinService.extractEngineFromDescription(selectedTrim.description);
           const extractedTransmission = vinService.extractTransmissionFromDescription(selectedTrim.description);
           const extractedDrivetrain = vinService.extractDrivetrainFromDescription(selectedTrim.description);
@@ -333,7 +334,7 @@ const BasicVehicleInfo = ({
       { name: 'availableTrims', value: [] }
     ];
 
-    console.log('Resetting all vehicle data');
+    logger.debug('Resetting all vehicle data');
     onBatchChange(resetChanges);
   }, [onBatchChange]);
 
@@ -368,7 +369,7 @@ const BasicVehicleInfo = ({
       {/* Show summary view when fully decoded and trim selected - BELOW VinSection */}
       {isFullyDecoded && (
         <>
-          {console.log('🔍 VehicleSummaryDisplay Props:', {
+          {logger.debug('🔍 VehicleSummaryDisplay Props:', {
             year: formData.year,
             make: formData.make,
             model: formData.model,
