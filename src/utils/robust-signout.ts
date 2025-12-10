@@ -13,6 +13,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
 
 interface SignOutOptions {
   scope?: 'local' | 'global';  // local = this device, global = all devices
@@ -37,23 +38,23 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
     skipNavigation = false
   } = options;
 
-  console.log('RobustSignOut: Starting complete logout process...');
+  logger.debug('RobustSignOut: Starting complete logout process...');
 
   try {
     // Step 1: Clear timers and subscriptions FIRST (before any async operations)
-    console.log('RobustSignOut: Clearing timers and subscriptions...');
+    logger.debug('RobustSignOut: Clearing timers and subscriptions...');
     clearAllTimers();
     unsubscribeAllRealtimeChannels();
     
     // Step 2: Attempt Supabase sign out BEFORE navigation
     // This must happen before navigation or the request will fail
     // Note: We continue cleanup even if this fails (expired sessions, network errors, etc.)
-    console.log('RobustSignOut: Attempting Supabase signOut...');
+    logger.debug('RobustSignOut: Attempting Supabase signOut...');
     try {
       // Set a timeout to prevent hanging indefinitely
       const signOutPromise = supabase.auth.signOut({ scope });
       const timeoutId = setTimeout(() => {
-        console.warn('RobustSignOut: SignOut API call taking longer than expected, continuing with cleanup...');
+        logger.warn('RobustSignOut: SignOut API call taking longer than expected, continuing with cleanup...');
       }, 3000);
       
       const { error } = await signOutPromise;
@@ -61,9 +62,9 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
       
       if (error) {
         // API returned an error response (not a network error)
-        console.warn('RobustSignOut: Supabase signOut API returned error (continuing cleanup):', error.message || error);
+        logger.warn('RobustSignOut: Supabase signOut API returned error (continuing cleanup):', error.message || error);
       } else {
-        console.log('RobustSignOut: Supabase signOut successful');
+        logger.debug('RobustSignOut: Supabase signOut successful');
       }
     } catch (apiError: any) {
       // Network errors are expected if session is expired, connection is lost, or request was aborted
@@ -72,39 +73,39 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
           apiError?.name === 'AuthRetryableFetchError' ||
           apiError?.message?.includes('refresh_token') ||
           apiError?.message?.includes('Invalid Refresh Token')) {
-        console.warn('RobustSignOut: SignOut API call failed (likely expired session - continuing cleanup):', apiError.message || apiError.name);
+        logger.warn('RobustSignOut: SignOut API call failed (likely expired session - continuing cleanup):', apiError.message || apiError.name);
       } else {
-        console.warn('RobustSignOut: SignOut API call failed (continuing cleanup):', apiError?.message || apiError?.name || apiError);
+        logger.warn('RobustSignOut: SignOut API call failed (continuing cleanup):', apiError?.message || apiError?.name || apiError);
       }
       // Continue with cleanup even if API call fails - local cleanup is what matters most
     }
 
     // Step 3: Clear all storage
-    console.log('RobustSignOut: Clearing all storage...');
+    logger.debug('RobustSignOut: Clearing all storage...');
     localStorage.clear();
     sessionStorage.clear();
     
     // Step 4: Clear profile cache if using RobustAuthManager
     if (typeof window !== 'undefined' && (window as any).robustAuth) {
-      console.log('RobustSignOut: Clearing profile cache...');
+      logger.debug('RobustSignOut: Clearing profile cache...');
       (window as any).robustAuth.clearCache();
     }
 
     // Step 5: Clear any auth-related cookies
-    console.log('RobustSignOut: Clearing cookies...');
+    logger.debug('RobustSignOut: Clearing cookies...');
     clearAuthCookies();
 
     // Step 6: Dismiss all toasts
-    console.log('RobustSignOut: Dismissing toasts...');
+    logger.debug('RobustSignOut: Dismissing toasts...');
     toast.dismiss();
 
     // Step 7: Clear any cached auth state in memory
-    console.log('RobustSignOut: Clearing memory state...');
+    logger.debug('RobustSignOut: Clearing memory state...');
     clearMemoryState();
 
     // Step 8: Navigate LAST after all cleanup is done
     if (!skipNavigation) {
-      console.log('RobustSignOut: Navigation to:', redirectTo);
+      logger.debug('RobustSignOut: Navigation to:', redirectTo);
       if (clearHistory) {
         window.location.replace(redirectTo); // Prevents back button
       } else {
@@ -113,14 +114,14 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
       // Navigation happens, function will complete after navigation
     }
 
-    console.log('RobustSignOut: Complete logout successful');
+    logger.debug('RobustSignOut: Complete logout successful');
     return { success: true };
     
   } catch (error) {
-    console.error('Critical signOut error:', error);
+    logger.error('Critical signOut error:', error);
     
     // Emergency cleanup - force reload to clear everything
-    console.log('RobustSignOut: Emergency cleanup triggered');
+    logger.debug('RobustSignOut: Emergency cleanup triggered');
     localStorage.clear();
     sessionStorage.clear();
     
@@ -156,9 +157,9 @@ function clearAllTimers(): void {
       clearInterval(i);
     }
     
-    console.log('RobustSignOut: Cleared all timers and intervals');
+    logger.debug('RobustSignOut: Cleared all timers and intervals');
   } catch (error) {
-    console.warn('RobustSignOut: Error clearing timers:', error);
+    logger.warn('RobustSignOut: Error clearing timers:', error);
   }
 }
 
@@ -171,9 +172,9 @@ function unsubscribeAllRealtimeChannels(): void {
     channels.forEach(channel => {
       supabase.removeChannel(channel);
     });
-    console.log('RobustSignOut: Unsubscribed from all realtime channels');
+    logger.debug('RobustSignOut: Unsubscribed from all realtime channels');
   } catch (error) {
-    console.warn('RobustSignOut: Error unsubscribing from channels:', error);
+    logger.warn('RobustSignOut: Error unsubscribing from channels:', error);
   }
 }
 
@@ -193,9 +194,9 @@ function clearAuthCookies(): void {
         document.cookie = `${name}=;expires=${new Date(0).toUTCString()};path=/;domain=.${window.location.hostname}`;
       }
     });
-    console.log('RobustSignOut: Cleared auth-related cookies');
+    logger.debug('RobustSignOut: Cleared auth-related cookies');
   } catch (error) {
-    console.warn('RobustSignOut: Error clearing cookies:', error);
+    logger.warn('RobustSignOut: Error clearing cookies:', error);
   }
 }
 
@@ -215,9 +216,9 @@ function clearMemoryState(): void {
       delete (window as any).__profile_cache;
       delete (window as any).__user_roles;
     }
-    console.log('RobustSignOut: Cleared memory state');
+    logger.debug('RobustSignOut: Cleared memory state');
   } catch (error) {
-    console.warn('RobustSignOut: Error clearing memory state:', error);
+    logger.warn('RobustSignOut: Error clearing memory state:', error);
   }
 }
 
@@ -252,7 +253,7 @@ export const signOutEverywhere = async (): Promise<SignOutResult> => {
  * Emergency sign out (force cleanup)
  */
 export const emergencySignOut = async (): Promise<void> => {
-  console.log('EmergencySignOut: Force cleanup initiated');
+  logger.debug('EmergencySignOut: Force cleanup initiated');
   
   try {
     // Force clear everything immediately
@@ -264,7 +265,7 @@ export const emergencySignOut = async (): Promise<void> => {
     // Force navigation
     window.location.replace('/signin');
   } catch (error) {
-    console.error('EmergencySignOut: Critical failure:', error);
+    logger.error('EmergencySignOut: Critical failure:', error);
     // Last resort - force reload
     window.location.href = '/signin';
   }
