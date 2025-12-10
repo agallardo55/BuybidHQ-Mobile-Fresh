@@ -7,6 +7,7 @@ import { User, UserRole } from "@/types/users";
 import { AppRole } from "@/types/accounts";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useRef } from "react";
+import { logger } from '@/utils/logger';
 
 // DIAGNOSTIC: Global tracking for all hook instances
 const diagnosticState = {
@@ -25,7 +26,7 @@ const diagnosticState = {
 if (typeof window !== 'undefined') {
   setInterval(() => {
     if (diagnosticState.activeInstances > 0 || diagnosticState.activeIntervals.size > 0) {
-      console.log('🔍 useCurrentUser DIAGNOSTICS:', {
+      logger.debug('🔍 useCurrentUser DIAGNOSTICS:', {
         activeInstances: diagnosticState.activeInstances,
         activeIntervals: diagnosticState.activeIntervals.size,
         totalCreated: diagnosticState.totalIntervalsCreated,
@@ -76,7 +77,7 @@ export const useCurrentUser = () => {
   
   useEffect(() => {
     diagnosticState.activeInstances++;
-    console.log(`🔍 useCurrentUser: Hook MOUNTED [${instanceId.current}]`, {
+    logger.debug(`🔍 useCurrentUser: Hook MOUNTED [${instanceId.current}]`, {
       instanceId: instanceId.current,
       activeInstances: diagnosticState.activeInstances,
       timestamp: new Date().toISOString(),
@@ -85,7 +86,7 @@ export const useCurrentUser = () => {
     return () => {
       diagnosticState.activeInstances--;
       const lifetime = Date.now() - mountTime.current;
-      console.log(`🔍 useCurrentUser: Hook UNMOUNTED [${instanceId.current}]`, {
+      logger.debug(`🔍 useCurrentUser: Hook UNMOUNTED [${instanceId.current}]`, {
         instanceId: instanceId.current,
         activeInstances: diagnosticState.activeInstances,
         lifetime: `${lifetime}ms`,
@@ -99,7 +100,7 @@ export const useCurrentUser = () => {
 
   // DIAGNOSTIC: Early return if disabled for testing
   if (DISABLE_HOOK_FOR_TESTING) {
-    console.warn('🔍 useCurrentUser: HOOK DISABLED FOR TESTING');
+    logger.warn('🔍 useCurrentUser: HOOK DISABLED FOR TESTING');
     return { currentUser: null, isLoading: false };
   }
 
@@ -109,7 +110,7 @@ export const useCurrentUser = () => {
       // DIAGNOSTIC: Track query execution
       const queryId = diagnosticState.queryExecutions++;
       const queryStartTime = Date.now();
-      console.log(`🔍 useCurrentUser: Query STARTED [${instanceId.current}]`, {
+      logger.debug(`🔍 useCurrentUser: Query STARTED [${instanceId.current}]`, {
         queryId,
         instanceId: instanceId.current,
         authUserId: authUser?.id,
@@ -136,7 +137,7 @@ export const useCurrentUser = () => {
           diagnosticState.intervalFireCounts.set(intervalId, currentCount + 1);
           
           if (Date.now() - startTime > MAX_QUERY_TIME) {
-            console.warn(`🔍 useCurrentUser: Query timeout [${instanceId.current}]`, {
+            logger.warn(`🔍 useCurrentUser: Query timeout [${instanceId.current}]`, {
               queryId,
               instanceId: instanceId.current,
               intervalFires: currentCount + 1,
@@ -156,7 +157,7 @@ export const useCurrentUser = () => {
         }, 100);
         
         if (!authUser?.id) {
-          console.log(`🔍 useCurrentUser: No auth user [${instanceId.current}]`);
+          logger.debug(`🔍 useCurrentUser: No auth user [${instanceId.current}]`);
           if (checkTimeout) {
             clearInterval(checkTimeout);
             checkTimeout = null;
@@ -167,13 +168,13 @@ export const useCurrentUser = () => {
           return null;
         }
 
-        console.log(`🔍 useCurrentUser: Fetching user data [${instanceId.current}]`, {
+        logger.debug(`🔍 useCurrentUser: Fetching user data [${instanceId.current}]`, {
           queryId,
           userId: authUser.id,
         });
         
         if (signal?.aborted) {
-          console.log(`🔍 useCurrentUser: Request aborted before start [${instanceId.current}]`);
+          logger.debug(`🔍 useCurrentUser: Request aborted before start [${instanceId.current}]`);
           if (checkTimeout) {
             clearInterval(checkTimeout);
             checkTimeout = null;
@@ -201,7 +202,7 @@ export const useCurrentUser = () => {
         }
         
         if (signal?.aborted || queryAbortController.signal.aborted) {
-          console.log(`🔍 useCurrentUser: Request aborted after fetch [${instanceId.current}]`);
+          logger.debug(`🔍 useCurrentUser: Request aborted after fetch [${instanceId.current}]`);
           if (checkTimeout) {
             clearInterval(checkTimeout);
             checkTimeout = null;
@@ -213,7 +214,7 @@ export const useCurrentUser = () => {
         }
 
         if (userError) {
-          console.error(`🔍 useCurrentUser: Error fetching user [${instanceId.current}]`, {
+          logger.error(`🔍 useCurrentUser: Error fetching user [${instanceId.current}]`, {
             queryId,
             error: userError.message,
           });
@@ -221,14 +222,14 @@ export const useCurrentUser = () => {
           if (userError.message?.includes('AbortError') || 
               userError.message?.includes('aborted') ||
               userError.code === '20') {
-            console.log(`🔍 useCurrentUser: Request aborted/timed out [${instanceId.current}]`);
+            logger.debug(`🔍 useCurrentUser: Request aborted/timed out [${instanceId.current}]`);
           } else {
             diagnosticState.queryErrors++;
           }
         }
 
         if (!userData) {
-          console.log(`🔍 useCurrentUser: No user data, using fallback [${instanceId.current}]`);
+          logger.debug(`🔍 useCurrentUser: No user data, using fallback [${instanceId.current}]`);
           
           if (authUser) {
             const fallbackUser: UserData = {
@@ -264,7 +265,7 @@ export const useCurrentUser = () => {
             
             diagnosticState.queryCompletions++;
             const queryDuration = Date.now() - queryStartTime;
-            console.log(`🔍 useCurrentUser: Query COMPLETED (fallback) [${instanceId.current}]`, {
+            logger.debug(`🔍 useCurrentUser: Query COMPLETED (fallback) [${instanceId.current}]`, {
               queryId,
               duration: `${queryDuration}ms`,
             });
@@ -285,7 +286,7 @@ export const useCurrentUser = () => {
         }
 
         if (signal?.aborted) {
-          console.log(`🔍 useCurrentUser: Request aborted before dealership fetch [${instanceId.current}]`);
+          logger.debug(`🔍 useCurrentUser: Request aborted before dealership fetch [${instanceId.current}]`);
           if (checkTimeout) {
             clearInterval(checkTimeout);
             checkTimeout = null;
@@ -323,7 +324,7 @@ export const useCurrentUser = () => {
               };
             }
           } catch (e) {
-            console.warn(`🔍 useCurrentUser: Dealership query failed [${instanceId.current}]`, e);
+            logger.warn(`🔍 useCurrentUser: Dealership query failed [${instanceId.current}]`, e);
           } finally {
             clearTimeout(dealerTimeout);
           }
@@ -342,14 +343,14 @@ export const useCurrentUser = () => {
               dealershipInfo = dealership;
             }
           } catch (e) {
-            console.warn(`🔍 useCurrentUser: Dealership query failed [${instanceId.current}]`, e);
+            logger.warn(`🔍 useCurrentUser: Dealership query failed [${instanceId.current}]`, e);
           } finally {
             clearTimeout(dealerTimeout);
           }
         }
 
         if (signal?.aborted) {
-          console.log(`🔍 useCurrentUser: Request aborted before super admin check [${instanceId.current}]`);
+          logger.debug(`🔍 useCurrentUser: Request aborted before super admin check [${instanceId.current}]`);
           if (checkTimeout) {
             clearInterval(checkTimeout);
             checkTimeout = null;
@@ -366,7 +367,7 @@ export const useCurrentUser = () => {
             .rpc('is_super_admin', { checking_user_id: userData.id })
             .then(({ data, error }) => {
               if (error) {
-                console.warn(`🔍 useCurrentUser: Super admin check error [${instanceId.current}]`, error);
+                logger.warn(`🔍 useCurrentUser: Super admin check error [${instanceId.current}]`, error);
                 return false;
               }
               return data || false;
@@ -378,7 +379,7 @@ export const useCurrentUser = () => {
           
           isSuperAdmin = await Promise.race([superAdminPromise, timeoutPromise]);
         } catch (e) {
-          console.warn(`🔍 useCurrentUser: Super admin check failed [${instanceId.current}]`, e);
+          logger.warn(`🔍 useCurrentUser: Super admin check failed [${instanceId.current}]`, e);
         }
 
         const formattedUser: UserData = {
@@ -415,7 +416,7 @@ export const useCurrentUser = () => {
         
         diagnosticState.queryCompletions++;
         const queryDuration = Date.now() - queryStartTime;
-        console.log(`🔍 useCurrentUser: Query COMPLETED (success) [${instanceId.current}]`, {
+        logger.debug(`🔍 useCurrentUser: Query COMPLETED (success) [${instanceId.current}]`, {
           queryId,
           duration: `${queryDuration}ms`,
         });
@@ -434,7 +435,7 @@ export const useCurrentUser = () => {
         }
         
         if (error?.message?.includes('AbortError') || error?.message?.includes('aborted')) {
-          console.log(`🔍 useCurrentUser: Query aborted cleanly [${instanceId.current}]`);
+          logger.debug(`🔍 useCurrentUser: Query aborted cleanly [${instanceId.current}]`);
           if (authUser) {
             return {
               id: authUser.id,
@@ -462,7 +463,7 @@ export const useCurrentUser = () => {
           return null;
         }
         
-        console.error(`🔍 useCurrentUser: Query ERROR [${instanceId.current}]`, {
+        logger.error(`🔍 useCurrentUser: Query ERROR [${instanceId.current}]`, {
           queryId,
           error: error?.message || error,
         });
@@ -505,7 +506,7 @@ export const useCurrentUser = () => {
       }
     },
     retry: (failureCount, error: any) => {
-      console.log(`🔍 useCurrentUser: Retry check [${instanceId.current}]`, {
+      logger.debug(`🔍 useCurrentUser: Retry check [${instanceId.current}]`, {
         failureCount,
         error: error?.message,
       });
