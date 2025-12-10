@@ -4,6 +4,7 @@ import VinSection from "../VinSection";
 import { TrimOption } from "../types";
 import TrimDropdown from "./TrimDropdown";
 import { vinService, type TrimOption as VinServiceTrimOption } from "@/services/vinService";
+import { logger } from '@/utils/logger';
 
 interface VehicleIdentificationProps {
   formData: {
@@ -60,14 +61,14 @@ const VehicleIdentification = ({
 
   // Add debug logging for the callback
   const handleVehicleDataFetched = (data: any) => {
-    console.log('📦 VehicleIdentification handleVehicleDataFetched called with:', data);
-    console.log('📦 VehicleIdentification: data.displayTrim:', data.displayTrim);
-    console.log('📦 VehicleIdentification: data.availableTrims:', data.availableTrims?.map((t: any) => ({
+    logger.debug('📦 VehicleIdentification handleVehicleDataFetched called with:', data);
+    logger.debug('📦 VehicleIdentification: data.displayTrim:', data.displayTrim);
+    logger.debug('📦 VehicleIdentification: data.availableTrims:', data.availableTrims?.map((t: any) => ({
       name: t.name,
       description: t.description,
       getDisplayTrim: vinService.getDisplayTrim(t)
     })));
-    console.log('📦 Current formData before update:', formData);
+    logger.debug('📦 Current formData before update:', formData);
     // Mark trims as coming from VIN decode
     setTrimsSource('vin');
     onVehicleDataFetched(data);
@@ -76,7 +77,7 @@ const VehicleIdentification = ({
   // 🔍 FIX: Fetch trims when year/make/model changes (manual selection)
   useEffect(() => {
     const timestamp = new Date().toISOString();
-    console.log(`🕐 [${timestamp}] VehicleIdentification useEffect triggered:`, {
+    logger.debug(`🕐 [${timestamp}] VehicleIdentification useEffect triggered:`, {
       year: formData.year,
       make: formData.make,
       model: formData.model,
@@ -89,15 +90,15 @@ const VehicleIdentification = ({
     
     // Skip if VIN decode just populated trims
     if (trimsSource === 'vin') {
-      console.log('⏭️ VehicleIdentification: Skipping trim fetch - trims from VIN decode');
+      logger.debug('⏭️ VehicleIdentification: Skipping trim fetch - trims from VIN decode');
       setTrimsSource(null); // Reset for future manual changes
       return;
     }
     
     // Only fetch if all three are present and we have onBatchChange
     if (formData.year && formData.make && formData.model && onBatchChange && !isLoadingTrims && !vinDecodedSuccessfully) {
-      console.log('🚀🚀🚀 MANUAL TRIM FETCH CALLED 🚀🚀🚀');
-      console.log('🚀 VehicleIdentification: Fetching trims for manual selection:', {
+      logger.debug('🚀🚀🚀 MANUAL TRIM FETCH CALLED 🚀🚀🚀');
+      logger.debug('🚀 VehicleIdentification: Fetching trims for manual selection:', {
         year: formData.year,
         make: formData.make,
         model: formData.model,
@@ -115,9 +116,9 @@ const VehicleIdentification = ({
       
       vinService.fetchTrimsByYearMakeModel(formData.year, formData.make, formData.model)
         .then(trims => {
-          console.log('✅ VehicleIdentification: Received trims:', trims.length, 'trims');
-          console.log('✅ VehicleIdentification: Trim names:', trims.map(t => t.name));
-          console.log('✅ VehicleIdentification: First 3 trims:', JSON.stringify(trims.slice(0, 3), null, 2));
+          logger.debug('✅ VehicleIdentification: Received trims:', trims.length, 'trims');
+          logger.debug('✅ VehicleIdentification: Trim names:', trims.map(t => t.name));
+          logger.debug('✅ VehicleIdentification: First 3 trims:', JSON.stringify(trims.slice(0, 3), null, 2));
           
           // Update availableTrims via onBatchChange
           onBatchChange([{ name: 'availableTrims', value: trims }]);
@@ -129,12 +130,12 @@ const VehicleIdentification = ({
           setIsLoadingTrims(false);
         })
         .catch(error => {
-          console.error('❌ VehicleIdentification: Error fetching trims:', error);
-          console.error('❌ VehicleIdentification: Error stack:', error.stack);
+          logger.error('❌ VehicleIdentification: Error fetching trims:', error);
+          logger.error('❌ VehicleIdentification: Error stack:', error.stack);
           setIsLoadingTrims(false);
         });
     } else {
-      console.log('⏭️ VehicleIdentification: Skipping trim fetch - conditions not met:', {
+      logger.debug('⏭️ VehicleIdentification: Skipping trim fetch - conditions not met:', {
         hasYear: !!formData.year,
         hasMake: !!formData.make,
         hasModel: !!formData.model,
@@ -146,7 +147,7 @@ const VehicleIdentification = ({
   }, [formData.year, formData.make, formData.model]); // Only watch year/make/model
 
   // Add comprehensive debug logging
-  console.log('🔍 VIN Decode Debug:', {
+  logger.debug('🔍 VIN Decode Debug:', {
     vinDecodedSuccessfully,
     formData: {
       year: formData.year,
@@ -157,7 +158,7 @@ const VehicleIdentification = ({
     vin: formData.vin,
   });
 
-  console.log('🔍 Derived State Check:', {
+  logger.debug('🔍 Derived State Check:', {
     hasYear: !!formData.year,
     hasMake: !!formData.make,
     hasModel: !!formData.model,
@@ -168,7 +169,7 @@ const VehicleIdentification = ({
   });
 
   // 🔍 DEBUG: Log trim dropdown matching
-  console.log('🔍 Trim Dropdown Matching Debug:', {
+  logger.debug('🔍 Trim Dropdown Matching Debug:', {
     formDataDisplayTrim: formData.displayTrim,
     availableTrims: formData.availableTrims?.map(t => ({
       name: t.name,
@@ -270,7 +271,7 @@ const VehicleIdentification = ({
 
     // PRIORITY 1: Check if specs already in trim object (from VIN decode or trim fetch)
     if (selectedTrim.specs?.engine && selectedTrim.specs?.transmission) {
-      console.log('Using specs from trim object:', selectedTrim.specs);
+      logger.debug('Using specs from trim object:', selectedTrim.specs);
       if (selectedTrim.specs.engine) {
         onSelectChange(selectedTrim.specs.engine, 'engineCylinders');
       }
@@ -287,7 +288,7 @@ const VehicleIdentification = ({
     // PRIORITY 2: Check cache
     const cacheKey = `${formData.year}-${formData.make}-${formData.model}-${selectedTrim.name}`;
     if (specsCache[cacheKey]) {
-      console.log('Using specs from cache:', specsCache[cacheKey]);
+      logger.debug('Using specs from cache:', specsCache[cacheKey]);
       const cachedSpecs = specsCache[cacheKey];
       if (cachedSpecs.engine) {
         onSelectChange(cachedSpecs.engine, 'engineCylinders');
@@ -305,7 +306,7 @@ const VehicleIdentification = ({
     if (!selectedTrim.specs?.engine || !selectedTrim.specs?.transmission) {
       setLoadingSpecs(true);
       try {
-        console.log('Fetching specs for trim:', selectedTrim.name);
+        logger.debug('Fetching specs for trim:', selectedTrim.name);
         const specs = await vinService.fetchSpecsByYearMakeModelTrim(
           formData.year, formData.make, formData.model, selectedTrim.name
         );
@@ -326,7 +327,7 @@ const VehicleIdentification = ({
           }
         } else {
           // PRIORITY 4: Show "Not Available" if specs cannot be found
-          console.warn('Specs not available for trim:', selectedTrim.name);
+          logger.warn('Specs not available for trim:', selectedTrim.name);
           onSelectChange('Not Available', 'engineCylinders');
           onSelectChange('Not Available', 'transmission');
           if (!formData.drivetrain) {
@@ -334,7 +335,7 @@ const VehicleIdentification = ({
           }
         }
       } catch (error) {
-        console.error('Error fetching specs:', error);
+        logger.error('Error fetching specs:', error);
         // Show "Not Available" on error
         onSelectChange('Not Available', 'engineCylinders');
         onSelectChange('Not Available', 'transmission');
