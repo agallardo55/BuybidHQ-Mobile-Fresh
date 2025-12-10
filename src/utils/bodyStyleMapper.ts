@@ -1,10 +1,12 @@
 /**
  * Body Style Mapper
- * 
+ *
  * Normalizes vehicle body styles from various APIs (CarAPI, NHTSA) to BuyBidHQ's
  * approved body style list. Handles variations, consolidates similar styles, and
  * ensures consistent naming across all data sources.
  */
+
+import { logger } from '@/utils/logger';
 
 /**
  * Approved body styles for BuyBidHQ
@@ -44,7 +46,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
   const lower = normalized.toLowerCase();
 
   // Log original value for debugging
-  console.log(`Original body_class: ${rawBodyStyle}`);
+  logger.debug(`Original body_class: ${rawBodyStyle}`);
 
   // ===== SEDAN =====
   if (
@@ -55,7 +57,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
     lower === '4 door sedan' ||
     lower === '2 door sedan'
   ) {
-    console.log(`Normalized to: Sedan`);
+    logger.debug(`Normalized to: Sedan`);
     return 'Sedan';
   }
 
@@ -68,7 +70,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
   ) {
     // Exclude "4-door coupe" variants (these are usually sedans)
     if (!lower.includes('4-door') && !lower.includes('4 door')) {
-      console.log(`Normalized to: Coupe`);
+      logger.debug(`Normalized to: Coupe`);
       return 'Coupe';
     }
   }
@@ -81,7 +83,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
     lower === '3 door hatchback' ||
     lower === '5 door hatchback'
   ) {
-    console.log(`Normalized to: Hatchback`);
+    logger.debug(`Normalized to: Hatchback`);
     return 'Hatchback';
   }
 
@@ -92,7 +94,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
     lower.includes('roadster') ||
     lower === 'convertible/cabriolet'
   ) {
-    console.log(`Normalized to: Convertible`);
+    logger.debug(`Normalized to: Convertible`);
     return 'Convertible';
   }
 
@@ -102,7 +104,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
     lower.includes('estate') ||
     lower === 'station wagon'
   ) {
-    console.log(`Normalized to: Station Wagon`);
+    logger.debug(`Normalized to: Station Wagon`);
     return 'Station Wagon';
   }
 
@@ -112,7 +114,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
     lower.includes('mini-van') ||
     (lower.includes('passenger van') && (lower.includes('compact') || lower.includes('family')))
   ) {
-    console.log(`Normalized to: Minivan`);
+    logger.debug(`Normalized to: Minivan`);
     return 'Minivan';
   }
 
@@ -124,7 +126,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
     lower.includes('full size van') ||
     (lower.includes('passenger van') && !lower.includes('compact') && !lower.includes('family'))
   ) {
-    console.log(`Normalized to: Van`);
+    logger.debug(`Normalized to: Van`);
     return 'Van';
   }
 
@@ -147,7 +149,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
       !lower.includes('semi') &&
       !lower.includes('tractor')
     ) {
-      console.log(`Normalized to: Pickup Truck`);
+      logger.debug(`Normalized to: Pickup Truck`);
       return 'Pickup Truck';
     }
   }
@@ -161,7 +163,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
     lower.includes('subcompact suv') ||
     (lower.includes('crossover utility vehicle') && (lower.includes('compact') || lower.includes('subcompact')))
   ) {
-    console.log(`Normalized to: Crossover`);
+    logger.debug(`Normalized to: Crossover`);
     return 'Crossover';
   }
 
@@ -179,7 +181,7 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
   ) {
     // Exclude if it's clearly a crossover (already handled above)
     if (!lower.includes('crossover') && lower !== 'cuv') {
-      console.log(`Normalized to: SUV`);
+      logger.debug(`Normalized to: SUV`);
       return 'SUV';
     }
   }
@@ -203,12 +205,12 @@ export function normalizeBodyStyle(rawBodyStyle?: string | null): string | null 
     lower.includes('tractor') ||
     lower.includes('trailer')
   ) {
-    console.log(`⚠️ Excluded body style (powersports/commercial): ${rawBodyStyle}`);
+    logger.debug(`⚠️ Excluded body style (powersports/commercial): ${rawBodyStyle}`);
     return null;
   }
 
   // If we get here, the value couldn't be mapped
-  console.log(`⚠️ Could not map body style: ${rawBodyStyle}`);
+  logger.debug(`⚠️ Could not map body style: ${rawBodyStyle}`);
   return null;
 }
 
