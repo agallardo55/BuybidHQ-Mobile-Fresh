@@ -3,6 +3,7 @@ import { SignUpFormData } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { logger } from '@/utils/logger';
 
 interface UseSignUpSubmissionProps {
   formData: SignUpFormData;
@@ -26,11 +27,11 @@ export const useSignUpSubmission = ({
     }
 
     try {
-      console.log('Starting signup process for email:', formData.email);
+      logger.debug('Starting signup process for email:', formData.email);
       
       // Validate required fields
       if (!formData.email || !formData.password || !formData.fullName || !formData.mobileNumber || !formData.dealershipName || !formData.planType) {
-        console.error('Missing required fields:', {
+        logger.error('Missing required fields:', {
           email: !!formData.email,
           password: !!formData.password,
           fullName: !!formData.fullName,
@@ -52,7 +53,7 @@ export const useSignUpSubmission = ({
         smsConsent: formData.smsConsent,
       };
       
-      console.log('Calling Edge Function for user:', formData.email);
+      logger.debug('Calling Edge Function for user:', formData.email);
       
       let signupResponse, signupError;
       try {
@@ -82,16 +83,16 @@ export const useSignUpSubmission = ({
         signupResponse = result;
         signupError = null;
       } catch (invokeError) {
-        console.error('Edge Function invoke error:', invokeError);
+        logger.error('Edge Function invoke error:', invokeError);
         throw invokeError;
       }
 
       if (signupError) {
-        console.error('Edge Function error:', signupError);
+        logger.error('Edge Function error:', signupError);
         throw signupError;
       }
       
-      console.log('Edge Function response:', signupResponse);
+      logger.debug('Edge Function response:', signupResponse);
 
       if (!signupResponse?.user) {
         throw new Error('No user data returned');
@@ -104,7 +105,7 @@ export const useSignUpSubmission = ({
       const isRestored = signupResponse.type === 'restored';
       const isIncompleteCompleted = signupResponse.type === 'incomplete_completed';
 
-      console.log('Auth data received:', { 
+      logger.debug('Auth data received:', { 
         userId: authData.user.id, 
         hasSession: !!authData.session,
         sessionAccessToken: authData.session?.access_token ? 'present' : 'missing'
@@ -112,21 +113,21 @@ export const useSignUpSubmission = ({
 
       // Set the session in the Supabase client for proper authentication
       if (authData.session) {
-        console.log('Setting session in Supabase client...');
+        logger.debug('Setting session in Supabase client...');
         const { error: sessionError } = await supabase.auth.setSession({
           access_token: authData.session.access_token,
           refresh_token: authData.session.refresh_token,
         });
 
         if (sessionError) {
-          console.error('Session error:', sessionError);
+          logger.error('Session error:', sessionError);
           throw new Error(`Failed to set session: ${sessionError.message}`);
         }
-        console.log('Session set successfully');
+        logger.debug('Session set successfully');
         
         // Verify the session is actually set
         const { data: { user: currentUser } } = await supabase.auth.getUser();
-        console.log('Current authenticated user:', currentUser?.id);
+        logger.debug('Current authenticated user:', currentUser?.id);
         
         if (!currentUser) {
           throw new Error('Session was not properly set - no authenticated user found');
@@ -134,11 +135,11 @@ export const useSignUpSubmission = ({
       }
 
       // Step 2: Wait briefly for any triggers to complete
-      console.log('Waiting for triggers to complete...');
+      logger.debug('Waiting for triggers to complete...');
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Check if user already has an account linked
-      console.log('Checking if user exists in buybidhq_users table...');
+      logger.debug('Checking if user exists in buybidhq_users table...');
       const { data: existingUser, error: userCheckError } = await supabase
         .from('buybidhq_users')
         .select('account_id')
@@ -146,14 +147,14 @@ export const useSignUpSubmission = ({
         .single();
         
       if (userCheckError) {
-        console.error('Error checking user in buybidhq_users:', userCheckError);
+        logger.error('Error checking user in buybidhq_users:', userCheckError);
         // This might be expected if the user doesn't exist yet
       } else {
-        console.log('User found in buybidhq_users:', existingUser);
+        logger.debug('User found in buybidhq_users:', existingUser);
       }
 
       // Step 3: Create or update individual dealer record for all signup users
-      console.log('Creating individual dealer record...');
+      logger.debug('Creating individual dealer record...');
       const { data: individualDealerData, error: individualDealerError} = await supabase
         .from('individual_dealers')
         .upsert(
@@ -172,14 +173,14 @@ export const useSignUpSubmission = ({
         .single();
         
       if (individualDealerError) {
-        console.error('Error creating individual dealer:', individualDealerError);
+        logger.error('Error creating individual dealer:', individualDealerError);
         throw individualDealerError;
       }
       
-      console.log('Individual dealer created:', individualDealerData);
+      logger.debug('Individual dealer created:', individualDealerData);
 
       // Step 4: Update the user record first - all signup users get basic role and member app_role
-      console.log('Updating user record...');
+      logger.debug('Updating user record...');
       const { data: updatedUser, error: userError } = await supabase
         .from('buybidhq_users')
         .update({
@@ -197,18 +198,18 @@ export const useSignUpSubmission = ({
         .single();
 
       if (userError) {
-        console.error('Error updating user:', userError);
+        logger.error('Error updating user:', userError);
         throw userError;
       }
       
-      console.log('User record updated:', updatedUser);
+      logger.debug('User record updated:', updatedUser);
 
       // Step 5: Create or reuse account (handle race conditions gracefully)
       let accountData;
       
       // Verify user is authenticated before account creation
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-      console.log('Auth check result:', { authUser: authUser?.id, authError });
+      logger.warn('Auth check result:', { authUser: authUser?.id, authError });
       
       if (!authUser) {
         throw new Error('No authenticated user found - cannot create account');
@@ -216,7 +217,7 @@ export const useSignUpSubmission = ({
 
       // Also check the session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('Session check result:', { 
+      logger.debug('Session check result:', { 
         session: session?.user?.id, 
         sessionError,
         accessToken: session?.access_token ? 'present' : 'missing'
@@ -243,7 +244,7 @@ export const useSignUpSubmission = ({
       } catch (accountError: any) {
         // If RLS blocks INSERT, a concurrent request likely created the account
         // Fetch the account that was linked by the other request
-        console.log('Account creation blocked, fetching existing account:', accountError.message);
+        logger.warn('Account creation blocked, fetching existing account:', accountError.message);
         
         const { data: userWithAccount } = await supabase
           .from('buybidhq_users')
@@ -268,7 +269,7 @@ export const useSignUpSubmission = ({
       }
 
       // Step 6: Link the account to the user
-      console.log('Linking account to user...');
+      logger.debug('Linking account to user...');
       const { error: linkError } = await supabase
         .from('buybidhq_users')
         .update({
@@ -277,11 +278,11 @@ export const useSignUpSubmission = ({
         .eq('id', authData.user.id);
 
       if (linkError) {
-        console.error('Error linking account to user:', linkError);
+        logger.error('Error linking account to user:', linkError);
         throw linkError;
       }
       
-      console.log('Account linked to user successfully');
+      logger.debug('Account linked to user successfully');
 
       // Step 7: Create subscription record with appropriate payment type
       // Map frontend plan types to database plan types
@@ -298,7 +299,7 @@ export const useSignUpSubmission = ({
       };
 
       const dbPlanType = mapPlanType(formData.planType || 'beta-access');
-      console.log('Mapping plan type:', formData.planType, '->', dbPlanType);
+      logger.debug('Mapping plan type:', formData.planType, '->', dbPlanType);
 
       // Map status based on plan type - only 'active', 'canceled', 'past_due', 'incomplete' are allowed
       const mapStatus = (frontendPlan: string) => {
@@ -310,7 +311,7 @@ export const useSignUpSubmission = ({
       };
 
       const dbStatus = mapStatus(formData.planType || 'beta-access');
-      console.log('Mapping status:', formData.planType, '->', dbStatus);
+      logger.debug('Mapping status:', formData.planType, '->', dbStatus);
 
       const subscriptionData = {
         user_id: authData.user.id,
@@ -320,7 +321,7 @@ export const useSignUpSubmission = ({
         trial_ends_at: null // No trial expiration
       };
       
-      console.log('About to handle subscription (check existing first):', subscriptionData);
+      logger.debug('About to handle subscription (check existing first):', subscriptionData);
 
       // Check if subscription already exists for this user
       const { data: existingSubscription, error: checkError } = await supabase
@@ -330,12 +331,12 @@ export const useSignUpSubmission = ({
         .single();
 
       if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows found
-        console.error('Error checking existing subscription:', checkError);
+        logger.error('Error checking existing subscription:', checkError);
         throw checkError;
       }
 
       if (existingSubscription) {
-        console.log('Subscription already exists, updating instead of creating:', existingSubscription);
+        logger.debug('Subscription already exists, updating instead of creating:', existingSubscription);
         
         // Update existing subscription
         const { error: updateError } = await supabase
@@ -349,13 +350,13 @@ export const useSignUpSubmission = ({
           .eq('user_id', authData.user.id);
 
         if (updateError) {
-          console.error('Error updating subscription:', updateError);
+          logger.error('Error updating subscription:', updateError);
           throw updateError;
         }
         
-        console.log('Subscription updated successfully');
+        logger.debug('Subscription updated successfully');
       } else {
-        console.log('No existing subscription found, creating new one');
+        logger.debug('No existing subscription found, creating new one');
         
         // Create new subscription
         const { error: subscriptionError } = await supabase
@@ -363,11 +364,11 @@ export const useSignUpSubmission = ({
           .insert([subscriptionData]);
 
         if (subscriptionError) {
-          console.error('Error creating subscription:', subscriptionError);
+          logger.error('Error creating subscription:', subscriptionError);
           throw subscriptionError;
         }
         
-        console.log('Subscription created successfully');
+        logger.debug('Subscription created successfully');
       }
 
       // Show appropriate success message
@@ -381,7 +382,7 @@ export const useSignUpSubmission = ({
       
       if (['connect', 'annual'].includes(formData.planType)) {
         // Both connect and annual plans go through Stripe checkout
-        console.log('Initiating Stripe checkout for plan:', formData.planType);
+        logger.debug('Initiating Stripe checkout for plan:', formData.planType);
         
         // Use the signup checkout function (no authentication required)
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -391,9 +392,9 @@ export const useSignUpSubmission = ({
           throw new Error('Missing Supabase environment variables. Please check your .env file.');
         }
         
-        console.log('Using Supabase URL:', supabaseUrl);
-        console.log('Using Supabase Key:', anonKey ? 'present' : 'missing');
-        console.log('Calling signup checkout function (no auth required)');
+        logger.debug('Using Supabase URL:', supabaseUrl);
+        logger.debug('Using Supabase Key:', anonKey ? 'present' : 'missing');
+        logger.debug('Calling signup checkout function (no auth required)');
         
         // Get current session for auth header (optional but robust)
         const { data: { session } } = await supabase.auth.getSession();
@@ -425,12 +426,12 @@ export const useSignUpSubmission = ({
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('Stripe checkout response error:', response.status, errorText);
+          logger.error('Stripe checkout response error:', response.status, errorText);
           throw new Error(`Stripe checkout failed: ${response.status} ${errorText}`);
         }
 
         const checkoutData = await response.json();
-        console.log('Stripe checkout successful:', checkoutData);
+        logger.debug('Stripe checkout successful:', checkoutData);
 
         if (!checkoutData?.url) {
           throw new Error('No checkout URL returned');
@@ -444,7 +445,7 @@ export const useSignUpSubmission = ({
         navigate('/dashboard');
       }
     } catch (error: any) {
-      console.error('Signup error:', error);
+      logger.error('Signup error:', error);
       toast.error(error.message || "Failed to create account");
       setIsSubmitting(false);
     }
