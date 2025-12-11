@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useCurrentUser } from "../useCurrentUser";
 import { useNavigate } from "react-router-dom";
 import { BuyerResponse, MappedBuyer } from "./types";
+import { logger } from '@/utils/logger';
 
 export const useBuyersQuery = () => {
   const { currentUser, isLoading: isLoadingUser } = useCurrentUser();
@@ -15,36 +16,36 @@ export const useBuyersQuery = () => {
   const userId = currentUser?.id;
   const userRole = currentUser?.role;
   
-  console.log('🔍 useBuyersQuery: Called with', { userId, userRole, isLoadingUser });
+  logger.debug('🔍 useBuyersQuery: Called with', { userId, userRole, isLoadingUser });
 
   const isEnabled = !!userId && !isLoadingUser;
-  console.log('🔍 useBuyersQuery: Query enabled?', isEnabled, { userId, isLoadingUser });
+  logger.debug('🔍 useBuyersQuery: Query enabled?', isEnabled, { userId, isLoadingUser });
 
   // Force clear this query's cache on mount
   useEffect(() => {
     if (currentUser?.id) {
-      console.log('🔍 useBuyersQuery: Clearing cache for', ['buyers', currentUser?.id, currentUser?.role]);
+      logger.debug('🔍 useBuyersQuery: Clearing cache for', ['buyers', currentUser?.id, currentUser?.role]);
       queryClient.invalidateQueries({ queryKey: ['buyers', currentUser?.id, currentUser?.role] });
     } else {
-      console.log('🔍 useBuyersQuery: Skipping cache clear - no user ID yet');
+      logger.debug('🔍 useBuyersQuery: Skipping cache clear - no user ID yet');
     }
   }, [currentUser?.id, currentUser?.role, queryClient]);
 
   return useQuery({
     queryKey: ['buyers', currentUser?.id, currentUser?.role],
     queryFn: async ({ signal }) => {
-      console.log('🔍 useBuyersQuery: queryFn EXECUTING', { userId, userRole });
+      logger.debug('🔍 useBuyersQuery: queryFn EXECUTING', { userId, userRole });
       
       try {
         // Use currentUser from hook instead of calling getSession() again
         if (!currentUser?.id) {
-          console.log("No current user available");
+          logger.debug("No current user available");
           return [];
         }
 
-        console.log("🔍 useBuyersQuery: Fetching buyers for user:", currentUser.id, "role:", currentUser?.role);
+        logger.debug("🔍 useBuyersQuery: Fetching buyers for user:", currentUser.id, "role:", currentUser?.role);
 
-        console.log('🔍 useBuyersQuery: About to query Supabase', { userId, userRole });
+        logger.debug('🔍 useBuyersQuery: About to query Supabase', { userId, userRole });
 
         // Fetch buyers data - add proper error handling for 406
         const { data: buyersData, error: buyersError } = await supabase
@@ -70,7 +71,7 @@ export const useBuyersQuery = () => {
           .order('created_at', { ascending: false });
 
         if (buyersError) {
-          console.error("Buyer fetch error:", buyersError);
+          logger.error("Buyer fetch error:", buyersError);
           if (buyersError.code === 'PGRST116') {
             navigate('/signin');
             return [];
@@ -79,7 +80,7 @@ export const useBuyersQuery = () => {
         }
 
         if (!buyersData) {
-          console.log("No data returned from query");
+          logger.debug("No data returned from query");
           return [];
         }
 
@@ -93,7 +94,7 @@ export const useBuyersQuery = () => {
           }>>();
 
         if (countsError) {
-          console.error("Bid counts fetch error:", countsError);
+          logger.error("Bid counts fetch error:", countsError);
         }
 
         // Calculate counts per buyer
@@ -111,11 +112,11 @@ export const useBuyersQuery = () => {
           });
         }
 
-        console.log("Raw buyers data:", buyersData);
+        logger.debug("Raw buyers data:", buyersData);
 
         const typedData = buyersData as unknown as BuyerResponse[];
         const mappedBuyers: MappedBuyer[] = typedData.map(buyer => {
-          console.log("Mapping buyer data:", buyer);
+          logger.debug("Mapping buyer data:", buyer);
           
           const location = [buyer.city, buyer.state]
             .filter(Boolean)
@@ -143,14 +144,14 @@ export const useBuyersQuery = () => {
           };
         });
 
-        console.log("Mapped buyers:", mappedBuyers);
+        logger.debug("Mapped buyers:", mappedBuyers);
         return mappedBuyers;
       } catch (error: any) {
-        console.error("Error in buyers query:", error);
+        logger.error("Error in buyers query:", error);
         
         // AbortError is normal - query was cancelled (component unmounted or query invalidated)
         if (error.name === 'AbortError' || error.code === '20' || error.message?.includes('AbortError')) {
-          console.log('Query cancelled (normal behavior)');
+          logger.debug('Query cancelled (normal behavior)');
           return [];
         }
         
