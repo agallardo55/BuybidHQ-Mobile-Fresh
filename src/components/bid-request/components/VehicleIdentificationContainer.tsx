@@ -2,6 +2,7 @@ import React from "react";
 import { VehicleData, vinService } from "@/services/vinService";
 import VehicleIdentification from "./VehicleIdentification";
 import { TrimOption } from "../types";
+import { logger } from '@/utils/logger';
 
 interface VehicleIdentificationContainerProps {
   formData: {
@@ -32,28 +33,28 @@ const VehicleIdentificationContainer = ({
   showValidation
 }: VehicleIdentificationContainerProps) => {
   const handleVehicleDataFetched = (data: VehicleData) => {
-    console.log('VehicleIdentificationContainer: Received vehicle data:', data);
-    console.log('VehicleIdentificationContainer: onBatchChange available:', !!onBatchChange);
-    console.log('VehicleIdentificationContainer: data.availableTrims:', data.availableTrims);
-    console.log('VehicleIdentificationContainer: data.model:', data.model);
-    console.log('VehicleIdentificationContainer: data.displayTrim:', data.displayTrim);
-    console.log('VehicleIdentificationContainer: data.selectedTrim:', data.selectedTrim);
+    logger.debug('VehicleIdentificationContainer: Received vehicle data:', data);
+    logger.debug('VehicleIdentificationContainer: onBatchChange available:', !!onBatchChange);
+    logger.debug('VehicleIdentificationContainer: data.availableTrims:', data.availableTrims);
+    logger.debug('VehicleIdentificationContainer: data.model:', data.model);
+    logger.debug('VehicleIdentificationContainer: data.displayTrim:', data.displayTrim);
+    logger.debug('VehicleIdentificationContainer: data.selectedTrim:', data.selectedTrim);
     
     // 🔍 FIX: Ensure displayTrim is set from selectedTrim if it exists
     // This ensures the dropdown pre-selects the matched trim after VIN decode
     if (data.selectedTrim && !data.displayTrim) {
       data.displayTrim = vinService.getDisplayTrim(data.selectedTrim);
-      console.log('VehicleIdentificationContainer: Set displayTrim from selectedTrim:', data.displayTrim);
+      logger.debug('VehicleIdentificationContainer: Set displayTrim from selectedTrim:', data.displayTrim);
     }
     
     // Also ensure trim name is set from selectedTrim if missing
     if (data.selectedTrim && !data.trim) {
       data.trim = data.selectedTrim.name;
-      console.log('VehicleIdentificationContainer: Set trim from selectedTrim.name:', data.trim);
+      logger.debug('VehicleIdentificationContainer: Set trim from selectedTrim.name:', data.trim);
     }
     
     if (!onBatchChange) {
-      console.log('VehicleIdentificationContainer: Using fallback onChange method');
+      logger.debug('VehicleIdentificationContainer: Using fallback onChange method');
       // Fallback for simple string values
       Object.entries(data).forEach(([key, value]) => {
         if (typeof value === 'string') {
@@ -74,8 +75,8 @@ const VehicleIdentificationContainer = ({
       })
       .map(([name, value]) => ({ name, value }));
     
-    console.log('VehicleIdentificationContainer: Applying batch changes:', changes);
-    console.log('VehicleIdentificationContainer: displayTrim in changes:', changes.find(c => c.name === 'displayTrim'));
+    logger.debug('VehicleIdentificationContainer: Applying batch changes:', changes);
+    logger.debug('VehicleIdentificationContainer: displayTrim in changes:', changes.find(c => c.name === 'displayTrim'));
     onBatchChange(changes);
   };
 
