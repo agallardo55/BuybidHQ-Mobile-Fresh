@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { BidRequestFormData, FormErrors, FormState, FormStateActions } from "../types";
 import { DEFAULT_BRAKES, DEFAULT_TIRES } from "../constants/defaultValues";
+import { logger } from '@/utils/logger';
 
 const initialFormData: BidRequestFormData = {
   year: "",
@@ -58,7 +59,7 @@ export const useFormState = (): FormState & FormStateActions => {
       formData: { ...prev.formData, ...data }
     }));
     
-    console.log('Form data updated:', { 
+    logger.debug('Form data updated:', { 
       previous: state.formData,
       updates: data,
       new: { ...state.formData, ...data }
@@ -76,7 +77,7 @@ export const useFormState = (): FormState & FormStateActions => {
   // Updated to replace instead of append
   const setUploadedImageUrls = (urls: string[]) => {
     setState(prev => ({ ...prev, uploadedImageUrls: urls }));
-    console.log('Updated uploaded image URLs:', urls);
+    logger.debug('Updated uploaded image URLs:', urls);
   };
 
   const addUploadedImages = (newUrls: string[]) => {
@@ -85,7 +86,7 @@ export const useFormState = (): FormState & FormStateActions => {
       uploadedImageUrls: [...prev.uploadedImageUrls, ...newUrls],
       selectedFileUrls: [] // Clear selected files after upload
     }));
-    console.log('Added new uploaded images:', newUrls);
+    logger.debug('Added new uploaded images:', newUrls);
   };
 
   const removeUploadedImage = (urlToRemove: string) => {
@@ -93,7 +94,7 @@ export const useFormState = (): FormState & FormStateActions => {
       ...prev,
       uploadedImageUrls: prev.uploadedImageUrls.filter(url => url !== urlToRemove)
     }));
-    console.log('Removed uploaded image:', urlToRemove);
+    logger.debug('Removed uploaded image:', urlToRemove);
   };
 
   const setSelectedFileUrls = (urls: string[]) => {
@@ -120,7 +121,7 @@ export const useFormState = (): FormState & FormStateActions => {
     if (name === 'reconEstimate') {
       const numericValue = value.replace(/[^0-9]/g, '');
       setFormData({ [name]: numericValue });
-      console.log('Recon estimate updated in form state:', {
+      logger.debug('Recon estimate updated in form state:', {
         raw: value,
         numeric: numericValue,
         currentState: state.formData.reconEstimate
@@ -135,7 +136,7 @@ export const useFormState = (): FormState & FormStateActions => {
   };
 
   const handleBatchChanges = (changes: Array<{ name: string; value: any }>) => {
-    console.log('useFormState: handleBatchChanges called with:', changes);
+    logger.debug('useFormState: handleBatchChanges called with:', changes);
     const updates: Partial<BidRequestFormData> = {};
     const newErrors = { ...state.errors };
 
@@ -146,7 +147,7 @@ export const useFormState = (): FormState & FormStateActions => {
       }
     });
 
-    console.log('useFormState: Applying updates:', updates);
+    logger.debug('useFormState: Applying updates:', updates);
     setState(prev => ({
       ...prev,
       formData: { ...prev.formData, ...updates },
