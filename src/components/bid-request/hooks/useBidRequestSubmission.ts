@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FormState } from "../types";
 import { toast } from "sonner";
 import { extractNumericValue } from "@/utils/currencyUtils";
+import { logger } from '@/utils/logger';
 
 interface BidRequestSubmissionProps {
   formState: FormState;
@@ -19,7 +20,7 @@ export const useBidRequestSubmission = () => {
     const requestId = crypto.randomUUID();
 
     try {
-      console.log(`[${requestId}] Starting bid request submission`);
+      logger.debug(`[${requestId}] Starting bid request submission`);
 
       // Get sender's name
       const { data: userData, error: userError } = await supabase
@@ -29,7 +30,7 @@ export const useBidRequestSubmission = () => {
         .single();
 
       if (userError) {
-        console.error(`[${requestId}] Error fetching sender details:`, userError);
+        logger.error(`[${requestId}] Error fetching sender details:`, userError);
         throw userError;
       }
 
@@ -74,12 +75,12 @@ export const useBidRequestSubmission = () => {
       });
 
       if (bidRequestError) {
-        console.error(`[${requestId}] Error creating bid request:`, bidRequestError);
+        logger.error(`[${requestId}] Error creating bid request:`, bidRequestError);
         toast.error('Failed to create bid request: ' + bidRequestError.message);
         throw bidRequestError;
       }
 
-      console.log(`[${requestId}] Bid request created successfully:`, bidRequestData);
+      logger.debug(`[${requestId}] Bid request created successfully:`, bidRequestData);
 
       // Save book values if they exist - we need to get the vehicle_id from the created bid request
       const hasBookValues = formData.mmrWholesale || formData.mmrRetail || 
@@ -96,7 +97,7 @@ export const useBidRequestSubmission = () => {
           .single();
 
         if (vehicleError || !bidRequest) {
-          console.error(`[${requestId}] Error getting vehicle ID:`, vehicleError);
+          logger.error(`[${requestId}] Error getting vehicle ID:`, vehicleError);
         } else {
           const { error: bookValuesError } = await supabase
             .from('bookValues')
@@ -114,10 +115,10 @@ export const useBidRequestSubmission = () => {
             });
 
           if (bookValuesError) {
-            console.error(`[${requestId}] Error saving book values:`, bookValuesError);
+            logger.error(`[${requestId}] Error saving book values:`, bookValuesError);
             // Don't throw - book values are optional, continue with the process
           } else {
-            console.log(`[${requestId}] Book values saved successfully`);
+            logger.debug(`[${requestId}] Book values saved successfully`);
           }
 
           // Save history service selection if provided
@@ -130,10 +131,10 @@ export const useBidRequestSubmission = () => {
               });
 
             if (historyError) {
-              console.error(`[${requestId}] Error saving vehicle history service:`, historyError);
+              logger.error(`[${requestId}] Error saving vehicle history service:`, historyError);
               // Don't throw - history service is optional
             } else {
-              console.log(`[${requestId}] Vehicle history service saved successfully`);
+              logger.debug(`[${requestId}] Vehicle history service saved successfully`);
             }
           }
         }
@@ -141,7 +142,7 @@ export const useBidRequestSubmission = () => {
 
       // Send notifications via Twilio to selected buyers
       for (const buyerId of selectedBuyers) {
-        console.log(`[${requestId}] Processing buyer ID:`, buyerId);
+        logger.debug(`[${requestId}] Processing buyer ID:`, buyerId);
         
         // Get buyer details
         const { data: buyerData, error: buyerError } = await supabase
@@ -151,7 +152,7 @@ export const useBidRequestSubmission = () => {
           .single();
 
         if (buyerError) {
-          console.error(`[${requestId}] Error fetching buyer details:`, buyerError);
+          logger.error(`[${requestId}] Error fetching buyer details:`, buyerError);
           continue;
         }
 
@@ -163,7 +164,7 @@ export const useBidRequestSubmission = () => {
           });
 
         if (tokenError || !tokenResponse) {
-          console.error(`[${requestId}] Error generating token:`, tokenError);
+          logger.error(`[${requestId}] Error generating token:`, tokenError);
           toast.error(`Failed to generate secure link for ${buyerData.buyer_name}`);
           continue;
         }
@@ -172,7 +173,7 @@ export const useBidRequestSubmission = () => {
         const baseUrl = import.meta.env.VITE_APP_URL;
         
         if (!baseUrl) {
-          console.error(`[${requestId}] VITE_APP_URL environment variable not set`);
+          logger.error(`[${requestId}] VITE_APP_URL environment variable not set`);
           toast.error(`Configuration error: Unable to generate bid URL for ${buyerData.buyer_name}`);
           continue;
         }
@@ -194,13 +195,13 @@ export const useBidRequestSubmission = () => {
         });
 
         if (twilioError) {
-          console.error(`[${requestId}] Error sending notification to buyer:`, {
+          logger.error(`[${requestId}] Error sending notification to buyer:`, {
             name: buyerData.buyer_name,
             error: twilioError
           });
           toast.error(`Failed to send notification to ${buyerData.buyer_name}`);
         } else {
-          console.log(`[${requestId}] Notification sent successfully to:`, buyerData.buyer_name);
+          logger.debug(`[${requestId}] Notification sent successfully to:`, buyerData.buyer_name);
         }
       }
 
@@ -208,7 +209,7 @@ export const useBidRequestSubmission = () => {
       navigate('/dashboard');
 
     } catch (error) {
-      console.error(`[${requestId}] Error in submitBidRequest:`, error);
+      logger.error(`[${requestId}] Error in submitBidRequest:`, error);
       toast.error('Failed to create bid request. Please try again.');
       throw error;
     }
