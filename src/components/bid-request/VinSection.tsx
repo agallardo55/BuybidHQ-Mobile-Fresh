@@ -12,6 +12,7 @@ import { VehicleData, TrimOption, vinService } from "@/services/vinService";
 import DropdownField from "./components/DropdownField";
 import TrimDropdown from "./components/TrimDropdown";
 import gaugeIcon from "@/assets/gauge_image.png";
+import { logger } from '@/utils/logger';
 
 interface VinSectionProps {
   vin: string;
@@ -96,8 +97,8 @@ const VinSection = ({
     if (vehicleData && onVehicleDataFetched) {
       // Mark trims as coming from VIN decode
       setTrimsSource('vin');
-      console.log('📥 VIN decode data received, setting trimsSource to "vin"');
-      console.log('📥 VinSection: vehicleData being passed to onVehicleDataFetched:', {
+      logger.debug('📥 VIN decode data received, setting trimsSource to "vin"');
+      logger.debug('📥 VinSection: vehicleData being passed to onVehicleDataFetched:', {
         displayTrim: vehicleData.displayTrim,
         trim: vehicleData.trim,
         availableTrims: vehicleData.availableTrims?.map(t => ({
@@ -132,7 +133,7 @@ const VinSection = ({
           setIsLoadingMakes(false);
         })
         .catch(error => {
-          console.error('Error fetching makes:', error);
+          logger.error('Error fetching makes:', error);
           setIsLoadingMakes(false);
         });
     } else {
@@ -182,7 +183,7 @@ const VinSection = ({
           setIsLoadingModels(false);
         })
         .catch(error => {
-          console.error('Error fetching models:', error);
+          logger.error('Error fetching models:', error);
           setIsLoadingModels(false);
         });
     } else {
@@ -192,7 +193,7 @@ const VinSection = ({
 
   // Load trims when year, make, and model change
   useEffect(() => {
-    console.log('🔄 Trim useEffect triggered:', {
+    logger.debug('🔄 Trim useEffect triggered:', {
       year: formData?.year,
       make: formData?.make,
       model: formData?.model,
@@ -204,34 +205,34 @@ const VinSection = ({
     
     // Skip fetch if trims just came from VIN decode
     if (trimsSource === 'vin') {
-      console.log('⏭️ Skipping trim fetch - just populated from VIN decode');
+      logger.debug('⏭️ Skipping trim fetch - just populated from VIN decode');
       setTrimsSource(null); // Reset flag for future manual changes
       return;
     }
     
     // Normal fetch logic for manual selection
     if (formData?.year && formData?.make && formData?.model && onTrimsUpdate && !isLoadingTrims) {
-      console.log('🚀 Fetching trims for manual selection');
+      logger.debug('🚀 Fetching trims for manual selection');
       setTrimsSource('manual'); // Mark as manual fetch
       
       setIsLoadingTrims(true);
       vinService.fetchTrimsByYearMakeModel(formData.year, formData.make, formData.model)
         .then(trims => {
-          console.log('✅ Received trims:', trims.length, 'trims');
+          logger.debug('✅ Received trims:', trims.length, 'trims');
           onTrimsUpdate(trims);
           
           // Auto-select if only one trim available
           if (trims.length === 1 && onTrimChange) {
             const singleTrim = trims[0];
             const displayValue = vinService.getDisplayTrim(singleTrim);
-            console.log('🔍 Auto-selecting single trim:', displayValue);
+            logger.debug('🔍 Auto-selecting single trim:', displayValue);
             onTrimChange(displayValue);
           }
           
           setIsLoadingTrims(false);
         })
         .catch(error => {
-          console.error('❌ Error fetching trims:', error);
+          logger.error('❌ Error fetching trims:', error);
           setIsLoadingTrims(false);
         });
     }
