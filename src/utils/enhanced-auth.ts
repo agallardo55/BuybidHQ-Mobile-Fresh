@@ -7,6 +7,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { robustSignOut } from "./robust-signout";
+import { logger } from '@/utils/logger';
 
 /**
  * Enhanced logout function that ensures complete session cleanup
@@ -14,7 +15,7 @@ import { robustSignOut } from "./robust-signout";
  * @deprecated Use robustSignOut instead
  */
 export const enhancedLogout = async (): Promise<void> => {
-  console.log('Enhanced logout: Redirecting to robustSignOut...');
+  logger.debug('Enhanced logout: Redirecting to robustSignOut...');
   await robustSignOut({ scope: 'global', clearHistory: true });
 };
 
@@ -41,14 +42,14 @@ const clearSupabaseLocalStorage = (): void => {
     // Remove all found keys
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
-      console.log(`Cleared localStorage key: ${key}`);
+      logger.debug(`Cleared localStorage key: ${key}`);
     });
     
     // Also clear sessionStorage
     sessionStorage.clear();
     
   } catch (error) {
-    console.error('Error clearing localStorage:', error);
+    logger.error('Error clearing localStorage:', error);
   }
 };
 
@@ -60,7 +61,7 @@ const clearSessionCache = async (): Promise<void> => {
     // Force a fresh session check to ensure state is cleared
     await supabase.auth.getSession();
   } catch (error) {
-    console.error('Error clearing session cache:', error);
+    logger.error('Error clearing session cache:', error);
   }
 };
 
@@ -70,13 +71,13 @@ const clearSessionCache = async (): Promise<void> => {
 export const debugAuthState = async (): Promise<void> => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
-    console.log('Current session:', session);
-    console.log('Session error:', error);
+    logger.debug('Current session:', session);
+    logger.warn('Session error:', error);
     
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-    console.log('Current user:', user);
-    console.log('User error:', userError);
+    logger.debug('Current user:', user);
+    logger.warn('User error:', userError);
   } catch (error) {
-    console.error('Debug auth state error:', error);
+    logger.error('Debug auth state error:', error);
   }
 };
