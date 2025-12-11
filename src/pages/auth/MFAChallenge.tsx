@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/logger';
 
 const MFAChallenge = () => {
   const [code, setCode] = useState('');
@@ -25,7 +26,7 @@ const MFAChallenge = () => {
     const initMFA = async () => {
       // Only send once
       if (hasSentCode) {
-        console.log('Code already sent, skipping');
+        logger.debug('Code already sent, skipping');
         return;
       }
 
@@ -97,7 +98,7 @@ const MFAChallenge = () => {
       setCodeSent(true);
       setSendingCode(false);
     } catch (err) {
-      console.error('Error sending MFA code:', err);
+      logger.error('Error sending MFA code:', err);
       setError('Failed to send code. Please try again.');
       setSendingCode(false);
     }
@@ -115,11 +116,11 @@ const MFAChallenge = () => {
     setError('');
 
     // Debug logging
-    console.log('=== MFA VERIFICATION DEBUG ===');
-    console.log('Sending code to verify:', code);
-    console.log('Code length:', code.length);
-    console.log('Code type:', typeof code);
-    console.log('Code value (JSON):', JSON.stringify(code));
+    logger.debug('=== MFA VERIFICATION DEBUG ===');
+    logger.debug('Sending code to verify:', code);
+    logger.debug('Code length:', code.length);
+    logger.debug('Code type:', typeof code);
+    logger.debug('Code value (JSON):', JSON.stringify(code));
 
     try {
       // Get current session token
@@ -131,7 +132,7 @@ const MFAChallenge = () => {
         return;
       }
 
-      console.log('Session token exists, calling verify-mfa-code Edge Function');
+      logger.debug('Session token exists, calling verify-mfa-code Edge Function');
 
       // Call our custom verify-mfa-code Edge Function
       const { data, error } = await supabase.functions.invoke('verify-mfa-code', {
@@ -141,12 +142,12 @@ const MFAChallenge = () => {
         },
       });
 
-      console.log('=== EDGE FUNCTION FULL RESPONSE ===');
-      console.log('Response data:', JSON.stringify(data, null, 2));
-      console.log('Response error:', JSON.stringify(error, null, 2));
+      logger.debug('=== EDGE FUNCTION FULL RESPONSE ===');
+      logger.debug('Response data:', JSON.stringify(data, null, 2));
+      logger.warn('Response error:', JSON.stringify(error, null, 2));
 
       if (error) {
-        console.error('Edge Function error object:', error);
+        logger.error('Edge Function error object:', error);
         setError(error.message || 'Verification failed. Please try again.');
         setLoading(false);
         setCode('');
@@ -154,22 +155,22 @@ const MFAChallenge = () => {
       }
 
       if (!data || !data.success) {
-        console.error('Verification failed. Data:', data);
+        logger.error('Verification failed. Data:', data);
         const errorMsg = data?.error || 'Invalid code. Please try again.';
-        console.error('Error message:', errorMsg);
+        logger.error('Error message:', errorMsg);
         setError(errorMsg);
         setLoading(false);
         setCode('');
         return;
       }
 
-      console.log('Verification successful!');
+      logger.debug('Verification successful!');
 
       // Success! The Edge Function already called record_mfa_verification
       // Navigate to original destination
       navigate(from, { replace: true });
     } catch (err) {
-      console.error('Error verifying MFA code:', err);
+      logger.error('Error verifying MFA code:', err);
       setError('Verification failed. Please try again.');
       setLoading(false);
       setCode('');
