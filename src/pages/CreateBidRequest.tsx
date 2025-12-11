@@ -8,15 +8,16 @@ import { useBuyers } from "@/hooks/useBuyers";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { logger } from '@/utils/logger';
 
 const CreateBidRequest = () => {
-  console.log('🔴 CreateBidRequest: COMPONENT CALLED', Date.now());
+  logger.debug('🔴 CreateBidRequest: COMPONENT CALLED', Date.now());
   
   const { currentUser, isLoading: isLoadingUser } = useCurrentUser();
   const { buyers, isLoading: isLoadingBuyers } = useBuyers();
   
   useEffect(() => {
-    console.log('🔍 CreateBidRequest: State update', {
+    logger.debug('🔍 CreateBidRequest: State update', {
       hasCurrentUser: !!currentUser,
       isLoadingUser,
       buyersCount: buyers?.length || 0,
@@ -51,7 +52,7 @@ const CreateBidRequest = () => {
   useEffect(() => {
     if (isLoadingUser) {
       const timeout = setTimeout(() => {
-        console.warn('CreateBidRequest: User loading timeout, proceeding anyway');
+        logger.warn('CreateBidRequest: User loading timeout, proceeding anyway');
         setLoadingTimeout(true);
       }, 2000); // 2 second timeout
       return () => clearTimeout(timeout);
@@ -61,7 +62,7 @@ const CreateBidRequest = () => {
   }, [isLoadingUser]);
   
   if (isLoadingUser && !loadingTimeout) {
-    console.log('🔍 CreateBidRequest: Showing user loading state');
+    logger.debug('🔍 CreateBidRequest: Showing user loading state');
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -74,7 +75,7 @@ const CreateBidRequest = () => {
 
   // Show error if user data failed to load
   if (!currentUser) {
-    console.log('🔍 CreateBidRequest: No current user, showing error');
+    logger.warn('🔍 CreateBidRequest: No current user, showing error');
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -90,7 +91,7 @@ const CreateBidRequest = () => {
     );
   }
 
-  console.log('🔍 CreateBidRequest: Rendering form', {
+  logger.debug('🔍 CreateBidRequest: Rendering form', {
     buyersCount: buyers?.length || 0,
     isLoadingBuyers
   });
@@ -136,12 +137,12 @@ const CreateBidRequest = () => {
         // Update state after successful deletion
         setUploadedImageUrls(uploadedImageUrls.filter(imageUrl => imageUrl !== url));
       } catch (error) {
-        console.error('Error deleting image:', error);
+        logger.error('Error deleting image:', error);
       }
     }
   };
 
-  console.log('🔴 CreateBidRequest: About to return JSX', Date.now());
+  logger.debug('🔴 CreateBidRequest: About to return JSX', Date.now());
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
