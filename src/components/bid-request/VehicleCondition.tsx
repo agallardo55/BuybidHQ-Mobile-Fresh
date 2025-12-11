@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import autocheckImage from "@/assets/autocheck.png";
 import carfaxImage from "@/assets/carfax_logo.svg";
 import ChipSelector from "./components/ChipSelector";
+import { logger } from '@/utils/logger';
 import BrakesAndTiresSection from "./components/BrakesAndTiresSection";
 import { DEFAULT_BRAKES, DEFAULT_TIRES } from "./constants/defaultValues";
 import { ThumbsUp, Star, Zap, AlertTriangle, Cog, List, Car, Wrench, Check, Gauge, ScrollText, HelpCircle, Sparkles, FileText } from "lucide-react";
@@ -77,27 +78,27 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   };
 
   const formatDollarAmount = (value: string | undefined | null) => {
-    console.log('formatDollarAmount called with:', { value, type: typeof value });
+    logger.debug('formatDollarAmount called with:', { value, type: typeof value });
     
     // Handle undefined, null, or empty cases
     if (value === undefined || value === null || value === '') {
-      console.log('formatDollarAmount returning $0 for empty/null/undefined');
+      logger.debug('formatDollarAmount returning $0 for empty/null/undefined');
       return '$0';
     }
     
     const numericValue = String(value).replace(/\D/g, '');
-    console.log('formatDollarAmount numeric extraction:', { original: value, numeric: numericValue });
+    logger.debug('formatDollarAmount numeric extraction:', { original: value, numeric: numericValue });
     
     if (!numericValue || numericValue === '0') {
-      console.log('formatDollarAmount returning $0 for zero/empty numeric');
+      logger.debug('formatDollarAmount returning $0 for zero/empty numeric');
       return '$0';
     }
     
     const parsedValue = Number(numericValue);
-    console.log('formatDollarAmount parsed number:', { numeric: numericValue, parsed: parsedValue, isNaN: isNaN(parsedValue) });
+    logger.debug('formatDollarAmount parsed number:', { numeric: numericValue, parsed: parsedValue, isNaN: isNaN(parsedValue) });
     
     if (isNaN(parsedValue)) {
-      console.log('formatDollarAmount returning $0 for NaN');
+      logger.debug('formatDollarAmount returning $0 for NaN');
       return '$0';
     }
     
@@ -108,18 +109,18 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       maximumFractionDigits: 0
     }).format(parsedValue);
     
-    console.log('formatDollarAmount final result:', formatted);
+    logger.debug('formatDollarAmount final result:', formatted);
     return formatted;
   };
 
   // Update display value whenever formData.reconEstimate changes
   useEffect(() => {
-    console.log('useEffect triggered with formData.reconEstimate:', { 
+    logger.debug('useEffect triggered with formData.reconEstimate:', { 
       value: formData.reconEstimate, 
       type: typeof formData.reconEstimate 
     });
     const formatted = formatDollarAmount(formData.reconEstimate);
-    console.log('useEffect setting displayValue to:', formatted);
+    logger.debug('useEffect setting displayValue to:', formatted);
     setDisplayValue(formatted);
   }, [formData.reconEstimate]);
 
@@ -141,7 +142,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
     onChange(syntheticEvent);
     
     // Log the state update
-    console.log('Recon estimate change:', {
+    logger.debug('Recon estimate change:', {
       rawValue,
       formattedValue: formatDollarAmount(rawValue),
       currentFormData: formData.reconEstimate
