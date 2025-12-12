@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/logger';
@@ -9,7 +9,9 @@ const MFAChallenge = () => {
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
-  const [hasSentCode, setHasSentCode] = useState(false);
+
+  // Use ref to prevent double-sending in React Strict Mode
+  const hasSentCodeRef = useRef(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,22 +26,24 @@ const MFAChallenge = () => {
 
   useEffect(() => {
     const initMFA = async () => {
-      // Only send once
-      if (hasSentCode) {
-        logger.debug('Code already sent, skipping');
+      // Only send once - use ref to prevent double-send in React Strict Mode
+      if (hasSentCodeRef.current) {
+        logger.debug('Code already sent (ref check), skipping');
         return;
       }
 
+      logger.debug('Initializing MFA - sending first code');
+      hasSentCodeRef.current = true;
+
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setHasSentCode(true);
         await handleSendCode();
       } else {
         setError('No active session. Please sign in again.');
       }
     };
     initMFA();
-  }, [hasSentCode]);
+  }, []); // Empty dependency array - only run once
 
   useEffect(() => {
     // Start countdown timer
@@ -154,7 +158,19 @@ const MFAChallenge = () => {
 
       if (error) {
         logger.error('Edge Function error object:', error);
-        setError(error.message || 'Verification failed. Please try again.');
+        logger.error('Error details:', {
+          message: error.message,
+          name: error.name,
+          context: error.context,
+          details: error
+        });
+
+        // Check if error response has additional details
+        if (data?.error) {
+          logger.error('Error from Edge Function response:', data.error);
+        }
+
+        setError(error.message || data?.error || 'Verification failed. Please try again.');
         setLoading(false);
         setCode('');
         return;
@@ -194,6 +210,15 @@ const MFAChallenge = () => {
     await handleSendCode();
   };
 
+  const handleBackToSignIn = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      logger.error('Error signing out:', err);
+    }
+    navigate('/signin', { replace: true });
+  };
+
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -221,7 +246,7 @@ const MFAChallenge = () => {
               Your verification session has expired. Please sign in again to continue.
             </p>
             <button
-              onClick={() => navigate('/auth/signin')}
+              onClick={handleBackToSignIn}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Back to Sign In
@@ -345,9 +370,16 @@ const MFAChallenge = () => {
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
+          <p className="text-xs text-gray-500 text-center mb-4">
             This verification is required once every 24 hours for your security.
           </p>
+          <button
+            type="button"
+            onClick={handleBackToSignIn}
+            className="w-full text-sm text-gray-600 hover:text-gray-700 font-medium transition-colors"
+          >
+            Back to sign in
+          </button>
         </div>
       </div>
     </div>
