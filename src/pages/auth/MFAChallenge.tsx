@@ -58,6 +58,8 @@ const MFAChallenge = () => {
   }, []);
 
   const handleSendCode = async () => {
+    logger.debug('🔴 handleSendCode CALLED - Sending new MFA code');
+    logger.debug('🔴 Call stack:', new Error().stack);
     setSendingCode(true);
     setError('');
 
@@ -106,6 +108,10 @@ const MFAChallenge = () => {
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    logger.debug('🔵 handleVerify CALLED - Form submitted');
+    logger.debug('🔵 Event type:', e.type);
+    logger.debug('🔵 Current code value:', code);
 
     if (code.length !== 6) {
       setError('Please enter a 6-digit code');
@@ -184,6 +190,7 @@ const MFAChallenge = () => {
   };
 
   const handleResendCode = async () => {
+    logger.debug('🟡 handleResendCode CALLED - User clicked resend button');
     await handleSendCode();
   };
 
