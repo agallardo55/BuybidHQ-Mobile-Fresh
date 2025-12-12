@@ -120,11 +120,15 @@ serve(async (req) => {
     }
 
     // Record successful MFA verification in mfa_daily_verification
-    const { error: recordError } = await supabaseClient.rpc('record_mfa_verification')
+    const { error: recordError } = await supabaseClient.rpc('record_mfa_verification', {
+      p_user_id: user.id
+    })
 
     if (recordError) {
       console.error('Error recording MFA verification:', recordError)
       // Don't throw - verification already succeeded
+    } else {
+      console.log(`[verify-mfa-code] MFA verification recorded for user ${user.id}`)
     }
 
     // Clean up old codes for this user
