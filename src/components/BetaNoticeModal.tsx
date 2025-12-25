@@ -14,7 +14,7 @@ export const BetaNoticeModal = ({ open, onOpenChange }: BetaNoticeModalProps) =>
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-0">
         {/* Blue Header Section */}
         <div className="bg-blue-600 px-6 py-8 text-center">
           <div className="flex flex-col items-center gap-3">
