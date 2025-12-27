@@ -36,7 +36,7 @@ const BidForm = ({ onSubmit, isSubmitting, existingBidAmount }: BidFormProps) =>
 
     // Format with commas for thousands
     const [integerPart, decimalPart] = cleaned.split('.');
-    let formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     
     return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
   };

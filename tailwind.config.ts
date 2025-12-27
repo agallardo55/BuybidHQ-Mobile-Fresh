@@ -14,6 +14,7 @@ export default {
     },
     extend: {
       colors: {
+        brand: "#325AE7",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -53,6 +54,9 @@ export default {
           active: "hsl(var(--status-active))",
           completed: "hsl(var(--status-completed))",
           cancelled: "hsl(var(--status-cancelled))",
+          "success-alt": "#16a34a",
+          caution: "#ca8a04",
+          alert: "#dc2626",
         },
         // Enhanced feedback colors
         success: "hsl(var(--success))",

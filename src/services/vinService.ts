@@ -442,7 +442,7 @@ class VinService {
       // This excludes motorcycles and powersports vehicles
       const url = `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/${encodeURIComponent(make)}/modelyear/${year}/vehicletype/passenger%20car?format=json`;
       
-      let response = await fetch(url);
+      const response = await fetch(url);
       
       if (!response.ok) {
         return [];
@@ -2148,7 +2148,7 @@ class VinService {
     
     // Try to extract from description
     if (!engineType && (selectedTrim?.description || apiData?.description)) {
-      const description = (selectedTrim?.description || apiData?.description).toUpperCase();
+      const description = (selectedTrim?.description || apiData?.description || "").toUpperCase();
       if (description.includes('V8 HYBRID') && !description.includes('ELECTRIC') && !description.includes('PHEV')) {
         engineType = 'V8 HYBRID';
       } else if (description.includes('V8')) {
