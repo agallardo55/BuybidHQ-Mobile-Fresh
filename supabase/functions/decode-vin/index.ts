@@ -641,7 +641,7 @@ Deno.serve(async (req) => {
     const isElectric = fuelCheck || bevCheck || electricCheck || cylinderCheck || displacementCheck || transmissionCheck;
 
     // Fetch all available trims for this model if we have make_model_id
-    let allTrims = vehicleData.trims || [];
+    const allTrims = vehicleData.trims || [];
     
     if (allTrims.length > 0 && allTrims[0].make_model_id && vehicleData.year) {
       const makeModelId = allTrims[0].make_model_id;

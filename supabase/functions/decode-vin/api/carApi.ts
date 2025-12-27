@@ -648,7 +648,7 @@ export async function fetchModelsFromCarAPI(year: number, make: string): Promise
 
     // Try different possible CarAPI endpoints for models
     // Common patterns: /api/models?year={year}&make={make}, /api/models?make_id={id}&year={year}
-    let API_URL = `https://carapi.app/api/models?year=${year}&make=${encodeURIComponent(make)}`;
+    const API_URL = `https://carapi.app/api/models?year=${year}&make=${encodeURIComponent(make)}`;
     
     console.log('Fetching models from CarAPI:', {
       url: API_URL,
