@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -37,27 +37,22 @@ const DashboardNavigation = () => {
     { name: "Market View", href: "/marketplace" },
   ];
 
-  useEffect(() => {
-    fetchUnreadCount();
-    subscribeToNotifications();
-  }, []);
-
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     try {
       const { count, error } = await supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
-        .is('read_at', null)
-        .is('cleared_at', null);
+        .is('read_at', null);
 
       if (error) throw error;
       setUnreadCount(count || 0);
     } catch (error) {
       console.error('Error fetching unread count:', error);
+      setUnreadCount(0);
     }
-  };
+  }, []);
 
-  const subscribeToNotifications = () => {
+  const subscribeToNotifications = useCallback(() => {
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -76,7 +71,15 @@ const DashboardNavigation = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  };
+  }, [fetchUnreadCount]);
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const unsubscribe = subscribeToNotifications();
+    return () => {
+      unsubscribe();
+    };
+  }, [fetchUnreadCount, subscribeToNotifications]);
 
   const handleLogout = async () => {
     try {
