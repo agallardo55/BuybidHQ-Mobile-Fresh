@@ -21,25 +21,25 @@ const DetailPage = ({ vehicle, onBackToOffer }: DetailPageProps) => {
   return (
     <Tabs defaultValue="details">
       <div className="sticky top-0 bg-white z-10 p-4 shadow-md">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3 sm:space-x-4">
           <img
             src={vehicle.vehicle_images[0]}
             alt="Vehicle thumbnail"
-            className="w-16 h-16 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
             onClick={() => setIsModalOpen(true)}
           />
-          <div>
-            <h1 className="text-lg font-black text-gray-900">{vehicle.vehicle_year} {vehicle.vehicle_make} {vehicle.vehicle_model}</h1>
-            <p className="text-sm font-bold text-gray-500">{vehicle.vehicle_vin} - {Number(vehicle.vehicle_mileage).toLocaleString()} Miles</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base sm:text-lg font-black text-gray-900 truncate">{vehicle.vehicle_year} {vehicle.vehicle_make} {vehicle.vehicle_model}</h1>
+            <p className="text-xs sm:text-sm font-bold text-gray-500 truncate">{vehicle.vehicle_vin} - {Number(vehicle.vehicle_mileage).toLocaleString()} Miles</p>
           </div>
         </div>
         <TabsList className="grid w-full grid-cols-3 mt-4">
-          <TabsTrigger value="details">Details</TabsTrigger>
-          <TabsTrigger value="condition">Condition</TabsTrigger>
-          <TabsTrigger value="values">Values</TabsTrigger>
+          <TabsTrigger value="details" className="text-xs sm:text-sm">Details</TabsTrigger>
+          <TabsTrigger value="condition" className="text-xs sm:text-sm">Condition</TabsTrigger>
+          <TabsTrigger value="values" className="text-xs sm:text-sm">Values</TabsTrigger>
         </TabsList>
       </div>
-      <div className="p-4 pb-24">
+      <div className="p-4 pb-20">
         <TabsContent value="details">
           <DetailsTab vehicle={vehicle} />
         </TabsContent>
@@ -50,9 +50,9 @@ const DetailPage = ({ vehicle, onBackToOffer }: DetailPageProps) => {
           <ValuesTab vehicle={vehicle} />
         </TabsContent>
       </div>
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white shadow-lg">
         <Button
-          className="w-full bg-brand hover:bg-brand/90 text-white rounded-2xl h-14 text-lg font-semibold shadow-lg flex items-center justify-center gap-2"
+          className="w-full bg-brand hover:bg-brand/90 text-white rounded-2xl h-14 text-lg font-semibold flex items-center justify-center gap-2"
           onClick={onBackToOffer}
         >
           <ChevronLeft className="h-6 w-6" />

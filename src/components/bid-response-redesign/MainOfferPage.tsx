@@ -59,17 +59,18 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
   const recommendedMinOffer = vehicle.kbb_wholesale || vehicle.mmr_wholesale || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50">
       {/* Header */}
       <div className="bg-white p-4 sm:p-6">
-        <h1 className="text-2xl sm:text-3xl font-black">
-          <span className="text-brand">Buybid</span>
-          <span className="text-gray-900">HQ</span>
-        </h1>
+        <img
+          src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png"
+          alt="BuybidHQ Logo"
+          className="h-8 sm:h-10 w-auto"
+        />
       </div>
 
       {/* Main Content */}
-      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-6">
+      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Vehicle Card */}
         <Card className="overflow-hidden rounded-3xl shadow-lg bg-white">
           {/* Hero Image */}
