@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { createPortal } from "react-dom";
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BetaNoticeModal } from "@/components/BetaNoticeModal";
 import { isAdmin } from "@/utils/auth-helpers";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type SortConfig = {
   field: keyof BidRequest | null;
@@ -29,50 +30,41 @@ const BidRequestDashboard = () => {
   const [pageSize, setPageSize] = useState(10);
   const [isMounted, setIsMounted] = useState(false);
   const [betaNoticeOpen, setBetaNoticeOpen] = useState(false);
-  const isMobile = useIsMobile(); // Use the existing hook instead
+  const isMobile = useIsMobile();
 
-  // Ensure component is mounted before rendering portal
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Trigger enrichment once after login
   useEffect(() => {
     enrichUserProfile().catch(err => {
       console.log('Background enrichment failed:', err);
     });
-  }, []); // Only run once on mount
+  }, []);
 
-  // Show beta notice modal for non-super-admin users once per session
   useEffect(() => {
-    if (!user) return;
+    if (!user || isAdmin(user)) return;
 
-    // Don't show for super admins
-    if (isAdmin(user)) return;
-
-    // Check if modal has already been shown this session
     const hasShownBetaNotice = sessionStorage.getItem('beta-notice-shown');
     if (hasShownBetaNotice) return;
 
-    // Show the modal
     setBetaNoticeOpen(true);
   }, [user]);
 
-  // Handle modal close - set sessionStorage flag
   const handleBetaNoticeClose = (open: boolean) => {
     setBetaNoticeOpen(open);
     if (!open) {
       sessionStorage.setItem('beta-notice-shown', 'true');
     }
   };
+
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'createdAt', direction: 'desc' });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bidRequestToDelete, setBidRequestToDelete] = useState<BidRequest | null>(null);
-  
+
   const { bidRequests = [], isLoading, updateBidRequest } = useBidRequestsForDashboard();
   const deleteMutation = useBidRequestDelete();
 
-  // Reset to first page when search term changes
   const handleSearchChange = (newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
     setCurrentPage(1);
@@ -81,22 +73,27 @@ const BidRequestDashboard = () => {
   const handleSort = (field: keyof BidRequest) => {
     setSortConfig((currentConfig) => {
       if (currentConfig.field === field) {
-        if (currentConfig.direction === 'asc') {
-          return { field, direction: 'desc' };
-        } else if (currentConfig.direction === 'desc') {
-          return { field: null, direction: null };
-        }
+        if (currentConfig.direction === 'asc') return { field, direction: 'desc' };
+        if (currentConfig.direction === 'desc') return { field: null, direction: null };
       }
       return { field, direction: 'asc' };
     });
   };
 
-  const sortRequests = (requests: BidRequest[]) => {
-    if (!requests || !sortConfig.field || !sortConfig.direction) {
-      return requests;
-    }
+  const filteredRequests = useMemo(() => {
+    if (!searchTerm) return bidRequests;
+    const searchString = searchTerm.toLowerCase();
+    return bidRequests.filter((request) =>
+      Object.values(request).some(value =>
+        String(value).toLowerCase().includes(searchString)
+      )
+    );
+  }, [bidRequests, searchTerm]);
 
-    return [...requests].sort((a, b) => {
+  const sortedRequests = useMemo(() => {
+    if (!sortConfig.field || !sortConfig.direction) return filteredRequests;
+
+    return [...filteredRequests].sort((a, b) => {
       const aValue = a[sortConfig.field!];
       const bValue = b[sortConfig.field!];
 
@@ -117,43 +114,12 @@ const BidRequestDashboard = () => {
         ? stringA.localeCompare(stringB)
         : stringB.localeCompare(stringA);
     });
-  };
+  }, [filteredRequests, sortConfig]);
 
-  const filteredRequests = bidRequests.filter((request) => {
-    if (!searchTerm) return true;
-    
-    const searchString = searchTerm.toLowerCase();
-    return (
-      request.year.toString().includes(searchString) ||
-      request.make?.toLowerCase().includes(searchString) ||
-      request.model?.toLowerCase().includes(searchString) ||
-      request.buyer?.toLowerCase().includes(searchString) ||
-      request.status.toLowerCase().includes(searchString) ||
-      request.vin?.toLowerCase().includes(searchString) ||
-      request.mileage?.toString().includes(searchString)
-    );
-  });
-
-  const sortedRequests = sortRequests(filteredRequests);
   const totalPages = Math.ceil(sortedRequests.length / pageSize);
-
-  const getPageNumbers = () => {
-    const delta = 2;
-    const range = [];
-    for (
-      let i = Math.max(1, currentPage - delta);
-      i <= Math.min(totalPages, currentPage + delta);
-      i++
-    ) {
-      range.push(i);
-    }
-    return range;
-  };
-
-  const startIndex = (currentPage - 1) * pageSize;
   const paginatedRequests = sortedRequests.slice(
-    startIndex,
-    startIndex + pageSize
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   const handlePageSizeChange = (newSize: number) => {
@@ -185,6 +151,19 @@ const BidRequestDashboard = () => {
     }
   };
 
+  const getPageNumbers = () => {
+    const delta = 2;
+    const range = [];
+    for (
+      let i = Math.max(1, currentPage - delta);
+      i <= Math.min(totalPages, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+    return range;
+  };
+  
   return (
     <DashboardLayout>
       <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-20 sm:pb-6 flex-grow">
@@ -196,7 +175,20 @@ const BidRequestDashboard = () => {
             />
             
             {isLoading ? (
-              <div className="text-center py-4">Loading bid requests...</div>
+              <div className="space-y-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+            ) : paginatedRequests.length === 0 ? (
+              <div className="text-center py-10">
+                <h3 className="text-lg font-medium text-gray-900">No Bid Requests Found</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  There are no bid requests that match your current search criteria.
+                </p>
+              </div>
             ) : (
               <>
                 <BidRequestTable 
@@ -235,8 +227,7 @@ const BidRequestDashboard = () => {
         />
       )}
 
-      {/* Mobile FAB - adjust bottom spacing to account for footer */}
-      {isMounted && isMobile && typeof document !== 'undefined' && createPortal(
+      {isMounted && isMobile && createPortal(
         <Button 
           asChild
           variant="default" 

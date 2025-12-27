@@ -9,6 +9,8 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAccount } from "@/hooks/useAccount";
 import { canUserSeePrices } from "@/utils/planHelpers";
 import { formatDistanceToNow } from "date-fns";
+import MarketplaceGridSkeleton from "@/components/marketplace/MarketplaceGridSkeleton";
+
 const Marketplace = () => {
   const { currentUser } = useCurrentUser();
   const { account } = useAccount();
@@ -154,35 +156,77 @@ const Marketplace = () => {
   }, [account?.plan, currentUser?.role, currentUser?.app_role]);
   
   if (isBidRequestsLoading) {
-    return <DashboardLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    return (
+      <DashboardLayout>
+        <div className="container mx-auto px-4 pt-24 pb-8">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-foreground">Market View</h1>
+              <p className="text-muted-foreground mt-1">Browse and filter vehicles</p>
+            </div>
+            <div className="mb-6">
+              <MarketplaceFilters
+                filters={filters}
+                setFilters={setFilters}
+                availableMakes={[]}
+                availableModels={[]}
+                availableYears={[]}
+              />
+            </div>
+            <MarketplaceGridSkeleton />
+          </div>
         </div>
-      </DashboardLayout>;
+      </DashboardLayout>
+    );
   }
-  
-  return <DashboardLayout>
+
+  return (
+    <DashboardLayout>
       <div className="container mx-auto px-4 pt-24 pb-8">
-        {/* White Card Container */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-          {/* Page Title */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-foreground">Market View</h1>
             <p className="text-muted-foreground mt-1">Browse and filter vehicles</p>
           </div>
 
-          {/* Filters Row */}
           <div className="mb-6">
-            <MarketplaceFilters filters={filters} setFilters={setFilters} availableMakes={availableMakes} availableModels={availableModels} availableYears={availableYears} />
+            <MarketplaceFilters
+              filters={filters}
+              setFilters={setFilters}
+              availableMakes={availableMakes}
+              availableModels={availableModels}
+              availableYears={availableYears}
+            />
           </div>
 
-          {/* Vehicle Grid */}
-          <MarketplaceGrid vehicles={vehicles} onViewDetails={handleViewDetails} onVehicleHover={handleVehicleHover} sortOrder={sortOrder} onSortChange={setSortOrder} shouldShowPrices={shouldShowPrices} />
+          {vehicles.length === 0 ? (
+            <div className="text-center py-10">
+              <h3 className="text-lg font-medium text-gray-900">No Vehicles Found</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Try adjusting your filters to find what you're looking for.
+              </p>
+            </div>
+          ) : (
+            <MarketplaceGrid
+              vehicles={vehicles}
+              onViewDetails={handleViewDetails}
+              onVehicleHover={handleVehicleHover}
+              sortOrder={sortOrder}
+              onSortChange={setSortOrder}
+              shouldShowPrices={shouldShowPrices}
+            />
+          )}
         </div>
       </div>
 
-      {/* Vehicle Details Dialog */}
-      <MarketplaceVehicleDialog request={selectedRequest} vehicleId={selectedVehicleId} isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} />
-    </DashboardLayout>;
+      <MarketplaceVehicleDialog
+        request={selectedRequest}
+        vehicleId={selectedVehicleId}
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
+    </DashboardLayout>
+  );
 };
+
 export default Marketplace;

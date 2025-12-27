@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -17,6 +16,7 @@ import { ProfileImageSection } from "@/components/account/ProfileImageSection";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useToast } from "@/hooks/use-toast";
 import { useAccount } from "@/hooks/useAccount";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Account = () => {
   const { currentUser, isLoading } = useCurrentUser();
@@ -25,7 +25,6 @@ const Account = () => {
   const [searchParams] = useSearchParams();
   const isAdmin = currentUser?.role === 'admin';
 
-  // Handle Stripe checkout result messages
   useEffect(() => {
     const isCanceled = searchParams.get('canceled') === 'true';
     const isSuccess = searchParams.get('success') === 'true';
@@ -39,10 +38,9 @@ const Account = () => {
       toast({
         title: "Checkout Cancelled",
         description: `Your subscription upgrade was cancelled. You're still on the ${planName} plan. You can try upgrading again anytime from the Subscription tab.`,
-        variant: "default",
+        variant: "destructive",
       });
       
-      // Clear the URL parameter
       window.history.replaceState({}, '', '/account');
     }
     
@@ -58,7 +56,6 @@ const Account = () => {
         variant: "default",
       });
       
-      // Clear the URL parameter
       window.history.replaceState({}, '', '/account');
     }
   }, [searchParams, toast, account?.plan]);
@@ -69,37 +66,53 @@ const Account = () => {
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-4 sm:p-6">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Account Settings</h1>
           
-          <ProfileImageSection />
-          
-          <Tabs defaultValue="personal" className="w-full">
-            <TabsList className="mb-4 w-full flex flex-wrap gap-2">
-              <TabsTrigger value="personal" className="flex-1">Personal</TabsTrigger>
-              <TabsTrigger value="dealership" className="flex-1">Dealership</TabsTrigger>
-              <TabsTrigger value="security" className="flex-1">Security</TabsTrigger>
-              <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
-              <TabsTrigger value="subscription" className="flex-1">Subscription</TabsTrigger>
-            </TabsList>
+          {isLoading ? (
+            <div className="space-y-6">
+              <div className="flex items-center space-x-4">
+                <Skeleton className="h-24 w-24 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-48 w-full" />
+            </div>
+          ) : (
+            <>
+              <ProfileImageSection />
+              
+              <Tabs defaultValue="personal" className="w-full">
+                <TabsList className="mb-4 w-full flex flex-nowrap overflow-x-auto gap-2">
+                  <TabsTrigger value="personal">Personal</TabsTrigger>
+                  <TabsTrigger value="dealership">Dealership</TabsTrigger>
+                  <TabsTrigger value="security">Security</TabsTrigger>
+                  <TabsTrigger value="settings">Settings</TabsTrigger>
+                  <TabsTrigger value="subscription">Subscription</TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="personal">
-              <PersonalInfoTab />
-            </TabsContent>
+                <TabsContent value="personal">
+                  <PersonalInfoTab />
+                </TabsContent>
 
-            <TabsContent value="dealership">
-              <DealershipTab />
-            </TabsContent>
+                <TabsContent value="dealership">
+                  <DealershipTab />
+                </TabsContent>
 
-            <TabsContent value="security">
-              <SecurityTab />
-            </TabsContent>
+                <TabsContent value="security">
+                  <SecurityTab />
+                </TabsContent>
 
-            <TabsContent value="settings">
-              <SettingsTab />
-            </TabsContent>
+                <TabsContent value="settings">
+                  <SettingsTab />
+                </TabsContent>
 
-            <TabsContent value="subscription">
-              <SubscriptionTab />
-            </TabsContent>
-          </Tabs>
+                <TabsContent value="subscription">
+                  <SubscriptionTab />
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
         </div>
       </div>
     </DashboardLayout>
