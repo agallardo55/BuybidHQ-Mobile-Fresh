@@ -98,12 +98,6 @@ export const useCurrentUser = () => {
   const navigate = useNavigate();
   const { user: authUser } = useAuth();
 
-  // DIAGNOSTIC: Early return if disabled for testing
-  if (DISABLE_HOOK_FOR_TESTING) {
-    logger.warn('🔍 useCurrentUser: HOOK DISABLED FOR TESTING');
-    return { currentUser: null, isLoading: false };
-  }
-
   const { data: currentUser, isLoading } = useQuery<UserData | null>({
     queryKey: ['currentUser', authUser?.id],
     queryFn: async ({ signal, queryKey }) => {
@@ -522,7 +516,7 @@ export const useCurrentUser = () => {
     refetchOnMount: false,
     staleTime: 30000,
     gcTime: 5 * 60 * 1000,
-    enabled: !!authUser,
+    enabled: !!authUser && !DISABLE_HOOK_FOR_TESTING, // Integrate disable flag here
     throwOnError: false,
   });
 

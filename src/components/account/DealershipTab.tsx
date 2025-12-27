@@ -1,11 +1,21 @@
 
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useAccountForm } from "@/hooks/useAccountForm";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -22,43 +32,38 @@ const states = [
   "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 ];
 
+const dealershipInfoSchema = z.object({
+  dealershipName: z.string(),
+  licenseNumber: z.string().optional(),
+  dealershipAddress: z.string().min(1, "Address is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zipCode: z.string().min(5, "ZIP Code must be 5 digits").max(5, "ZIP Code must be 5 digits"),
+});
+
 export const DealershipTab = () => {
-  const { formData, setFormData, handleChange, isLoading } = useAccountForm();
-  const { currentUser } = useCurrentUser();
+  const { currentUser, isLoading } = useCurrentUser();
   const { toast } = useToast();
 
-  const handleStateChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      state: value,
-    }));
-  };
+  const form = useForm<z.infer<typeof dealershipInfoSchema>>({
+    resolver: zodResolver(dealershipInfoSchema),
+    defaultValues: {
+      dealershipName: currentUser?.dealer_name || "",
+      licenseNumber: currentUser?.license_number || "",
+      dealershipAddress: currentUser?.address || "",
+      city: currentUser?.city || "",
+      state: currentUser?.state || "",
+      zipCode: currentUser?.zip_code || "",
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    formState: { isSubmitting },
+  } = form;
+  
+  const canEditDealershipInfo = currentUser?.app_role === 'member' || currentUser?.app_role === 'account_admin';
 
-    const canEditDealership = currentUser?.app_role === 'member' || currentUser?.app_role === 'account_admin';
-
-    // Validate required fields
-    let validationFields = ['dealershipAddress', 'city', 'state', 'zipCode'];
-    if (canEditDealership) {
-      validationFields.push('dealershipName');
-    }
-
-    const missingFields = validationFields.filter(field => {
-      const value = formData[field as keyof typeof formData];
-      return !value || value.toString().trim() === '';
-    });
-
-    if (missingFields.length > 0) {
-      toast({
-        title: "Validation Error",
-        description: `Please fill in all required fields: ${missingFields.join(', ')}.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const onSubmit = async (values: z.infer<typeof dealershipInfoSchema>) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
@@ -67,30 +72,30 @@ export const DealershipTab = () => {
       const { error: userError } = await supabase
         .from('buybidhq_users')
         .update({
-          address: formData.dealershipAddress,
-          city: formData.city,
-          state: formData.state,
-          zip_code: formData.zipCode,
-        } as any)
-        .eq('id', user.id as any);
+          address: values.dealershipAddress,
+          city: values.city,
+          state: values.state,
+          zip_code: values.zipCode,
+        })
+        .eq('id', user.id);
 
       if (userError) throw userError;
 
       // For Members and Account Admins, also update/create dealership record
-      if (canEditDealership) {
+      if (canEditDealershipInfo) {
         const { error: dealerError } = await supabase
           .from('individual_dealers')
           .upsert({
             user_id: user.id,
-            business_name: formData.dealershipName,
-            license_number: formData.licenseNumber || null,
-            address: formData.dealershipAddress,
-            city: formData.city,
-            state: formData.state,
-            zip_code: formData.zipCode,
+            business_name: values.dealershipName,
+            license_number: values.licenseNumber || null,
+            address: values.dealershipAddress,
+            city: values.city,
+            state: values.state,
+            zip_code: values.zipCode,
             business_email: currentUser?.email || '',
             business_phone: currentUser?.mobile_number || null,
-          } as any, {
+          }, {
             onConflict: 'user_id'
           });
 
@@ -99,12 +104,11 @@ export const DealershipTab = () => {
 
       toast({
         title: "Success",
-        description: canEditDealership 
+        description: canEditDealershipInfo
           ? "Dealership information updated successfully."
           : "Address information updated successfully.",
       });
 
-      // Invalidate currentUser query to refresh the data
       window.location.reload();
     } catch (error) {
       console.error('Error updating information:', error);
@@ -124,123 +128,126 @@ export const DealershipTab = () => {
     );
   }
 
-  const canEditDealershipInfo = currentUser.app_role === 'member' || currentUser.app_role === 'account_admin';
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4">
-          <div>
-            <label htmlFor="dealershipName" className="block text-sm font-medium text-gray-700 mb-1">
-              Dealership Name {canEditDealershipInfo && <span className="text-red-500">*</span>}
-            </label>
-            <Input
-              id="dealershipName"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+            <FormField
+              control={form.control}
               name="dealershipName"
-              type="text"
-              value={formData.dealershipName}
-              onChange={handleChange}
-              placeholder="Business/Dealership name"
-              disabled={!canEditDealershipInfo}
-              className={!canEditDealershipInfo ? "bg-gray-50" : ""}
-              required={canEditDealershipInfo}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dealership Name {canEditDealershipInfo && <span className="text-red-500">*</span>}</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Business/Dealership name" disabled={!canEditDealershipInfo} className={!canEditDealershipInfo ? "bg-gray-50" : ""} />
+                  </FormControl>
+                  {!canEditDealershipInfo && (
+                    <p className="text-xs text-gray-500 mt-1">Contact support to change dealership information</p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {!canEditDealershipInfo && (
-              <p className="text-xs text-gray-500 mt-1">Contact support to change dealership information</p>
-            )}
-          </div>
-          <div>
-            <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
-              License Number
-            </label>
-            <Input
-              id="licenseNumber"
+            <FormField
+              control={form.control}
               name="licenseNumber"
-              type="text"
-              value={formData.licenseNumber}
-              onChange={handleChange}
-              placeholder="Dealer license number"
-              disabled={!canEditDealershipInfo}
-              className={!canEditDealershipInfo ? "bg-gray-50" : ""}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>License Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Dealer license number" disabled={!canEditDealershipInfo} className={!canEditDealershipInfo ? "bg-gray-50" : ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div>
-            <label htmlFor="dealershipAddress" className="block text-sm font-medium text-gray-700 mb-1">
-              Address <span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="dealershipAddress"
+            <FormField
+              control={form.control}
               name="dealershipAddress"
-              type="text"
-              required
-              value={formData.dealershipAddress}
-              onChange={handleChange}
-              placeholder="Street address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Street address" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-              City <span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="city"
+            <FormField
+              control={form.control}
               name="city"
-              type="text"
-              required
-              value={formData.city}
-              onChange={handleChange}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-                State <span className="text-red-500">*</span>
-              </label>
-              <Select 
-                onValueChange={handleStateChange} 
-                value={formData.state}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select state" />
-                </SelectTrigger>
-                <SelectContent>
-                  {states.map((state) => (
-                    <SelectItem key={state} value={state}>
-                      {state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-                ZIP Code <span className="text-red-500">*</span>
-              </label>
-              <Input
-                id="zipCode"
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State <span className="text-red-500">*</span></FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {states.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="zipCode"
-                type="text"
-                required
-                value={formData.zipCode}
-                onChange={handleChange}
-                pattern="[0-9]{5}"
-                maxLength={5}
-                placeholder="12345"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ZIP Code <span className="text-red-500">*</span></FormLabel>
+                    <FormControl>
+                      <Input {...field} pattern="[0-9]{5}" maxLength={5} placeholder="12345" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="pt-4">
-        <Button
-          type="submit"
-          className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
-        >
-          Save Changes
-        </Button>
-      </div>
-      <div className="h-8 border-t mt-6"></div>
-    </form>
+        <div className="pt-4">
+          <Button
+            type="submit"
+            className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </Button>
+        </div>
+        <div className="h-8 border-t mt-6"></div>
+      </form>
+    </Form>
   );
 };
