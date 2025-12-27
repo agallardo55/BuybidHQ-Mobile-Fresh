@@ -1,7 +1,7 @@
-import PublicBidResponse from "@/components/PublicBidResponse";
+import RedesignedBidResponse from "@/components/bid-response-redesign/RedesignedBidResponse";
 
 const BidResponse = () => {
-  return <PublicBidResponse />;
+  return <RedesignedBidResponse />;
 };
 
 export default BidResponse;
