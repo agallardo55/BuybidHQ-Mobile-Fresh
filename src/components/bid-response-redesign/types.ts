@@ -1,0 +1,43 @@
+
+export interface QuickBidDetails {
+  request_id: string;
+  created_at: string;
+  status: string;
+  vehicle_year: string;
+  vehicle_make: string;
+  vehicle_model: string;
+  vehicle_trim: string;
+  vehicle_vin: string;
+  vehicle_mileage: string;
+  vehicle_engine: string;
+  vehicle_transmission: string;
+  vehicle_drivetrain: string;
+  vehicle_exterior_color: string;
+  vehicle_interior_color: string;
+  vehicle_accessories: string;
+  buyer_name: string;
+  buyer_dealership: string;
+  buyer_mobile: string;
+  is_used: boolean;
+  submitted_offer_amount: number | null;
+  submitted_at: string | null;
+  vehicle_images: string[];
+  kbb_wholesale?: number;
+  kbb_retail?: number;
+  jd_power_wholesale?: number;
+  jd_power_retail?: number;
+  mmr_wholesale?: number;
+  mmr_retail?: number;
+  auction_wholesale?: number;
+  auction_retail?: number;
+  windshield?: string;
+  engine_lights?: string;
+  brakes?: string;
+  tire?: string;
+  maintenance?: string;
+  recon_estimate?: string;
+  recon_details?: string;
+  history?: string;
+  history_service?: string;
+  book_values_condition?: string;
+}
