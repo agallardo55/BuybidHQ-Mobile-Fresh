@@ -18,34 +18,16 @@ const passwordRequirements: PasswordRequirement[] = [
     label: "At least 8 characters",
     test: (password) => password.length >= 8,
   },
-  {
-    label: "Contains uppercase letter",
-    test: (password) => /[A-Z]/.test(password),
-  },
-  {
-    label: "Contains lowercase letter", 
-    test: (password) => /[a-z]/.test(password),
-  },
-  {
-    label: "Contains number",
-    test: (password) => /\d/.test(password),
-  },
-  {
-    label: "Contains special character",
-    test: (password) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
-  },
 ];
 
 export const PasswordStrengthMeter = ({ password, showRequirements = false }: PasswordStrengthMeterProps) => {
   const strength = useMemo(() => {
     if (!password) return { score: 0, label: "", color: "bg-muted" };
-    
-    const passed = passwordRequirements.filter(req => req.test(password)).length;
-    
-    if (passed < 2) return { score: 20, label: "Very Weak", color: "bg-destructive" };
-    if (passed < 3) return { score: 40, label: "Weak", color: "bg-orange-500" };
-    if (passed < 4) return { score: 60, label: "Fair", color: "bg-yellow-500" };
-    if (passed < 5) return { score: 80, label: "Good", color: "bg-blue-500" };
+
+    // Base strength on length
+    if (password.length < 8) return { score: 20, label: "Too Short", color: "bg-destructive" };
+    if (password.length < 10) return { score: 60, label: "Fair", color: "bg-yellow-500" };
+    if (password.length < 12) return { score: 80, label: "Good", color: "bg-blue-500" };
     return { score: 100, label: "Strong", color: "bg-green-500" };
   }, [password]);
 

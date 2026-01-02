@@ -47,8 +47,8 @@ const ResetPassword = () => {
   }, [navigate]);
 
   const validatePassword = (password: string) => {
-    if (password.length < 6) {
-      return "Password must be at least 6 characters long";
+    if (password.length < 8) {
+      return "Password must be at least 8 characters long";
     }
     return null;
   };
@@ -139,11 +139,11 @@ const ResetPassword = () => {
                 placeholder="Enter new password"
                 required
                 className="mt-1"
-                minLength={6}
+                minLength={8}
                 autoComplete="new-password"
               />
               <p className="mt-1 text-sm text-gray-500">
-                Password must be at least 6 characters long
+                Password must be at least 8 characters long
               </p>
             </div>
             <div>
@@ -160,7 +160,7 @@ const ResetPassword = () => {
                   "mt-1",
                   showMismatchError && "border-red-500 focus:ring-red-500 focus-visible:ring-red-500"
                 )}
-                minLength={6}
+                minLength={8}
                 autoComplete="new-password"
               />
               {showMismatchError && (

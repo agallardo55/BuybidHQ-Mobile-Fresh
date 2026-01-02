@@ -154,7 +154,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           autoComplete="new-password"
         />
         <p className="mt-1 text-sm text-gray-500">
-          Password must be at least 6 characters long
+          Password must be at least 8 characters long
         </p>
       </div>
       <div>

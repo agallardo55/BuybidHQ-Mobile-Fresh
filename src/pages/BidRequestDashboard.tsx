@@ -14,9 +14,9 @@ import { useBidRequestDelete } from "@/hooks/bid-requests/useBidRequestDelete";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { BetaNoticeModal } from "@/components/BetaNoticeModal";
 import { isAdmin } from "@/utils/auth-helpers";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OnboardingToast } from "@/components/onboarding/OnboardingToast";
 
 type SortConfig = {
   field: keyof BidRequest | null;
@@ -29,7 +29,6 @@ const BidRequestDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isMounted, setIsMounted] = useState(false);
-  const [betaNoticeOpen, setBetaNoticeOpen] = useState(false);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -41,22 +40,6 @@ const BidRequestDashboard = () => {
       console.log('Background enrichment failed:', err);
     });
   }, []);
-
-  useEffect(() => {
-    if (!user || isAdmin(user)) return;
-
-    const hasShownBetaNotice = sessionStorage.getItem('beta-notice-shown');
-    if (hasShownBetaNotice) return;
-
-    setBetaNoticeOpen(true);
-  }, [user]);
-
-  const handleBetaNoticeClose = (open: boolean) => {
-    setBetaNoticeOpen(open);
-    if (!open) {
-      sessionStorage.setItem('beta-notice-shown', 'true');
-    }
-  };
 
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'createdAt', direction: 'desc' });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -220,17 +203,10 @@ const BidRequestDashboard = () => {
         bidRequest={bidRequestToDelete}
       />
 
-      {user && !isAdmin(user) && (
-        <BetaNoticeModal
-          open={betaNoticeOpen}
-          onOpenChange={handleBetaNoticeClose}
-        />
-      )}
-
       {isMounted && isMobile && createPortal(
-        <Button 
+        <Button
           asChild
-          variant="default" 
+          variant="default"
           className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           aria-label="Create Bid Request"
         >
@@ -240,6 +216,9 @@ const BidRequestDashboard = () => {
         </Button>,
         document.body
       )}
+
+      {/* Onboarding completion toast */}
+      <OnboardingToast delay={2000} />
     </DashboardLayout>
   );
 };
