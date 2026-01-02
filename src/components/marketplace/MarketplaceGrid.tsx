@@ -25,28 +25,28 @@ const MarketplaceGrid = ({ vehicles, onViewDetails, onVehicleHover, sortOrder, o
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500">
           Showing {vehicles.length} vehicles
         </p>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Sort:</span>
+        <div className="flex items-center gap-2 text-[13px]">
+          <span className="text-slate-500 font-medium">Sort:</span>
           <button
             onClick={() => onSortChange("newest")}
             className={`font-medium transition-colors ${
               sortOrder === "newest"
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
+                ? "text-brand"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Newest
           </button>
-          <span className="text-muted-foreground">|</span>
+          <span className="text-slate-300">|</span>
           <button
             onClick={() => onSortChange("oldest")}
             className={`font-medium transition-colors ${
               sortOrder === "oldest"
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
+                ? "text-brand"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Oldest

@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BidRequest } from "../bid-request/types";
 import VehicleDetails from "../bid-request/components/VehicleDetails";
 import VehicleCondition from "../bid-request/components/VehicleCondition";
+import VehicleValuation from "./VehicleValuation";
 
 interface MarketplaceVehicleTabsProps {
   request: BidRequest;
@@ -10,10 +11,11 @@ interface MarketplaceVehicleTabsProps {
 const MarketplaceVehicleTabs = ({ request }: MarketplaceVehicleTabsProps) => {
   return (
     <Tabs defaultValue="details" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="details">Details</TabsTrigger>
         <TabsTrigger value="appearance">Appearance</TabsTrigger>
         <TabsTrigger value="condition">Condition</TabsTrigger>
+        <TabsTrigger value="valuation">Valuation</TabsTrigger>
       </TabsList>
 
       <TabsContent value="details" className="space-y-4">
@@ -38,6 +40,10 @@ const MarketplaceVehicleTabs = ({ request }: MarketplaceVehicleTabsProps) => {
 
       <TabsContent value="condition" className="space-y-4">
         <VehicleCondition request={request} />
+      </TabsContent>
+
+      <TabsContent value="valuation" className="space-y-4">
+        <VehicleValuation request={request} />
       </TabsContent>
     </Tabs>
   );

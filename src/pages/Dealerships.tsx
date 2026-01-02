@@ -76,10 +76,10 @@ const Dealerships = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="pt-24 px-4 sm:px-8 pb-8 flex-grow">
-          <div className="max-w-7xl mx-auto">
-            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-              Loading dealerships...
+        <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+          <div className="max-w-[1920px] mx-auto">
+            <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
+              <div className="text-sm text-slate-600">Loading dealerships...</div>
             </div>
           </div>
         </div>
@@ -89,9 +89,9 @@ const Dealerships = () => {
 
   return (
     <DashboardLayout>
-      <div className="pt-24 px-4 sm:px-8 pb-8 flex-grow">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+        <div className="max-w-[1920px] mx-auto">
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
             <DealershipHeader
               searchTerm={searchTerm}
               onSearchChange={handleSearchChange}

@@ -66,43 +66,59 @@ const DealershipList = ({
       <div className="inline-block min-w-full align-middle px-4 sm:px-6">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="whitespace-nowrap text-xs">Dealership Name</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Dealer ID</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Contact</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Location</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Account Admin</TableHead>
-              <TableHead className="whitespace-nowrap text-xs">Actions</TableHead>
+            <TableRow className="border-b border-slate-100 hover:bg-transparent">
+              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Dealership Name</TableHead>
+              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Dealer ID</TableHead>
+              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Contact</TableHead>
+              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Location</TableHead>
+              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Account Admin</TableHead>
+              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
         <TableBody>
           {dealerships.map((dealership) => (
-            <TableRow key={dealership.id} className="text-sm hover:bg-muted/50">
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{dealership.dealer_name}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{dealership.dealer_id}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                <div>{dealership.business_phone}</div>
-                <div className="text-sm text-gray-500">{dealership.business_email}</div>
+            <TableRow
+              key={dealership.id}
+              className="group border-b border-slate-100 hover:bg-slate-50/80 transition-colors"
+            >
+              <TableCell className="py-3 px-4 text-[13px] font-medium text-slate-900">
+                {dealership.dealer_name}
               </TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                <div>{dealership.city}</div>
-                <div className="text-sm text-gray-500">{dealership.state}</div>
+              <TableCell className="py-3 px-4">
+                <code className="font-mono text-[10px] px-2 py-1 bg-slate-100 text-slate-700 rounded">
+                  {dealership.dealer_id}
+                </code>
               </TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                <div>{dealership.account_admin?.full_name || 'Not Assigned'}</div>
-                <div className="text-sm text-gray-500">{dealership.account_admin?.email || 'N/A'}</div>
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{dealership.business_phone}</div>
+                <div className="text-[11px] text-slate-500">{dealership.business_email}</div>
               </TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                <div className="flex items-center gap-2">
-                  <ActionButton
-                    icon={Pencil}
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{dealership.city}</div>
+                <div className="text-[11px] text-slate-500">{dealership.state}</div>
+              </TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{dealership.account_admin?.full_name || 'Not Assigned'}</div>
+                <div className="text-[11px] text-slate-500">{dealership.account_admin?.email || 'N/A'}</div>
+              </TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="flex items-center justify-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => onEdit(dealership)}
-                  />
-                  <ActionButton
-                    icon={Trash2}
+                    className="h-7 w-7 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => onDelete(dealership)}
-                    className="text-destructive hover:text-destructive"
-                  />
+                    className="h-7 w-7 hover:bg-rose-50 hover:text-rose-700 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>

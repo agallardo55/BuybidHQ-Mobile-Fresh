@@ -90,9 +90,9 @@ const AddUserDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2 bg-custom-blue hover:bg-custom-blue/90">
+        <Button className="flex items-center gap-1.5 bg-brand hover:bg-brand/90 text-white h-9 px-4 text-[13px] font-medium shadow-lg shadow-brand/20 hover:shadow-xl hover:shadow-brand/30 transition-all">
           <Plus className="h-4 w-4" />
-          User
+          <span>User</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[95vw] sm:w-[85vw] md:w-full max-w-[90vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto">
@@ -122,7 +122,7 @@ const AddUserDialog = () => {
               </TabsContent>
             </Tabs>
             <div className="mt-6">
-              <Button type="submit" className="w-full bg-custom-blue hover:bg-custom-blue/90">
+              <Button type="submit" className="w-full bg-brand hover:bg-brand/90">
                 Add User
               </Button>
             </div>

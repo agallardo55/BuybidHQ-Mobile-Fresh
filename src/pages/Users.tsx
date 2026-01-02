@@ -106,9 +106,9 @@ const Users = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="pt-24 px-4 sm:px-8 flex-grow">
-          <div className="max-w-7xl mx-auto">
-            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+          <div className="max-w-[1920px] mx-auto">
+            <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
               Loading users...
             </div>
           </div>
@@ -119,20 +119,25 @@ const Users = () => {
 
   return (
     <DashboardLayout>
-      <div className="pt-24 px-4 sm:px-8 flex-grow pb-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-              <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-4 sm:items-center">
-                <UsersSearch 
+      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+        <div className="max-w-[1920px] mx-auto">
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Users</h1>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mt-0.5">
+                  User Account Management
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <UsersSearch
                   searchTerm={searchTerm}
                   onSearchChange={handleSearchChange}
                 />
                 <AddUserDialog />
               </div>
             </div>
-            
+
             <UsersTableWrapper
               users={sortedUsers}
               currentPage={currentPage}
@@ -143,7 +148,7 @@ const Users = () => {
               onPageSizeChange={handlePageSizeChange}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              
+
               sortConfig={sortConfig}
               onSort={handleSort}
             />

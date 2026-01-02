@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface NavItem {
   name: string;
@@ -13,18 +13,34 @@ interface NavItemsProps {
 }
 
 const NavItems = ({ items, onClick, className = "" }: NavItemsProps) => {
+  const location = useLocation();
+
+  const isActive = (href: string) => {
+    return location.pathname === href;
+  };
+
   return (
     <div className={className}>
       {items.map((item) => (
-        <div key={item.name}>
-          <Link
-            to={item.href}
-            className="text-gray-700 hover:text-accent transition-colors"
-            onClick={onClick}
+        <Link
+          key={item.name}
+          to={item.href}
+          className="relative py-1 group"
+          onClick={onClick}
+        >
+          <span
+            className={`text-[13px] font-medium tracking-tight transition-colors ${
+              isActive(item.href)
+                ? "text-brand"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
           >
             {item.name}
-          </Link>
-        </div>
+          </span>
+          {isActive(item.href) && (
+            <div className="absolute -bottom-[14px] left-0 right-0 h-0.5 bg-brand rounded-full" />
+          )}
+        </Link>
       ))}
     </div>
   );

@@ -158,22 +158,26 @@ const Marketplace = () => {
   if (isBidRequestsLoading) {
     return (
       <DashboardLayout>
-        <div className="container mx-auto px-4 pt-24 pb-8">
-          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-foreground">Market View</h1>
-              <p className="text-muted-foreground mt-1">Browse and filter vehicles</p>
+        <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+          <div className="max-w-[1920px] mx-auto">
+            <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
+              <div className="mb-6">
+                <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Market View</h1>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mt-0.5">
+                  Vehicle Inventory Browser
+                </p>
+              </div>
+              <div className="mb-6">
+                <MarketplaceFilters
+                  filters={filters}
+                  setFilters={setFilters}
+                  availableMakes={[]}
+                  availableModels={[]}
+                  availableYears={[]}
+                />
+              </div>
+              <MarketplaceGridSkeleton />
             </div>
-            <div className="mb-6">
-              <MarketplaceFilters
-                filters={filters}
-                setFilters={setFilters}
-                availableMakes={[]}
-                availableModels={[]}
-                availableYears={[]}
-              />
-            </div>
-            <MarketplaceGridSkeleton />
           </div>
         </div>
       </DashboardLayout>
@@ -182,40 +186,44 @@ const Marketplace = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 pt-24 pb-8">
-        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-foreground">Market View</h1>
-            <p className="text-muted-foreground mt-1">Browse and filter vehicles</p>
-          </div>
-
-          <div className="mb-6">
-            <MarketplaceFilters
-              filters={filters}
-              setFilters={setFilters}
-              availableMakes={availableMakes}
-              availableModels={availableModels}
-              availableYears={availableYears}
-            />
-          </div>
-
-          {vehicles.length === 0 ? (
-            <div className="text-center py-10">
-              <h3 className="text-lg font-medium text-gray-900">No Vehicles Found</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Try adjusting your filters to find what you're looking for.
+      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+        <div className="max-w-[1920px] mx-auto">
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
+            <div className="mb-6">
+              <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Market View</h1>
+              <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mt-0.5">
+                Vehicle Inventory Browser
               </p>
             </div>
-          ) : (
-            <MarketplaceGrid
-              vehicles={vehicles}
-              onViewDetails={handleViewDetails}
-              onVehicleHover={handleVehicleHover}
-              sortOrder={sortOrder}
-              onSortChange={setSortOrder}
-              shouldShowPrices={shouldShowPrices}
-            />
-          )}
+
+            <div className="mb-6">
+              <MarketplaceFilters
+                filters={filters}
+                setFilters={setFilters}
+                availableMakes={availableMakes}
+                availableModels={availableModels}
+                availableYears={availableYears}
+              />
+            </div>
+
+            {vehicles.length === 0 ? (
+              <div className="text-center py-10">
+                <h3 className="text-lg font-medium text-slate-900">No Vehicles Found</h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Try adjusting your filters to find what you're looking for.
+                </p>
+              </div>
+            ) : (
+              <MarketplaceGrid
+                vehicles={vehicles}
+                onViewDetails={handleViewDetails}
+                onVehicleHover={handleVehicleHover}
+                sortOrder={sortOrder}
+                onSortChange={setSortOrder}
+                shouldShowPrices={shouldShowPrices}
+              />
+            )}
+          </div>
         </div>
       </div>
 

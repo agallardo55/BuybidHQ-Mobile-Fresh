@@ -32,18 +32,24 @@ const BuyersHeader = ({
   onSubmit,
 }: BuyersHeaderProps) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-      <h1 className="text-2xl font-bold text-gray-900">Buyers</h1>
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
-        <BuyersSearch 
-          searchTerm={searchTerm} 
-          onSearchChange={onSearchChange} 
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Buyers</h1>
+        <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mt-0.5">
+          Buyer Network Management
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <BuyersSearch
+          searchTerm={searchTerm}
+          onSearchChange={onSearchChange}
         />
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="default" className="flex items-center gap-2 bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto">
+            <Button className="flex items-center gap-1.5 bg-brand hover:bg-brand/90 text-white h-9 px-4 text-[13px] font-medium shadow-lg shadow-brand/20 hover:shadow-xl hover:shadow-brand/30 transition-all">
               <Plus className="h-4 w-4" />
-              Buyer
+              <span>Buyer</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="w-[95vw] max-w-[672px] h-[90vh] sm:h-auto overflow-y-auto">

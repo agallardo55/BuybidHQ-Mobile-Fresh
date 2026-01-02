@@ -50,20 +50,20 @@ export const TableRowComponent = ({ request, onClick, onDelete }: TableRowProps)
     return summary?.count || 0;
   };
 
-  // Get status badge variant
-  const getStatusBadgeVariant = (status: string) => {
+  // Get status badge styling
+  const getStatusBadgeClass = (status: string) => {
     switch (status.toLowerCase()) {
       case 'accepted':
-        return 'success';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'approved':
-        return 'default';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'completed':
-        return 'secondary';
+        return 'bg-slate-50 text-slate-700 border-slate-200';
       case 'declined':
-        return 'destructive';
+        return 'bg-rose-50 text-rose-700 border-rose-200';
       case 'pending':
       default:
-        return 'outline';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
     }
   };
 
@@ -92,60 +92,64 @@ export const TableRowComponent = ({ request, onClick, onDelete }: TableRowProps)
   };
 
   return (
-    <UITableRow 
-      className="text-sm hover:bg-muted/50 cursor-pointer"
+    <UITableRow
+      className="group border-b border-slate-100 hover:bg-slate-50/80 cursor-pointer transition-colors"
       onClick={onClick}
     >
-      <TableCell className="py-2 px-4 h-[44px] w-20">
-        {request.primaryImage ? (
-          <img 
-            src={request.primaryImage} 
-            alt="Vehicle thumbnail" 
-            className="w-14 h-10 object-cover rounded"
-            onError={(e) => {
-              e.currentTarget.src = carPlaceholder;
-              e.currentTarget.className = "w-14 h-10 object-cover rounded opacity-50";
-            }}
-          />
-        ) : (
-          <img 
-            src={carPlaceholder} 
-            alt="Vehicle placeholder" 
-            className="w-14 h-10 object-cover rounded opacity-50"
-          />
-        )}
+      <TableCell className="py-3 px-4">
+        <div className="w-16 h-11 rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+          {request.primaryImage ? (
+            <img
+              src={request.primaryImage}
+              alt="Vehicle thumbnail"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = carPlaceholder;
+                e.currentTarget.className = "w-full h-full object-cover opacity-40";
+              }}
+            />
+          ) : (
+            <img
+              src={carPlaceholder}
+              alt="Vehicle placeholder"
+              className="w-full h-full object-cover opacity-40"
+            />
+          )}
+        </div>
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-[13px] text-slate-700">
         {formatDate(request.createdAt)}
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-[13px] text-slate-700">
         {request.year}
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-[13px] font-medium text-slate-900">
         {request.make}
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-[13px] text-slate-700">
         {request.model}
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-        {request.vin}
+      <TableCell className="py-3 px-4">
+        <code className="font-mono text-[10px] px-2 py-1 bg-slate-100 text-slate-700 rounded">
+          {request.vin}
+        </code>
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-[13px] text-slate-700">
         {request.mileage.toLocaleString()}
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap text-center">
+      <TableCell className="py-3 px-4 text-[13px] text-center font-medium text-slate-900">
         {getOfferCount()}
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
+      <TableCell className="py-3 px-4 text-[13px] text-slate-700">
         {formatOfferSummary()}
       </TableCell>
-      <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-        <Badge variant={getStatusBadgeVariant(getDisplayStatus())}>
+      <TableCell className="py-3 px-4">
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium uppercase tracking-wide border ${getStatusBadgeClass(getDisplayStatus())}`}>
           {getDisplayStatus()}
-        </Badge>
+        </span>
       </TableCell>
       {isSuperAdmin && (
-        <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap text-center">
+        <TableCell className="py-3 px-4 text-center">
           <Button
             variant="ghost"
             size="sm"
@@ -153,9 +157,9 @@ export const TableRowComponent = ({ request, onClick, onDelete }: TableRowProps)
               e.stopPropagation();
               onDelete(request.id);
             }}
-            className="h-7 w-7 p-0 hover:bg-destructive/10"
+            className="h-7 w-7 p-0 hover:bg-rose-50 hover:text-rose-700 transition-colors"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </TableCell>
       )}

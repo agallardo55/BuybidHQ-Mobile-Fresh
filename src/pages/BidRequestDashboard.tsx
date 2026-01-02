@@ -149,32 +149,32 @@ const BidRequestDashboard = () => {
   
   return (
     <DashboardLayout>
-      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-20 sm:pb-6 flex-grow">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-            <SearchHeader 
+      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+        <div className="max-w-[1920px] mx-auto">
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
+            <SearchHeader
               searchTerm={searchTerm}
               setSearchTerm={handleSearchChange}
             />
-            
+
             {isLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
               </div>
             ) : paginatedRequests.length === 0 ? (
-              <div className="text-center py-10">
-                <h3 className="text-lg font-medium text-gray-900">No Bid Requests Found</h3>
-                <p className="mt-1 text-sm text-gray-500">
+              <div className="text-center py-16">
+                <h3 className="text-lg font-semibold text-slate-900">No Bid Requests Found</h3>
+                <p className="mt-2 text-sm text-slate-500">
                   There are no bid requests that match your current search criteria.
                 </p>
               </div>
             ) : (
               <>
-                <BidRequestTable 
+                <BidRequestTable
                   requests={paginatedRequests}
                   sortConfig={sortConfig}
                   onSort={handleSort}
@@ -207,7 +207,7 @@ const BidRequestDashboard = () => {
         <Button
           asChild
           variant="default"
-          className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] w-14 h-14 rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-[9999] w-14 h-14 rounded-full bg-brand hover:bg-brand/90 text-white shadow-lg shadow-brand/20 hover:shadow-xl hover:shadow-brand/30 transition-all duration-200 hover:scale-105"
           aria-label="Create Bid Request"
         >
           <Link to="/create-bid-request">

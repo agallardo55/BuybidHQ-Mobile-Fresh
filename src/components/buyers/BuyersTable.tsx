@@ -35,24 +35,24 @@ const BuyersTable = ({ buyers, onDelete, onEdit, sortConfig, onSort }: BuyersTab
 
   const SortIcon = ({ field }: { field: keyof Buyer }) => {
     if (sortConfig.field !== field) {
-      return <ArrowUpDown className="h-4 w-4 ml-1" />;
+      return <ArrowUpDown className="h-3 w-3 ml-1.5 opacity-40" />;
     }
     return sortConfig.direction === 'asc' ? (
-      <ArrowUp className="h-4 w-4 ml-1" />
+      <ArrowUp className="h-3 w-3 ml-1.5 text-brand" />
     ) : (
-      <ArrowDown className="h-4 w-4 ml-1" />
+      <ArrowDown className="h-3 w-3 ml-1.5 text-brand" />
     );
   };
 
   const SortableHeader = ({ field, children }: { field: keyof Buyer; children: React.ReactNode }) => (
-    <TableHead 
+    <TableHead
       className={cn(
-        "text-sm cursor-pointer select-none",
-        sortConfig.field === field && "text-primary"
+        "text-[11px] font-bold uppercase tracking-widest cursor-pointer select-none transition-colors border-b-0",
+        sortConfig.field === field ? "text-brand" : "text-slate-600 hover:text-slate-900"
       )}
       onClick={() => onSort(field)}
     >
-      <div className="flex items-center gap-1">
+      <div className="flex items-center">
         {children}
         <SortIcon field={field} />
       </div>
@@ -62,59 +62,71 @@ const BuyersTable = ({ buyers, onDelete, onEdit, sortConfig, onSort }: BuyersTab
   return (
     <Table>
       <TableHeader>
-        <TableRow>
+        <TableRow className="border-b border-slate-100 hover:bg-transparent">
           <SortableHeader field="name">Name</SortableHeader>
           <SortableHeader field="email">Email</SortableHeader>
           <SortableHeader field="dealership">Dealership</SortableHeader>
           <SortableHeader field="mobileNumber">Mobile Number</SortableHeader>
-          <TableHead className="text-sm">
+          <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">
             <div className="flex items-center gap-1">
-              <Check className="h-4 w-4" />
+              <Check className="h-3 w-3" />
             </div>
           </TableHead>
-          <TableHead className="text-sm">
+          <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">
             <div className="flex items-center gap-1">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-3 w-3" />
             </div>
           </TableHead>
-          <TableHead className="text-sm">
+          <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">
             <div className="flex items-center gap-1">
-              <XCircle className="h-4 w-4" />
+              <XCircle className="h-3 w-3" />
             </div>
           </TableHead>
-          <TableHead className="text-sm">Actions</TableHead>
+          <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0 text-center">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {buyers && buyers.length > 0 ? (
           buyers.map((buyer) => (
-            <TableRow key={buyer.id} className="text-sm hover:bg-muted/50">
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.name}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.email}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.dealership}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{formatPhoneForDisplay(buyer.mobileNumber)}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.acceptedBids}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.pendingBids}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">{buyer.declinedBids}</TableCell>
-              <TableCell className="py-2 px-4 h-[44px] whitespace-nowrap">
-                <div className="flex items-center gap-2">
+            <TableRow key={buyer.id} className="group border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
+              <TableCell className="py-3 px-4 text-[13px] font-medium text-slate-900">{buyer.name}</TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{buyer.email}</div>
+              </TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{buyer.dealership}</div>
+              </TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{formatPhoneForDisplay(buyer.mobileNumber)}</div>
+              </TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{buyer.acceptedBids}</div>
+              </TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{buyer.pendingBids}</div>
+              </TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="text-[13px] text-slate-900">{buyer.declinedBids}</div>
+              </TableCell>
+              <TableCell className="py-3 px-4">
+                <div className="flex items-center justify-center gap-1">
                   {canManageBuyer(buyer) && (
                     <>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onEdit(buyer)}
-                        className="h-7 w-7"
+                        className="h-7 w-7 hover:bg-slate-100 hover:text-slate-900 transition-colors"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onDelete(buyer.id)}
-                        className="h-7 w-7 text-destructive hover:text-destructive"
+                        className="h-7 w-7 hover:bg-rose-50 hover:text-rose-700 transition-colors"
                       >
-                        <Trash className="h-4 w-4" />
+                        <Trash className="h-3.5 w-3.5" />
                       </Button>
                     </>
                   )}
@@ -124,7 +136,7 @@ const BuyersTable = ({ buyers, onDelete, onEdit, sortConfig, onSort }: BuyersTab
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+            <TableCell colSpan={8} className="text-center py-8 text-slate-500">
               No buyers found
             </TableCell>
           </TableRow>

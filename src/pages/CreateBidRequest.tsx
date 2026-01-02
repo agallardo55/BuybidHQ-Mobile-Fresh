@@ -64,10 +64,10 @@ const CreateBidRequest = () => {
   if (isLoadingUser && !loadingTimeout) {
     logger.debug('🔍 CreateBidRequest: Showing user loading state');
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50/30 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-600">Loading user data...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-brand mx-auto mb-4" />
+          <p className="text-slate-600">Loading user data...</p>
         </div>
       </div>
     );
@@ -77,12 +77,12 @@ const CreateBidRequest = () => {
   if (!currentUser) {
     logger.warn('🔍 CreateBidRequest: No current user, showing error');
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50/30 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Failed to load user data</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          <p className="text-rose-600 mb-4">Failed to load user data</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-brand text-white rounded hover:bg-brand/90"
           >
             Retry
           </button>
@@ -145,12 +145,17 @@ const CreateBidRequest = () => {
   logger.debug('🔴 CreateBidRequest: About to return JSX', Date.now());
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-slate-50/30 flex flex-col">
       <DashboardNavigation />
-      <div className="pt-24 px-4 sm:px-6 lg:px-8 pb-6 flex-grow">
-        <div className="w-full max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-5 md:p-6 lg:p-8">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-5 md:mb-6">Create Bid Request</h1>
+      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow">
+        <div className="max-w-[1920px] mx-auto">
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
+            <div className="mb-6">
+              <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Create Bid Request</h1>
+              <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mt-0.5">
+                Vehicle Submission Form
+              </p>
+            </div>
             <MultiStepForm
               formData={formData}
               errors={errors}
@@ -172,8 +177,6 @@ const CreateBidRequest = () => {
               selectedFileUrls={selectedFileUrls}
               onDeleteImage={handleDeleteImage}
             />
-            <div className="mt-6 pt-4 border-t border-gray-200 bg-white">
-            </div>
           </div>
         </div>
       </div>

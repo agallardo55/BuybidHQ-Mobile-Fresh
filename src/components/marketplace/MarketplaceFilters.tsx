@@ -26,9 +26,9 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Year From */}
         <div className="space-y-2">
-          <Label htmlFor="yearFrom">Year From</Label>
+          <Label htmlFor="yearFrom" className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Year From</Label>
           <Select value={filters.yearFrom} onValueChange={(value) => setFilters({ ...filters, yearFrom: value })}>
-            <SelectTrigger id="yearFrom">
+            <SelectTrigger id="yearFrom" className="h-9 border-slate-200 focus:border-brand focus:ring-brand/20">
               <SelectValue placeholder="ANY" />
             </SelectTrigger>
             <SelectContent>
@@ -44,9 +44,9 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
 
         {/* Year To */}
         <div className="space-y-2">
-          <Label htmlFor="yearTo">Year To</Label>
+          <Label htmlFor="yearTo" className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Year To</Label>
           <Select value={filters.yearTo} onValueChange={(value) => setFilters({ ...filters, yearTo: value })}>
-            <SelectTrigger id="yearTo">
+            <SelectTrigger id="yearTo" className="h-9 border-slate-200 focus:border-brand focus:ring-brand/20">
               <SelectValue placeholder="ANY" />
             </SelectTrigger>
             <SelectContent>
@@ -62,15 +62,15 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
 
         {/* Make */}
         <div className="space-y-2">
-          <Label htmlFor="make">Make</Label>
-          <Select 
-            value={filters.make} 
+          <Label htmlFor="make" className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Make</Label>
+          <Select
+            value={filters.make}
             onValueChange={(value) => {
               // Reset model when make changes
               setFilters({ ...filters, make: value, model: "all" });
             }}
           >
-            <SelectTrigger id="make">
+            <SelectTrigger id="make" className="h-9 border-slate-200 focus:border-brand focus:ring-brand/20">
               <SelectValue placeholder="ANY" />
             </SelectTrigger>
             <SelectContent>
@@ -86,9 +86,9 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
 
         {/* Model */}
         <div className="space-y-2">
-          <Label htmlFor="model">Model</Label>
+          <Label htmlFor="model" className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Model</Label>
           <Select value={filters.model} onValueChange={(value) => setFilters({ ...filters, model: value })}>
-            <SelectTrigger id="model">
+            <SelectTrigger id="model" className="h-9 border-slate-200 focus:border-brand focus:ring-brand/20">
               <SelectValue placeholder="ANY" />
             </SelectTrigger>
             <SelectContent>
@@ -104,9 +104,9 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
 
         {/* Price From */}
         <div className="space-y-2">
-          <Label htmlFor="priceFrom">Min Price</Label>
+          <Label htmlFor="priceFrom" className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Min Price</Label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
             <Input
               id="priceFrom"
               type="text"
@@ -116,16 +116,16 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
                 const value = e.target.value.replace(/[^0-9]/g, '');
                 setFilters({ ...filters, priceFrom: value });
               }}
-              className="pl-7"
+              className="pl-7 h-9 bg-white border-slate-200 text-sm placeholder:text-slate-400 focus:border-brand focus:ring-brand/20"
             />
           </div>
         </div>
 
         {/* Price To */}
         <div className="space-y-2">
-          <Label htmlFor="priceTo">Max Price</Label>
+          <Label htmlFor="priceTo" className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Max Price</Label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
             <Input
               id="priceTo"
               type="text"
@@ -135,14 +135,14 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
                 const value = e.target.value.replace(/[^0-9]/g, '');
                 setFilters({ ...filters, priceTo: value });
               }}
-              className="pl-7"
+              className="pl-7 h-9 bg-white border-slate-200 text-sm placeholder:text-slate-400 focus:border-brand focus:ring-brand/20"
             />
           </div>
         </div>
 
         {/* Mileage From */}
         <div className="space-y-2">
-          <Label htmlFor="mileageFrom">Min Mileage</Label>
+          <Label htmlFor="mileageFrom" className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Min Mileage</Label>
           <Input
             id="mileageFrom"
             type="text"
@@ -152,12 +152,13 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
               const value = e.target.value.replace(/[^0-9]/g, '');
               setFilters({ ...filters, mileageFrom: value });
             }}
+            className="h-9 bg-white border-slate-200 text-sm placeholder:text-slate-400 focus:border-brand focus:ring-brand/20"
           />
         </div>
 
         {/* Mileage To */}
         <div className="space-y-2">
-          <Label htmlFor="mileageTo">Max Mileage</Label>
+          <Label htmlFor="mileageTo" className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Max Mileage</Label>
           <Input
             id="mileageTo"
             type="text"
@@ -167,6 +168,7 @@ const MarketplaceFilters = ({ filters, setFilters, availableMakes, availableMode
               const value = e.target.value.replace(/[^0-9]/g, '');
               setFilters({ ...filters, mileageTo: value });
             }}
+            className="h-9 bg-white border-slate-200 text-sm placeholder:text-slate-400 focus:border-brand focus:ring-brand/20"
           />
         </div>
       </div>

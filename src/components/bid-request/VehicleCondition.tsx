@@ -415,8 +415,36 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
   return (
     <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
       {/* Vehicle History Report Integrations */}
-      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200 mb-4 sm:mb-5 md:mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 border border-slate-200 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Unknown Option */}
+          <button
+            type="button"
+            onClick={() => handleIntegrationClick("Unknown")}
+            className={`
+              flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 transition-all cursor-pointer w-full
+              ${selectedHistoryService === "Unknown"
+                ? "border-blue-600 bg-blue-50"
+                : "border-gray-300 bg-white hover:border-blue-600"
+              }
+            `}
+          >
+            {/* Radio Button */}
+            <div className="flex items-center justify-center w-5 h-5 flex-shrink-0">
+              {selectedHistoryService === "Unknown" ? (
+                <div className="relative w-5 h-5">
+                  <div className="absolute inset-0 border-2 border-blue-600 bg-white rounded-full" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full" />
+                  </div>
+                </div>
+              ) : (
+                <div className="w-5 h-5 border-2 border-gray-400 rounded-full bg-white" />
+              )}
+            </div>
+            <span className="text-sm sm:text-base font-medium text-gray-700">Unknown</span>
+          </button>
+
           {/* AutoCheck Column */}
           <button
             type="button"
@@ -442,10 +470,10 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
                 <div className="w-5 h-5 border-2 border-gray-400 rounded-full bg-white" />
               )}
             </div>
-            <img 
-              src={autocheckImage} 
-              alt="AutoCheck" 
-              className="h-5 sm:h-6 w-auto max-w-full object-contain flex-shrink" 
+            <img
+              src={autocheckImage}
+              alt="AutoCheck"
+              className="h-5 sm:h-6 w-auto max-w-full object-contain flex-shrink"
             />
           </button>
 
@@ -474,15 +502,15 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
                 <div className="w-5 h-5 border-2 border-gray-400 rounded-full bg-white" />
               )}
             </div>
-            <img 
-              src={carfaxImage} 
-              alt="CarFax" 
-              className="h-5 sm:h-6 w-auto max-w-full object-contain flex-shrink" 
+            <img
+              src={carfaxImage}
+              alt="CarFax"
+              className="h-5 sm:h-6 w-auto max-w-full object-contain flex-shrink"
             />
           </button>
         </div>
-        <div className="mt-3 sm:mt-4">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">History</h3>
+        <div className="mt-4">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-600 mb-3">History</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
             {historyOptions.map((option) => {
               const isSelected = formData.history === option.value;
@@ -528,10 +556,10 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
       </div>
 
       {/* Windshield, Engine Lights, and Maintenance Condition Chips */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {/* Windshield Section */}
-        <div className="bg-white rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Windshield</h3>
+        <div className="bg-white rounded-lg p-4 sm:p-6 border border-slate-200">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-600 mb-3">Windshield</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {windshieldOptions.map((option) => {
               const isSelected = formData.windshield === option.value;
@@ -558,8 +586,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </div>
 
         {/* Engine Lights Section */}
-        <div className="bg-white rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Warning Lights</h3>
+        <div className="bg-white rounded-lg p-4 sm:p-6 border border-slate-200">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-600 mb-3">Warning Lights</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {engineLightsOptions.map((option) => {
               // Parse current selection to check if this option is selected
@@ -591,8 +619,8 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         </div>
 
         {/* Maintenance Section */}
-        <div className="bg-white rounded-lg p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Maintenance</h3>
+        <div className="bg-white rounded-lg p-4 sm:p-6 border border-slate-200">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-600 mb-3">Maintenance</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {maintenanceOptions.map((option) => {
               const isSelected = formData.maintenance === option.value;
@@ -633,9 +661,9 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
         }}
       />
 
-      <div className="grid grid-cols-1 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div>
-          <label htmlFor="reconEstimate" className="block text-sm sm:text-base font-bold text-gray-700 mb-1 sm:mb-2">
+          <label htmlFor="reconEstimate" className="block text-[11px] font-bold uppercase tracking-widest text-slate-600 mb-2">
             Recon Estimate
           </label>
           <Input
@@ -646,11 +674,11 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             value={displayValue}
             onChange={handleReconEstimateChange}
             placeholder="$0"
-            className="font-mono focus:ring-1 focus:ring-offset-0"
+            className="h-9 bg-white border-slate-200 font-mono focus:border-brand focus:ring-brand/20"
           />
         </div>
         <div>
-          <label htmlFor="reconDetails" className="block text-sm sm:text-base font-bold text-gray-700 mb-1 sm:mb-2">
+          <label htmlFor="reconDetails" className="block text-[11px] font-bold uppercase tracking-widest text-slate-600 mb-2">
             Recon Details
           </label>
           <Textarea
@@ -659,7 +687,7 @@ const VehicleCondition = ({ formData, onChange, onSelectChange }: VehicleConditi
             value={formData.reconDetails}
             onChange={onChange}
             placeholder="Enter reconditioning details..."
-            className="min-h-[100px] focus-visible:ring-custom-blue"
+            className="min-h-[100px] bg-white border-slate-200 focus:border-brand focus-visible:ring-brand/20"
           />
         </div>
       </div>
