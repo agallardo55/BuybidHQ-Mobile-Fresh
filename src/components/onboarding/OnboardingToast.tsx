@@ -32,6 +32,13 @@ export const OnboardingToast = ({
       return;
     }
 
+    // Only hide for super admin users (who manage the application globally)
+    const isSuperAdmin = currentUser.role === 'super_admin' || currentUser.app_role === 'super_admin';
+
+    if (isSuperAdmin) {
+      return;
+    }
+
     // Calculate completion
     const profileCompletion = calculateProfileCompletion(currentUser);
     setCompletion(profileCompletion);
