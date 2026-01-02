@@ -1,6 +1,7 @@
 
 export interface Dealership {
   id: string;
+  user_id?: string | null; // From unified_dealer_info (individual_dealers.user_id or dealerships.primary_user_id)
   dealer_name: string;
   dealer_id: string | null;
   business_phone: string;

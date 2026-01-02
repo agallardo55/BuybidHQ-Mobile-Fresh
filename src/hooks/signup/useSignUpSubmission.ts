@@ -134,23 +134,44 @@ export const useSignUpSubmission = ({
         }
       }
 
-      // Step 2: Wait briefly for any triggers to complete
-      logger.debug('Waiting for triggers to complete...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Step 2: Ensure buybidhq_users record exists
+      // Create it if it doesn't exist (database trigger may not be set up)
+      logger.debug('Ensuring buybidhq_users record exists...');
 
-      // Check if user already has an account linked
-      logger.debug('Checking if user exists in buybidhq_users table...');
-      const { data: existingUser, error: userCheckError } = await supabase
+      const { data: existingUser, error: checkError } = await supabase
         .from('buybidhq_users')
-        .select('account_id')
+        .select('id, account_id')
         .eq('id', authData.user.id)
-        .single();
-        
-      if (userCheckError) {
-        logger.error('Error checking user in buybidhq_users:', userCheckError);
-        // This might be expected if the user doesn't exist yet
+        .maybeSingle();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        logger.error('Error checking buybidhq_users:', checkError);
+        throw checkError;
+      }
+
+      // If user doesn't exist, create the record
+      if (!existingUser) {
+        logger.debug('User not found in buybidhq_users, creating record...');
+        const { error: createError } = await supabase
+          .from('buybidhq_users')
+          .insert({
+            id: authData.user.id,
+            email: formData.email,
+            full_name: formData.fullName,
+            mobile_number: formData.mobileNumber,
+            role: 'basic',
+            app_role: 'member', // Will be updated to account_admin later
+            is_active: true,
+            status: 'active',
+          });
+
+        if (createError) {
+          logger.error('Error creating buybidhq_users record:', createError);
+          throw createError;
+        }
+        logger.debug('buybidhq_users record created successfully');
       } else {
-        logger.debug('User found in buybidhq_users:', existingUser);
+        logger.debug('User already exists in buybidhq_users');
       }
 
       // Step 3: Create or update individual dealer record for all signup users
@@ -179,7 +200,8 @@ export const useSignUpSubmission = ({
       
       logger.debug('Individual dealer created:', individualDealerData);
 
-      // Step 4: Update the user record first - all signup users get basic role and member app_role
+      // Step 4: Update the user record
+      // Note: dealership_id is NOT set for individual dealers - the individual_dealers.user_id provides the link
       logger.debug('Updating user record...');
       const { data: updatedUser, error: userError } = await supabase
         .from('buybidhq_users')
@@ -189,9 +211,9 @@ export const useSignUpSubmission = ({
           email: formData.email,
           role: 'basic', // All signup users get basic role
           is_active: true,
-          status: ['connect', 'annual'].includes(formData.planType) ? 'pending_payment' : 'active',
+          status: 'active', // User account is active immediately upon creation
           sms_consent: formData.smsConsent,
-          app_role: 'member', // All signup users are individual dealers with member role
+          app_role: 'account_admin', // Solo users are admins of their own account
         })
         .eq('id', authData.user.id)
         .select()
@@ -204,25 +226,44 @@ export const useSignUpSubmission = ({
       
       logger.debug('User record updated:', updatedUser);
 
+      // Helper function to map frontend plan types to database plan types
+      const mapPlanToDB = (frontendPlan: string): string => {
+        switch (frontendPlan) {
+          case 'beta-access':
+            return 'free';
+          case 'connect':
+            return 'connect';
+          case 'annual':
+            return 'connect'; // Annual is same as connect, just different billing cycle
+          default:
+            return 'free';
+        }
+      };
+
+      // Helper function to determine billing cycle
+      const getBillingCycle = (frontendPlan: string): string => {
+        return frontendPlan === 'annual' ? 'annual' : 'monthly';
+      };
+
       // Step 5: Create or reuse account (handle race conditions gracefully)
       let accountData;
-      
+
       // Verify user is authenticated before account creation
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
       logger.warn('Auth check result:', { authUser: authUser?.id, authError });
-      
+
       if (!authUser) {
         throw new Error('No authenticated user found - cannot create account');
       }
 
       // Also check the session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      logger.debug('Session check result:', { 
-        session: session?.user?.id, 
+      logger.debug('Session check result:', {
+        session: session?.user?.id,
         sessionError,
         accessToken: session?.access_token ? 'present' : 'missing'
       });
-      
+
       try {
         // Always try to create a new account first
         const { data: newAccount, error: accountError } = await supabase
@@ -230,7 +271,8 @@ export const useSignUpSubmission = ({
           .insert([
             {
               name: formData.dealershipName,
-              plan: formData.planType === 'beta-access' ? 'free' : formData.planType,
+              plan: mapPlanToDB(formData.planType || 'beta-access'),
+              billing_cycle: getBillingCycle(formData.planType || 'beta-access'),
               seat_limit: 1,
               feature_group_enabled: false
             }
@@ -324,15 +366,15 @@ export const useSignUpSubmission = ({
       logger.debug('About to handle subscription (check existing first):', subscriptionData);
 
       // Check if subscription already exists for this user
-      const { data: existingSubscription, error: checkError } = await supabase
+      const { data: existingSubscription, error: subscriptionCheckError } = await supabase
         .from('subscriptions')
         .select('id, plan_type, status')
         .eq('user_id', authData.user.id)
         .single();
 
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows found
-        logger.error('Error checking existing subscription:', checkError);
-        throw checkError;
+      if (subscriptionCheckError && subscriptionCheckError.code !== 'PGRST116') { // PGRST116 means no rows found
+        logger.error('Error checking existing subscription:', subscriptionCheckError);
+        throw subscriptionCheckError;
       }
 
       if (existingSubscription) {
@@ -364,22 +406,16 @@ export const useSignUpSubmission = ({
           .insert([subscriptionData]);
 
         if (subscriptionError) {
-          logger.error('Error creating subscription:', subscriptionError);
+          logger.error('Error creating subscription:', JSON.stringify(subscriptionError, null, 2));
+          logger.error('Subscription data that failed:', JSON.stringify(subscriptionData, null, 2));
           throw subscriptionError;
         }
         
         logger.debug('Subscription created successfully');
       }
 
-      // Show appropriate success message
-      if (isRestored) {
-        toast.success("Welcome back! Your account has been restored.");
-      } else if (isIncompleteCompleted) {
-        toast.success("Welcome back! Your signup has been completed.");
-      } else {
-        toast.success("Account created successfully!");
-      }
-      
+      // For paid plans, skip toast (they'll be redirected to Stripe immediately)
+      // For free plans, show success toast before dashboard redirect
       if (['connect', 'annual'].includes(formData.planType)) {
         // Both connect and annual plans go through Stripe checkout
         logger.debug('Initiating Stripe checkout for plan:', formData.planType);
@@ -419,8 +455,8 @@ export const useSignUpSubmission = ({
             customerEmail: formData.email,
             customerName: formData.fullName,
             userId: user.id, // Add user ID for webhook handler
-            successUrl: `${window.location.origin}/account?success=true`,
-            cancelUrl: `${window.location.origin}/account?canceled=true`
+            successUrl: `${window.location.origin}/dashboard?payment=success`,
+            cancelUrl: `${window.location.origin}/signup?payment=canceled`
           })
         });
 
@@ -446,7 +482,8 @@ export const useSignUpSubmission = ({
       }
     } catch (error: any) {
       logger.error('Signup error:', error);
-      toast.error(error.message || "Failed to create account");
+      logger.error('Signup error details:', JSON.stringify(error, null, 2));
+      toast.error(error.message || error.msg || "Failed to create account");
       setIsSubmitting(false);
     }
   };

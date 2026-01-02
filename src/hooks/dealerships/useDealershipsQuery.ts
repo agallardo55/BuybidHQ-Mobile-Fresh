@@ -21,9 +21,9 @@ export const useDealershipsQuery = ({ pageSize, currentPage, searchTerm }: Deale
         const from = (currentPage - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        // First get the dealerships
+        // First get the dealerships from unified view (includes both individual_dealers and dealerships)
         let query = supabase
-          .from('dealerships')
+          .from('unified_dealer_info')
           .select('*', { count: 'exact' });
 
         if (searchTerm) {
@@ -43,10 +43,8 @@ export const useDealershipsQuery = ({ pageSize, currentPage, searchTerm }: Deale
           throw dealershipsError;
         }
 
-        // Then get the account admin information for each dealership
-        const dealershipIds = dealerships?.map(d => d.id) || [];
-        
-        // Get account admins for these dealerships using a simpler approach
+        // Map account admins to dealerships using user_id from unified view
+        // unified_dealer_info already contains user_id, so we can join directly
         const { data: accountAdmins, error: accountAdminsError } = await supabase
           .from('account_administrators')
           .select(`
@@ -63,23 +61,11 @@ export const useDealershipsQuery = ({ pageSize, currentPage, searchTerm }: Deale
           throw accountAdminsError;
         }
 
-        // Get user dealership mappings
-        const userIds = accountAdmins?.map(admin => admin.user_id) || [];
-        const { data: users, error: usersError } = await supabase
-          .from('buybidhq_users')
-          .select('id, dealership_id')
-          .in('id', userIds);
-
-        if (usersError) {
-          console.error('Error fetching users:', usersError);
-          throw usersError;
-        }
-
-        // Map account admins to dealerships
+        // Map account admins to dealerships by matching user_id
         const dealershipsWithAccountAdmin = dealerships?.map(dealership => {
-          const user = users?.find(u => u.dealership_id === dealership.id);
-          const admin = user ? accountAdmins?.find(admin => admin.user_id === user.id) : null;
-          
+          // unified_dealer_info includes user_id field (from individual_dealers or dealerships)
+          const admin = accountAdmins?.find(admin => admin.user_id === (dealership as any).user_id);
+
           return {
             ...dealership,
             account_admin: admin ? {

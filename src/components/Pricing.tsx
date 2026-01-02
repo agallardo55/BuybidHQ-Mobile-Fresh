@@ -61,7 +61,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter className="pt-4 sm:pt-6">
-              <Button onClick={() => navigate('/signup')} className="w-full bg-accent hover:bg-accent/90 text-sm sm:text-base py-2 sm:py-3">Start Free Trial</Button>
+              <Button onClick={() => navigate('/signup?plan=beta-access')} className="w-full bg-accent hover:bg-accent/90 text-sm sm:text-base py-2 sm:py-3">Start Free Trial</Button>
             </CardFooter>
           </Card>
 
@@ -104,7 +104,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter className="pt-4 sm:pt-6">
-              <Button onClick={() => navigate('/signup')} className="w-full bg-accent hover:bg-accent/90 text-sm sm:text-base py-2 sm:py-3">Get Started</Button>
+              <Button onClick={() => navigate('/signup?plan=connect')} className="w-full bg-accent hover:bg-accent/90 text-sm sm:text-base py-2 sm:py-3">Get Started</Button>
             </CardFooter>
           </Card>
 
@@ -148,7 +148,7 @@ const Pricing = () => {
               </ul>
             </CardContent>
             <CardFooter className="pt-4 sm:pt-6">
-              <Button onClick={() => navigate('/signup')} className="w-full bg-accent hover:bg-accent/90 text-sm sm:text-base py-2 sm:py-3">Get Started</Button>
+              <Button onClick={() => navigate('/signup?plan=annual')} className="w-full bg-accent hover:bg-accent/90 text-sm sm:text-base py-2 sm:py-3">Get Started</Button>
             </CardFooter>
           </Card>
 

@@ -11,7 +11,6 @@ export const useSignUpForm = () => {
     setIsSubmitting,
     setCurrentStep,
     handleChange,
-    handleStateChange,
     handlePlanSelect,
   } = useSignUpState();
 
@@ -31,7 +30,6 @@ export const useSignUpForm = () => {
     currentStep,
     isSubmitting,
     handleChange,
-    handleStateChange,
     handlePlanSelect,
     handleNext,
     handleBack,
