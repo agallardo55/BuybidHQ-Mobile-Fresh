@@ -23,7 +23,7 @@ interface ColorsAndAccessoriesProps {
   uploadedImageUrls?: string[];
   selectedFileUrls?: string[];
   setSelectedFileUrls?: (urls: string[] | ((prev: string[]) => string[])) => void;
-  removeUploadedImage?: (url: string) => void; // Add new prop
+  onDeleteImage?: (url: string, isUploaded: boolean) => Promise<void>;
 }
 
 interface FileWithPreview {
@@ -50,7 +50,7 @@ const ColorsAndAccessories = ({
   uploadedImageUrls = [],
   selectedFileUrls = [],
   setSelectedFileUrls,
-  removeUploadedImage
+  onDeleteImage
 }: ColorsAndAccessoriesProps) => {
   const [selectedFilesWithPreviews, setSelectedFilesWithPreviews] = useState<FileWithPreview[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);

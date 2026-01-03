@@ -9,7 +9,6 @@ interface FormProgressProps {
 }
 
 const steps = [
-  { id: 'basic-info', label: 'Vehicle', description: 'Basic details' },
   { id: 'appearance', label: 'Appearance', description: 'Colors & images' },
   { id: 'condition', label: 'Condition', description: 'Assessment' },
   { id: 'book-values', label: 'Valuation', description: 'Pricing' },

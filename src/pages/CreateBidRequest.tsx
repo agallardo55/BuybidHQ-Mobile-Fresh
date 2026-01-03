@@ -2,7 +2,7 @@
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
 import MultiStepForm from "@/components/bid-request/MultiStepForm";
-import { VehicleSummaryCard } from "@/components/bid-request/VehicleSummaryCard";
+import BasicVehicleInfo from "@/components/bid-request/BasicVehicleInfo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
@@ -160,13 +160,22 @@ const CreateBidRequest = () => {
 
           {/* Split-Column Grid Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* LEFT COLUMN: Sticky Vehicle Summary */}
+            {/* LEFT COLUMN: Vehicle Identity Form */}
             <div className="lg:col-span-4">
               <div className="lg:sticky lg:top-24">
-                <VehicleSummaryCard
-                  formData={formData}
-                  uploadedImageUrls={uploadedImageUrls}
-                />
+                <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6">
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-600 mb-6">
+                    Vehicle Identity
+                  </h3>
+                  <BasicVehicleInfo
+                    formData={formData}
+                    errors={errors}
+                    onChange={handleChange}
+                    onBatchChange={handleBatchChanges}
+                    onSelectChange={handleSelectChange}
+                    showValidation={showValidation}
+                  />
+                </div>
               </div>
             </div>
 

@@ -1,6 +1,5 @@
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { BidRequestFormData, FormErrors } from "./types";
-import BasicVehicleInfo from "./BasicVehicleInfo";
 import ColorsAndAccessories from "./ColorsAndAccessories";
 import VehicleCondition from "./VehicleCondition";
 import BookValues from "./BookValues";
@@ -10,7 +9,7 @@ import AddBuyerDialog from "./AddBuyerDialog";
 import FormTabs from "./FormTabs";
 import StepNavigation from "./components/StepNavigation";
 import { useFormNavigation } from "./hooks/useFormNavigation";
-import { validateBasicInfoStep, validateBuyersStep } from "./utils/stepValidation";
+import { validateBuyersStep } from "./utils/stepValidation";
 
 interface MultiStepFormProps {
   formData: BidRequestFormData;
@@ -72,9 +71,7 @@ const MultiStepForm = ({
   } = useFormNavigation();
 
   const validateCurrentStep = () => {
-    if (currentStep === "basic-info") {
-      return validateBasicInfoStep(formData);
-    } else if (currentStep === "buyers") {
+    if (currentStep === "buyers") {
       return validateBuyersStep(selectedBuyers);
     }
     return {};
@@ -95,7 +92,7 @@ const MultiStepForm = ({
     <Tabs
       value={currentStep}
       className="w-full"
-      onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "book-values" | "buyers")}
+      onValueChange={(value) => setCurrentStep(value as "appearance" | "condition" | "book-values" | "buyers")}
     >
       {/* Progress Indicator */}
       <div className="px-6 pt-6">
@@ -109,21 +106,6 @@ const MultiStepForm = ({
 
       {/* Tab Content Area */}
       <div className="p-6">
-        <TabsContent value="basic-info" className="mt-0">
-          <BasicVehicleInfo
-            formData={formData}
-            errors={errors}
-            onChange={onChange}
-            onBatchChange={onBatchChange}
-            onSelectChange={onSelectChange}
-            showValidation={showValidation}
-          />
-          <StepNavigation
-            showBack={false}
-            onNext={handleNext}
-          />
-        </TabsContent>
-
         <TabsContent value="appearance" className="mt-0">
           <ColorsAndAccessories
             formData={formData}
@@ -131,9 +113,10 @@ const MultiStepForm = ({
             onImagesUploaded={onImagesUploaded}
             uploadedImageUrls={uploadedImageUrls}
             selectedFileUrls={selectedFileUrls}
+            onDeleteImage={onDeleteImage}
           />
           <StepNavigation
-            onBack={handleBack}
+            showBack={false}
             onNext={handleNext}
           />
         </TabsContent>
