@@ -1,13 +1,59 @@
-
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 const FormTabs = () => {
   return (
-    <TabsList className="flex w-full overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 md:grid md:grid-cols-4">
-      <TabsTrigger value="appearance" className="text-xs sm:text-sm whitespace-nowrap flex-shrink-0 md:flex-shrink">Appearance</TabsTrigger>
-      <TabsTrigger value="condition" className="text-xs sm:text-sm whitespace-nowrap flex-shrink-0 md:flex-shrink">Condition</TabsTrigger>
-      <TabsTrigger value="book-values" className="text-xs sm:text-sm whitespace-nowrap flex-shrink-0 md:flex-shrink">Book Values</TabsTrigger>
-      <TabsTrigger value="buyers" className="text-xs sm:text-sm whitespace-nowrap flex-shrink-0 md:flex-shrink">Buyers</TabsTrigger>
+    <TabsList className="grid w-full grid-cols-5 bg-transparent h-auto p-0">
+      <TabsTrigger
+        value="basic-info"
+        className={cn(
+          "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+          "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+          "text-slate-600 hover:text-slate-900"
+        )}
+      >
+        Vehicle
+      </TabsTrigger>
+      <TabsTrigger
+        value="appearance"
+        className={cn(
+          "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+          "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+          "text-slate-600 hover:text-slate-900"
+        )}
+      >
+        Appearance
+      </TabsTrigger>
+      <TabsTrigger
+        value="condition"
+        className={cn(
+          "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+          "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+          "text-slate-600 hover:text-slate-900"
+        )}
+      >
+        Condition
+      </TabsTrigger>
+      <TabsTrigger
+        value="book-values"
+        className={cn(
+          "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+          "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+          "text-slate-600 hover:text-slate-900"
+        )}
+      >
+        Valuation
+      </TabsTrigger>
+      <TabsTrigger
+        value="buyers"
+        className={cn(
+          "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+          "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+          "text-slate-600 hover:text-slate-900"
+        )}
+      >
+        Buyers
+      </TabsTrigger>
     </TabsList>
   );
 };

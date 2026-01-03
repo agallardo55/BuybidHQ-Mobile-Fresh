@@ -92,68 +92,78 @@ const MultiStepForm = ({
   };
 
   return (
-    <Tabs 
+    <Tabs
       value={currentStep}
       className="w-full"
       onValueChange={(value) => setCurrentStep(value as "basic-info" | "appearance" | "condition" | "book-values" | "buyers")}
     >
-      <FormProgress currentStep={currentStep} progressMap={progressMap} />
-      
-      {/* Vehicle Details Section - Between Progress Bar and Tabs */}
-      <div className="mt-6 mb-6">
-        <BasicVehicleInfo 
-          formData={formData}
-          errors={errors}
-          onChange={onChange}
-          onBatchChange={onBatchChange}
-          onSelectChange={onSelectChange}
-          showValidation={showValidation}
-        />
+      {/* Progress Indicator */}
+      <div className="px-6 pt-6">
+        <FormProgress currentStep={currentStep} progressMap={progressMap} />
       </div>
-      
-      <FormTabs />
 
-      <div className="mt-6">
-        <TabsContent value="appearance">
-          <ColorsAndAccessories 
+      {/* Tab Navigation */}
+      <div className="border-b border-slate-100 px-6 mt-6">
+        <FormTabs />
+      </div>
+
+      {/* Tab Content Area */}
+      <div className="p-6">
+        <TabsContent value="basic-info" className="mt-0">
+          <BasicVehicleInfo
+            formData={formData}
+            errors={errors}
+            onChange={onChange}
+            onBatchChange={onBatchChange}
+            onSelectChange={onSelectChange}
+            showValidation={showValidation}
+          />
+          <StepNavigation
+            showBack={false}
+            onNext={handleNext}
+          />
+        </TabsContent>
+
+        <TabsContent value="appearance" className="mt-0">
+          <ColorsAndAccessories
             formData={formData}
             onChange={onChange}
             onImagesUploaded={onImagesUploaded}
             uploadedImageUrls={uploadedImageUrls}
             selectedFileUrls={selectedFileUrls}
           />
-          <StepNavigation 
-            showBack={false}
-            onNext={handleNext}
-          />
-        </TabsContent>
-
-        <TabsContent value="condition">
-          <VehicleCondition 
-            formData={formData}
-            onChange={onChange}
-            onSelectChange={onSelectChange}
-          />
-          <StepNavigation 
+          <StepNavigation
             onBack={handleBack}
             onNext={handleNext}
           />
         </TabsContent>
 
-        <TabsContent value="book-values">
-          <BookValues 
+        <TabsContent value="condition" className="mt-0">
+          <VehicleCondition
+            formData={formData}
+            onChange={onChange}
+            onSelectChange={onSelectChange}
+          />
+          <StepNavigation
+            onBack={handleBack}
+            onNext={handleNext}
+          />
+        </TabsContent>
+
+        <TabsContent value="book-values" className="mt-0">
+          <BookValues
             formData={formData}
             errors={errors}
             onChange={onChange}
             showValidation={showValidation}
           />
-          <StepNavigation 
+          <StepNavigation
             onBack={handleBack}
             onNext={handleNext}
           />
         </TabsContent>
 
-        <TabsContent value="buyers">
+        <TabsContent value="buyers" className="mt-0">
           <BuyersSection
             errors={errors}
             searchTerm={searchTerm}
@@ -169,7 +179,7 @@ const MultiStepForm = ({
         </TabsContent>
       </div>
 
-      <AddBuyerDialog 
+      <AddBuyerDialog
         isOpen={isAddBuyerOpen}
         onOpenChange={setIsAddBuyerOpen}
       />

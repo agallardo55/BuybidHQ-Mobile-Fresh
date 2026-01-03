@@ -2,6 +2,7 @@
 import DashboardNavigation from "@/components/DashboardNavigation";
 import Footer from "@/components/Footer";
 import MultiStepForm from "@/components/bid-request/MultiStepForm";
+import { VehicleSummaryCard } from "@/components/bid-request/VehicleSummaryCard";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
@@ -148,35 +149,53 @@ const CreateBidRequest = () => {
     <div className="min-h-screen bg-slate-50/30 flex flex-col">
       <DashboardNavigation />
       <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow">
-        <div className="max-w-[1920px] mx-auto">
-          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
-            <div className="mb-6">
-              <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Create Bid Request</h1>
-              <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mt-0.5">
-                Vehicle Submission Form
-              </p>
+        <div className="max-w-[1400px] mx-auto">
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="text-[22px] font-bold text-slate-900 tracking-tight">Create Bid Request</h1>
+            <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500 mt-0.5">
+              Vehicle Submission Workflow
+            </p>
+          </div>
+
+          {/* Split-Column Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* LEFT COLUMN: Sticky Vehicle Summary */}
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-24">
+                <VehicleSummaryCard
+                  formData={formData}
+                  uploadedImageUrls={uploadedImageUrls}
+                />
+              </div>
             </div>
-            <MultiStepForm
-              formData={formData}
-              errors={errors}
-              onChange={handleChange}
-              onSelectChange={handleSelectChange}
-              selectedBuyers={selectedBuyers}
-              toggleBuyer={toggleBuyer}
-              buyers={filteredBuyers}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              onSubmit={onSubmit}
-              isSubmitting={isSubmitting}
-              onImagesUploaded={handleImagesUploaded}
-              showValidation={showValidation}
-              setShowValidation={setShowValidation}
-              setErrors={setErrors}
-              onBatchChange={handleBatchChanges}
-              uploadedImageUrls={uploadedImageUrls}
-              selectedFileUrls={selectedFileUrls}
-              onDeleteImage={handleDeleteImage}
-            />
+
+            {/* RIGHT COLUMN: Main Form Content */}
+            <div className="lg:col-span-8">
+              <div className="bg-white rounded-xl border border-slate-100 shadow-sm">
+                <MultiStepForm
+                  formData={formData}
+                  errors={errors}
+                  onChange={handleChange}
+                  onSelectChange={handleSelectChange}
+                  selectedBuyers={selectedBuyers}
+                  toggleBuyer={toggleBuyer}
+                  buyers={filteredBuyers}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  onSubmit={onSubmit}
+                  isSubmitting={isSubmitting}
+                  onImagesUploaded={handleImagesUploaded}
+                  showValidation={showValidation}
+                  setShowValidation={setShowValidation}
+                  setErrors={setErrors}
+                  onBatchChange={handleBatchChanges}
+                  uploadedImageUrls={uploadedImageUrls}
+                  selectedFileUrls={selectedFileUrls}
+                  onDeleteImage={handleDeleteImage}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
