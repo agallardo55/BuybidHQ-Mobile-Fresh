@@ -30,6 +30,12 @@ export const PublicAppWrapper = ({ children }: PublicAppWrapperProps) => {
     // ONLY show modal on dashboard page
     const isDashboardPage = location.pathname === '/dashboard';
 
+    // Reset modal state if not on dashboard
+    if (!isDashboardPage) {
+      setShowBetaModal(false);
+      return;
+    }
+
     if (user && !isAdmin(user) && isDashboardPage) {
       // Check if modal has been shown this session
       const hasSeenBetaModal = sessionStorage.getItem('beta_modal_shown');

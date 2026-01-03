@@ -24,7 +24,7 @@ const Buyers = lazy(() => import("./pages/Buyers"));
 const Users = lazy(() => import("./pages/Users"));
 const Dealerships = lazy(() => import("./pages/Dealerships"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
-const Account = lazy(() => import("./pages/Account"));
+const AccountEnterprise = lazy(() => import("./pages/AccountEnterprise"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const MFAChallenge = lazy(() => import("./pages/auth/MFAChallenge"));
@@ -160,7 +160,7 @@ const App = () => {
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <ProtectedRoute>
-                        <Account />
+                        <AccountEnterprise />
                       </ProtectedRoute>
                     </Suspense>
                   }

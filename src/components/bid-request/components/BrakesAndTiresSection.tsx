@@ -1,12 +1,12 @@
-import React, { useState, useCallback } from "react";
-import { Circle, Copy, X } from "lucide-react";
+import React from "react";
+import { Circle, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  getBrakeRanges,
-  getTireRanges,
-  getRangeFromMeasurement,
-  MeasurementRange,
-} from "../utils/measurementUtils";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface QuadrantData {
   frontLeft: number | null;
@@ -22,297 +22,219 @@ interface BrakesAndTiresSectionProps {
   onTiresChange: (data: QuadrantData) => void;
 }
 
+// Measurement ranges for brakes (in mm)
+const BRAKE_RANGES = [
+  { label: "≥8", value: 8, color: "green" },
+  { label: "5-7", value: 6, color: "yellow" },
+  { label: "3-4", value: 3.5, color: "orange" },
+  { label: "0-2", value: 1, color: "red" },
+];
+
+// Measurement ranges for tires (in 32nds of an inch)
+const TIRE_RANGES = [
+  { label: "8-10", value: 9, color: "green" },
+  { label: "5-7", value: 6, color: "yellow" },
+  { label: "3-4", value: 3.5, color: "orange" },
+  { label: "0-2", value: 1, color: "red" },
+];
+
 const BrakesAndTiresSection = ({
   brakesData,
   tiresData,
   onBrakesChange,
   onTiresChange,
 }: BrakesAndTiresSectionProps) => {
-  const [copyAnimation, setCopyAnimation] = useState(false);
+  // Get label for selected brake value
+  const getBrakeLabel = (value: number | null): string => {
+    if (value === null) return "Select";
+    const range = BRAKE_RANGES.find((r) => r.value === value);
+    return range ? range.label : "Select";
+  };
 
-  // Computed values for checkmarks (re-compute on every render)
-  const showBrakesCheck = Object.values(brakesData).every((v) => v === 8);
-  const showTiresCheck = Object.values(tiresData).every((v) => v === 9);
+  // Get label for selected tire value
+  const getTireLabel = (value: number | null): string => {
+    if (value === null) return "Select";
+    const range = TIRE_RANGES.find((r) => r.value === value);
+    return range ? range.label : "Select";
+  };
 
-  // Get status color classes
-  const getStatusColor = (color: "green" | "yellow" | "orange" | "red") => {
-    switch (color) {
-      case "green":
-        return {
-          active: "bg-green-100 text-green-700 border-green-300 hover:bg-green-200",
-          inactive: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200",
-        };
-      case "yellow":
-        return {
-          active: "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200",
-          inactive: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200",
-        };
-      case "orange":
-        return {
-          active: "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200",
-          inactive: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200",
-        };
-      case "red":
-        return {
-          active: "bg-red-100 text-red-700 border-red-300 hover:bg-red-200",
-          inactive: "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200",
-        };
+  // Get color for selected brake value
+  const getBrakeColor = (value: number | null): string => {
+    if (value === null) return "gray";
+    const range = BRAKE_RANGES.find((r) => r.value === value);
+    return range ? range.color : "gray";
+  };
+
+  // Get color for selected tire value
+  const getTireColor = (value: number | null): string => {
+    if (value === null) return "gray";
+    const range = TIRE_RANGES.find((r) => r.value === value);
+    return range ? range.color : "gray";
+  };
+
+  // Get button classes based on color
+  const getButtonClasses = (color: string) => {
+    const baseClasses = "px-3 py-1.5 rounded-md font-medium text-xs transition-all flex items-center justify-center gap-1.5 min-w-[90px]";
+
+    if (color === "green") {
+      return cn(baseClasses, "bg-green-100 text-green-700 border border-green-300");
+    } else if (color === "yellow") {
+      return cn(baseClasses, "bg-yellow-100 text-yellow-700 border border-yellow-300");
+    } else if (color === "orange") {
+      return cn(baseClasses, "bg-orange-100 text-orange-700 border border-orange-300");
+    } else if (color === "red") {
+      return cn(baseClasses, "bg-red-100 text-red-700 border border-red-300");
+    } else {
+      return cn(baseClasses, "bg-blue-500 hover:bg-blue-600 text-white border border-blue-600");
     }
   };
 
-  // Handle brake chip click
-  const handleBrakeChipClick = useCallback(
-    (position: keyof QuadrantData, range: MeasurementRange) => {
-      const currentRange = getRangeFromMeasurement(brakesData[position], "brake");
-      const newValue =
-        currentRange?.color === range.color ? null : range.representativeValue;
-      onBrakesChange({ ...brakesData, [position]: newValue });
-    },
-    [brakesData, onBrakesChange]
-  );
+  // Render brake pad dropdown for a position
+  const renderBrakeDropdown = (position: keyof QuadrantData) => {
+    const currentValue = brakesData[position];
+    const label = getBrakeLabel(currentValue);
+    const color = getBrakeColor(currentValue);
 
-  // Handle tire chip click
-  const handleTireChipClick = useCallback(
-    (position: keyof QuadrantData, range: MeasurementRange) => {
-      const currentRange = getRangeFromMeasurement(tiresData[position], "tire");
-      const newValue =
-        currentRange?.color === range.color ? null : range.representativeValue;
-      onTiresChange({ ...tiresData, [position]: newValue });
-    },
-    [tiresData, onTiresChange]
-  );
-
-  // Global action handlers
-  const handleAllBrakesOptimal = useCallback(() => {
-    onBrakesChange({
-      frontLeft: 8,
-      frontRight: 8,
-      rearLeft: 8,
-      rearRight: 8,
-    });
-  }, [onBrakesChange]);
-
-  const handleAllTiresOptimal = useCallback(() => {
-    onTiresChange({
-      frontLeft: 9,
-      frontRight: 9,
-      rearLeft: 9,
-      rearRight: 9,
-    });
-  }, [onTiresChange]);
-
-  const handleCopyFrontToRear = useCallback(() => {
-    onBrakesChange({
-      ...brakesData,
-      rearLeft: brakesData.frontLeft,
-      rearRight: brakesData.frontRight,
-    });
-    onTiresChange({
-      ...tiresData,
-      rearLeft: tiresData.frontLeft,
-      rearRight: tiresData.frontRight,
-    });
-    // Trigger animation
-    setCopyAnimation(true);
-    setTimeout(() => setCopyAnimation(false), 600);
-  }, [brakesData, tiresData, onBrakesChange, onTiresChange]);
-
-  const handleClear = useCallback(() => {
-    onBrakesChange({
-      frontLeft: null,
-      frontRight: null,
-      rearLeft: null,
-      rearRight: null,
-    });
-    onTiresChange({
-      frontLeft: null,
-      frontRight: null,
-      rearLeft: null,
-      rearRight: null,
-    });
-  }, [onBrakesChange, onTiresChange]);
-
-  // Check for mismatch warnings (brake set but tire null, or vice versa)
-  const hasMismatch = useCallback(
-    (position: keyof QuadrantData) => {
-      const hasBrake = brakesData[position] !== null;
-      const hasTire = tiresData[position] !== null;
-      return hasBrake !== hasTire; // One is set, other is not
-    },
-    [brakesData, tiresData]
-  );
-
-  // Render chip for a measurement range
-  const renderChip = (
-    range: MeasurementRange,
-    isSelected: boolean,
-    onClick: () => void,
-    ariaLabel: string
-  ) => {
-    const colors = getStatusColor(range.color);
     return (
-      <button
-        type="button"
-        onClick={onClick}
-        className={cn(
-          "h-9 w-full px-2.5 py-1.5 rounded-md border-2 text-sm font-medium transition-all",
-          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
-          "text-center flex items-center justify-center",
-          isSelected ? colors.active : colors.inactive
-        )}
-        aria-label={ariaLabel}
-        aria-pressed={isSelected}
-      >
-        {range.displayText}
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className={getButtonClasses(color)}
+          >
+            <span>{label === "Select" ? label : `${label}MM`}</span>
+            <ChevronDown className="h-3 w-3" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-48">
+          {BRAKE_RANGES.map((range) => (
+            <DropdownMenuItem
+              key={range.label}
+              onClick={() => onBrakesChange({ ...brakesData, [position]: range.value })}
+              className={cn(
+                "cursor-pointer font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900",
+                currentValue === range.value && "bg-gray-200 hover:bg-gray-200"
+              )}
+            >
+              <div className="flex items-center gap-2 w-full">
+                <div
+                  className={cn(
+                    "w-3 h-3 rounded-full",
+                    range.color === "green" && "bg-green-500",
+                    range.color === "yellow" && "bg-yellow-500",
+                    range.color === "orange" && "bg-orange-500",
+                    range.color === "red" && "bg-red-500"
+                  )}
+                />
+                <span>{range.label} mm</span>
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   };
 
-  // Render wheel card
-  const renderWheelCard = (
-    position: keyof QuadrantData,
-    positionLabel: string
-  ) => {
-    const brakeRanges = getBrakeRanges();
-    const tireRanges = getTireRanges();
-    const selectedBrakeRange = getRangeFromMeasurement(
-      brakesData[position],
-      "brake"
-    );
-    const selectedTireRange = getRangeFromMeasurement(
-      tiresData[position],
-      "tire"
-    );
-    const showWarning = hasMismatch(position);
-    const isRear = position === "rearLeft" || position === "rearRight";
+  // Render tire tread dropdown for a position
+  const renderTireDropdown = (position: keyof QuadrantData) => {
+    const currentValue = tiresData[position];
+    const label = getTireLabel(currentValue);
+    const color = getTireColor(currentValue);
 
     return (
-      <div
-        className={cn(
-          "bg-white rounded-lg p-3 sm:p-4 md:p-5 border-2 transition-all",
-          "space-y-2 sm:space-y-3",
-          showWarning && "border-yellow-400",
-          !showWarning && "border-gray-200",
-          isRear && copyAnimation && "copy-pulse-animation"
-        )}
-      >
-        <h3 className="font-semibold text-base sm:text-lg mb-2 sm:mb-3">{positionLabel}</h3>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className={getButtonClasses(color)}
+          >
+            <span>{label === "Select" ? label : `${label}/32"`}</span>
+            <ChevronDown className="h-3 w-3" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-48">
+          {TIRE_RANGES.map((range) => (
+            <DropdownMenuItem
+              key={range.label}
+              onClick={() => onTiresChange({ ...tiresData, [position]: range.value })}
+              className={cn(
+                "cursor-pointer font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900",
+                currentValue === range.value && "bg-gray-200 hover:bg-gray-200"
+              )}
+            >
+              <div className="flex items-center gap-2 w-full">
+                <div
+                  className={cn(
+                    "w-3 h-3 rounded-full",
+                    range.color === "green" && "bg-green-500",
+                    range.color === "yellow" && "bg-yellow-500",
+                    range.color === "orange" && "bg-orange-500",
+                    range.color === "red" && "bg-red-500"
+                  )}
+                />
+                <span>{range.label}/32"</span>
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
 
-        {/* Brake Pad Section */}
-        <div className="mb-3 sm:mb-4">
-          <div className="flex items-center gap-1 mb-1.5 sm:mb-2">
-            <span className="text-xs sm:text-sm font-bold text-gray-700">BRAKE PAD</span>
-            <span className="text-xs text-gray-500">(mm)</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
-            {brakeRanges.map((range) => {
-              const isSelected = selectedBrakeRange?.color === range.color;
-              const ariaLabel = `Brake pad ${range.displayText} millimeters${
-                range.color === "green" ? " or greater" : ""
-              }`;
-              return renderChip(
-                range,
-                isSelected,
-                () => handleBrakeChipClick(position, range),
-                ariaLabel
-              );
-            })}
-          </div>
+  // Render a quadrant cell
+  const renderQuadrantCell = (
+    position: keyof QuadrantData,
+    label: string,
+    type: "brake" | "tire"
+  ) => {
+    return (
+      <div className="bg-gray-50 rounded-lg p-4 flex flex-col items-center justify-center gap-3 min-h-[120px]">
+        <div className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wide">
+          {label}
         </div>
-
-        {/* Tire Tread Section */}
-        <div>
-          <div className="flex items-center gap-1 mb-1.5 sm:mb-2">
-            <span className="text-xs sm:text-sm font-bold text-gray-700">TIRE TREAD</span>
-            <span className="text-xs text-gray-500">(32nds)</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
-            {tireRanges.map((range) => {
-              const isSelected = selectedTireRange?.color === range.color;
-              const ariaLabel = `Tire tread ${range.displayText} thirty-seconds of an inch`;
-              return renderChip(
-                range,
-                isSelected,
-                () => handleTireChipClick(position, range),
-                ariaLabel
-              );
-            })}
-          </div>
-        </div>
+        {type === "brake" ? renderBrakeDropdown(position) : renderTireDropdown(position)}
       </div>
     );
   };
 
   return (
-    <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       {/* Header */}
       <div className="flex items-center gap-2">
         <Circle className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700" />
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Brakes & Tires</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Tires & Brakes</h2>
       </div>
 
-      {/* Global Action Buttons */}
-      <div className="flex flex-wrap gap-2 sm:gap-3">
-        <button
-          type="button"
-          onClick={handleAllBrakesOptimal}
-          className={cn(
-            "h-10 px-3 py-2 rounded-md border text-sm font-medium transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
-            "flex-1 min-w-[140px] sm:flex-initial",
-            "inline-flex items-center justify-center",
-            showBrakesCheck
-              ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-          )}
-          aria-pressed={showBrakesCheck}
-        >
-          {showBrakesCheck ? "✓ " : ""}All Brakes ≥8mm
-        </button>
-        <button
-          type="button"
-          onClick={handleAllTiresOptimal}
-          className={cn(
-            "h-10 px-3 py-2 rounded-md border text-sm font-medium transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400",
-            "flex-1 min-w-[140px] sm:flex-initial",
-            "inline-flex items-center justify-center",
-            showTiresCheck
-              ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-          )}
-          aria-pressed={showTiresCheck}
-        >
-          {showTiresCheck ? "✓ " : ""}All Tires 8-10/32"
-        </button>
-        <button
-          type="button"
-          onClick={handleCopyFrontToRear}
-          className="h-10 px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 flex-1 min-w-[140px] sm:flex-initial inline-flex items-center justify-center gap-1.5"
-        >
-          <Copy className="h-4 w-4" />
-          Copy Front→Rear
-        </button>
-        <button
-          type="button"
-          onClick={handleClear}
-          className="h-10 px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 flex-1 min-w-[140px] sm:flex-initial inline-flex items-center justify-center gap-1.5"
-        >
-          <X className="h-4 w-4" />
-          Clear
-        </button>
-      </div>
+      {/* Tires and Brakes Side by Side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+        {/* Tires Condition Section */}
+        <div className="bg-white rounded-xl p-5 sm:p-6 border-2 border-gray-200">
+          <h3 className="text-sm sm:text-base font-bold text-gray-400 uppercase tracking-wider mb-4">
+            Tires Condition
+          </h3>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {renderQuadrantCell("frontLeft", "Front Left", "tire")}
+            {renderQuadrantCell("frontRight", "Front Right", "tire")}
+            {renderQuadrantCell("rearLeft", "Rear Left", "tire")}
+            {renderQuadrantCell("rearRight", "Rear Right", "tire")}
+          </div>
+        </div>
 
-      {/* Wheel Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
-        {renderWheelCard("frontLeft", "Front Left")}
-        {renderWheelCard("frontRight", "Front Right")}
-        {renderWheelCard("rearLeft", "Rear Left")}
-        {renderWheelCard("rearRight", "Rear Right")}
+        {/* Brakes Condition Section */}
+        <div className="bg-white rounded-xl p-5 sm:p-6 border-2 border-gray-200">
+          <h3 className="text-sm sm:text-base font-bold text-gray-400 uppercase tracking-wider mb-4">
+            Brakes Condition
+          </h3>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {renderQuadrantCell("frontLeft", "Front Left", "brake")}
+            {renderQuadrantCell("frontRight", "Front Right", "brake")}
+            {renderQuadrantCell("rearLeft", "Rear Left", "brake")}
+            {renderQuadrantCell("rearRight", "Rear Right", "brake")}
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
 export default BrakesAndTiresSection;
-

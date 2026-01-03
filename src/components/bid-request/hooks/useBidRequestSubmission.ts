@@ -49,7 +49,10 @@ export const useBidRequestSubmission = () => {
         drivetrain: formData.drivetrain,
         exterior: formData.exteriorColor,
         interior: formData.interiorColor,
-        options: formData.accessories
+        options: formData.accessories,
+        body_style: formData.bodyStyle || null,
+        history_report: formData.history || null,
+        history_service: formData.historyService || null
       };
 
       // Prepare reconditioning data matching database schema
@@ -100,7 +103,7 @@ export const useBidRequestSubmission = () => {
           logger.error(`[${requestId}] Error getting vehicle ID:`, vehicleError);
         } else {
           const { error: bookValuesError } = await supabase
-            .from('bookValues')
+            .from('book_values')
             .insert({
               vehicle_id: bidRequest.vehicle_id,
               condition: formData.bookValuesCondition || 'good',
@@ -119,23 +122,6 @@ export const useBidRequestSubmission = () => {
             // Don't throw - book values are optional, continue with the process
           } else {
             logger.debug(`[${requestId}] Book values saved successfully`);
-          }
-
-          // Save history service selection if provided
-          if (formData.historyService) {
-            const { error: historyError } = await supabase
-              .from('vehicle_history')
-              .insert({
-                vehicle_id: bidRequest.vehicle_id,
-                history_service: formData.historyService
-              });
-
-            if (historyError) {
-              logger.error(`[${requestId}] Error saving vehicle history service:`, historyError);
-              // Don't throw - history service is optional
-            } else {
-              logger.debug(`[${requestId}] Vehicle history service saved successfully`);
-            }
           }
         }
       }

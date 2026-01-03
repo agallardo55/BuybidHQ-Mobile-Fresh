@@ -6,8 +6,9 @@ import { BidRequest } from "../types";
 import VehicleDetails from "./VehicleDetails";
 import VehicleCondition from "./VehicleCondition";
 import Reconditioning from "./Reconditioning";
-import { Car, Eye, Wrench, DollarSign, Loader2 } from "lucide-react";
+import { DollarSign, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface BidRequestTabsProps {
   request: BidRequest;
@@ -146,22 +147,46 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
   };
   return (
     <Tabs defaultValue="details" className="mt-2">
-      <TabsList className="flex w-full overflow-x-auto mb-3 scrollbar-thin scrollbar-thumb-gray-300 md:grid md:grid-cols-4">
-        <TabsTrigger value="details" className="flex items-center gap-1 md:gap-2 text-xs px-2 py-1.5 whitespace-nowrap flex-shrink-0 md:flex-shrink">
-          <Car size={14} />
-          <span className="hidden sm:inline">Details</span>
+      <TabsList className="grid w-full grid-cols-4 bg-transparent h-auto p-0 mb-3">
+        <TabsTrigger
+          value="details"
+          className={cn(
+            "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+            "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+            "text-slate-600 hover:text-slate-900"
+          )}
+        >
+          Details
         </TabsTrigger>
-        <TabsTrigger value="appearance" className="flex items-center gap-1 md:gap-2 text-xs px-2 py-1.5 whitespace-nowrap flex-shrink-0 md:flex-shrink">
-          <Eye size={14} />
-          <span className="hidden sm:inline">Appearance</span>
+        <TabsTrigger
+          value="appearance"
+          className={cn(
+            "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+            "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+            "text-slate-600 hover:text-slate-900"
+          )}
+        >
+          Appearance
         </TabsTrigger>
-        <TabsTrigger value="condition" className="flex items-center gap-1 md:gap-2 text-xs px-2 py-1.5 whitespace-nowrap flex-shrink-0 md:flex-shrink">
-          <Wrench size={14} />
-          <span className="hidden sm:inline">Condition</span>
+        <TabsTrigger
+          value="condition"
+          className={cn(
+            "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+            "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+            "text-slate-600 hover:text-slate-900"
+          )}
+        >
+          Condition
         </TabsTrigger>
-        <TabsTrigger value="offers" className="flex items-center gap-1 md:gap-2 text-xs px-2 py-1.5 whitespace-nowrap flex-shrink-0 md:flex-shrink">
-          <DollarSign size={14} />
-          <span className="hidden sm:inline">Offers</span>
+        <TabsTrigger
+          value="offers"
+          className={cn(
+            "text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent",
+            "data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent",
+            "text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1"
+          )}
+        >
+          Offers
           {request.offers.length > 0 && (
             <Badge variant="secondary" className="ml-1 text-xs px-1 py-0">
               {request.offers.length}
@@ -180,15 +205,15 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-bold text-black">Exterior Color</label>
-              <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.exteriorColor || 'Not specified'}</p>
+              <p className="text-sm font-normal mt-1 p-2 rounded block w-full bg-gray-50">{request.exteriorColor || 'Not specified'}</p>
             </div>
             <div>
               <label className="text-sm font-bold text-black">Interior Color</label>
-              <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.interiorColor || 'Not specified'}</p>
+              <p className="text-sm font-normal mt-1 p-2 rounded block w-full bg-gray-50">{request.interiorColor || 'Not specified'}</p>
             </div>
             <div className="col-span-1 sm:col-span-2">
               <label className="text-sm font-bold text-black">Accessories & Options</label>
-              <p className="text-sm font-normal mt-1 p-2 rounded block w-full" style={{ backgroundColor: '#ECEEF0' }}>{request.accessories || 'None listed'}</p>
+              <p className="text-sm font-normal mt-1 p-2 rounded block w-full bg-gray-50">{request.accessories || 'None listed'}</p>
             </div>
           </div>
         </div>
@@ -212,7 +237,7 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
           ) : invitedBuyers.length > 0 ? (
             <div className="space-y-3">
               {invitedBuyers.map((buyer) => (
-                <div key={buyer.id} className="border rounded-lg p-3" style={{ backgroundColor: '#ECEEF0' }}>
+                <div key={buyer.id} className="border rounded-lg p-3 bg-gray-50">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                     <div className="flex-1">
                       <h4 className="font-medium uppercase text-sm sm:text-base">

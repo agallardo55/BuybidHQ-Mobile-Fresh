@@ -6,6 +6,8 @@ import { fetchData } from "./api/fetchData.ts";
 import { CarApiResult } from "./types.ts";
 import { corsHeaders } from "./config.ts";
 import { isNotPowersports, getPowersportsRejectionMessage } from "./utils/vehicleTypeFilters.ts";
+import { applyBrandSpecificHandling, handleAMGTrims, handlePorscheGT3RS } from "./utils/brandHandlers.ts";
+import { processTrims } from "./utils/trimProcessor.ts";
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -90,9 +92,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('🔍 EDGE FUNCTION: Request received - method:', req.method);
-    console.log('🔍 EDGE FUNCTION: Request URL:', req.url);
-    
     let body: { 
       vin?: string; 
       make_model_id?: number; 
@@ -100,8 +99,8 @@ Deno.serve(async (req) => {
       make?: string;
       model?: string;
       trim?: string;
-      trim_lookup?: boolean; 
-      trims_lookup?: boolean;  // ADD THIS LINE
+      trim_lookup?: boolean;
+      trims_lookup?: boolean;
       make_lookup?: boolean;
       model_lookup?: boolean;
       specs_lookup?: boolean;
@@ -110,7 +109,6 @@ Deno.serve(async (req) => {
     
     try {
       body = await req.json();
-      console.log('🔍 EDGE FUNCTION: Successfully parsed JSON body');
     } catch (parseError) {
       console.error('❌ EDGE FUNCTION: Failed to parse JSON body:', parseError);
       return new Response(JSON.stringify({ error: 'Invalid JSON in request body', details: String(parseError) }), {
@@ -163,21 +161,7 @@ Deno.serve(async (req) => {
 
     // Handle make_model_id lookup request (for dynamic trim fetching)
     // @deprecated Use trims_lookup with year/make/model instead. This requires an extra API call.
-    // 🔍 Enhanced logging for debugging 400 errors
-    console.log('🔍 EDGE FUNCTION: Checking make_model_id_lookup condition');
-    console.log('🔍 EDGE FUNCTION: body =', JSON.stringify(body, null, 2));
-    console.log('🔍 EDGE FUNCTION: make_model_id_lookup =', body.make_model_id_lookup, '(type:', typeof body.make_model_id_lookup, ')');
-    console.log('🔍 EDGE FUNCTION: year =', body.year, '(type:', typeof body.year, ')');
-    console.log('🔍 EDGE FUNCTION: make =', body.make, '(type:', typeof body.make, ')');
-    console.log('🔍 EDGE FUNCTION: model =', body.model, '(type:', typeof body.model, ')');
-    console.log('🔍 EDGE FUNCTION: Condition check:', {
-      'make_model_id_lookup truthy': !!body.make_model_id_lookup,
-      'year truthy': !!body.year,
-      'make truthy': !!body.make,
-      'model truthy': !!body.model,
-      'all conditions met': !!(body.make_model_id_lookup && body.year && body.make && body.model)
-    });
-    
+
     // Check if this is a make_model_id_lookup request first
     if (body.make_model_id_lookup) {
       // If flag is set but missing required fields, return helpful error
@@ -199,18 +183,6 @@ Deno.serve(async (req) => {
       // All fields present, proceed with lookup
       const lookupId = `EDGE_LOOKUP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       console.log(`✅ [${lookupId}] EDGE FUNCTION: Received make_model_id lookup request for: ${body.year} ${body.make} ${body.model}`);
-      console.log(`🔍 [${lookupId}] Request details:`, {
-        year: body.year,
-        make: body.make,
-        model: body.model,
-        yearType: typeof body.year,
-        makeType: typeof body.make,
-        modelType: typeof body.model,
-        makeLength: body.make?.length,
-        modelLength: body.model?.length,
-        makeTrimmed: body.make?.trim(),
-        modelTrimmed: body.model?.trim()
-      });
       
       // Case normalization function
       const toTitleCase = (str: string): string => {
@@ -250,7 +222,6 @@ Deno.serve(async (req) => {
 
         // Fetch models from CarAPI to get make_model_id (use normalized make)
         const carApiUrl = `https://carapi.app/api/models?year=${body.year}&make=${encodeURIComponent(finalMake)}`;
-        console.log(`🔍 [${lookupId}] Calling CarAPI with normalized make:`, carApiUrl);
         const modelsResponse = await fetchData<any>(carApiUrl, {
           method: 'GET',
           headers: {
@@ -259,9 +230,6 @@ Deno.serve(async (req) => {
           }
         });
 
-        console.log(`🔍 [${lookupId}] CarAPI response type:`, typeof modelsResponse);
-        console.log(`🔍 [${lookupId}] CarAPI response is array:`, Array.isArray(modelsResponse));
-        console.log(`🔍 [${lookupId}] CarAPI response keys:`, modelsResponse && typeof modelsResponse === 'object' ? Object.keys(modelsResponse) : 'N/A');
 
         // Extract models array from response
         let modelsArray: any[] = [];
@@ -277,18 +245,6 @@ Deno.serve(async (req) => {
         } else {
           console.warn(`⚠️ [${lookupId}] Could not extract models array from response:`, JSON.stringify(modelsResponse, null, 2).substring(0, 500));
         }
-
-        console.log(`🔍 [${lookupId}] Available models from CarAPI (first 10):`, modelsArray.slice(0, 10).map((m: any) => ({
-          name: m.name || m.model || m.ModelName,
-          make_model_id: m.make_model_id,
-          id: m.id
-        })));
-        console.log(`🔍 [${lookupId}] All available model names from CarAPI:`, modelsArray.map((m: any) => m.name || m.model || m.ModelName));
-        console.log(`🔍 [${lookupId}] Searching for model:`, {
-          original: body.model,
-          normalized: normalizedModel,
-          normalizedUppercase: normalizedModel.toUpperCase()
-        });
 
         // Find matching model by name (case-insensitive, using normalized model)
         const matchingModel = modelsArray.find((m: any) => {
@@ -353,25 +309,10 @@ Deno.serve(async (req) => {
 
     // Handle direct trims lookup by year/make/model (preferred method for manual dropdown selection)
     if (body.trims_lookup && body.year && body.make && body.model) {
-      console.log(`🔍 TRIMS_LOOKUP: Handler triggered`);
-      console.log(`🔍 TRIMS_LOOKUP: Request body:`, { 
-        year: body.year, 
-        make: body.make, 
-        model: body.model,
-        trims_lookup: body.trims_lookup
-      });
-      
+      console.log('Received trims lookup request for:', body.year, body.make, body.model);
+
       try {
         const allTrims = await fetchTrimsByYearMakeModel(String(body.year), body.make, body.model);
-        
-        console.log(`🔍 TRIMS_LOOKUP: fetchTrimsByYearMakeModel returned:`, {
-          count: allTrims?.length || 0,
-          trims: allTrims?.map((t: any) => ({ 
-            id: t.id, 
-            name: t.name || t.trim_name, 
-            description: t.description?.substring(0, 50) 
-          }))
-        });
         
         if (allTrims && allTrims.length > 0) {
           console.log(`✅ TRIMS_LOOKUP: Successfully fetched ${allTrims.length} trims for ${body.year} ${body.make} ${body.model}`);
@@ -412,18 +353,8 @@ Deno.serve(async (req) => {
 
     // Handle trim lookup request with make_model_id (deprecated, kept for backward compatibility)
     if (body.trim_lookup && body.make_model_id && body.year) {
-      console.log(`🔍 Edge Function: Received trim lookup request: make_model_id=${body.make_model_id}, year=${body.year}`);
-      
+      console.log('Received trim lookup request for make_model_id:', body.make_model_id, 'year:', body.year);
       const allTrims = await fetchAllTrimsForModel(body.make_model_id, body.year);
-      
-      console.log(`🔍 Edge Function: fetchAllTrimsForModel returned:`, {
-        count: allTrims?.length || 0,
-        trims: allTrims?.map((t: any) => ({ 
-          id: t.id, 
-          name: t.name || t.trim_name, 
-          description: t.description?.substring(0, 50) 
-        }))
-      });
       
       if (allTrims && allTrims.length > 0) {
         console.log(`✅ Edge Function: Successfully fetched ${allTrims.length} trims for make_model_id ${body.make_model_id}, year ${body.year}`);
@@ -605,29 +536,36 @@ Deno.serve(async (req) => {
       });
     }
 
-    // 🔍 DEBUG: Log edge function result before processing
-    console.log('🔍 EDGE FUNCTION RESULT - Sending to frontend:', JSON.stringify(apiResult, null, 2));
-    console.log('🔍 EDGE FUNCTION RESULT - body_class value:', apiResult?.specs?.body_class);
-    console.log('🔍 EDGE FUNCTION RESULT - transmission_style value:', apiResult?.specs?.transmission_style);
-
     // Detailed logging for troubleshooting
-    console.log('=== RAW API RESULT ===');
-    console.log(JSON.stringify(apiResult, null, 2));
-    console.log('=== VEHICLE DATA SPECS ===');
-    console.log(JSON.stringify(vehicleData.specs, null, 2));
+    console.log('Raw API result:', JSON.stringify(apiResult, null, 2));
+    console.log('Vehicle data specs:', JSON.stringify(vehicleData.specs, null, 2));
 
     // Detect Electric Vehicles (EV) using granular checks and then combine
-    const fuelCheck = (vehicleData.specs?.fuel_type_primary?.toLowerCase?.() || '').includes('electric');
-    const bevCheck = (vehicleData.specs?.electrification_level?.toLowerCase?.() || '').includes('bev');
-    const electricCheck = (vehicleData.specs?.electrification_level?.toLowerCase?.() || '').includes('electric');
+    // NOTE: Only BEVs (pure electric) should be treated as electric
+    // PHEVs, mild hybrids, and regular hybrids have traditional engines and should show actual specs
+    const electrificationLevel = (vehicleData.specs?.electrification_level?.toLowerCase?.() || '');
+    const fuelTypePrimary = (vehicleData.specs?.fuel_type_primary?.toLowerCase?.() || '');
+
+    // Identify hybrid types
+    const isMildHybrid = electrificationLevel.includes('mild');
+    const isRegularHybrid = electrificationLevel === 'hev' || (electrificationLevel.includes('hybrid') && !electrificationLevel.includes('plug-in') && !electrificationLevel.includes('bev'));
+    const isPHEV = electrificationLevel.includes('phev') || electrificationLevel.includes('plug-in');
+
+    // BEV detection (Battery Electric Vehicles only)
+    const bevCheck = electrificationLevel.includes('bev');
+    const fuelCheck = fuelTypePrimary === 'electric' || fuelTypePrimary === 'electricity';
     const cylinderCheck = vehicleData.specs?.engine_number_of_cylinders === null;
     const displacementCheck = vehicleData.specs?.displacement_l === null;
     const transmissionCheck = vehicleData.specs?.transmission_speeds === '1';
 
-    console.log('=== EV DETECTION BREAKDOWN ===', {
-      fuelCheck,
+    console.log('EV detection breakdown:', {
+      electrificationLevel,
+      fuelTypePrimary,
+      isMildHybrid,
+      isRegularHybrid,
+      isPHEV,
       bevCheck,
-      electricCheck,
+      fuelCheck,
       cylinderCheck,
       displacementCheck,
       transmissionCheck,
@@ -638,7 +576,13 @@ Deno.serve(async (req) => {
       transmission_speeds: vehicleData.specs?.transmission_speeds
     });
 
-    const isElectric = fuelCheck || bevCheck || electricCheck || cylinderCheck || displacementCheck || transmissionCheck;
+    // Only treat as pure electric if it's a BEV (Battery Electric Vehicle)
+    // PHEVs have both engine + electric, so they should show actual engine/transmission
+    const isElectric = !isMildHybrid && !isRegularHybrid && !isPHEV && (
+      bevCheck ||
+      (fuelCheck && cylinderCheck && displacementCheck) || // Electric fuel + no engine = BEV
+      (cylinderCheck && displacementCheck && transmissionCheck) // No engine + 1-speed = BEV
+    );
 
     // Fetch all available trims for this model if we have make_model_id
     const allTrims = vehicleData.trims || [];
@@ -663,162 +607,17 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Special handling for Mercedes-Benz ML-Class
-    if (vehicleData.make?.toUpperCase() === 'MERCEDES-BENZ' && vehicleData.model?.includes('ML')) {
-      // Add default trim if none available
-      if (!vehicleData.trims || vehicleData.trims.length === 0) {
-        vehicleData.trims = [{
-          name: 'ML350',
-          description: 'ML350 4dr SUV AWD (3.5L 6cyl 7A)',
-          year: Number(vehicleData.year)
-        }];
-      }
+    // Apply brand-specific handling (Tesla, BMW, Porsche, Mercedes-Benz)
+    applyBrandSpecificHandling(vehicleData);
 
-      // Set default transmission if missing
-      if (!vehicleData.specs?.transmission_speeds || !vehicleData.specs?.transmission_style) {
-        vehicleData.specs = {
-          ...vehicleData.specs,
-          transmission_speeds: '7',
-          transmission_style: 'Automatic'
-        };
-      }
-
-      // Set default drive type if missing
-      if (!vehicleData.specs?.drive_type) {
-        vehicleData.specs.drive_type = 'AWD';
-      }
-    }
-
-    // First deduplicate trims
-    const seenTrims = new Set();
-    const uniqueTrims = vehicleData.trims?.filter(trim => {
-      const key = `${trim.name}|${trim.description}`;
-      if (seenTrims.has(key)) {
-        return false;
-      }
-      seenTrims.add(key);
-      return true;
-    }) || [];
-
-    // Universal fallback: If no trims available but we have trim data in specs, create fallback trim
-    let finalTrims = [...uniqueTrims];
-    if (finalTrims.length === 0 && vehicleData.specs?.trim) {
-      console.log('No trims available, creating fallback from specs.trim:', vehicleData.specs.trim);
-      
-      // Create fallback trim from available specs
-      const fallbackTrimName = vehicleData.specs.trim;
-      const seriesInfo = vehicleData.specs.series ? ` ${vehicleData.specs.series}` : '';
-      const engineInfo = vehicleData.specs.displacement_l && vehicleData.specs.engine_number_of_cylinders 
-        ? `(${vehicleData.specs.displacement_l}L ${vehicleData.specs.engine_number_of_cylinders}cyl${vehicleData.specs.turbo ? ' Turbo' : ''})`
-        : '';
-      
-      const fallbackDescription = `${fallbackTrimName}${seriesInfo} ${engineInfo}`.trim();
-      
-      finalTrims = [{
-        name: fallbackTrimName,
-        description: fallbackDescription,
-        year: Number(vehicleData.year)
-      }];
-      
-      console.log('Created fallback trim:', finalTrims[0]);
-    }
-
-    // Special handling for manufacturer-specific trims AFTER deduplication and fallback
-    let processedTrims = [...finalTrims];
+    // Process trims: deduplicate, create fallbacks, validate quality
+    let processedTrims = processTrims(vehicleData);
     
-    // Mercedes-Benz AMG handling
-    if (vehicleData.make?.toLowerCase() === 'mercedes-benz') {
-      console.log('Checking Mercedes-Benz AMG specs:', {
-        series: vehicleData.specs?.series,
-        trim: vehicleData.specs?.trim,
-        driveType: vehicleData.specs?.drive_type,
-        availableTrims: processedTrims.map(t => t.name)
-      });
+    // Handle manufacturer-specific trim additions (AMG, GT3 RS)
+    processedTrims = handleAMGTrims(vehicleData, processedTrims);
+    processedTrims = handlePorscheGT3RS(vehicleData, processedTrims);
 
-      // Check if we have an AMG series designation
-      const amgSeries = vehicleData.specs?.series;
-      if (amgSeries && amgSeries.toLowerCase().includes('amg')) {
-        console.log('Detected AMG series:', amgSeries);
-        
-        // Create AMG trim name from series
-        let amgTrimName = amgSeries;
-        
-        // Add drivetrain suffix if available (4MATIC for AWD Mercedes)
-        if (vehicleData.specs?.drive_type === 'AWD' || vehicleData.specs?.drive_type === '4WD') {
-          amgTrimName += ' 4MATIC';
-        }
-        
-        // Create engine description
-        const isTurbo = vehicleData.specs?.turbo === true || vehicleData.specs?.turbo === 'Yes';
-        const engineInfo = vehicleData.specs?.displacement_l && vehicleData.specs?.engine_number_of_cylinders 
-          ? `(${vehicleData.specs.displacement_l}L ${vehicleData.specs.engine_number_of_cylinders}cyl${isTurbo ? ' Turbo' : ''})`
-          : '';
-        
-        const amgDescription = `${amgTrimName} 4dr SUV ${engineInfo}`.trim();
-        
-        // Check if AMG trim already exists in processed trims
-        const hasAMGTrim = processedTrims.some(trim => {
-          const name = (trim.name || '').toLowerCase();
-          return name.includes('amg') || name.includes(amgSeries.toLowerCase().replace('amg ', ''));
-        });
-        
-        if (!hasAMGTrim) {
-          console.log('Adding AMG trim to list:', amgTrimName);
-          processedTrims = [
-            {
-              name: amgTrimName,
-              description: amgDescription,
-              year: Number(vehicleData.year)
-            },
-            ...processedTrims
-          ];
-        } else {
-          console.log('AMG trim already exists in trims');
-        }
-      }
-    }
-    
-    // Porsche handling
-    if (vehicleData.make?.toLowerCase() === 'porsche') {
-      // Log all relevant specs for GT3 RS detection
-      console.log('Checking Porsche GT3 RS specs:', {
-        displacement: vehicleData.specs?.displacement_l,
-        cylinders: vehicleData.specs?.engine_number_of_cylinders,
-        bodyClass: vehicleData.specs?.body_class,
-        doors: vehicleData.specs?.doors,
-        series: vehicleData.specs?.series,
-        trim: vehicleData.specs?.trim
-      });
-
-      // More lenient GT3 RS detection
-      const isGT3RS = (
-        // Engine specs (4.0L, 6cyl)
-        (vehicleData.specs?.displacement_l === "4" || vehicleData.specs?.displacement_l === "4.0") &&
-        vehicleData.specs?.engine_number_of_cylinders === "6" &&
-        // Body type checks (coupe/2-door)
-        (vehicleData.specs?.body_class?.toLowerCase().includes('coupe') || 
-         vehicleData.specs?.doors === "2") ||
-        // Additional checks for series or trim indicators
-        vehicleData.specs?.series?.toLowerCase().includes('gt3') ||
-        vehicleData.specs?.trim?.toLowerCase().includes('gt3')
-      );
-
-      // Check if GT3 RS is already in the trims
-      const hasGT3RS = processedTrims.some(trim => {
-        const name = (trim.name || '').toLowerCase();
-        const desc = (trim.description || '').toLowerCase();
-        const isGT3RS = name.includes('gt3') && name.includes('rs') ||
-                       desc.includes('gt3') && desc.includes('rs');
-        if (isGT3RS) {
-          console.log('Found existing GT3 RS trim:', trim);
-        }
-        return isGT3RS;
-      });
-
-      console.log('GT3 RS detection results:', { isGT3RS, hasGT3RS });
-    }
-
-    console.log('Final trims after processing:', processedTrims);
+    // Trim quality validation already handled by trimProcessor module
 
     const bestTrim = findBestTrimMatch(
       processedTrims,
@@ -851,7 +650,7 @@ Deno.serve(async (req) => {
       if (isElectric) {
         transmission = 'Single-Speed';
       } else if (vehicleData.specs?.transmission_speeds && vehicleData.specs?.transmission_style) {
-        // Both speeds and style available
+        // Both speeds and style available from specs
         transmission = `${vehicleData.specs.transmission_speeds}-Speed ${vehicleData.specs.transmission_style}`;
       } else if (vehicleData.specs?.transmission_speeds) {
         // Only speeds available, no style
@@ -860,8 +659,31 @@ Deno.serve(async (req) => {
         // Only style available, no speeds
         transmission = vehicleData.specs.transmission_style;
       } else {
-        // Nothing available, use fallback
-        transmission = '7-Speed Automatic';
+        // Try to extract from trim description (e.g., "8AM", "7A", "6M", "8-Speed Automatic", "CVT")
+        // Match patterns: "8AM", "8A", "7M", "8-Speed Automatic", "CVT"
+        const descMatch = trim.description?.match(/(\d+)(AM?|M)\b|(\d+)[-\s]?Speed\s+(Automatic|Manual|CVT)|(^|[^a-z])CVT($|[^a-z])/i);
+        if (descMatch) {
+          if (descMatch[0].toUpperCase().includes('CVT')) {
+            transmission = 'CVT';
+          } else if (descMatch[3]) {
+            // Matched "8-Speed Automatic" format
+            transmission = `${descMatch[3]}-Speed ${descMatch[4]}`;
+          } else if (descMatch[1]) {
+            // Matched "8AM", "8A", or "7M" format
+            const speeds = descMatch[1];
+            const code = descMatch[2].toUpperCase();
+            let type = 'Automatic';
+            if (code === 'M') type = 'Manual';
+            else if (code === 'AM') type = 'Automated Manual';
+            else if (code === 'A') type = 'Automatic';
+            transmission = `${speeds}-Speed ${type}`;
+          } else {
+            transmission = '7-Speed Automatic';
+          }
+        } else {
+          // Nothing available, use fallback
+          transmission = '7-Speed Automatic';
+        }
       }
 
       return {
@@ -897,37 +719,18 @@ Deno.serve(async (req) => {
       turbo: vehicleData.specs?.turbo || null,
     };
 
-    console.log('🔍 ========== EDGE FUNCTION: FULL SPECS OBJECT ==========');
-    console.log('🔍 Full specs being returned:', JSON.stringify(fullSpecs, null, 2));
-    console.log('🔍 Electrification level:', fullSpecs.electrification_level);
-    console.log('🔍 Fuel type primary:', fullSpecs.fuel_type_primary);
-    console.log('🔍 Engine cylinders:', fullSpecs.engine_number_of_cylinders);
-    console.log('🔍 Displacement:', fullSpecs.displacement_l);
-    console.log('🔍 ======================================================');
 
     // Extract body style from multiple possible field names
-    const bodyStyle = 
-      vehicleData.specs?.body_class || 
-      vehicleData.specs?.bodyStyle || 
-      vehicleData.specs?.body_type || 
-      vehicleData.specs?.bodyType || 
+    const bodyStyle =
+      vehicleData.specs?.body_class ||
+      vehicleData.specs?.bodyStyle ||
+      vehicleData.specs?.body_type ||
+      vehicleData.specs?.bodyType ||
       vehicleData.specs?.style ||
       vehicleData?.body_class ||
       vehicleData?.bodyStyle ||
-      availableTrims[0]?.specs?.bodyStyle || 
+      availableTrims[0]?.specs?.bodyStyle ||
       null;
-    
-    console.log('🔍 Edge Function: Body Style Extraction:', {
-      'specs.body_class': vehicleData.specs?.body_class,
-      'specs.bodyStyle': vehicleData.specs?.bodyStyle,
-      'specs.body_type': vehicleData.specs?.body_type,
-      'specs.bodyType': vehicleData.specs?.bodyType,
-      'specs.style': vehicleData.specs?.style,
-      'body_class': vehicleData?.body_class,
-      'bodyStyle': vehicleData?.bodyStyle,
-      'availableTrims[0].specs.bodyStyle': availableTrims[0]?.specs?.bodyStyle,
-      'finalValue': bodyStyle
-    });
     
     const responseData = {
       year: vehicleData.year,
@@ -943,13 +746,6 @@ Deno.serve(async (req) => {
       specs: fullSpecs,
     };
 
-    // 🔍 DEBUG: Log final response data being sent
-    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - Full responseData:', JSON.stringify(responseData, null, 2));
-    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - bodyStyle value:', responseData.bodyStyle);
-    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - specs.body_class:', responseData.specs?.body_class);
-    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - transmission value:', responseData.transmission);
-    console.log('🔍 EDGE FUNCTION FINAL RESPONSE - specs.transmission_style:', responseData.specs?.transmission_style);
-    
     console.log('Returning VIN decode response:', JSON.stringify(responseData, null, 2));
 
     return new Response(JSON.stringify(responseData), {

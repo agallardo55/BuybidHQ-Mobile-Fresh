@@ -13,6 +13,12 @@ const MFAChallenge = () => {
   // Use ref to prevent double-sending in React Strict Mode
   const hasSentCodeRef = useRef(false);
 
+  // Use ref to prevent double-submission of verification
+  const isVerifyingRef = useRef(false);
+
+  // Use ref to prevent spamming resend button
+  const lastResendTimeRef = useRef<number>(0);
+
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
@@ -32,15 +38,34 @@ const MFAChallenge = () => {
         return;
       }
 
+      // Check sessionStorage to prevent sending on page refresh/navigation
+      const sessionKey = 'mfa_code_sent_timestamp';
+      const sessionUserKey = 'mfa_code_sent_user';
+      const lastSentTime = sessionStorage.getItem(sessionKey);
+      const lastSentUser = sessionStorage.getItem(sessionUserKey);
+      const now = Date.now();
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError('No active session. Please sign in again.');
+        return;
+      }
+
+      // Only skip if code was sent less than 1 minute ago AND for the same user
+      if (lastSentTime && lastSentUser === user.id && (now - parseInt(lastSentTime)) < 60 * 1000) {
+        logger.debug('Code already sent recently (session check), skipping');
+        hasSentCodeRef.current = true;
+        setCodeSent(true);
+        return;
+      }
+
       logger.debug('Initializing MFA - sending first code');
       hasSentCodeRef.current = true;
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await handleSendCode();
-      } else {
-        setError('No active session. Please sign in again.');
-      }
+      await handleSendCode();
+      // Store timestamp and user ID to prevent resending on refresh
+      sessionStorage.setItem(sessionKey, now.toString());
+      sessionStorage.setItem(sessionUserKey, user.id);
     };
     initMFA();
   }, []); // Empty dependency array - only run once
@@ -117,11 +142,18 @@ const MFAChallenge = () => {
     logger.debug('🔵 Event type:', e.type);
     logger.debug('🔵 Current code value:', code);
 
+    // Prevent double-submission using ref
+    if (isVerifyingRef.current) {
+      logger.debug('🔵 BLOCKED: Already verifying, ignoring duplicate submission');
+      return;
+    }
+
     if (code.length !== 6) {
       setError('Please enter a 6-digit code');
       return;
     }
 
+    isVerifyingRef.current = true;
     setLoading(true);
     setError('');
 
@@ -172,6 +204,7 @@ const MFAChallenge = () => {
 
         setError(error.message || data?.error || 'Verification failed. Please try again.');
         setLoading(false);
+        isVerifyingRef.current = false;
         setCode('');
         return;
       }
@@ -182,6 +215,7 @@ const MFAChallenge = () => {
         logger.error('Error message:', errorMsg);
         setError(errorMsg);
         setLoading(false);
+        isVerifyingRef.current = false;
         setCode('');
         return;
       }
@@ -189,12 +223,20 @@ const MFAChallenge = () => {
       logger.debug('Verification successful!');
 
       // Success! The Edge Function already called record_mfa_verification
+      // Reset the verifying flag before navigation
+      isVerifyingRef.current = false;
+
+      // Clear sessionStorage timestamps
+      sessionStorage.removeItem('mfa_code_sent_timestamp');
+      sessionStorage.removeItem('mfa_code_sent_user');
+
       // Navigate to original destination
       navigate(from, { replace: true });
     } catch (err) {
       logger.error('Error verifying MFA code:', err);
       setError('Verification failed. Please try again.');
       setLoading(false);
+      isVerifyingRef.current = false;
       setCode('');
     }
   };
@@ -207,6 +249,20 @@ const MFAChallenge = () => {
 
   const handleResendCode = async () => {
     logger.debug('🟡 handleResendCode CALLED - User clicked resend button');
+
+    // Prevent spamming - require at least 30 seconds between resend attempts
+    const now = Date.now();
+    const timeSinceLastResend = now - lastResendTimeRef.current;
+    const minResendInterval = 30 * 1000; // 30 seconds
+
+    if (timeSinceLastResend < minResendInterval) {
+      const secondsRemaining = Math.ceil((minResendInterval - timeSinceLastResend) / 1000);
+      setError(`Please wait ${secondsRemaining} seconds before requesting another code.`);
+      logger.debug(`🟡 BLOCKED: Resend too soon. Wait ${secondsRemaining} more seconds.`);
+      return;
+    }
+
+    lastResendTimeRef.current = now;
     await handleSendCode();
   };
 
@@ -216,6 +272,9 @@ const MFAChallenge = () => {
     } catch (err) {
       logger.error('Error signing out:', err);
     }
+    // Clear sessionStorage timestamps
+    sessionStorage.removeItem('mfa_code_sent_timestamp');
+    sessionStorage.removeItem('mfa_code_sent_user');
     navigate('/signin', { replace: true });
   };
 

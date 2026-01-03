@@ -12,6 +12,7 @@ export interface Vehicle {
   exteriorColor: string;
   interiorColor: string;
   accessories: string;
+  bodyStyle?: string;
   images?: string[];
 }
 

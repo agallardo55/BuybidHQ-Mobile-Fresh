@@ -17,18 +17,18 @@ const StepNavigation = ({
   return (
     <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
       {showBack && onBack && (
-        <Button 
+        <Button
           onClick={onBack}
           variant="outline"
-          className="h-10 px-3 py-2 w-full sm:w-auto sm:mr-auto"
+          className="h-11 px-8 py-2 w-full sm:w-auto sm:min-w-[140px] sm:mr-auto"
         >
           Back
         </Button>
       )}
-      <Button 
+      <Button
         onClick={onNext}
         variant="custom-blue"
-        className="h-10 px-3 py-2 w-full sm:w-auto"
+        className="h-11 px-8 py-2 w-full sm:w-auto sm:min-w-[140px]"
       >
         {nextLabel}
       </Button>

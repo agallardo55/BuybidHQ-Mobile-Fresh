@@ -404,15 +404,26 @@ class VinService {
       const normalizedMake = this.normalizeToTitleCase(make.trim());
       
       const { data: response, error } = await supabase.functions.invoke('decode-vin', {
-        body: { 
+        body: {
           model_lookup: true,
           year: parseInt(year),
           make: normalizedMake
         }
       });
 
+      console.log('🔍🔍🔍 CarAPI Models Response:', {
+        year,
+        make: normalizedMake,
+        hasError: !!error,
+        error,
+        hasResponse: !!response,
+        responseKeys: response ? Object.keys(response) : [],
+        modelsCount: response?.models?.length || 0,
+        fullResponse: response
+      });
+
       if (error) {
-        console.error('CarAPI models lookup error:', error);
+        console.error('❌ CarAPI models lookup error:', error);
         return [];
       }
 
@@ -422,9 +433,11 @@ class VinService {
           .filter((model: string) => model.length > 0)
           .filter((model: string, index: number, self: string[]) => self.indexOf(model) === index)
           .sort();
+        console.log('✅ CarAPI returned', models.length, 'models:', models);
         return models;
       }
 
+      console.warn('⚠️ CarAPI models response invalid - no models array found');
       return [];
     } catch (error) {
       console.error('Error in fetchModelsFromCarAPI:', error);
@@ -620,7 +633,17 @@ class VinService {
         }
       });
 
-      logger.warn('🔍 fetchTrimsDirectly: Edge function response:', { data, error });
+      console.log('🔍🔍🔍 CarAPI Trims Response:', {
+        year,
+        make,
+        model,
+        hasError: !!error,
+        error,
+        hasData: !!data,
+        dataKeys: data ? Object.keys(data) : [],
+        trimsCount: data?.trims?.length || 0,
+        fullData: data
+      });
 
       if (error) {
         console.error('❌ Error calling Supabase function:', error);
@@ -628,14 +651,14 @@ class VinService {
       }
 
       if (data && data.trims) {
-        logger.debug('✅✅✅ fetchTrimsDirectly: Got REAL API trims from edge function:', data.trims.length);
-        logger.debug('📋 fetchTrimsDirectly: Trim names:', data.trims.map((t: any) => t.trim || t.submodel || t.name || t.trim_name));
-        logger.debug('📋 fetchTrimsDirectly: Raw trim data (first 2):', JSON.stringify(data.trims.slice(0, 2), null, 2));
+        console.log('✅✅✅ fetchTrimsDirectly: Got REAL API trims from edge function:', data.trims.length);
+        console.log('📋 fetchTrimsDirectly: Trim names:', data.trims.map((t: any) => t.trim || t.submodel || t.name || t.trim_name));
+        console.log('📋 fetchTrimsDirectly: Raw trim data (first 2):', JSON.stringify(data.trims.slice(0, 2), null, 2));
         return data.trims;
       }
 
-      console.warn('⚠️ fetchTrimsDirectly: No trims in response, data:', data);
-      console.warn('⚠️ fetchTrimsDirectly: This will trigger fallback to NHTSA or generic trims');
+      console.warn('⚠️⚠️⚠️ fetchTrimsDirectly: No trims in response!');
+      console.warn('⚠️ This will trigger fallback to NHTSA or generic trims');
       return [];
     } catch (error) {
       console.error('❌ Error fetching trims directly:', error);
@@ -815,78 +838,94 @@ class VinService {
   }
 
   /**
-   * Get real VINs for specific vehicle combinations
+   * Get VIN year code letter (10th position)
+   * A=2010, B=2011, ... L=2020, M=2021, N=2022, P=2023, R=2024, S=2025
+   */
+  private getVinYearCode(year: string): string {
+    const yearNum = parseInt(year);
+    const yearCodes: Record<number, string> = {
+      2015: 'F', 2016: 'G', 2017: 'H', 2018: 'J', 2019: 'K',
+      2020: 'L', 2021: 'M', 2022: 'N', 2023: 'P', 2024: 'R', 2025: 'S',
+      2026: 'T', 2027: 'V', 2028: 'W', 2029: 'X', 2030: 'Y'
+    };
+    return yearCodes[yearNum] || 'L'; // Default to 2020 if not found
+  }
+
+  /**
+   * Get real VINs for specific vehicle combinations with correct year code
    */
   private getRealVinsForVehicle(year: string, make: string, model: string): string[] {
     const makeUpper = make.toUpperCase();
     const modelUpper = model.toUpperCase();
-    const yearNum = parseInt(year);
-    
-    // Real VIN patterns for common vehicles
+    const yearCode = this.getVinYearCode(year);
+
+    // VIN patterns with placeholder 'Y' for year code (will be replaced)
+    // Format: WMI (3) + VDS (6) + Y (year) + Plant (1) + Sequential (6)
     const vinPatterns: Record<string, string[]> = {
       'BMW': [
-        'WBA3A5C50LA123456', // BMW 3 Series
-        'WBA3A5C51LA123456', // BMW 3 Series Sport
-        'WBA3A5C52LA123456', // BMW 3 Series Luxury
-        'WBA3A5C53LA123456', // BMW 3 Series M Sport
-        'WBA3A5C54LA123456', // BMW 3 Series M Performance
+        `WBA3A5C50Y${yearCode}123456`, // BMW 3 Series
+        `WBA3A5C51Y${yearCode}123456`, // BMW 3 Series Sport
+        `WBA3A5C52Y${yearCode}123456`, // BMW 3 Series Luxury
+        `WBA3A5C53Y${yearCode}123456`, // BMW 3 Series M Sport
+        `WBA3A5C54Y${yearCode}123456`, // BMW 3 Series M Performance
       ],
       'MERCEDES-BENZ': [
-        'WDD2050461A123456', // Mercedes C-Class
-        'WDD2050462A123456', // Mercedes C-Class Sport
-        'WDD2050463A123456', // Mercedes C-Class Luxury
-        'WDD2050464A123456', // Mercedes C-Class AMG
-        'WDD2050465A123456', // Mercedes C-Class AMG Performance
+        `WDD2050461Y${yearCode}123456`, // Mercedes C-Class
+        `WDD2050462Y${yearCode}123456`, // Mercedes C-Class Sport
+        `WDD2050463Y${yearCode}123456`, // Mercedes C-Class Luxury
+        `WDD2050464Y${yearCode}123456`, // Mercedes C-Class AMG
+        `WDD2050465Y${yearCode}123456`, // Mercedes C-Class AMG Performance
       ],
       'AUDI': [
-        'WAUAF48H17K123456', // Audi A4
-        'WAUAF48H18K123456', // Audi A4 Sport
-        'WAUAF48H19K123456', // Audi A4 Luxury
-        'WAUAF48H20K123456', // Audi A4 S-Line
-        'WAUAF48H21K123456', // Audi A4 RS
+        `WAUAF48H1Y${yearCode}123456`, // Audi A4
+        `WAUAF48H2Y${yearCode}123456`, // Audi A4 Sport
+        `WAUAF48H3Y${yearCode}123456`, // Audi A4 Luxury
+        `WAUAF48H4Y${yearCode}123456`, // Audi A4 S-Line
+        `WAUAF48H5Y${yearCode}123456`, // Audi A4 RS
       ],
       'PORSCHE': [
-        'WP0AB2A96LS123456', // Porsche 911 Carrera
-        'WP0AB2A97LS123456', // Porsche 911 Carrera S
-        'WP0AB2A98LS123456', // Porsche 911 Carrera 4S
-        'WP0AB2A99LS123456', // Porsche 911 Turbo
-        'WP0AB2A9ALS123456', // Porsche 911 Turbo S
+        `WP0AB2A96Y${yearCode}123456`, // Porsche 911 Carrera
+        `WP0AB2A97Y${yearCode}123456`, // Porsche 911 Carrera S
+        `WP0AB2A98Y${yearCode}123456`, // Porsche 911 Carrera 4S
+        `WP0AB2A99Y${yearCode}123456`, // Porsche 911 Turbo
+        `WP0AB2A9AY${yearCode}123456`, // Porsche 911 Turbo S
       ],
       'LAND ROVER': [
-        'SALVA2BG4LA123456', // Land Rover Range Rover
-        'SALVA2BG5LA123456', // Land Rover Range Rover SE
-        'SALVA2BG6LA123456', // Land Rover Range Rover HSE
-        'SALVA2BG7LA123456', // Land Rover Range Rover Dynamic
-        'SALVA2BG8LA123456', // Land Rover Range Rover Autobiography
+        `SALVA2BG4${yearCode}A123456`, // Land Rover Range Rover
+        `SALVA2BG5${yearCode}A123456`, // Land Rover Range Rover SE
+        `SALVA2BG6${yearCode}A123456`, // Land Rover Range Rover HSE
+        `SALVA2BG7${yearCode}A123456`, // Land Rover Range Rover Dynamic
+        `SALVA2BG8${yearCode}A123456`, // Land Rover Range Rover Autobiography
       ],
       'JAGUAR': [
-        'SAJAA2A50LA123456', // Jaguar F-PACE
-        'SAJAA2A51LA123456', // Jaguar F-PACE Premium
-        'SAJAA2A52LA123456', // Jaguar F-PACE Portfolio
-        'SAJAA2A53LA123456', // Jaguar F-PACE R-Dynamic
-        'SAJAA2A54LA123456', // Jaguar F-PACE SVR
+        `SAJAA2A50${yearCode}A123456`, // Jaguar F-PACE
+        `SAJAA2A51${yearCode}A123456`, // Jaguar F-PACE Premium
+        `SAJAA2A52${yearCode}A123456`, // Jaguar F-PACE Portfolio
+        `SAJAA2A53${yearCode}A123456`, // Jaguar F-PACE R-Dynamic
+        `SAJAA2A54${yearCode}A123456`, // Jaguar F-PACE SVR
       ],
       'MCLAREN': [
-        'SBM15ACA5KW123456', // McLaren Senna
-        'SBM15ACA6KW123456', // McLaren 720S
-        'SBM15ACA7KW123456', // McLaren 570S
-        'SBM15ACA8KW123456', // McLaren 570GT
-        'SBM15ACA9KW123456', // McLaren 540C
+        `SBM15ACA5${yearCode}W123456`, // McLaren Senna
+        `SBM15ACA6${yearCode}W123456`, // McLaren 720S
+        `SBM15ACA7${yearCode}W123456`, // McLaren 570S
+        `SBM15ACA8${yearCode}W123456`, // McLaren 570GT
+        `SBM15ACA9${yearCode}W123456`, // McLaren 540C
       ]
     };
-    
+
     // Find matching pattern
     for (const [makeKey, vins] of Object.entries(vinPatterns)) {
       if (makeUpper.includes(makeKey)) {
+        logger.debug(`🔍 Generated VINs for ${year} ${make} with year code '${yearCode}':`, vins.slice(0, 2));
         return vins;
       }
     }
-    
-    // Default fallback
+
+    // Default fallback with correct year code
     return [
-      '1HGBH41JXMN123456', // Generic fallback
-      '1HGBH41JXMN123457', // Generic fallback 2
-      '1HGBH41JXMN123458', // Generic fallback 3
+      `1HGBH41JX${yearCode}N123456`, // Generic fallback
+      `1HGBH41JX${yearCode}N123457`, // Generic fallback 2
+      `1HGBH41JX${yearCode}N123458`, // Generic fallback 3
     ];
   }
 
@@ -899,16 +938,23 @@ class VinService {
     // Use comprehensive trim database
     const comprehensiveTrims = this.getComprehensiveTrims(make, model);
     
-    return comprehensiveTrims.map(trim => ({
-      name: trim,
-      description: `${year} ${make} ${model} ${trim}`,
-      specs: {
-        engine: this.generateEngineSpecForTrim(trim),
-        transmission: this.generateTransmissionSpecForTrim(trim),
-        drivetrain: this.generateDrivetrainSpecForTrim(trim)
-      },
-      year: parseInt(year)
-    }));
+    return comprehensiveTrims.map(trim => {
+      const description = `${year} ${make} ${model} ${trim}`;
+      // Extract body style from trim name (e.g., "Carrera Coupe" -> "Coupe")
+      const bodyStyle = this.extractBodyStyleFromDescription(trim) || this.extractBodyStyleFromDescription(description);
+
+      return {
+        name: trim,
+        description: description,
+        specs: {
+          engine: this.generateEngineSpecForTrim(trim),
+          transmission: this.generateTransmissionSpecForTrim(trim),
+          drivetrain: this.generateDrivetrainSpecForTrim(trim),
+          bodyStyle: bodyStyle || undefined
+        },
+        year: parseInt(year)
+      };
+    });
   }
 
   /**
@@ -954,13 +1000,57 @@ class VinService {
         'Q8': ['Q8 45 TFSI', 'Q8 55 TFSI', 'SQ8', 'RS Q8']
       },
       'PORSCHE': {
-        '911': ['Carrera', 'Carrera S', 'Carrera 4S', 'Turbo', 'Turbo S', 'GT3', 'GT3 RS'],
-        'CAYENNE': ['Cayenne', 'Cayenne S', 'Cayenne Turbo', 'Cayenne Turbo S'],
-        'MACAN': ['Macan', 'Macan S', 'Macan GTS', 'Macan Turbo'],
-        'PANAMERA': ['Panamera', 'Panamera S', 'Panamera Turbo', 'Panamera Turbo S']
+        '911': [
+          // Coupe variants
+          'Carrera Coupe',
+          'Carrera S Coupe',
+          'Carrera 4 Coupe',
+          'Carrera 4S Coupe',
+          'Carrera GTS Coupe',
+          'Carrera 4 GTS Coupe',
+          'Turbo Coupe',
+          'Turbo S Coupe',
+          'GT3',
+          'GT3 RS',
+          'GT3 Touring',
+          'GT2 RS',
+          // Cabriolet variants
+          'Carrera Cabriolet',
+          'Carrera S Cabriolet',
+          'Carrera 4 Cabriolet',
+          'Carrera 4S Cabriolet',
+          'Carrera GTS Cabriolet',
+          'Carrera 4 GTS Cabriolet',
+          'Turbo Cabriolet',
+          'Turbo S Cabriolet',
+          // Targa variants
+          'Targa 4',
+          'Targa 4S',
+          'Targa 4 GTS'
+        ],
+        'CAYENNE': ['Cayenne', 'Cayenne S', 'Cayenne Turbo', 'Cayenne Turbo S', 'Cayenne E-Hybrid', 'Cayenne Turbo S E-Hybrid'],
+        'MACAN': ['Macan', 'Macan S', 'Macan GTS', 'Macan Turbo', 'Macan T', 'Macan 4'],
+        'PANAMERA': ['Panamera', 'Panamera 4', 'Panamera S', 'Panamera 4S', 'Panamera GTS', 'Panamera Turbo', 'Panamera Turbo S', 'Panamera 4 E-Hybrid', 'Panamera Turbo S E-Hybrid'],
+        '718 BOXSTER': ['Boxster', 'Boxster S', 'Boxster GTS 4.0', 'Boxster Spyder', 'Boxster T'],
+        '718 CAYMAN': ['Cayman', 'Cayman S', 'Cayman GTS 4.0', 'Cayman GT4', 'Cayman GT4 RS', 'Cayman T'],
+        'TAYCAN': ['Taycan', 'Taycan 4S', 'Taycan Turbo', 'Taycan Turbo S', 'Taycan GTS', 'Taycan 4 Cross Turismo', 'Taycan Turbo Cross Turismo', 'Taycan Turbo S Cross Turismo']
       },
       'LAND ROVER': {
-        'RANGE ROVER': ['SE', 'HSE', 'Dynamic', 'Autobiography', 'SV'],
+        'RANGE ROVER': [
+          // P400 (3.0L I6 Mild Hybrid - 395 hp)
+          'SE P400',
+          'HSE P400',
+          'Autobiography P400',
+          'Autobiography P400 LWB',
+          // P530 (4.4L V8 Twin-Turbo - 523 hp)
+          'SE P530',
+          'HSE P530',
+          'Autobiography P530',
+          'Autobiography P530 LWB',
+          'First Edition P530',
+          // SV (Only LWB, 4.4L V8 - 626 hp)
+          'SV LWB'
+        ],
         'RANGE ROVER SPORT': ['SE', 'HSE', 'Dynamic', 'Autobiography', 'SVR'],
         'RANGE ROVER VELAR': ['S', 'SE', 'HSE', 'Dynamic', 'R-Dynamic'],
         'DISCOVERY': ['S', 'SE', 'HSE', 'Dynamic', 'R-Dynamic'],
@@ -1565,9 +1655,13 @@ class VinService {
                         trim.drive_type ||
                         this.extractDrivetrainFromDescription(trim.description || "");
       
-      // ✅ FIX 3: Extract body style from description
-      const bodyStyle = this.extractBodyStyleFromDescription(trim.description || "");
-      
+      // ✅ FIX 3: Use bodyStyle from edge function first, then extract from description as fallback
+      const bodyStyle = trim.specs?.bodyStyle ||
+                       trim.specs?.body_class ||
+                       trim.bodyClass ||
+                       trim.body_class ||
+                       this.extractBodyStyleFromDescription(trim.description || "");
+
       return {
         name: trimName,
         description: trim.description || `${year} ${make} ${model} ${trimName}`,
@@ -3037,29 +3131,73 @@ class VinService {
    */
   getDisplayTrim(trim?: TrimOption): string {
     if (!trim) return "";
-    
-    logger.debug('getDisplayTrim: Processing trim:', { name: trim.name, description: trim.description });
-    
+
+    logger.debug('getDisplayTrim: Processing trim:', { name: trim.name, description: trim.description, bodyStyle: trim.specs?.bodyStyle });
+
     // For meaningful trim names, prioritize the name
     const meaningfulTrims = ['Autobiography', 'AMG', 'GT3 RS', 'GT2 RS', 'GTS', 'Turbo', 'Sport', 'Luxury', 'Senna', 'P1', '720S', 'Artura', 'Base'];
-    const isMeaningful = meaningfulTrims.some(meaningful => 
+    const isMeaningful = meaningfulTrims.some(meaningful =>
       trim.name?.toLowerCase().includes(meaningful.toLowerCase())
     );
-    
+
+    let displayName = '';
+
     // Always prefer trim name if it exists and is not empty
     if (trim.name && trim.name.trim() !== '') {
       logger.debug('getDisplayTrim: Using trim name:', trim.name);
-      return trim.name;
-    }
-    
-    // Only fall back to description if trim name is empty
-    if (trim.description && trim.description.trim() !== '') {
+      displayName = trim.name;
+    } else if (trim.description && trim.description.trim() !== '') {
+      // Only fall back to description if trim name is empty
       logger.debug('getDisplayTrim: Using description as fallback:', trim.description);
-      return trim.description;
+      displayName = trim.description;
+    } else {
+      logger.debug('getDisplayTrim: No valid trim data, returning Unknown Trim');
+      return 'Unknown Trim';
     }
-    
-    logger.debug('getDisplayTrim: No valid trim data, returning Unknown Trim');
-    return 'Unknown Trim';
+
+    // ✅ FIX: Append body style to display name if it exists and isn't already included
+    // This helps distinguish trim variants like "GTS Coupe" vs "GTS Cabriolet"
+    // Important for: Porsche (Coupe/Cabriolet/Targa), BMW (Coupe/Gran Coupe), Mercedes (Coupe/Cabriolet), etc.
+    if (trim.specs?.bodyStyle) {
+      const bodyStyle = trim.specs.bodyStyle;
+      const bodyStyleLower = bodyStyle.toLowerCase();
+      const displayNameLower = displayName.toLowerCase();
+
+      // Skip generic body styles for SUVs/Sedans (only append for sports car variants)
+      const genericBodyStyles = ['sedan', 'suv', 'truck', 'van', 'pickup', 'wagon', 'hatchback'];
+      const isGenericBodyStyle = genericBodyStyles.includes(bodyStyleLower);
+
+      // Check if body style is already in the name (including variants like convertible/cabriolet)
+      const bodyStyleVariants = [
+        bodyStyleLower,
+        bodyStyleLower.replace('convertible', 'cabriolet'),
+        bodyStyleLower.replace('cabriolet', 'convertible'),
+        bodyStyleLower.replace('coupe', 'coupé'),
+        bodyStyleLower.replace('coupé', 'coupe')
+      ];
+
+      const alreadyHasBodyStyle = bodyStyleVariants.some(variant =>
+        displayNameLower.includes(variant)
+      );
+
+      // Append body style if:
+      // 1. It's not a generic body style (or if it's a 2-door variant like "2dr Sedan")
+      // 2. It's not already in the trim name
+      const shouldAppend = (!isGenericBodyStyle || bodyStyle.includes('dr')) && !alreadyHasBodyStyle;
+
+      if (shouldAppend) {
+        logger.debug('getDisplayTrim: Appending body style to trim name:', bodyStyle);
+        displayName = `${displayName} ${bodyStyle}`;
+      } else {
+        logger.debug('getDisplayTrim: Not appending body style:', {
+          bodyStyle,
+          isGeneric: isGenericBodyStyle,
+          alreadyHas: alreadyHasBodyStyle
+        });
+      }
+    }
+
+    return displayName;
   }
 
   /**
@@ -3208,7 +3346,7 @@ class VinService {
    */
   private extractBodyStyleFromDescription(description: string): string {
     if (!description) return "";
-    
+
     // Patterns to match body styles
     const bodyStylePatterns = [
       // Xdr Sedan patterns (4dr Sedan, 2dr Sedan, etc.)
@@ -3221,6 +3359,10 @@ class VinService {
       /(\d+dr\s*Wagon)/i,
       // Xdr SUV patterns
       /(\d+dr\s*SUV)/i,
+      // Luxury/Sports car specific body styles (Porsche, BMW, Mercedes, Audi, etc.)
+      /(Cabriolet|Targa|Speedster|Roadster|Gran\s+Coupe|Gran\s+Turismo|Spyder|Spider|Barchetta|Sportback|Avant|allroad|Touring|Shooting\s+Brake|Sport\s+Turismo|Cross\s+Turismo|Fastback|Liftback|Estate)/i,
+      // Truck cab configurations
+      /(Regular\s+Cab|Extended\s+Cab|Crew\s+Cab|SuperCab|Quad\s+Cab|King\s+Cab|Double\s+Cab)/i,
       // Simple body style patterns (without door count)
       /(Sedan|Hatchback|Coupe|Convertible|Wagon|SUV|Truck|Van|Pickup)/i
     ];

@@ -12,7 +12,7 @@ const UpgradeDialog = ({ isOpen, onOpenChange }: UpgradeDialogProps) => {
 
   const handleUpgrade = () => {
     onOpenChange(false);
-    navigate('/account');
+    navigate('/account?tab=billing');
   };
 
   return (

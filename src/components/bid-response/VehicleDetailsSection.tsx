@@ -164,6 +164,11 @@ const VehicleDetailsSection = ({ vehicle, buyer }: VehicleDetailsSectionProps) =
                 <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Drivetrain :</p>
                 <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.drivetrain}</p>
               </div>
+              <Separator />
+              <div className="grid grid-cols-5 gap-1.5 py-2">
+                <p className="col-span-2 text-base lg:text-base text-lg font-bold text-black">Body Style :</p>
+                <p className="col-span-3 text-base lg:text-base text-lg font-normal">{vehicle.bodyStyle || 'Not specified'}</p>
+              </div>
             </div>
           </CardContent>
         </Card>

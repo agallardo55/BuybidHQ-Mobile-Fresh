@@ -44,6 +44,19 @@ export interface BidRequest {
   maintenance?: string;
   reconEstimate?: string;
   reconDetails?: string;
+  bodyStyle?: string;
+  history?: string;
+  historyService?: string;
+  // Book values - flat structure
+  mmrWholesale?: number;
+  mmrRetail?: number;
+  kbbWholesale?: number;
+  kbbRetail?: number;
+  jdPowerWholesale?: number;
+  jdPowerRetail?: number;
+  auctionWholesale?: number;
+  auctionRetail?: number;
+  bookValuesCondition?: string;
   // Enhanced fields matching data model
   vehicle?: {
     id: string;
@@ -59,6 +72,10 @@ export interface BidRequest {
     exterior?: string;
     interior?: string;
     options?: string;
+    bodyStyle?: string;
+    body_style?: string;
+    history?: string;
+    historyService?: string;
   };
   reconditioning?: {
     id: string;
@@ -69,6 +86,18 @@ export interface BidRequest {
     maintenance?: string;
     recon_estimate?: string;
     recon_details?: string;
+  };
+  book_values?: {
+    id: string;
+    mmr_wholesale?: number;
+    mmr_retail?: number;
+    kbb_wholesale?: number;
+    kbb_retail?: number;
+    jd_power_wholesale?: number;
+    jd_power_retail?: number;
+    auction_wholesale?: number;
+    auction_retail?: number;
+    condition?: string;
   };
   images?: {
     id: string;
@@ -97,6 +126,7 @@ export interface TrimOption {
     engine?: string;
     transmission?: string;
     drivetrain?: string;
+    bodyStyle?: string;
   }
 }
 

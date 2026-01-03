@@ -33,17 +33,17 @@ const RequestHeader = ({ request }: RequestHeaderProps) => {
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
         <div>
           <span className="font-bold text-black">Date:</span>
-          <p className="font-normal p-2 rounded mt-1 block w-full" style={{ backgroundColor: '#ECEEF0' }}>{formatDate(request.createdAt)}</p>
+          <p className="font-normal p-2 rounded mt-1 block w-full bg-gray-50">{formatDate(request.createdAt)}</p>
         </div>
         <div>
           <span className="font-bold text-black">Buyer:</span>
-          <p className="font-normal p-2 rounded mt-1 block w-full" style={{ backgroundColor: '#ECEEF0' }}>
+          <p className="font-normal p-2 rounded mt-1 block w-full bg-gray-50">
             {highestOffer ? highestOffer.buyerName : request.buyer}
           </p>
         </div>
         <div>
           <span className="font-bold text-black">Highest Offer:</span>
-          <p className="font-normal p-2 rounded mt-1 block w-full" style={{ backgroundColor: '#ECEEF0' }}>
+          <p className="font-normal p-2 rounded mt-1 block w-full bg-gray-50">
             {highestOffer === null ? (
               <span className="text-gray-500">No offers yet</span>
             ) : (

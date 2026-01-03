@@ -395,13 +395,13 @@ const VinSection = ({
   const showError = (error || decodeError) && showValidation;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* VIN Input */}
-      <div className="space-y-1">
-        <Label htmlFor="vin" className="text-sm font-medium text-gray-700">
-          VIN <span className="text-red-500">*</span>
-        </Label>
-        <div className="flex gap-2">
+      <div>
+        <div className="flex items-center gap-3">
+          <Label htmlFor="vin" className="text-sm font-medium text-gray-700 whitespace-nowrap min-w-[80px]">
+            VIN <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="vin"
             name="vin"
@@ -415,32 +415,32 @@ const VinSection = ({
             type="button"
             onClick={startScan}
             variant="outline"
-            className="px-3 md:hidden"
+            className="px-3 md:hidden flex-shrink-0"
           >
             <Barcode className="h-4 w-4" />
           </Button>
           <Button
             type="button"
             onClick={handleGoClick}
-            className="bg-custom-blue hover:bg-custom-blue/90 text-white px-4 py-2"
+            className="bg-custom-blue hover:bg-custom-blue/90 text-white px-4 py-2 flex-shrink-0"
             disabled={vin.length !== 17 || isLoading}
           >
             {isLoading ? "Decoding..." : "Go"}
           </Button>
         </div>
         {showError && (
-          <p className="text-red-500 text-sm">
+          <p className="text-red-500 text-sm ml-[92px]">
             {error || decodeError || "VIN is required"}
           </p>
         )}
       </div>
 
       {/* Mileage Input */}
-      <div className="space-y-1">
-        <Label htmlFor="mileage" className="text-sm font-medium text-gray-700">
-          Mileage <span className="text-red-500">*</span>
-        </Label>
-        <div className="flex gap-2">
+      <div>
+        <div className="flex items-center gap-3">
+          <Label htmlFor="mileage" className="text-sm font-medium text-gray-700 whitespace-nowrap min-w-[80px]">
+            Mileage <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="mileage"
             name="mileage"
@@ -451,7 +451,7 @@ const VinSection = ({
             autoComplete="off"
             className={errors?.mileage && showValidation ? "border-red-500" : ""}
           />
-          <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border">
+          <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border flex-shrink-0">
             <img
               src={gaugeIcon}
               alt="Mileage gauge"
@@ -460,13 +460,13 @@ const VinSection = ({
           </div>
         </div>
         {errors?.mileage && showValidation && (
-          <p className="text-red-500 text-sm">{errors.mileage}</p>
+          <p className="text-red-500 text-sm ml-[92px]">{errors.mileage}</p>
         )}
       </div>
 
       {/* Dropdowns - Only show if not hidden */}
       {!hideDropdowns && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <DropdownField
             id="year"
             label="Year"
@@ -476,6 +476,7 @@ const VinSection = ({
             error={errors?.year}
             showValidation={showValidation}
             disabled={isLoading}
+            inline
           />
 
           <DropdownField
@@ -487,6 +488,7 @@ const VinSection = ({
             error={errors?.make}
             showValidation={showValidation}
             disabled={isLoading || isLoadingMakes || !year}
+            inline
           />
 
           <DropdownField
@@ -498,6 +500,7 @@ const VinSection = ({
             error={errors?.model}
             showValidation={showValidation}
             disabled={isLoading || isLoadingModels || !make}
+            inline
           />
 
           <TrimDropdown
@@ -507,6 +510,7 @@ const VinSection = ({
             error={errors?.trim}
             showValidation={showValidation}
             disabled={isLoading || isLoadingTrims || !model}
+            inline
           />
 
           {/* Error messages for API failures */}

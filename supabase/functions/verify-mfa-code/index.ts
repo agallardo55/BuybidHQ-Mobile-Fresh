@@ -75,19 +75,6 @@ serve(async (req) => {
       throw new Error('Too many attempts. Please request a new code.')
     }
 
-    // Increment attempts
-    const { error: updateAttemptsError } = await supabaseClient
-      .from('sms_verification_codes')
-      .update({ 
-        attempts: verificationData.attempts + 1,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', verificationData.id)
-
-    if (updateAttemptsError) {
-      console.error('Error updating attempts:', updateAttemptsError)
-    }
-
     // Normalize codes to strings for comparison
     const dbCode = String(verificationData.code).trim()
     const userCode = String(code).trim()
@@ -98,7 +85,21 @@ serve(async (req) => {
     console.log('Codes match:', dbCode === userCode)
 
     if (dbCode !== userCode) {
-      const attemptsRemaining = MAX_ATTEMPTS - (verificationData.attempts + 1)
+      // Only increment attempts on FAILED verification
+      const newAttempts = verificationData.attempts + 1
+      const { error: updateAttemptsError } = await supabaseClient
+        .from('sms_verification_codes')
+        .update({
+          attempts: newAttempts,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', verificationData.id)
+
+      if (updateAttemptsError) {
+        console.error('Error updating attempts:', updateAttemptsError)
+      }
+
+      const attemptsRemaining = MAX_ATTEMPTS - newAttempts
       console.error(`[verify-mfa-code] Code mismatch! Received: "${userCode}", Expected: "${dbCode}"`)
       throw new Error(`Invalid code. ${attemptsRemaining} attempts remaining.`)
     }

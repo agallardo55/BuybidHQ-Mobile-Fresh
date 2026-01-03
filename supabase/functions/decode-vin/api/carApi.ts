@@ -345,6 +345,16 @@ async function fetchTrimsForYear(
     }
   });
 
+  // Enhanced debugging: Log the full response structure
+  console.log(`🔍 [${callId}] CarAPI Response Type:`, typeof response);
+  console.log(`🔍 [${callId}] CarAPI Response Keys:`, response ? Object.keys(response) : 'null');
+  if (response && response.collection) {
+    console.log(`🔍 [${callId}] Collection metadata:`, response.collection);
+  }
+  if (response && response.data) {
+    console.log(`🔍 [${callId}] Data array length:`, Array.isArray(response.data) ? response.data.length : 'not an array');
+  }
+
   if (response === null) {
     console.log(`⚠️ [${callId}] Year ${year} returned null (API error or not found)`);
     return [];
@@ -353,13 +363,19 @@ async function fetchTrimsForYear(
   // The API can return either an array directly or an object with data property
   let trimsArray = [];
   if (Array.isArray(response)) {
+    console.log(`✅ [${callId}] Response is direct array`);
     trimsArray = response;
   } else if (response && Array.isArray(response.data)) {
+    console.log(`✅ [${callId}] Response has data array with ${response.data.length} items`);
     trimsArray = response.data;
   } else if (response && Array.isArray(response.collection)) {
+    console.log(`✅ [${callId}] Response has collection array`);
     trimsArray = response.collection;
   } else if (response && response.trims && Array.isArray(response.trims)) {
+    console.log(`✅ [${callId}] Response has trims array`);
     trimsArray = response.trims;
+  } else {
+    console.warn(`⚠️ [${callId}] Unknown response structure:`, JSON.stringify(response).substring(0, 500));
   }
 
   if (trimsArray && trimsArray.length > 0) {
@@ -398,9 +414,12 @@ export async function fetchTrimsByYearMakeModel(year: string, make: string, mode
     // Normalize make to title case (CarAPI expects "Audi", not "AUDI" or "audi")
     // But preserve special cases like "BMW", "GMC", "MINI" which are all-caps
     const allCapsBrands = ['BMW', 'GMC', 'MINI'];
-    const normalizedMake = allCapsBrands.includes(make.toUpperCase()) 
-      ? make.toUpperCase() 
-      : make.charAt(0).toUpperCase() + make.slice(1).toLowerCase();
+    const normalizedMake = allCapsBrands.includes(make.toUpperCase())
+      ? make.toUpperCase()
+      : make
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
     
     // Normalize model to title case
     const normalizedModel = model
@@ -427,12 +446,12 @@ export async function fetchTrimsByYearMakeModel(year: string, make: string, mode
     let trimsArray = await fetchTrimsForYear(callId, year, normalizedMake, normalizedModel, jwtToken);
 
     // If requested year returns empty and year is > 2020, try fallback years
-    // Demo dataset only has 2015-2020 data, so fallback to recent years
+    // CarAPI might not have current year data yet, so try recent past years
     if ((!trimsArray || trimsArray.length === 0) && requestedYear > 2020) {
       console.log(`🔍 [${callId}] Step 3: Requested year ${requestedYear} returned empty, trying fallback years...`);
-      
-      // Try years in descending order: 2020, 2019, 2018, 2017, 2016, 2015
-      const fallbackYears = [2020, 2019, 2018, 2017, 2016, 2015];
+
+      // Try recent years in descending order
+      const fallbackYears = [2024, 2023, 2022, 2021, 2020, 2019];
       
       for (const fallbackYear of fallbackYears) {
         if (fallbackYear >= requestedYear) continue; // Don't try years >= requested year
@@ -452,11 +471,24 @@ export async function fetchTrimsByYearMakeModel(year: string, make: string, mode
       return [];
     }
 
+    // 🔍 DEBUG: Log each trim's body_class before filtering
+    console.log(`🔍🔍🔍 [${callId}] Examining ${trimsArray.length} trims BEFORE powersports filter:`);
+    trimsArray.forEach((trim: any, index: number) => {
+      const bodyClass = trim.body_class || trim.bodyClass;
+      const vehicleType = trim.vehicle_type || trim.vehicleType;
+      console.log(`  Trim ${index + 1}: "${trim.name || trim.trim_name || 'Unknown'}" | body_class="${bodyClass}" | vehicle_type="${vehicleType}"`);
+    });
+
     // Filter out powersports vehicles (motorcycles, ATVs, UTVs, etc.) and normalize body_class
     const filteredTrims = trimsArray
       .filter((trim: any) => {
         const bodyClass = trim.body_class || trim.bodyClass;
-        return isNotPowersports(undefined, bodyClass);
+        const result = isNotPowersports(undefined, bodyClass);
+        // 🔍 DEBUG: Log why each trim passed or failed
+        if (!result) {
+          console.log(`  ❌ REJECTED: "${trim.name || trim.trim_name || 'Unknown'}" with body_class="${bodyClass}"`);
+        }
+        return result;
       })
       .map((trim: any) => {
         // Normalize body_class in trim specs

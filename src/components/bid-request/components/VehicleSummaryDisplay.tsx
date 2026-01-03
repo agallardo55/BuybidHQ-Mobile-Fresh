@@ -74,41 +74,37 @@ const VehicleSummaryDisplay = ({
       </CardHeader>
       <Separator className="mb-3" />
       <CardContent className="pt-4">
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <div className="grid grid-cols-3 gap-4 text-sm mb-4">
-            <div>
-              <span className="font-medium text-gray-700">VIN #:</span>
-              <p className="text-gray-600 mt-1">{displayVin()}</p>
-            </div>
-            
-            <div>
-              <span className="font-medium text-gray-700">Mileage:</span>
-              <p className="text-gray-600 mt-1">{displayValue(mileage)}</p>
-            </div>
-            
-            {bodyStyle ? (
-              <div>
-                <span className="font-medium text-gray-700">Body Style:</span>
-                <p className="text-gray-600 mt-1">{bodyStyle}</p>
-              </div>
-            ) : null}
+        <div className="bg-gray-100 p-4 rounded-lg space-y-3 text-sm">
+          <div className="flex items-center gap-3">
+            <span className="font-medium text-gray-700 whitespace-nowrap min-w-[100px]">VIN #:</span>
+            <p className="text-gray-600">{displayVin()}</p>
           </div>
-          
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div>
-              <span className="font-medium text-gray-700">{engineLabel}:</span>
-              <p className="text-gray-600 mt-1">{displayValue(engineValue)}</p>
+
+          <div className="flex items-center gap-3">
+            <span className="font-medium text-gray-700 whitespace-nowrap min-w-[100px]">Mileage:</span>
+            <p className="text-gray-600">{displayValue(mileage)}</p>
+          </div>
+
+          {bodyStyle && (
+            <div className="flex items-center gap-3">
+              <span className="font-medium text-gray-700 whitespace-nowrap min-w-[100px]">Body Style:</span>
+              <p className="text-gray-600">{bodyStyle}</p>
             </div>
-            
-            <div>
-              <span className="font-medium text-gray-700">Transmission:</span>
-              <p className="text-gray-600 mt-1">{displayValue(transmission)}</p>
-            </div>
-            
-            <div>
-              <span className="font-medium text-gray-700">Drivetrain:</span>
-              <p className="text-gray-600 mt-1">{displayValue(drivetrain)}</p>
-            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <span className="font-medium text-gray-700 whitespace-nowrap min-w-[100px]">{engineLabel}:</span>
+            <p className="text-gray-600">{displayValue(engineValue)}</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="font-medium text-gray-700 whitespace-nowrap min-w-[100px]">Transmission:</span>
+            <p className="text-gray-600">{displayValue(transmission)}</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="font-medium text-gray-700 whitespace-nowrap min-w-[100px]">Drivetrain:</span>
+            <p className="text-gray-600">{displayValue(drivetrain)}</p>
           </div>
         </div>
       </CardContent>

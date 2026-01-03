@@ -365,25 +365,47 @@ const ColorsAndAccessories = ({
         <label htmlFor="accessories" className="block text-sm font-medium text-gray-700 mb-1">
           Additional Equipment/Accessories
         </label>
-        <Textarea 
-          id="accessories" 
-          name="accessories" 
-          value={formData.accessories} 
-          onChange={onChange} 
-          placeholder="List any additional equipment or accessories..." 
-          className="min-h-[100px] focus-visible:ring-custom-blue" 
+        <Textarea
+          id="accessories"
+          name="accessories"
+          value={formData.accessories}
+          onChange={onChange}
+          placeholder="List any additional equipment or accessories..."
+          className="min-h-[100px] focus-visible:ring-custom-blue"
         />
       </div>
 
-      <Button 
-        variant="outline" 
-        className="w-full flex items-center gap-2"
-        onClick={() => setIsUploadDialogOpen(true)}
-        disabled={isUploading || isDeleting}
-      >
-        <ImagePlus className="h-4 w-4" />
-        Add Photo
-      </Button>
+      {/* Vehicle Photos Section */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">
+          Vehicle Photos
+        </h3>
+
+        <div className="flex gap-4 items-start">
+          {/* Add Photo Button */}
+          <button
+            type="button"
+            onClick={() => setIsUploadDialogOpen(true)}
+            disabled={isUploading || isDeleting}
+            className="flex-shrink-0 w-[200px] h-[150px] border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-gray-400 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ImagePlus className="h-8 w-8 text-gray-400" />
+            <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">Add Photo</span>
+          </button>
+
+          {/* Image Grid */}
+          <div className="flex-1">
+            <ImageCarousel
+              uploadedImages={uploadedImageUrls}
+              selectedFileUrls={selectedFileUrls}
+              onImageClick={setPreviewImage}
+              onDeleteImage={handleDeleteImage}
+              onImageLoadError={handleImageLoadError}
+              isDeleting={isDeleting}
+            />
+          </div>
+        </div>
+      </div>
 
       <ImageUploadDialog
         isOpen={isUploadDialogOpen}
@@ -392,15 +414,6 @@ const ColorsAndAccessories = ({
         isUploading={isUploading}
         onFileChange={handleFileChange}
         onUpload={handleUpload}
-      />
-
-      <ImageCarousel
-        uploadedImages={uploadedImageUrls}
-        selectedFileUrls={selectedFileUrls}
-        onImageClick={setPreviewImage}
-        onDeleteImage={handleDeleteImage}
-        onImageLoadError={handleImageLoadError}
-        isDeleting={isDeleting}
       />
 
       <ImagePreviewDialog

@@ -25,15 +25,15 @@ const ImageCarousel = ({
   // Show placeholder if no images are available
   if (sortedUploadedImages.length === 0 && selectedFileUrls.length === 0) {
     return (
-      <div className="mt-4">
+      <div>
         <div className="w-full max-w-[95%] mx-auto">
           <div className="flex gap-4 pb-4">
             <div className="flex-none relative">
-              <div className="h-24 w-36 relative rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                <img 
-                  src={carPlaceholder} 
-                  alt="No vehicle photos available" 
-                  className="h-16 w-auto object-contain opacity-50"
+              <div className="h-[150px] w-[200px] relative rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                <img
+                  src={carPlaceholder}
+                  alt="No vehicle photos available"
+                  className="h-24 w-auto object-contain opacity-50"
                 />
               </div>
             </div>
@@ -44,7 +44,7 @@ const ImageCarousel = ({
   }
 
   return (
-    <div className="mt-4">
+    <div>
       <div className="w-full max-w-[95%] mx-auto overflow-x-auto">
         <div className="flex gap-4 pb-4">
           {sortedUploadedImages.map((url, index) => (

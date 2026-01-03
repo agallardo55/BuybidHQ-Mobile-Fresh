@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import VinSection from "./VinSection";
 import VehicleSummaryDisplay from "./components/VehicleSummaryDisplay"; // ✅ ADD THIS IMPORT
 import { TrimOption } from "./types";
@@ -105,6 +105,12 @@ const BasicVehicleInfo = ({
   // Cache specs by trim to prevent duplicate API calls
   const [specsCache, setSpecsCache] = useState<Record<string, { engine: string; transmission: string; drivetrain: string; bodyStyle?: string }>>({});
   const [loadingSpecs, setLoadingSpecs] = useState(false);
+
+  // Clear specs cache when year/make/model changes to prevent stale data
+  useEffect(() => {
+    setSpecsCache({});
+    logger.debug('🗑️ Specs cache cleared due to year/make/model change');
+  }, [formData.year, formData.make, formData.model]);
 
   // Handle trim change with auto-population and fallback priority
   const handleTrimChange = useCallback(async (value: string) => {

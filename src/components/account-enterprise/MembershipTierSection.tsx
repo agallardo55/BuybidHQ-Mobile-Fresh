@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Check, Loader2 } from "lucide-react";
 import { UserData } from "@/hooks/useCurrentUser";
 import type { Account } from "@/types/accounts";
+import { getPlanButtonConfig } from "@/utils/planHelpers";
 
 interface MembershipTierSectionProps {
   account: Account | null | undefined;
@@ -233,24 +234,29 @@ export const MembershipTierSection = ({ account, user }: MembershipTierSectionPr
                       <Check className="mr-2 h-3 w-3" />
                       ACTIVE TIER
                     </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handlePlanUpgrade(plan.id)}
-                      disabled={isProcessing}
-                      className="w-full bg-brand hover:bg-brand/90 text-white h-9 px-4 text-xs font-medium uppercase tracking-widest"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                          PROCESSING
-                        </>
-                      ) : currentPlan === 'free' ? (
-                        'ACTIVATE TIER'
-                      ) : (
-                        'UPGRADE TIER'
-                      )}
-                    </Button>
-                  )}
+                  ) : (() => {
+                      const buttonConfig = getPlanButtonConfig(currentPlan, plan.id);
+                      return (
+                        <Button
+                          onClick={() => handlePlanUpgrade(plan.id)}
+                          disabled={isProcessing}
+                          className={`w-full h-9 px-4 text-xs font-medium uppercase tracking-widest ${
+                            buttonConfig.isDowngrade
+                              ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                              : 'bg-brand hover:bg-brand/90 text-white'
+                          }`}
+                        >
+                          {isProcessing ? (
+                            <>
+                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                              PROCESSING
+                            </>
+                          ) : (
+                            buttonConfig.text.toUpperCase()
+                          )}
+                        </Button>
+                      );
+                    })()}
                 </div>
               </div>
             );

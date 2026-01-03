@@ -176,17 +176,18 @@ const BuyersSection = ({
           )}
         </ScrollArea>
       </div>
-      <div className="mt-6 flex justify-between">
-        <Button 
+      <div className="mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
+        <Button
           onClick={handleBack}
           variant="outline"
+          className="h-11 px-8 py-2 w-full sm:w-auto sm:min-w-[140px]"
         >
           Back
         </Button>
-        <Button 
+        <Button
           type="button"
           onClick={onSubmit}
-          className="bg-custom-blue hover:bg-custom-blue/90"
+          className="h-11 px-8 py-2 w-full sm:w-auto sm:min-w-[140px] bg-custom-blue hover:bg-custom-blue/90"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Submitting..." : "Submit"}
