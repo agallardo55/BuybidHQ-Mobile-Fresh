@@ -282,52 +282,38 @@ const ColorsAndAccessories = ({
     onChange(syntheticEvent);
   }, [onChange]);
 
-  const handleImageLoadError = useCallback((url: string) => {
+  const handleImageLoadError = useCallback(async (url: string) => {
     logger.warn('🚨 Image load error detected for URL:', url);
-    
+
     // Remove the failed image from the uploaded URLs
-    removeUploadedImage?.(url);
-    
+    await onDeleteImage?.(url, true);
+
     // Show user-friendly error message
     toast.error('Failed to load image. It has been removed from your uploads.', {
       closeButton: false
     });
-  }, [removeUploadedImage]);
+  }, [onDeleteImage]);
 
   const handleDeleteImage = useCallback(async (url: string, isUploaded: boolean) => {
     logger.debug('🔄 handleDeleteImage called:', { url, isUploaded, isDeleting });
-    
+
     if (isDeleting) {
       logger.debug('⏳ Delete already in progress, returning early');
       return;
     }
-    
+
     setIsDeleting(true);
     logger.debug('🔒 Set isDeleting to true');
 
     try {
       if (isUploaded) {
         logger.debug('📤 Deleting uploaded image from storage');
-        const filePath = url.split('/').pop();
-        if (!filePath) {
-          throw new Error('Invalid file path');
-        }
 
-        logger.debug('Deleting uploaded image:', filePath);
-        const { error } = await supabase.storage
-          .from('vehicle_images')
-          .remove([filePath]);
+        // Use the parent's onDeleteImage function
+        logger.debug('🔄 Calling onDeleteImage with URL:', url);
+        await onDeleteImage?.(url, true);
+        logger.debug('✅ onDeleteImage called successfully');
 
-        if (error) {
-          logger.error('Error deleting file:', error);
-          throw error;
-        }
-
-        // Use the new removeUploadedImage function
-        logger.debug('🔄 Calling removeUploadedImage with URL:', url);
-        removeUploadedImage?.(url);
-        logger.debug('✅ removeUploadedImage called successfully');
-        
         toast.success('Image deleted successfully', {
           closeButton: false
         });
@@ -352,7 +338,7 @@ const ColorsAndAccessories = ({
       logger.debug('🔓 Set isDeleting to false');
       setIsDeleting(false);
     }
-  }, [isDeleting, removeUploadedImage, setSelectedFileUrls]);
+  }, [isDeleting, onDeleteImage, setSelectedFileUrls]);
 
   return (
     <div className="space-y-4">
