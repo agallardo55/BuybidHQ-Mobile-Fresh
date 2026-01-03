@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,15 @@ import DropdownField from "./components/DropdownField";
 import TrimDropdown from "./components/TrimDropdown";
 import gaugeIcon from "@/assets/gauge_image.png";
 import { logger } from '@/utils/logger';
+
+// Normalize model name by removing engine/trim suffixes
+// "DEFENDER HYBRID" → "DEFENDER"
+// "RANGE ROVER SPORT V8" → "RANGE ROVER SPORT"
+const normalizeModelName = (model: string): string => {
+  return model
+    .replace(/\s+(HYBRID|PHEV|V6|V8|P\d+|SE|HSE|AUTOBIOGRAPHY).*$/i, '')
+    .trim();
+};
 
 interface VinSectionProps {
   vin: string;
@@ -64,23 +73,37 @@ const VinSection = ({
 }: VinSectionProps) => {
   const isMobile = useIsMobile();
   
-  const { 
-    vehicleData, 
-    isLoading, 
+  const {
+    vehicleData,
+    isLoading,
     error: decodeError,
-    decodeVin, 
+    decodeVin,
   } = useVinDecoder();
-  
+
+  // Destructure formData values for optimized dependency arrays
+  const year = formData?.year;
+  const make = formData?.make;
+  const model = formData?.model;
+  const displayTrim = formData?.displayTrim;
+
   // Cascading dropdown state
   const [availableMakes, setAvailableMakes] = useState<Array<{ value: string; label: string }>>([]);
   const [availableModels, setAvailableModels] = useState<Array<{ value: string; label: string }>>([]);
   const [isLoadingMakes, setIsLoadingMakes] = useState(false);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [isLoadingTrims, setIsLoadingTrims] = useState(false);
-  
+
+  // Error states for API calls
+  const [makesError, setMakesError] = useState<string | null>(null);
+  const [modelsError, setModelsError] = useState<string | null>(null);
+  const [trimsError, setTrimsError] = useState<string | null>(null);
+
   // Track where trims came from to prevent redundant fetches
   const [trimsSource, setTrimsSource] = useState<'vin' | 'manual' | null>(null);
-  
+
+  // Track normalized models to avoid calling onChange in useEffect
+  const normalizedModelRef = useRef<string | null>(null);
+
   const { isScanning, videoRef, startScan, stopScan } = useVinScanner((scannedVin) => {
     const syntheticEvent = {
       target: { name: 'vin', value: scannedVin }
@@ -118,125 +141,175 @@ const VinSection = ({
 
   // Load makes when year changes
   useEffect(() => {
-    if (formData?.year) {
+    if (year) {
+      const abortController = new AbortController();
       setIsLoadingMakes(true);
-      vinService.fetchMakesByYear(formData.year)
+      setMakesError(null); // Clear previous errors
+
+      vinService.fetchMakesByYear(year)
         .then(makes => {
+          if (abortController.signal.aborted) return;
+
           const makeOptions = makes.map(make => ({ value: make, label: make }));
-          
+
           // If formData already has a make (from VIN decode), ensure it's in the options
-          if (formData.make && !makeOptions.find(m => m.value === formData.make)) {
-            makeOptions.unshift({ value: formData.make, label: formData.make });
+          if (make && !makeOptions.find(m => m.value === make)) {
+            makeOptions.unshift({ value: make, label: make });
           }
-          
+
           setAvailableMakes(makeOptions);
+          setMakesError(null); // Clear errors on success
           setIsLoadingMakes(false);
         })
         .catch(error => {
+          if (abortController.signal.aborted) return;
           logger.error('Error fetching makes:', error);
+          setMakesError('Unable to load makes. Please try again.');
           setIsLoadingMakes(false);
         });
+
+      return () => abortController.abort();
     } else {
       setAvailableMakes([]);
+      setMakesError(null);
     }
-  }, [formData?.year, formData?.make]);
+  }, [year, make]);
 
   // Load models when year and make change
   useEffect(() => {
-    if (formData?.year && formData?.make) {
+    if (year && make) {
+      const abortController = new AbortController();
       setIsLoadingModels(true);
-      vinService.fetchModelsByYearMake(formData.year, formData.make)
+      setModelsError(null); // Clear previous errors
+
+      vinService.fetchModelsByYearMake(year, make)
         .then(models => {
+          if (abortController.signal.aborted) return;
+
           const modelOptions = models.map(model => ({ value: model, label: model }));
-          
+
           // If formData already has a model (from VIN decode), ensure it's in the options
-          if (formData.model) {
-            // Normalize VIN-decoded model by removing engine/trim suffixes
-            // "DEFENDER HYBRID" → "DEFENDER"
-            // "RANGE ROVER SPORT V8" → "RANGE ROVER SPORT"
-            const normalizeModel = (model: string) => {
-              // Remove common suffixes like HYBRID, V6, V8, etc.
-              return model
-                .replace(/\s+(HYBRID|PHEV|V6|V8|P\d+|SE|HSE|AUTOBIOGRAPHY).*$/i, '')
-                .trim();
-            };
-            
-            const normalizedModel = normalizeModel(formData.model);
-            
+          if (model) {
+            const normalizedModel = normalizeModelName(model);
+
             // Check if normalized model exists in options
             const exactMatch = modelOptions.find(m => m.value === normalizedModel);
-            
-            if (exactMatch) {
-              // Use the API's model name (without VIN decoder's extra details)
-              // Update formData to match dropdown
-              const syntheticEvent = {
-                target: { name: 'model', value: normalizedModel }
-              } as React.ChangeEvent<HTMLInputElement>;
-              onChange(syntheticEvent);
-            } else if (!modelOptions.find(m => m.value === formData.model)) {
+
+            if (exactMatch && model !== normalizedModel) {
+              // Only normalize once per model value to avoid loops
+              if (normalizedModelRef.current !== model) {
+                normalizedModelRef.current = model;
+
+                // Use the API's model name (without VIN decoder's extra details)
+                // Call onModelChange callback if available, otherwise use onChange
+                if (onModelChange) {
+                  logger.debug('🔧 Normalizing model from VIN decode:', {
+                    original: model,
+                    normalized: normalizedModel
+                  });
+                  onModelChange(normalizedModel);
+                } else {
+                  // Fallback to onChange for backwards compatibility
+                  const syntheticEvent = {
+                    target: { name: 'model', value: normalizedModel }
+                  } as React.ChangeEvent<HTMLInputElement>;
+                  onChange(syntheticEvent);
+                }
+              }
+            } else if (!modelOptions.find(m => m.value === model)) {
               // Model doesn't exist even after normalization, add the VIN-decoded version
-              modelOptions.unshift({ value: formData.model, label: formData.model });
+              modelOptions.unshift({ value: model, label: model });
+              normalizedModelRef.current = null; // Reset since we're keeping the original
+            } else {
+              // Model matches exactly, no normalization needed
+              normalizedModelRef.current = null;
             }
+          } else {
+            // No model in formData, reset tracking
+            normalizedModelRef.current = null;
           }
-          
+
           setAvailableModels(modelOptions);
+          setModelsError(null); // Clear errors on success
           setIsLoadingModels(false);
         })
         .catch(error => {
+          if (abortController.signal.aborted) return;
           logger.error('Error fetching models:', error);
+          setModelsError('Unable to load models. Please try again.');
           setIsLoadingModels(false);
         });
+
+      return () => abortController.abort();
     } else {
       setAvailableModels([]);
+      setModelsError(null);
     }
-  }, [formData?.year, formData?.make, formData?.model]);
+  }, [year, make, model, onModelChange, onChange]);
 
   // Load trims when year, make, and model change
   useEffect(() => {
     logger.debug('🔄 Trim useEffect triggered:', {
-      year: formData?.year,
-      make: formData?.make,
-      model: formData?.model,
+      year,
+      make,
+      model,
       availableTrimsLength: formData?.availableTrims?.length,
       isLoadingTrims,
       hasOnTrimsUpdate: !!onTrimsUpdate,
       trimsSource
     });
-    
+
     // Skip fetch if trims just came from VIN decode
     if (trimsSource === 'vin') {
       logger.debug('⏭️ Skipping trim fetch - just populated from VIN decode');
       setTrimsSource(null); // Reset flag for future manual changes
       return;
     }
-    
+
     // Normal fetch logic for manual selection
-    if (formData?.year && formData?.make && formData?.model && onTrimsUpdate && !isLoadingTrims) {
+    logger.debug('🔍 Checking trim fetch conditions:', {
+      hasYear: !!year,
+      hasMake: !!make,
+      hasModel: !!model,
+      hasOnTrimsUpdate: !!onTrimsUpdate,
+      isLoadingTrims
+    });
+
+    if (year && make && model && onTrimsUpdate && !isLoadingTrims) {
       logger.debug('🚀 Fetching trims for manual selection');
-      setTrimsSource('manual'); // Mark as manual fetch
-      
+
+      const abortController = new AbortController();
       setIsLoadingTrims(true);
-      vinService.fetchTrimsByYearMakeModel(formData.year, formData.make, formData.model)
+      setTrimsError(null); // Clear previous errors
+
+      vinService.fetchTrimsByYearMakeModel(year, make, model)
         .then(trims => {
+          if (abortController.signal.aborted) return;
+
           logger.debug('✅ Received trims:', trims.length, 'trims');
           onTrimsUpdate(trims);
-          
-          // Auto-select if only one trim available
-          if (trims.length === 1 && onTrimChange) {
+
+          // Auto-select if only one trim available AND trim is not already selected
+          if (trims.length === 1 && onTrimChange && !displayTrim) {
             const singleTrim = trims[0];
             const displayValue = vinService.getDisplayTrim(singleTrim);
             logger.debug('🔍 Auto-selecting single trim:', displayValue);
             onTrimChange(displayValue);
           }
-          
+
+          setTrimsError(null); // Clear errors on success
           setIsLoadingTrims(false);
         })
         .catch(error => {
+          if (abortController.signal.aborted) return;
           logger.error('❌ Error fetching trims:', error);
+          setTrimsError('Unable to load trims. Please try again.');
           setIsLoadingTrims(false);
         });
+
+      return () => abortController.abort();
     }
-  }, [formData?.year, formData?.make, formData?.model]); // CRITICAL: Only year/make/model in dependencies
+  }, [year, make, model, displayTrim, trimsSource]); // Include trimsSource for VIN decode skip logic
 
   const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e);
@@ -280,9 +353,9 @@ const VinSection = ({
   // Handle year change with clearing dependents
   const handleYearChange = (value: string) => {
     if (onYearChange) onYearChange(value);
-    if (onMakeChange && formData?.make) onMakeChange("");
-    if (onModelChange && formData?.model) onModelChange("");
-    if (onTrimChange && formData?.displayTrim) onTrimChange("");
+    if (onMakeChange && make) onMakeChange("");
+    if (onModelChange && model) onModelChange("");
+    if (onTrimChange && displayTrim) onTrimChange("");
     // Clear availableTrims when year changes to force fresh trim fetch
     if (onTrimsUpdate) {
       onTrimsUpdate([]);
@@ -292,8 +365,8 @@ const VinSection = ({
   // Handle make change with clearing dependents
   const handleMakeChange = (value: string) => {
     if (onMakeChange) onMakeChange(value);
-    if (onModelChange && formData?.model) onModelChange("");
-    if (onTrimChange && formData?.displayTrim) onTrimChange("");
+    if (onModelChange && model) onModelChange("");
+    if (onTrimChange && displayTrim) onTrimChange("");
     // Clear availableTrims when make changes to force fresh trim fetch
     if (onTrimsUpdate) {
       onTrimsUpdate([]);
@@ -303,7 +376,7 @@ const VinSection = ({
   // Handle model change with clearing dependents
   const handleModelChange = (value: string) => {
     if (onModelChange) onModelChange(value);
-    if (onTrimChange && formData?.displayTrim) onTrimChange("");
+    if (onTrimChange && displayTrim) onTrimChange("");
     // Clear availableTrims when model changes to force fresh trim fetch
     if (onTrimsUpdate) {
       onTrimsUpdate([]);
@@ -323,80 +396,77 @@ const VinSection = ({
 
   return (
     <div className="space-y-4">
-      {/* VIN Input Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* VIN Input */}
-        <div className="space-y-1 md:col-span-2">
-          <Label htmlFor="vin" className="text-sm font-medium text-gray-700">
-            VIN <span className="text-red-500">*</span>
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="vin"
-              name="vin"
-              value={vin}
-              onChange={handleVinChange}
-              placeholder="Enter 17-character VIN"
-              autoComplete="off"
-              className={showError ? "border-red-500" : ""}
-            />
-            <Button
-              type="button"
-              onClick={startScan}
-              variant="outline"
-              className="px-3 md:hidden"
-            >
-              <Barcode className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              onClick={handleGoClick}
-              className="bg-custom-blue hover:bg-custom-blue/90 text-white px-4 py-2"
-              disabled={vin.length !== 17 || isLoading}
-            >
-              {isLoading ? "Decoding..." : "Go"}
-            </Button>
-          </div>
-          {showError && (
-            <p className="text-red-500 text-sm">
-              {error || decodeError || "VIN is required"}
-            </p>
-          )}
+      {/* VIN Input */}
+      <div className="space-y-1">
+        <Label htmlFor="vin" className="text-sm font-medium text-gray-700">
+          VIN <span className="text-red-500">*</span>
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id="vin"
+            name="vin"
+            value={vin}
+            onChange={handleVinChange}
+            placeholder="Enter 17-character VIN"
+            autoComplete="off"
+            className={showError ? "border-red-500" : ""}
+          />
+          <Button
+            type="button"
+            onClick={startScan}
+            variant="outline"
+            className="px-3 md:hidden"
+          >
+            <Barcode className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            onClick={handleGoClick}
+            className="bg-custom-blue hover:bg-custom-blue/90 text-white px-4 py-2"
+            disabled={vin.length !== 17 || isLoading}
+          >
+            {isLoading ? "Decoding..." : "Go"}
+          </Button>
         </div>
+        {showError && (
+          <p className="text-red-500 text-sm">
+            {error || decodeError || "VIN is required"}
+          </p>
+        )}
+      </div>
 
-        {/* Mileage Input */}
-        <div className="space-y-1">
-          <Label htmlFor="mileage" className="text-sm font-medium text-gray-700">
-            Mileage <span className="text-red-500">*</span>
-          </Label>
-          <div className="flex gap-2">
-            <Input
-              id="mileage"
-              name="mileage"
-              type="text"
-              value={formData?.mileage || ''}
-              onChange={handleMileageChange}
-              placeholder="35,000"
-              autoComplete="off"
-              className={errors?.mileage && showValidation ? "border-red-500" : ""}
+      {/* Mileage Input */}
+      <div className="space-y-1">
+        <Label htmlFor="mileage" className="text-sm font-medium text-gray-700">
+          Mileage <span className="text-red-500">*</span>
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id="mileage"
+            name="mileage"
+            type="text"
+            value={formData?.mileage || ''}
+            onChange={handleMileageChange}
+            placeholder="35,000"
+            autoComplete="off"
+            className={errors?.mileage && showValidation ? "border-red-500" : ""}
+          />
+          <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border">
+            <img
+              src={gaugeIcon}
+              alt="Mileage gauge"
+              className="w-4 h-4"
             />
-            <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded border">
-              <img 
-                src={gaugeIcon} 
-                alt="Mileage gauge" 
-                className="w-4 h-4"
-              />
-            </div>
           </div>
-          {errors?.mileage && showValidation && (
-            <p className="text-red-500 text-sm">{errors.mileage}</p>
-          )}
         </div>
+        {errors?.mileage && showValidation && (
+          <p className="text-red-500 text-sm">{errors.mileage}</p>
+        )}
       </div>
 
       {/* Dropdowns - Only show if not hidden */}
       {!hideDropdowns && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="space-y-4">
           <DropdownField
             id="year"
             label="Year"
@@ -416,7 +486,7 @@ const VinSection = ({
             onChange={handleMakeChange}
             error={errors?.make}
             showValidation={showValidation}
-            disabled={isLoading || isLoadingMakes || !formData?.year}
+            disabled={isLoading || isLoadingMakes || !year}
           />
 
           <DropdownField
@@ -427,7 +497,7 @@ const VinSection = ({
             onChange={handleModelChange}
             error={errors?.model}
             showValidation={showValidation}
-            disabled={isLoading || isLoadingModels || !formData?.make}
+            disabled={isLoading || isLoadingModels || !make}
           />
 
           <TrimDropdown
@@ -436,8 +506,17 @@ const VinSection = ({
             onTrimChange={onTrimChange || (() => {})}
             error={errors?.trim}
             showValidation={showValidation}
-            disabled={isLoading || isLoadingTrims || !formData?.model}
+            disabled={isLoading || isLoadingTrims || !model}
           />
+
+          {/* Error messages for API failures */}
+          {(makesError || modelsError || trimsError) && (
+            <div className="text-sm text-red-500 space-y-1 mt-2">
+              {makesError && <p>{makesError}</p>}
+              {modelsError && <p>{modelsError}</p>}
+              {trimsError && <p>{trimsError}</p>}
+            </div>
+          )}
         </div>
       )}
 
