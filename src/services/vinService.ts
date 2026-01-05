@@ -2071,9 +2071,10 @@ class VinService {
     }
     
     // Manheim-style formatting
-    const manheimModel = this.formatModelManheimStyle(apiData, selectedTrim);
+    const trimValue = apiData?.trim || selectedTrim?.name || "";
+    const manheimModel = this.formatModelManheimStyle(apiData, selectedTrim, trimValue);
     const manheimTrim = this.formatTrimManheimStyle(selectedTrim, apiData);
-    
+
     logger.debug('🔍 Formatted Model (before):', apiData?.model);
     logger.debug('🔍 Formatted Model (after):', manheimModel);
     logger.debug('🔍 Formatted Trim (after):', manheimTrim);
@@ -2166,14 +2167,17 @@ class VinService {
   /**
    * Format model in Manheim style: MODEL ENGINE_TYPE
    * Example: "RANGE ROVER V8 HYBRID"
-   * 
+   *
    * IMPORTANT: For electric vehicles, do NOT append "ELECTRIC" to model name.
    * Electric vehicles should show clean model name (e.g., "TAYCAN" not "TAYCAN ELECTRIC").
    * The engine/motor type should be in the engine field, not the model field.
-   * 
+   *
    * Exception: Models where "EV" is part of the official name (e.g., "BOLT EV") should keep it.
+   *
+   * IMPORTANT: If the engine type matches the trim (e.g., Bentley "V8"), do NOT append it to model
+   * to avoid duplication like "BENTAYGA V8 V8".
    */
-  private formatModelManheimStyle(apiData: any, selectedTrim?: TrimOption): string {
+  private formatModelManheimStyle(apiData: any, selectedTrim?: TrimOption, trimValue?: string): string {
     let baseModel = (apiData?.model || "").trim().toUpperCase();
     if (!baseModel) return "";
     
@@ -2255,7 +2259,20 @@ class VinService {
         engineType = engineMatch ? engineMatch[0] : '';
       }
     }
-    
+
+    // Don't append engine type if it matches the trim (e.g., Bentley "V8")
+    // This prevents "BENTAYGA V8" + trim "V8" = "BENTAYGA V8 V8"
+    if (engineType && trimValue) {
+      const trimUpper = trimValue.trim().toUpperCase();
+      const engineUpper = engineType.trim().toUpperCase();
+
+      // Check if trim matches engine type exactly or contains it
+      if (trimUpper === engineUpper || trimUpper.includes(engineUpper)) {
+        logger.debug(`🔍 formatModelManheimStyle: Engine type "${engineType}" matches trim "${trimValue}" - not appending to model`);
+        return baseModel;
+      }
+    }
+
     // Combine model with engine type
     return engineType ? `${baseModel} ${engineType}` : baseModel;
   }
