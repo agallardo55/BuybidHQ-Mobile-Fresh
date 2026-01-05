@@ -31,6 +31,7 @@ const DealershipWizardForm = ({
       email: "",
       mobileNumber: "",
       phoneCarrier: "",
+      accountType: 'basic',
       address: "",
       city: "",
       state: "",
@@ -66,7 +67,7 @@ const DealershipWizardForm = ({
 
   const validateAdminStep = () => {
     const stepErrors: Record<string, string> = {};
-    
+
     if (!formData.adminUser.fullName.trim()) {
       stepErrors.fullName = "Full Name is required";
     }
@@ -79,10 +80,7 @@ const DealershipWizardForm = ({
     if (!formData.adminUser.mobileNumber.trim()) {
       stepErrors.mobileNumber = "Mobile Number is required";
     }
-    if (!formData.adminUser.phoneCarrier.trim()) {
-      stepErrors.phoneCarrier = "Mobile Carrier is required";
-    }
-    
+
     return stepErrors;
   };
 
@@ -145,36 +143,40 @@ const DealershipWizardForm = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex-1 flex flex-col overflow-hidden">
       {/* Progress Bar */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>Step {currentStep === 'dealership' ? 1 : 2} of 2</span>
-          <span>{progressMap[currentStep]}% Complete</span>
+      <div className="px-6 pt-2 pb-4 border-b border-slate-100">
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs font-medium text-slate-600">
+            <span>Step {currentStep === 'dealership' ? 1 : 2} of 2</span>
+            <span>{progressMap[currentStep]}% Complete</span>
+          </div>
+          <Progress value={progressMap[currentStep]} className="h-2" />
         </div>
-        <Progress value={progressMap[currentStep]} className="h-2" />
       </div>
 
-      <Tabs value={currentStep} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger 
-            value="dealership" 
-            disabled={currentStep !== 'dealership'}
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
-          >
-            Dealership
-          </TabsTrigger>
-          <TabsTrigger 
-            value="admin" 
-            disabled={currentStep !== 'admin'}
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
-          >
-            Admin User
-          </TabsTrigger>
-        </TabsList>
+      <div className="flex-1 overflow-y-auto">
+        <Tabs value={currentStep} className="w-full">
+          <div className="border-b border-slate-100 px-6">
+            <TabsList className="grid w-full grid-cols-2 bg-transparent h-auto p-0">
+              <TabsTrigger
+                value="dealership"
+                disabled={currentStep !== 'dealership'}
+                className="text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent text-slate-600 hover:text-slate-900 disabled:opacity-40"
+              >
+                Dealership Information
+              </TabsTrigger>
+              <TabsTrigger
+                value="admin"
+                disabled={currentStep !== 'admin'}
+                className="text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent text-slate-600 hover:text-slate-900 disabled:opacity-40"
+              >
+                Admin User
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        <div className="mt-6 min-h-[400px]">
-          <TabsContent value="dealership">
+          <TabsContent value="dealership" className="px-6 py-6">
             <DealershipInfoStep
               formData={formData.dealership}
               errors={errors.dealership || {}}
@@ -182,7 +184,7 @@ const DealershipWizardForm = ({
             />
           </TabsContent>
 
-          <TabsContent value="admin">
+          <TabsContent value="admin" className="px-6 py-6">
             <AdminUserStep
               formData={formData.adminUser}
               dealershipData={formData.dealership}
@@ -190,54 +192,58 @@ const DealershipWizardForm = ({
               onChange={handleAdminChange}
             />
           </TabsContent>
-        </div>
-      </Tabs>
+        </Tabs>
+      </div>
 
       {/* Navigation */}
-      <div className="flex justify-between pt-4">
-        <div className="flex space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          {currentStep === 'admin' && (
+      <div className="border-t border-slate-100 px-6 py-4 flex-shrink-0 bg-slate-50">
+        <div className="flex justify-between items-center w-full">
+          <div className="flex gap-3">
             <Button
               type="button"
               variant="outline"
-              onClick={handleBack}
+              onClick={onCancel}
               disabled={isSubmitting}
+              className="h-11 px-6"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
+              Cancel
             </Button>
-          )}
-        </div>
+            {currentStep === 'admin' && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                disabled={isSubmitting}
+                className="h-11 px-6"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+            )}
+          </div>
 
-        <div>
-          {currentStep === 'dealership' ? (
-            <Button
-              type="button"
-              variant="custom-blue"
-              onClick={handleNext}
-              disabled={isSubmitting}
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              className="bg-accent hover:bg-accent/90"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Submitting..." : "Submit"}
-            </Button>
-          )}
+          <div>
+            {currentStep === 'dealership' ? (
+              <Button
+                type="button"
+                onClick={handleNext}
+                disabled={isSubmitting}
+                className="bg-custom-blue hover:bg-custom-blue/90 text-white h-11 px-6"
+              >
+                Next
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="bg-custom-blue hover:bg-custom-blue/90 text-white h-11 px-6"
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

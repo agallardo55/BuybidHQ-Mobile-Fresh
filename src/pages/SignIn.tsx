@@ -91,9 +91,16 @@ const SignIn = () => {
       if (mfaNeeded === true) {
         // User needs MFA - redirect to challenge
         const from = (location.state as any)?.from?.pathname || '/dashboard';
-        navigate('/auth/mfa-challenge', { 
-          state: { from: { pathname: from } },
-          replace: true 
+
+        // Store in sessionStorage so it persists across refreshes/redirects
+        sessionStorage.setItem('mfa_is_initial_signin', 'true');
+
+        navigate('/auth/mfa-challenge', {
+          state: {
+            from: { pathname: from },
+            isInitialSignIn: true  // Auto-send code on initial sign-in
+          },
+          replace: true
         });
       } else {
         // User doesn't need MFA - go to original destination

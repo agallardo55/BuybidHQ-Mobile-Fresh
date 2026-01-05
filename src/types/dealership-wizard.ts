@@ -8,6 +8,7 @@ export interface AdminUserFormData {
   email: string;
   mobileNumber: string;
   phoneCarrier: CarrierType | string;
+  accountType: 'basic' | 'individual' | 'associate';
   address: string;
   city: string;
   state: string;

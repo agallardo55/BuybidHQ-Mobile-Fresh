@@ -106,62 +106,76 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         onConfirm={handleConfirmDelete}
       />
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[600px] h-[90vh] sm:h-[500px] flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="text-lg sm:text-xl">Edit Buyer</DialogTitle>
+        <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[700px] h-[90vh] sm:h-auto max-h-[600px] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle className="text-2xl font-bold">Edit Buyer</DialogTitle>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-y-auto px-1 sm:px-2">
+            <div className="flex-1 overflow-y-auto">
               <Tabs defaultValue="buyer" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="buyer" className="text-xs sm:text-sm">Buyer Information</TabsTrigger>
-                  <TabsTrigger value="dealership" className="text-xs sm:text-sm">Dealership Information</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="buyer" className="space-y-4 mt-4">
-                  <PersonalInfoSection 
-                    formData={formData} 
+                <div className="border-b border-slate-100 px-6">
+                  <TabsList className="grid w-full grid-cols-2 bg-transparent h-auto p-0">
+                    <TabsTrigger
+                      value="buyer"
+                      className="text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent text-slate-600 hover:text-slate-900"
+                    >
+                      Buyer Information
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="dealership"
+                      className="text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent text-slate-600 hover:text-slate-900"
+                    >
+                      Dealership Information
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+
+                <TabsContent value="buyer" className="px-6 py-6 space-y-4">
+                  <PersonalInfoSection
+                    formData={formData}
                     onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
                     formatPhoneNumber={formatPhoneNumber}
                   />
                 </TabsContent>
-                
-                <TabsContent value="dealership" className="space-y-4 mt-4">
-                  <DealershipSection 
-                    formData={formData} 
+
+                <TabsContent value="dealership" className="px-6 py-6 space-y-6">
+                  <DealershipSection
+                    formData={formData}
                     onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
                   />
-                  <AddressSection 
-                    formData={formData} 
+                  <AddressSection
+                    formData={formData}
                     onFormDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
                   />
                 </TabsContent>
               </Tabs>
             </div>
 
-            <DialogFooter className="border-t pt-4 flex-shrink-0">
+            <DialogFooter className="border-t border-slate-100 px-6 py-4 flex-shrink-0 bg-slate-50">
               <div className="flex justify-between items-center w-full">
                 <Button
                   type="button"
                   variant="destructive"
                   onClick={handleDelete}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="bg-red-600 hover:bg-red-700 text-white h-11 px-6"
                 >
                   Delete
                 </Button>
-                
-                <div className="flex gap-4 ml-auto">
+
+                <div className="flex gap-3 ml-auto">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleCancel}
+                    className="h-11 px-6"
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     type="submit"
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                    className="bg-custom-blue hover:bg-custom-blue/90 text-white h-11 px-6"
                   >
                     Update
                   </Button>

@@ -43,12 +43,12 @@ export const useBuyersQuery = () => {
           return [];
         }
 
-        logger.debug("🔍 useBuyersQuery: Fetching buyers for user:", currentUser.id, "role:", currentUser?.role);
+        logger.debug("🔍 useBuyersQuery: Fetching buyers for user:", currentUser.id, "role:", currentUser?.role, "account_id:", currentUser?.account_id);
 
-        logger.debug('🔍 useBuyersQuery: About to query Supabase', { userId, userRole });
+        logger.debug('🔍 useBuyersQuery: About to query Supabase', { userId, userRole, accountId: currentUser?.account_id });
 
-        // Fetch buyers data - add proper error handling for 406
-        const { data: buyersData, error: buyersError } = await supabase
+        // Build the query with account filtering for non-super_admin users
+        let buyersQuery = supabase
           .from('buyers')
           .select(`
             id,
@@ -70,6 +70,16 @@ export const useBuyersQuery = () => {
           .abortSignal(signal as AbortSignal)
           .order('created_at', { ascending: false });
 
+        // Filter by account for all users except super_admin
+        // Individual dealers and team members should only see buyers from their account
+        if (currentUser?.app_role !== 'super_admin' && currentUser?.account_id) {
+          buyersQuery = buyersQuery.eq('account_id', currentUser.account_id);
+          logger.debug('🔍 useBuyersQuery: Filtering by account_id:', currentUser.account_id);
+        }
+
+        // Fetch buyers data - add proper error handling for 406
+        const { data: buyersData, error: buyersError } = await buyersQuery;
+
         if (buyersError) {
           logger.error("Buyer fetch error:", buyersError);
           if (buyersError.code === 'PGRST116') {
@@ -84,14 +94,26 @@ export const useBuyersQuery = () => {
           return [];
         }
 
-        // Fetch bid response counts for all buyers
-        const { data: bidCounts, error: countsError } = await supabase
-          .from('bid_responses')
-          .select('buyer_id, status')
-          .returns<Array<{
-            buyer_id: string;
-            status: 'accepted' | 'pending' | 'declined';
-          }>>();
+        // Fetch bid response counts only for buyers in the current account
+        // Extract buyer IDs to filter bid_responses
+        const buyerIds = buyersData.map(buyer => buyer.id);
+
+        let bidCounts: Array<{ buyer_id: string; status: 'accepted' | 'pending' | 'declined' }> | null = null;
+        let countsError = null;
+
+        if (buyerIds.length > 0) {
+          const { data, error } = await supabase
+            .from('bid_responses')
+            .select('buyer_id, status')
+            .in('buyer_id', buyerIds)
+            .returns<Array<{
+              buyer_id: string;
+              status: 'accepted' | 'pending' | 'declined';
+            }>>();
+
+          bidCounts = data;
+          countsError = error;
+        }
 
         if (countsError) {
           logger.error("Bid counts fetch error:", countsError);

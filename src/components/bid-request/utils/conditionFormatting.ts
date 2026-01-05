@@ -1,5 +1,5 @@
 
-type ConditionType = 'windshield' | 'engineLights' | 'brakesTires' | 'maintenance';
+type ConditionType = 'windshield' | 'engineLights' | 'brakesTires' | 'maintenance' | 'history';
 
 const displayMaps = {
   windshield: {
@@ -29,6 +29,15 @@ const displayMaps = {
     basicService: "Basic service needed",
     minorService: "Minor service needed",
     majorService: "Major service needed"
+  },
+  history: {
+    notSpecified: "Not Specified",
+    noAccidents: "No Accidents",
+    minorAccident: "Minor Accident",
+    odomError: "Odometer Error",
+    majorAccident: "Major Accident",
+    brandedIssue: "Branded Title",
+    unknown: "Unknown"
   }
 };
 
@@ -40,6 +49,7 @@ export const getConditionDisplay = (value: string | undefined, type: ConditionTy
   const map = type === 'brakesTires' ? displayMaps.brakesTires :
               type === 'maintenance' ? displayMaps.maintenance :
               type === 'engineLights' ? displayMaps.engineLights :
+              type === 'history' ? displayMaps.history :
               displayMaps.windshield;
 
   // Handle comma-separated values (multiple selections)

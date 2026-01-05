@@ -18,7 +18,7 @@ const Reconditioning = ({ request }: ReconditioningProps) => {
           <div className="text-sm">
             <div className="font-bold text-black mb-1">Details:</div>
             <div className="font-normal whitespace-pre-wrap p-2 rounded-md max-h-[200px] overflow-y-auto block w-full bg-gray-50">
-              {request.reconDetails || 'No details provided'}
+              {request.reconDetails || 'Not Specified'}
             </div>
           </div>
         </div>

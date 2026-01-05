@@ -14,7 +14,7 @@ export const BetaNoticeModal = ({ open, onOpenChange }: BetaNoticeModalProps) =>
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-0 gap-0">
+      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-0 gap-0" hideCloseButton>
         {/* Gradient Header Section */}
         <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 px-6 py-8 text-center">
           {/* Close Button */}

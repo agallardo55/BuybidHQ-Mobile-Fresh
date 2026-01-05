@@ -6,10 +6,17 @@ import { BidRequest } from "@/components/bid-request/types";
 
 /**
  * Hook for fetching bid requests specifically for BidRequestDashboard
- * Applies user-scoped filtering: regular users see only their own, admins see all
- * Note: RLS policies handle the initial filtering, but Market View policy allows all,
- * so we apply additional filtering here for non-admin users
- * 
+ *
+ * FILTERING LOGIC:
+ * 1. Database-level (useBidRequestQuery): Filters by account_id for all non-super_admin users
+ *    - Individual dealers see only bid requests from their own account
+ *    - Team members see only bid requests from their account
+ *    - Super admins see all bid requests (no account filter)
+ *
+ * 2. Client-level (this hook): Additional filtering based on role
+ *    - account_admin users see ALL bid requests from their account
+ *    - Regular team members see only their OWN bid requests (user_id filter)
+ *
  * Returns the same interface as useBidRequests for easy drop-in replacement
  */
 export const useBidRequestsForDashboard = () => {
@@ -17,11 +24,10 @@ export const useBidRequestsForDashboard = () => {
   const { data: allBidRequests = [], isLoading } = useBidRequestQuery(!!currentUser);
   const { mutate: updateBidRequestStatus } = useBidRequestMutation();
 
-  // Determine if user is admin/super_admin
-  const isAdmin = useMemo(() => {
+  // Determine if user is account admin or super admin
+  const isAccountAdmin = useMemo(() => {
     if (!currentUser) return false;
     return (
-      currentUser.role === 'admin' ||
       currentUser.app_role === 'super_admin' ||
       currentUser.app_role === 'account_admin'
     );
@@ -29,12 +35,13 @@ export const useBidRequestsForDashboard = () => {
 
   // Filter bid requests based on user role
   const bidRequests = useMemo(() => {
-    if (isAdmin) {
-      // Admins see all bid requests (no filtering needed)
+    if (isAccountAdmin) {
+      // Account admins see all bid requests from their account (already filtered by query)
+      // Super admins see all bid requests globally (no account filter in query)
       return allBidRequests;
     }
-    
-    // Regular users only see their own bid requests (where user_id matches)
+
+    // Regular team members only see their own bid requests (where user_id matches)
     if (!currentUser?.id) {
       return [];
     }
@@ -43,7 +50,7 @@ export const useBidRequestsForDashboard = () => {
       // Regular users only see bid requests they created
       return request.userId === currentUser.id;
     });
-  }, [allBidRequests, isAdmin, currentUser?.id]);
+  }, [allBidRequests, isAccountAdmin, currentUser?.id]);
 
   const updateBidRequest = (id: string, status: "pending" | "accepted" | "declined") => {
     updateBidRequestStatus({ id, status });

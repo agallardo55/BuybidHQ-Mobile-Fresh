@@ -64,7 +64,8 @@ export const useBidRequestSubmission = () => {
         maintenance: formData.maintenance || 'notSpecified',
         recon_estimate: extractNumericValue(formData.reconEstimate),
         recon_details: formData.reconDetails || 'No additional details',
-        history: formData.history || 'unknown'
+        history: formData.history || 'unknown',
+        history_service: formData.historyService || 'Unknown'
       };
 
       // Create the bid request
@@ -127,9 +128,13 @@ export const useBidRequestSubmission = () => {
       }
 
       // Send notifications via Twilio to selected buyers
-      for (const buyerId of selectedBuyers) {
-        logger.debug(`[${requestId}] Processing buyer ID:`, buyerId);
-        
+      logger.debug(`[${requestId}] 📋 Total buyers selected:`, selectedBuyers.length);
+      logger.debug(`[${requestId}] 📋 Buyer IDs:`, selectedBuyers);
+
+      for (let i = 0; i < selectedBuyers.length; i++) {
+        const buyerId = selectedBuyers[i];
+        logger.debug(`[${requestId}] 🔄 Processing buyer ${i + 1}/${selectedBuyers.length} - ID:`, buyerId);
+
         // Get buyer details
         const { data: buyerData, error: buyerError } = await supabase
           .from('buyers')
@@ -138,11 +143,17 @@ export const useBidRequestSubmission = () => {
           .single();
 
         if (buyerError) {
-          logger.error(`[${requestId}] Error fetching buyer details:`, buyerError);
+          logger.error(`[${requestId}] ❌ Error fetching buyer ${i + 1} details:`, buyerError);
           continue;
         }
 
+        logger.debug(`[${requestId}] ✅ Buyer ${i + 1} details retrieved:`, {
+          name: buyerData.buyer_name,
+          mobile: buyerData.buyer_mobile
+        });
+
         // Generate bid submission token
+        logger.debug(`[${requestId}] 🔑 Generating token for buyer ${i + 1}:`, buyerData.buyer_name);
         const { data: tokenResponse, error: tokenError } = await supabase
           .rpc('generate_bid_submission_token', {
             p_bid_request_id: bidRequestData,
@@ -150,22 +161,31 @@ export const useBidRequestSubmission = () => {
           });
 
         if (tokenError || !tokenResponse) {
-          logger.error(`[${requestId}] Error generating token:`, tokenError);
+          logger.error(`[${requestId}] ❌ Error generating token for buyer ${i + 1}:`, tokenError);
           toast.error(`Failed to generate secure link for ${buyerData.buyer_name}`);
           continue;
         }
 
+        logger.debug(`[${requestId}] ✅ Token generated for buyer ${i + 1}:`, tokenResponse);
+
         // Generate bid submission URL with secure token
         const baseUrl = import.meta.env.VITE_APP_URL;
-        
+
         if (!baseUrl) {
-          logger.error(`[${requestId}] VITE_APP_URL environment variable not set`);
+          logger.error(`[${requestId}] ❌ VITE_APP_URL environment variable not set`);
           toast.error(`Configuration error: Unable to generate bid URL for ${buyerData.buyer_name}`);
           continue;
         }
         const bidRequestUrl = `${baseUrl}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenResponse)}`;
 
+        logger.debug(`[${requestId}] 🔗 Generated URL for buyer ${i + 1}:`, bidRequestUrl);
+
         // Send notification via Twilio
+        logger.debug(`[${requestId}] 📱 Sending SMS to buyer ${i + 1}:`, {
+          name: buyerData.buyer_name,
+          phone: buyerData.buyer_mobile
+        });
+
         const { error: twilioError } = await supabase.functions.invoke('send-twilio-sms', {
           body: {
             type: 'bid_request',
@@ -181,15 +201,18 @@ export const useBidRequestSubmission = () => {
         });
 
         if (twilioError) {
-          logger.error(`[${requestId}] Error sending notification to buyer:`, {
+          logger.error(`[${requestId}] ❌ Error sending notification to buyer ${i + 1}:`, {
             name: buyerData.buyer_name,
             error: twilioError
           });
           toast.error(`Failed to send notification to ${buyerData.buyer_name}`);
         } else {
-          logger.debug(`[${requestId}] Notification sent successfully to:`, buyerData.buyer_name);
+          logger.debug(`[${requestId}] ✅ Notification sent successfully to buyer ${i + 1}:`, buyerData.buyer_name);
+          toast.success(`Notification sent to ${buyerData.buyer_name}`);
         }
       }
+
+      logger.debug(`[${requestId}] 🏁 Finished processing all ${selectedBuyers.length} buyers`);
 
       toast.success('Bid request created successfully');
       navigate('/dashboard');

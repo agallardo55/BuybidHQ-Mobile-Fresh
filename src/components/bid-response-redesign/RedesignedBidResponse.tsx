@@ -45,13 +45,14 @@ const useQuickBidDetails = () => {
         vehicle_engine: request.vehicle_engine,
         vehicle_transmission: request.vehicle_transmission,
         vehicle_drivetrain: request.vehicle_drivetrain,
+        vehicle_body_style: request.vehicle_body_style,
         buyer_name: request.buyer_name,
         buyer_dealership: request.buyer_dealership,
         buyer_mobile: request.buyer_mobile,
         is_used: request.is_used,
         submitted_offer_amount: request.submitted_offer_amount,
         submitted_at: request.submitted_at,
-        vehicle_images: Array.isArray(request.vehicle_images) 
+        vehicle_images: Array.isArray(request.vehicle_images)
           ? request.vehicle_images as string[]
           : [],
         vehicle_exterior_color: request.vehicle_exterior_color,

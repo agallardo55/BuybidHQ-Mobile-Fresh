@@ -47,20 +47,30 @@ export const getPlanButtonConfig = (
 
 /**
  * Determines if a user should be able to see offer prices in Market View
- * Admins and super_admins can ALWAYS see prices regardless of plan
- * Paid users (connect, annual, group) can see prices
- * Free plan users (non-admin) cannot see prices
+ *
+ * PRICING VISIBILITY RULES:
+ * - Beta (free) plan: NO price visibility (must upgrade to Connect/Annual)
+ * - Connect ($99/month) plan: YES price visibility
+ * - Annual ($599/year) plan: YES price visibility (stored as 'connect' with billing_cycle='annual')
+ * - Super admins: YES price visibility (system admin override)
+ *
+ * NOTE: Individual dealers on beta plan CANNOT see prices even though they're account_admins.
+ * They must upgrade to Connect or Annual to see marketplace prices.
  */
 export const canUserSeePrices = (
-  accountPlan: string | undefined, 
-  userRole?: string, 
+  accountPlan: string | undefined,
+  userRole?: string,
   userAppRole?: string
 ): boolean => {
-  // Admins and super_admins can ALWAYS see prices, regardless of plan
-  if (userRole === 'admin' || userAppRole === 'super_admin') {
+  // Only super_admins can override plan restrictions
+  // (Individual dealers on free plan still cannot see prices)
+  if (userAppRole === 'super_admin') {
     return true;
   }
-  // Unpaid users (free plan) cannot see prices
-  // Paid users (connect, annual, group plans) can see prices
+
+  // All other users depend on their account plan:
+  // - 'free' (beta) = NO price visibility
+  // - 'connect' (monthly or annual) = YES price visibility
+  // - 'group'/'dealership' (future) = YES price visibility
   return accountPlan !== 'free';
 };

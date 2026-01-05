@@ -53,9 +53,9 @@ const DealershipDialogs = ({
   return (
     <>
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="w-full max-w-[95vw] sm:max-w-[600px] lg:max-w-[650px] h-[900px] max-h-[90vh] md:max-h-[95vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Add New Dealership</DialogTitle>
+        <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[700px] h-[90vh] sm:h-auto max-h-[600px] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle className="text-2xl font-bold">Add New Dealership</DialogTitle>
           </DialogHeader>
           <DealershipWizardForm
             onSubmit={onCreateSubmit}
@@ -66,9 +66,9 @@ const DealershipDialogs = ({
       </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="w-full max-w-[95vw] sm:max-w-[700px] lg:max-w-[750px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Dealership</DialogTitle>
+        <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[700px] h-[90vh] sm:h-auto max-h-[600px] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle className="text-2xl font-bold">Edit Dealership</DialogTitle>
           </DialogHeader>
           {selectedDealership && (
             <EditDealershipForm

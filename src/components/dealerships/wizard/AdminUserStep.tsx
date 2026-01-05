@@ -11,25 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 interface AdminUserStepProps {
   formData: AdminUserFormData;
   dealershipData: DealershipFormData;
   errors: Record<string, string>;
   onChange: (field: keyof AdminUserFormData, value: string | boolean) => void;
 }
-
-const CARRIER_OPTIONS = [
-  'Verizon Wireless',
-  'AT&T',
-  'T-Mobile',
-  'Sprint',
-  'US Cellular',
-  'Metro PCS',
-  'Boost Mobile',
-  'Cricket',
-  'Virgin Mobile'
-] as const;
 
 const AdminUserStep = ({
   formData,
@@ -115,25 +102,26 @@ const AdminUserStep = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phoneCarrier">Mobile Carrier</Label>
+            <Label htmlFor="accountType">Account Type</Label>
             <Select
-              value={formData.phoneCarrier}
-              onValueChange={(value) => onChange('phoneCarrier', value)}
+              value={formData.accountType}
+              onValueChange={(value) => onChange('accountType', value)}
             >
-              <SelectTrigger className={errors.phoneCarrier ? "border-destructive" : ""}>
-                <SelectValue placeholder="Select carrier" />
+              <SelectTrigger className={errors.accountType ? "border-destructive" : ""}>
+                <SelectValue placeholder="Select account type" />
               </SelectTrigger>
               <SelectContent>
-                {CARRIER_OPTIONS.map(carrier => (
-                  <SelectItem key={carrier} value={carrier}>
-                    {carrier}
-                  </SelectItem>
-                ))}
+                <SelectItem value="basic">Basic - Standard access</SelectItem>
+                <SelectItem value="individual">Individual - Enhanced dealer features</SelectItem>
+                <SelectItem value="associate">Associate - Limited access</SelectItem>
               </SelectContent>
             </Select>
-            {errors.phoneCarrier && (
-              <p className="text-sm text-destructive">{errors.phoneCarrier}</p>
+            {errors.accountType && (
+              <p className="text-sm text-destructive">{errors.accountType}</p>
             )}
+            <p className="text-xs text-muted-foreground">
+              This determines the user's access level and available features
+            </p>
           </div>
         </div>
 

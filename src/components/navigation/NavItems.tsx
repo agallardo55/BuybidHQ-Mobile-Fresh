@@ -29,7 +29,7 @@ const NavItems = ({ items, onClick, className = "" }: NavItemsProps) => {
           onClick={onClick}
         >
           <span
-            className={`text-[13px] font-medium tracking-tight transition-colors ${
+            className={`text-base font-medium tracking-normal transition-colors ${
               isActive(item.href)
                 ? "text-brand"
                 : "text-slate-600 hover:text-slate-900"

@@ -8,7 +8,7 @@ interface VehicleDetailsProps {
 const VehicleDetails = ({ request }: VehicleDetailsProps) => {
   // Handle both flat structure and nested vehicle structure
   const vehicle = (request as any).vehicle || request;
-  
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
       <div className="bg-white p-3 rounded-lg border">

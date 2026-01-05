@@ -251,49 +251,44 @@ const BidRequestTabs = ({ request, onStatusUpdate, onBidRequestStatusUpdate }: B
                       )}
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3">
-                      {buyer.hasResponded && buyer.offerAmount !== undefined ? (
-                        <>
-                          <div className="text-right">
-                            <p className="text-lg font-semibold text-green-600">
-                              ${buyer.offerAmount.toLocaleString()}
-                            </p>
-                          </div>
-                          <div onClick={(e) => e.stopPropagation()}>
-                            <Select
-                              value={getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending')}
-                              onValueChange={(value: "pending" | "accepted" | "declined") => {
-                                if (buyer.responseId) {
-                                  handleStatusUpdate(buyer.responseId, value);
-                                }
-                              }}
-                              disabled={loadingOffers.has(buyer.responseId || buyer.id)}
-                            >
-                              <SelectTrigger className={`w-full sm:w-[110px] h-8 text-xs sm:text-sm focus:ring-0 focus:ring-offset-0 ${loadingOffers.has(buyer.responseId || buyer.id) ? 'opacity-50' : ''}
-                                ${getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending') === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
-                                ${getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending') === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
-                              `}>
-                                {loadingOffers.has(buyer.responseId || buyer.id) ? (
-                                  <div className="flex items-center gap-1">
-                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                    <span className="text-xs">Updating...</span>
-                                  </div>
-                                ) : (
-                                  <SelectValue>{getStatusDisplayText(getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending'))}</SelectValue>
-                                )}
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pending" className="data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-700 focus:!bg-gray-100 focus:!text-gray-700 [&>span:first-child]:hidden">Pending</SelectItem>
-                                <SelectItem value="accepted" className="data-[highlighted]:!bg-green-100 data-[highlighted]:!text-green-700 focus:!bg-green-100 focus:!text-green-700 [&>span:first-child]:hidden">Accepted</SelectItem>
-                                <SelectItem value="declined" className="data-[highlighted]:!bg-red-100 data-[highlighted]:!text-red-700 focus:!bg-red-100 focus:!text-red-700 [&>span:first-child]:hidden">Not Selected</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </>
-                      ) : (
+                      {buyer.hasResponded && buyer.offerAmount !== undefined && (
                         <div className="text-right">
-                          <p className="text-sm text-gray-500">Pending</p>
+                          <p className="text-lg font-semibold text-green-600">
+                            ${buyer.offerAmount.toLocaleString()}
+                          </p>
                         </div>
                       )}
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <Select
+                          value={getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending')}
+                          onValueChange={(value: "pending" | "accepted" | "declined") => {
+                            if (buyer.responseId && buyer.hasResponded) {
+                              handleStatusUpdate(buyer.responseId, value);
+                            }
+                          }}
+                          disabled={!buyer.hasResponded || buyer.offerAmount === undefined || loadingOffers.has(buyer.responseId || buyer.id)}
+                        >
+                          <SelectTrigger className={`w-full sm:w-[110px] h-8 text-xs sm:text-sm focus:ring-0 focus:ring-offset-0 ${
+                            (!buyer.hasResponded || buyer.offerAmount === undefined || loadingOffers.has(buyer.responseId || buyer.id)) ? 'opacity-50' : ''
+                          } ${getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending') === 'accepted' ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' : ''}
+                            ${getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending') === 'declined' ? 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' : ''}
+                          `}>
+                            {loadingOffers.has(buyer.responseId || buyer.id) ? (
+                              <div className="flex items-center gap-1">
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                <span className="text-xs">Updating...</span>
+                              </div>
+                            ) : (
+                              <SelectValue>{getStatusDisplayText(getCurrentStatus(buyer.responseId || buyer.id, buyer.offerStatus || 'pending'))}</SelectValue>
+                            )}
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending" className="data-[highlighted]:!bg-gray-100 data-[highlighted]:!text-gray-700 focus:!bg-gray-100 focus:!text-gray-700 [&>span:first-child]:hidden">Pending</SelectItem>
+                            <SelectItem value="accepted" className="data-[highlighted]:!bg-green-100 data-[highlighted]:!text-green-700 focus:!bg-green-100 focus:!text-green-700 [&>span:first-child]:hidden">Accepted</SelectItem>
+                            <SelectItem value="declined" className="data-[highlighted]:!bg-red-100 data-[highlighted]:!text-red-700 focus:!bg-red-100 focus:!text-red-700 [&>span:first-child]:hidden">Not Selected</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
                 </div>

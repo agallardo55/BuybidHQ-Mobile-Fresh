@@ -12,6 +12,7 @@ export interface QuickBidDetails {
   vehicle_engine: string;
   vehicle_transmission: string;
   vehicle_drivetrain: string;
+  vehicle_body_style?: string;
   vehicle_exterior_color: string;
   vehicle_interior_color: string;
   vehicle_accessories: string;

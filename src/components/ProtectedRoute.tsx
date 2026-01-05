@@ -61,7 +61,14 @@ export const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
 
   // Authenticated but needs MFA - redirect to MFA challenge
   if (needsMFA) {
-    return <Navigate to="/auth/mfa-challenge" state={{ from: location }} replace />;
+    return <Navigate
+      to="/auth/mfa-challenge"
+      state={{
+        from: location,
+        isInitialSignIn: false  // Not initial sign-in, require manual code send
+      }}
+      replace
+    />;
   }
 
   // Authenticated and MFA verified (or not required) - allow access

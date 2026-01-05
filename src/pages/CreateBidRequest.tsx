@@ -42,6 +42,7 @@ const CreateBidRequest = () => {
     uploadedImageUrls,
     selectedFileUrls,
     setUploadedImageUrls,
+    setSelectedFileUrls,
     removeUploadedImage
   } = useCreateBidRequest();
 
@@ -164,9 +165,16 @@ const CreateBidRequest = () => {
             <div className="lg:col-span-4">
               <div className="lg:sticky lg:top-24">
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6">
-                  <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-600 mb-6">
-                    Vehicle Identity
-                  </h3>
+                  {/* Step 1 Indicator */}
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full border-2 border-custom-blue flex items-center justify-center bg-custom-blue/10">
+                      <span className="text-lg font-bold text-custom-blue">1</span>
+                    </div>
+                    <div>
+                      <h3 className="text-[11px] font-bold uppercase tracking-widest text-custom-blue">VEHICLE IDENTITY</h3>
+                      <p className="text-[10px] text-slate-500">Basic information</p>
+                    </div>
+                  </div>
                   <BasicVehicleInfo
                     formData={formData}
                     errors={errors}
@@ -201,6 +209,7 @@ const CreateBidRequest = () => {
                   onBatchChange={handleBatchChanges}
                   uploadedImageUrls={uploadedImageUrls}
                   selectedFileUrls={selectedFileUrls}
+                  setSelectedFileUrls={setSelectedFileUrls}
                   onDeleteImage={handleDeleteImage}
                 />
               </div>

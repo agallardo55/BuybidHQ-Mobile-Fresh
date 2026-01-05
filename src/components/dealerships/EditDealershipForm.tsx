@@ -65,62 +65,81 @@ const EditDealershipForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Tabs defaultValue="dealership" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="dealership">Dealership</TabsTrigger>
-          <TabsTrigger value="account-admin">Account Admin</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="dealership" className="mt-6 space-y-6">
-          <BasicInfoSection
-            dealerName={formData.dealerName}
-            dealerId={formData.dealerId}
-            businessPhone={formData.businessPhone}
-            businessEmail={formData.businessEmail}
-            onChange={handleChange}
-          />
+    <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <Tabs defaultValue="dealership" className="w-full">
+          <div className="border-b border-slate-100 px-6">
+            <TabsList className="grid w-full grid-cols-2 bg-transparent h-auto p-0">
+              <TabsTrigger
+                value="dealership"
+                className="text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent text-slate-600 hover:text-slate-900"
+              >
+                Dealership Information
+              </TabsTrigger>
+              <TabsTrigger
+                value="account-admin"
+                className="text-[11px] font-bold uppercase tracking-widest py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-custom-blue data-[state=active]:text-custom-blue data-[state=active]:bg-transparent text-slate-600 hover:text-slate-900"
+              >
+                Account Admin
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <AddressSection
-            address={formData.address}
-            city={formData.city}
-            state={formData.state}
-            zipCode={formData.zipCode}
-            onChange={handleChange}
-          />
-        </TabsContent>
-        
-        <TabsContent value="account-admin" className="mt-6">
-          <AccountAdminSection dealership={dealership} />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="dealership" className="px-6 py-6 space-y-6">
+            <BasicInfoSection
+              dealerName={formData.dealerName}
+              dealerId={formData.dealerId}
+              businessPhone={formData.businessPhone}
+              businessEmail={formData.businessEmail}
+              onChange={handleChange}
+            />
 
-      <div className="flex justify-between items-center pt-4 border-t">
-        {onDelete && (
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={onDelete}
-            disabled={isSubmitting}
-          >
-            Delete Account
-          </Button>
-        )}
-        <div className="flex space-x-4 ml-auto">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Saving..." : "Save"}
-          </Button>
+            <AddressSection
+              address={formData.address}
+              city={formData.city}
+              state={formData.state}
+              zipCode={formData.zipCode}
+              onChange={handleChange}
+            />
+          </TabsContent>
+
+          <TabsContent value="account-admin" className="px-6 py-6">
+            <AccountAdminSection dealership={dealership} />
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <div className="border-t border-slate-100 px-6 py-4 flex-shrink-0 bg-slate-50">
+        <div className="flex justify-between items-center w-full">
+          {onDelete && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={onDelete}
+              disabled={isSubmitting}
+              className="bg-red-600 hover:bg-red-700 text-white h-11 px-6"
+            >
+              Delete Account
+            </Button>
+          )}
+          <div className="flex gap-3 ml-auto">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className="h-11 px-6"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-custom-blue hover:bg-custom-blue/90 text-white h-11 px-6"
+            >
+              {isSubmitting ? "Saving..." : "Save"}
+            </Button>
+          </div>
         </div>
       </div>
     </form>

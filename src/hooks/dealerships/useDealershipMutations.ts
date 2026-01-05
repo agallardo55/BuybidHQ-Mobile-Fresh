@@ -40,12 +40,12 @@ export const useDealershipMutations = () => {
         full_name: data.adminUser.fullName,
         email: data.adminUser.email,
         mobile_number: data.adminUser.mobileNumber,
-        phone_carrier: data.adminUser.phoneCarrier,
+        phone_carrier: data.adminUser.phoneCarrier || null,
         address: data.adminUser.address || null,
         city: data.adminUser.city || null,
         state: data.adminUser.state || null,
         zip_code: data.adminUser.zipCode || null,
-        role: 'admin' as const,
+        role: data.adminUser.accountType as const,
         is_active: data.adminUser.isActive,
         dealership_id: dealershipResult.id,
       };
@@ -63,34 +63,43 @@ export const useDealershipMutations = () => {
         throw new Error(`Failed to create admin user: ${userError.message}`);
       }
 
-      // Create account administrator entry
-      const { error: accountAdminError } = await supabase
-        .from('account_administrators')
-        .insert([{
-          user_id: userResult.id,
-          account_id: userResult.account_id,
-          email: userResult.email,
-          full_name: userResult.full_name,
-          mobile_number: userResult.mobile_number,
-          status: 'active',
-          granted_by: userResult.id, // Self-granted during creation
-          granted_at: new Date().toISOString()
-        }]);
+      // Map account type to app_role
+      const appRoleMap: Record<string, string> = {
+        'basic': 'member',
+        'individual': 'account_admin',
+        'associate': 'member'
+      };
 
-      if (accountAdminError) {
-        console.error('Account admin creation error:', accountAdminError);
-        // Don't fail the whole operation for this
-      }
-
-      // Update user app_role to account_admin
+      // Update user app_role based on account type
       const { error: roleUpdateError } = await supabase
         .from('buybidhq_users')
-        .update({ app_role: 'account_admin' })
+        .update({ app_role: appRoleMap[data.adminUser.accountType] || 'member' })
         .eq('id', userResult.id);
 
       if (roleUpdateError) {
         console.error('Role update error:', roleUpdateError);
         // Don't fail the whole operation for this
+      }
+
+      // Only create account_admin entry for 'individual' type
+      if (data.adminUser.accountType === 'individual') {
+        const { error: accountAdminError } = await supabase
+          .from('account_administrators')
+          .insert([{
+            user_id: userResult.id,
+            account_id: userResult.account_id,
+            email: userResult.email,
+            full_name: userResult.full_name,
+            mobile_number: userResult.mobile_number,
+            status: 'active',
+            granted_by: userResult.id, // Self-granted during creation
+            granted_at: new Date().toISOString()
+          }]);
+
+        if (accountAdminError) {
+          console.error('Account admin creation error:', accountAdminError);
+          // Don't fail the whole operation for this
+        }
       }
 
       console.log('Created dealership and admin user:', { dealershipResult, userResult });

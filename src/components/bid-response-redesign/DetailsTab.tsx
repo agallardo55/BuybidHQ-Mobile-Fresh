@@ -26,6 +26,7 @@ const DetailsTab = ({ vehicle }: DetailsTabProps) => {
           <DetailItem label="Make" value={vehicle.vehicle_make} />
           <DetailItem label="Model" value={vehicle.vehicle_model} />
           <DetailItem label="Trim" value={vehicle.vehicle_trim} />
+          <DetailItem label="Body Style" value={vehicle.vehicle_body_style} />
         </CardContent>
       </Card>
 

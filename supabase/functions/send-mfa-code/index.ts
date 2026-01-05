@@ -67,9 +67,46 @@ serve(async (req) => {
       if (mobileError || !buybidhqUser?.mobile_number) {
         throw new Error('No phone number found for user')
       }
-      
+
       phoneNumber = buybidhqUser.mobile_number
     }
+
+    // RATE LIMITING: Prevent abuse - max 3 code sends per 5 minutes
+    const RATE_LIMIT_WINDOW = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const MAX_SENDS_PER_WINDOW = 3;
+    const fiveMinutesAgo = new Date(Date.now() - RATE_LIMIT_WINDOW).toISOString();
+
+    const { data: recentSends, error: recentError } = await supabaseClient
+      .from('sms_verification_codes')
+      .select('created_at')
+      .eq('user_id', user.id)
+      .gte('created_at', fiveMinutesAgo)
+      .order('created_at', { ascending: false });
+
+    if (recentError) {
+      console.warn('Error checking rate limit:', recentError);
+      // Don't block on rate limit check error - fail open
+    } else if (recentSends && recentSends.length >= MAX_SENDS_PER_WINDOW) {
+      const oldestSend = new Date(recentSends[recentSends.length - 1].created_at);
+      const waitTime = Math.ceil((RATE_LIMIT_WINDOW - (Date.now() - oldestSend.getTime())) / 1000);
+
+      console.warn(`Rate limit exceeded for user ${user.id}. ${recentSends.length} sends in last 5 minutes.`);
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `Too many code requests. Please wait ${waitTime} seconds before trying again.`,
+          rate_limited: true,
+          wait_seconds: waitTime
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 429
+        }
+      );
+    }
+
+    console.log(`Rate limit check passed: ${recentSends?.length || 0} sends in last 5 minutes`)
 
     // Clean up any existing unverified codes for this user
     const { error: cleanupError } = await supabaseClient

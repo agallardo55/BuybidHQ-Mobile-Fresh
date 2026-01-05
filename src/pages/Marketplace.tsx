@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import MarketplaceFilters from "@/components/marketplace/MarketplaceFilters";
 import MarketplaceGrid from "@/components/marketplace/MarketplaceGrid";
 import MarketplaceVehicleDialog from "@/components/marketplace/MarketplaceVehicleDialog";
+import Pagination from "@/components/marketplace/Pagination";
 import { useBidRequests } from "@/hooks/useBidRequests";
 import { usePrefetchVehicleDetails } from "@/hooks/marketplace/usePrefetchVehicleDetails";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -34,6 +35,8 @@ const Marketplace = () => {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12; // Show 12 vehicles per page (4 columns x 3 rows)
   const handleViewDetails = (vehicleId: string) => {
     setSelectedVehicleId(vehicleId);
     setIsDialogOpen(true);
@@ -41,6 +44,11 @@ const Marketplace = () => {
   const handleVehicleHover = (vehicleId: string) => {
     prefetchImages(vehicleId);
   };
+
+  // Reset to page 1 when filters or sort order change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, sortOrder]);
 
   // Find selected request from already-loaded data
   const selectedRequest = useMemo(() => {
@@ -146,6 +154,20 @@ const Marketplace = () => {
     });
   }, [bidRequests, filters, sortOrder]);
 
+  // Pagination logic
+  const paginatedData = useMemo(() => {
+    const totalPages = Math.ceil(vehicles.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedVehicles = vehicles.slice(startIndex, endIndex);
+
+    return {
+      vehicles: paginatedVehicles,
+      totalPages,
+      totalItems: vehicles.length,
+    };
+  }, [vehicles, currentPage, itemsPerPage]);
+
   // Determine if user should see prices (admins/super_admins always can, paid users can, free users cannot)
   const shouldShowPrices = useMemo(() => {
     return canUserSeePrices(
@@ -214,14 +236,23 @@ const Marketplace = () => {
                 </p>
               </div>
             ) : (
-              <MarketplaceGrid
-                vehicles={vehicles}
-                onViewDetails={handleViewDetails}
-                onVehicleHover={handleVehicleHover}
-                sortOrder={sortOrder}
-                onSortChange={setSortOrder}
-                shouldShowPrices={shouldShowPrices}
-              />
+              <>
+                <MarketplaceGrid
+                  vehicles={paginatedData.vehicles}
+                  onViewDetails={handleViewDetails}
+                  onVehicleHover={handleVehicleHover}
+                  sortOrder={sortOrder}
+                  onSortChange={setSortOrder}
+                  shouldShowPrices={shouldShowPrices}
+                />
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={paginatedData.totalPages}
+                  onPageChange={setCurrentPage}
+                  itemsPerPage={itemsPerPage}
+                  totalItems={paginatedData.totalItems}
+                />
+              </>
             )}
           </div>
         </div>

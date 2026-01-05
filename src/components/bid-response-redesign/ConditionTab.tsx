@@ -39,25 +39,38 @@ const ConditionTab = ({ vehicle }: ConditionTabProps) => {
             </div>
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase mb-1">Report Provider</p>
-              <div className="flex items-center gap-2">
-                <p className="text-base sm:text-lg font-black text-brand">AutoCheck</p>
-                <div className="w-5 h-5 bg-brand rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              </div>
+              <p className="text-base sm:text-lg font-black text-brand">
+                {vehicle.history_service || 'Not Specified'}
+              </p>
             </div>
           </div>
 
           {/* Report Finding */}
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <ThumbsUp className="h-6 w-6 text-green-600" />
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              vehicle.history === 'noAccidents' ? 'bg-green-100' :
+              vehicle.history === 'minorAccident' || vehicle.history === 'odomError' ? 'bg-yellow-100' :
+              vehicle.history === 'majorAccident' || vehicle.history === 'brandedIssue' ? 'bg-red-100' :
+              'bg-gray-100'
+            }`}>
+              <ThumbsUp className={`h-6 w-6 ${
+                vehicle.history === 'noAccidents' ? 'text-green-600' :
+                vehicle.history === 'minorAccident' || vehicle.history === 'odomError' ? 'text-yellow-600' :
+                vehicle.history === 'majorAccident' || vehicle.history === 'brandedIssue' ? 'text-red-600' :
+                'text-gray-600'
+              }`} />
             </div>
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase mb-1">Report Finding</p>
-              <p className="text-base sm:text-lg font-black text-gray-900">No Accidents</p>
+              <p className="text-base sm:text-lg font-black text-gray-900">
+                {vehicle.history === 'noAccidents' ? 'No Accidents' :
+                 vehicle.history === 'minorAccident' ? 'Minor Accident' :
+                 vehicle.history === 'odomError' ? 'Odometer Error' :
+                 vehicle.history === 'majorAccident' ? 'Major Accident' :
+                 vehicle.history === 'brandedIssue' ? 'Branded Title' :
+                 vehicle.history === 'unknown' ? 'Unknown' :
+                 'Not Specified'}
+              </p>
             </div>
           </div>
         </div>
@@ -70,34 +83,88 @@ const ConditionTab = ({ vehicle }: ConditionTabProps) => {
         <div className="space-y-4">
           {/* Windshield */}
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Wind className="h-6 w-6 text-blue-600" />
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              vehicle.windshield === 'clear' || !vehicle.windshield ? 'bg-green-100' :
+              vehicle.windshield === 'chips' ? 'bg-yellow-100' :
+              vehicle.windshield === 'smallCracks' ? 'bg-orange-100' :
+              'bg-red-100'
+            }`}>
+              <Wind className={`h-6 w-6 ${
+                vehicle.windshield === 'clear' || !vehicle.windshield ? 'text-green-600' :
+                vehicle.windshield === 'chips' ? 'text-yellow-600' :
+                vehicle.windshield === 'smallCracks' ? 'text-orange-600' :
+                'text-red-600'
+              }`} />
             </div>
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase mb-1">Windshield</p>
-              <p className="text-base sm:text-lg font-black text-gray-900">{vehicle.windshield || 'Clear'}</p>
+              <p className="text-base sm:text-lg font-black text-gray-900">
+                {vehicle.windshield === 'clear' ? 'Clear' :
+                 vehicle.windshield === 'chips' ? 'Stars' :
+                 vehicle.windshield === 'smallCracks' ? 'Cracks' :
+                 vehicle.windshield === 'largeCracks' ? 'Replace' :
+                 vehicle.windshield || 'Not Specified'}
+              </p>
             </div>
           </div>
 
           {/* Warning Lights */}
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              !vehicle.engine_lights || vehicle.engine_lights === 'none' ? 'bg-green-100' : 'bg-red-100'
+            }`}>
+              <AlertTriangle className={`h-6 w-6 ${
+                !vehicle.engine_lights || vehicle.engine_lights === 'none' ? 'text-green-600' : 'text-red-600'
+              }`} />
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-xs font-bold text-gray-400 uppercase mb-1">Warning Lights</p>
-              <p className="text-base sm:text-lg font-black text-gray-900">{vehicle.engine_lights || 'None'}</p>
+              {(() => {
+                const lights = vehicle.engine_lights?.split(',').map(l => l.trim()).filter(Boolean) || [];
+                const displayLights = lights.map(light => {
+                  switch(light) {
+                    case 'none': return 'None';
+                    case 'engine': return 'Engine';
+                    case 'maintenance': return 'Transmission';
+                    case 'drivetrain': return 'Drivetrain';
+                    case 'airbag': return 'Airbags';
+                    case 'multiple': return 'Others';
+                    default: return light;
+                  }
+                });
+                return (
+                  <p className="text-base sm:text-lg font-black text-gray-900">
+                    {displayLights.length > 0 ? displayLights.join(', ') : 'Not Specified'}
+                  </p>
+                );
+              })()}
             </div>
           </div>
 
           {/* Maintenance */}
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <ShieldCheck className="h-6 w-6 text-green-600" />
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              vehicle.maintenance === 'upToDate' || !vehicle.maintenance ? 'bg-green-100' :
+              vehicle.maintenance === 'basicService' ? 'bg-yellow-100' :
+              vehicle.maintenance === 'minorService' ? 'bg-orange-100' :
+              'bg-red-100'
+            }`}>
+              <ShieldCheck className={`h-6 w-6 ${
+                vehicle.maintenance === 'upToDate' || !vehicle.maintenance ? 'text-green-600' :
+                vehicle.maintenance === 'basicService' ? 'text-yellow-600' :
+                vehicle.maintenance === 'minorService' ? 'text-orange-600' :
+                'text-red-600'
+              }`} />
             </div>
             <div>
               <p className="text-xs font-bold text-gray-400 uppercase mb-1">Maintenance</p>
-              <p className="text-base sm:text-lg font-black text-gray-900">{vehicle.maintenance || 'Up to date'}</p>
+              <p className="text-base sm:text-lg font-black text-gray-900">
+                {vehicle.maintenance === 'upToDate' ? 'Up to date' :
+                 vehicle.maintenance === 'basicService' ? 'Basic Service' :
+                 vehicle.maintenance === 'minorService' ? 'Minor Service' :
+                 vehicle.maintenance === 'majorService' ? 'Major Service' :
+                 vehicle.maintenance || 'Not Specified'}
+              </p>
             </div>
           </div>
         </div>
@@ -178,13 +245,12 @@ const ConditionTab = ({ vehicle }: ConditionTabProps) => {
         </div>
 
         {/* Inspector Notes */}
-        {vehicle.recon_details && (
-          <div>
-            <p className="text-base text-gray-700 leading-relaxed">
-              {vehicle.recon_details}
-            </p>
-          </div>
-        )}
+        <div>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Details</p>
+          <p className="text-base text-gray-700 leading-relaxed">
+            {vehicle.recon_details || 'Not Specified'}
+          </p>
+        </div>
       </Card>
     </div>
   );

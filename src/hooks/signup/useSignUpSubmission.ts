@@ -227,6 +227,7 @@ export const useSignUpSubmission = ({
       logger.debug('User record updated:', updatedUser);
 
       // Helper function to map frontend plan types to database plan types
+      // Beta = free, Connect = paid monthly, Annual = paid annually
       const mapPlanToDB = (frontendPlan: string): string => {
         switch (frontendPlan) {
           case 'beta-access':
@@ -234,15 +235,25 @@ export const useSignUpSubmission = ({
           case 'connect':
             return 'connect';
           case 'annual':
-            return 'connect'; // Annual is same as connect, just different billing cycle
+            return 'connect'; // Annual is same as connect plan, just different billing cycle
           default:
             return 'free';
         }
       };
 
       // Helper function to determine billing cycle
-      const getBillingCycle = (frontendPlan: string): string => {
-        return frontendPlan === 'annual' ? 'annual' : 'monthly';
+      // Beta (free) = NULL, Connect = monthly, Annual = annual
+      const getBillingCycle = (frontendPlan: string): string | null => {
+        switch (frontendPlan) {
+          case 'beta-access':
+            return null; // Free plan has no billing cycle
+          case 'connect':
+            return 'monthly';
+          case 'annual':
+            return 'annual';
+          default:
+            return null;
+        }
       };
 
       // Step 5: Create or reuse account (handle race conditions gracefully)

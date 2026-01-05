@@ -97,8 +97,11 @@ export const useFormState = (): FormState & FormStateActions => {
     logger.debug('Removed uploaded image:', urlToRemove);
   };
 
-  const setSelectedFileUrls = (urls: string[]) => {
-    setState(prev => ({ ...prev, selectedFileUrls: urls }));
+  const setSelectedFileUrls = (urls: string[] | ((prev: string[]) => string[])) => {
+    setState(prev => ({
+      ...prev,
+      selectedFileUrls: typeof urls === 'function' ? urls(prev.selectedFileUrls) : urls
+    }));
   };
 
   const setIsSubmitting = (isSubmitting: boolean) => {
@@ -186,9 +189,17 @@ export const useFormState = (): FormState & FormStateActions => {
     const newBuyers = state.selectedBuyers.includes(buyerId)
       ? state.selectedBuyers.filter(id => id !== buyerId)
       : [...state.selectedBuyers, buyerId];
-    
+
+    logger.debug('👥 Buyer toggled:', {
+      buyerId,
+      action: state.selectedBuyers.includes(buyerId) ? 'removed' : 'added',
+      previousCount: state.selectedBuyers.length,
+      newCount: newBuyers.length,
+      selectedBuyers: newBuyers
+    });
+
     setSelectedBuyers(newBuyers);
-    
+
     if (state.errors.buyers) {
       setErrors({ ...state.errors, buyers: "" });
     }

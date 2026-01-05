@@ -35,10 +35,33 @@ export const useBidRequestQuery = (enabled: boolean) => {
           return [];
         }
 
-        // Get all bid requests (RLS policies will handle access control for both authenticated and anonymous users)
-        const { data: requests, error: requestError } = await supabase
+        // Get current user to determine account filtering
+        const { data: { user } } = await supabase.auth.getUser();
+        let currentUserData = null;
+
+        if (user) {
+          const { data: userData } = await supabase
+            .from('buybidhq_users')
+            .select('account_id, app_role')
+            .eq('id', user.id)
+            .maybeSingle();
+          currentUserData = userData;
+        }
+
+        // Build query with account filtering for authenticated non-super_admin users
+        let bidRequestsQuery = supabase
           .from('bid_requests')
           .select('id, created_at, status, user_id');
+
+        // Filter by account for authenticated users (except super_admin)
+        // Individual dealers and team members should only see bid requests from their account
+        if (currentUserData?.account_id && currentUserData?.app_role !== 'super_admin') {
+          bidRequestsQuery = bidRequestsQuery.eq('account_id', currentUserData.account_id);
+          console.log('🔍 Filtering bid requests by account_id:', currentUserData.account_id);
+        }
+
+        // Get bid requests (with account filtering if applicable)
+        const { data: requests, error: requestError } = await bidRequestsQuery;
 
         if (requestError) {
           console.error("Error fetching bid requests:", requestError);

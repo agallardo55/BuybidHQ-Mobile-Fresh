@@ -10,6 +10,7 @@ import FormTabs from "./FormTabs";
 import StepNavigation from "./components/StepNavigation";
 import { useFormNavigation } from "./hooks/useFormNavigation";
 import { validateBuyersStep } from "./utils/stepValidation";
+import { useNavigate } from "react-router-dom";
 
 interface MultiStepFormProps {
   formData: BidRequestFormData;
@@ -36,6 +37,7 @@ interface MultiStepFormProps {
   setErrors: (errors: FormErrors) => void;
   uploadedImageUrls?: string[];
   selectedFileUrls?: string[];
+  setSelectedFileUrls?: (urls: string[] | ((prev: string[]) => string[])) => void;
   onDeleteImage?: (url: string, isUploaded: boolean) => Promise<void>;
 }
 
@@ -58,8 +60,10 @@ const MultiStepForm = ({
   setErrors,
   uploadedImageUrls = [],
   selectedFileUrls = [],
+  setSelectedFileUrls,
   onDeleteImage
 }: MultiStepFormProps) => {
+  const navigate = useNavigate();
   const {
     currentStep,
     setCurrentStep,
@@ -88,6 +92,10 @@ const MultiStepForm = ({
     }
   };
 
+  const handleCancel = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <Tabs
       value={currentStep}
@@ -113,10 +121,13 @@ const MultiStepForm = ({
             onImagesUploaded={onImagesUploaded}
             uploadedImageUrls={uploadedImageUrls}
             selectedFileUrls={selectedFileUrls}
+            setSelectedFileUrls={setSelectedFileUrls}
             onDeleteImage={onDeleteImage}
           />
           <StepNavigation
             showBack={false}
+            showCancel={true}
+            onCancel={handleCancel}
             onNext={handleNext}
           />
         </TabsContent>

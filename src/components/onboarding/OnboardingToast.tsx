@@ -26,9 +26,37 @@ export const OnboardingToast = ({
   const [completion, setCompletion] = useState({ percentage: 0, missingFields: [] as string[] });
 
   useEffect(() => {
-    // Don't show if already dismissed
-    const isDismissed = localStorage.getItem(dismissKey) === "true";
+    // Clear any old localStorage dismissal flag (migration from old behavior)
+    if (localStorage.getItem(dismissKey)) {
+      localStorage.removeItem(dismissKey);
+    }
+
+    // Don't show if already dismissed in this session (uses sessionStorage, not localStorage)
+    // This means it will show again on next login if profile still isn't complete
+    const isDismissed = sessionStorage.getItem(dismissKey) === "true";
+
+    // DEBUG: Log all conditions
+    console.log('🎯 OnboardingToast Debug:', {
+      isDismissed,
+      isLoading,
+      hasCurrentUser: !!currentUser,
+      currentUser: currentUser ? {
+        email: currentUser.email,
+        role: currentUser.role,
+        app_role: currentUser.app_role,
+        full_name: currentUser.full_name,
+        mobile_number: currentUser.mobile_number,
+        dealer_name: currentUser.dealer_name,
+        license_number: currentUser.license_number,
+        address: currentUser.address,
+        city: currentUser.city,
+        state: currentUser.state,
+        zip_code: currentUser.zip_code
+      } : null
+    });
+
     if (isDismissed || isLoading || !currentUser) {
+      console.log('🎯 OnboardingToast: Early return -', { isDismissed, isLoading, hasUser: !!currentUser });
       return;
     }
 
@@ -36,6 +64,7 @@ export const OnboardingToast = ({
     const isSuperAdmin = currentUser.role === 'super_admin' || currentUser.app_role === 'super_admin';
 
     if (isSuperAdmin) {
+      console.log('🎯 OnboardingToast: User is super admin, hiding toast');
       return;
     }
 
@@ -43,8 +72,15 @@ export const OnboardingToast = ({
     const profileCompletion = calculateProfileCompletion(currentUser);
     setCompletion(profileCompletion);
 
+    console.log('🎯 OnboardingToast: Profile completion:', {
+      percentage: profileCompletion.percentage,
+      missingFields: profileCompletion.missingFields,
+      completedFields: profileCompletion.completedFields
+    });
+
     // Don't show if profile is 100% complete
     if (profileCompletion.percentage >= 100) {
+      console.log('🎯 OnboardingToast: Profile 100% complete, hiding toast');
       return;
     }
 
@@ -56,8 +92,11 @@ export const OnboardingToast = ({
     );
     setMotivationalMessage(message);
 
+    console.log('🎯 OnboardingToast: Will show toast in', delay, 'ms');
+
     // Show toast after delay
     const showTimeout = setTimeout(() => {
+      console.log('🎯 OnboardingToast: Showing toast now!');
       setIsVisible(true);
     }, delay);
 
@@ -66,7 +105,8 @@ export const OnboardingToast = ({
 
   const handleDismiss = () => {
     setIsAnimatingOut(true);
-    localStorage.setItem(dismissKey, "true");
+    // Use sessionStorage so toast shows again on next login if profile still incomplete
+    sessionStorage.setItem(dismissKey, "true");
     setTimeout(() => {
       setIsVisible(false);
     }, 300);

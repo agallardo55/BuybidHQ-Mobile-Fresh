@@ -33,7 +33,7 @@ const FormProgress = ({ currentStep }: FormProgressProps) => {
               isActive ? "border-custom-blue text-custom-blue bg-custom-blue/10" :
               "border-slate-300 text-slate-400 bg-white"
             )}>
-              {isComplete ? <Check className="h-5 w-5" /> : index + 1}
+              {isComplete ? <Check className="h-5 w-5" /> : index + 2}
             </div>
 
             {/* Step Label */}

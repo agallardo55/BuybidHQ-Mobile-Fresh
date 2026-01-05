@@ -35,12 +35,28 @@ interface FileWithPreview {
 const exteriorColors = ["White", "Black", "Gray", "Green", "Red", "Gold", "Silver", "Blue", "Yellow"];
 const interiorColors = ["Black", "Blue", "Brown", "Grey", "Red", "Tan", "White"];
 
-const compressionOptions = {
-  maxSizeMB: 0.5,
-  maxWidthOrHeight: 1920,
-  useWebWorker: true,
-  initialQuality: 0.85,
-  fileType: 'image/webp' as const,
+const getCompressionOptions = (fileType: string) => {
+  // Normalize file type to what the library expects
+  let normalizedType: 'image/jpeg' | 'image/png' | 'image/webp' = 'image/jpeg';
+
+  if (fileType.includes('png')) {
+    normalizedType = 'image/png';
+  } else if (fileType.includes('webp')) {
+    normalizedType = 'image/webp';
+  } else {
+    // Default to jpeg for jpg, jpeg, and anything else
+    normalizedType = 'image/jpeg';
+  }
+
+  console.log('🔧 Compression options:', { originalType: fileType, normalizedType });
+
+  return {
+    maxSizeMB: 0.5,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+    initialQuality: 0.85,
+    fileType: normalizedType,
+  };
 };
 
 const ColorsAndAccessories = ({
@@ -68,25 +84,45 @@ const ColorsAndAccessories = ({
         previewUrl: URL.createObjectURL(file)
       }));
 
+      console.log('📁 Files selected:', {
+        fileCount: filesArray.length,
+        previewUrls: newFilesWithPreviews.map(f => f.previewUrl)
+      });
+
       setSelectedFilesWithPreviews(prev => [...prev, ...newFilesWithPreviews]);
-      setSelectedFileUrls?.(prev => [...prev, ...newFilesWithPreviews.map(f => f.previewUrl)]);
+      setSelectedFileUrls?.(prev => {
+        const updated = [...prev, ...newFilesWithPreviews.map(f => f.previewUrl)];
+        console.log('📁 Updated selectedFileUrls:', updated);
+        return updated;
+      });
     }
   }, [setSelectedFileUrls]);
 
   const compressImage = async (file: File): Promise<File> => {
     try {
-      logger.debug(`Compressing file: ${file.name} (${file.size} bytes)`);
-      logger.debug(`Original file type: ${file.type}`);
-      
-      const compressedFile = await imageCompression(file, compressionOptions);
-      logger.debug(`Compression complete: ${compressedFile.size} bytes`);
-      logger.debug(`Compressed file type: ${compressedFile.type}`);
-      
+      console.log('📦 Starting compression:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
+
+      const compressedFile = await imageCompression(file, getCompressionOptions(file.type));
+
+      console.log('✅ Compression complete:', {
+        size: compressedFile.size,
+        type: compressedFile.type,
+        name: compressedFile.name
+      });
+
       // Validate the compressed file
       if (compressedFile.size === 0) {
         throw new Error('Compressed file is empty');
       }
-      
+
+      if (!compressedFile.type || compressedFile.type === '') {
+        console.error('❌ Compressed file has no type!');
+      }
+
       return compressedFile;
     } catch (error) {
       logger.error('Compression error:', error);
@@ -106,20 +142,49 @@ const ColorsAndAccessories = ({
       // Step 1: Upload all files to storage
       for (const { file } of selectedFilesWithPreviews) {
         try {
-          logger.debug(`Processing file: ${file.name}`);
-          
+          console.log('🚀 Processing file:', file.name, 'Type:', file.type, 'Size:', file.size);
+
+          // Compress the image to reduce size and improve upload speed
           const compressedFile = await compressImage(file);
-          
-          // Use .webp extension since we're converting to WebP
-          const filePath = `${crypto.randomUUID()}.webp`;
-          
-          logger.debug(`Generated file path: ${filePath}`);
-          
-          const { error: uploadError } = await supabase.storage
-            .from('vehicle_images')
-            .upload(filePath, compressedFile, {
-              contentType: 'image/webp'
-            });
+
+          // Get the file extension from the compressed file type
+          const fileExtension = compressedFile.type.split('/')[1] || 'jpg';
+          const filePath = `${crypto.randomUUID()}.${fileExtension}`;
+
+          console.log('📤 Uploading to:', filePath, 'Content-Type:', compressedFile.type, 'Compressed size:', compressedFile.size);
+
+          // Get auth session
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) {
+            throw new Error('No auth session');
+          }
+
+          // Get Supabase URL and key from environment
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+          // Upload directly via fetch API to bypass SDK content-type bug
+          const uploadUrl = `${supabaseUrl}/storage/v1/object/vehicle_images/${filePath}`;
+
+          console.log('🔗 Upload URL:', uploadUrl);
+
+          const uploadResponse = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+              'apikey': supabaseKey,
+              'Content-Type': compressedFile.type,
+              'x-upsert': 'false',
+            },
+            body: compressedFile,
+          });
+
+          if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text();
+            throw new Error(`Upload failed: ${uploadResponse.status} - ${errorText}`);
+          }
+
+          const uploadError = uploadResponse.ok ? null : new Error('Upload failed');
           
           if (uploadError) {
             logger.error('Upload error for file:', file.name, uploadError);

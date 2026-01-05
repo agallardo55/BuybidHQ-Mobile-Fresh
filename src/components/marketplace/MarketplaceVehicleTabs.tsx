@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BidRequest } from "../bid-request/types";
 import VehicleDetails from "../bid-request/components/VehicleDetails";
 import VehicleCondition from "../bid-request/components/VehicleCondition";
+import Reconditioning from "../bid-request/components/Reconditioning";
 import VehicleValuation from "./VehicleValuation";
 import { cn } from "@/lib/utils";
 
@@ -76,7 +77,10 @@ const MarketplaceVehicleTabs = ({ request }: MarketplaceVehicleTabsProps) => {
       </TabsContent>
 
       <TabsContent value="condition" className="space-y-4">
-        <VehicleCondition request={request} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <VehicleCondition request={request} />
+          <Reconditioning request={request} />
+        </div>
       </TabsContent>
 
       <TabsContent value="valuation" className="space-y-4">

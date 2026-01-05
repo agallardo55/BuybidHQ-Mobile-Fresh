@@ -12,14 +12,21 @@ interface ImageCarouselProps {
   isDeleting?: boolean;
 }
 
-const ImageCarousel = ({ 
-  uploadedImages, 
-  selectedFileUrls, 
+const ImageCarousel = ({
+  uploadedImages,
+  selectedFileUrls,
   onImageClick,
   onDeleteImage,
   onImageLoadError,
-  isDeleting 
+  isDeleting
 }: ImageCarouselProps) => {
+  console.log('🖼️ ImageCarousel render:', {
+    uploadedImages,
+    selectedFileUrls,
+    uploadedCount: uploadedImages.length,
+    selectedCount: selectedFileUrls.length
+  });
+
   const sortedUploadedImages = [...uploadedImages];
 
   // Show placeholder if no images are available
@@ -50,12 +57,13 @@ const ImageCarousel = ({
           {sortedUploadedImages.map((url, index) => (
             <div key={`uploaded-${url}-${index}`} className="flex-none relative">
               <div className="h-32 relative rounded-lg overflow-hidden">
-                <img 
-                  src={url} 
-                  alt={`Vehicle photo ${index + 1}`} 
-                  className="h-full w-auto object-contain cursor-pointer" 
+                <img
+                  src={url}
+                  alt={`Vehicle photo ${index + 1}`}
+                  className="h-full w-auto object-contain cursor-pointer"
                   onClick={() => onImageClick(url)}
                   onError={(e) => {
+                    console.error('❌ Image load error for uploaded image:', url);
                     // Fallback to placeholder on error
                     e.currentTarget.src = carPlaceholder;
                   }}
@@ -85,12 +93,13 @@ const ImageCarousel = ({
           {selectedFileUrls.map((url, index) => (
             <div key={`preview-${url}-${index}`} className="flex-none relative">
               <div className="h-32 relative rounded-lg overflow-hidden">
-                <img 
-                  src={url} 
-                  alt={`Vehicle photo ${index + 1}`} 
+                <img
+                  src={url}
+                  alt={`Vehicle photo ${index + 1}`}
                   className="h-full w-auto object-contain cursor-pointer"
                   onClick={() => onImageClick(url)}
                   onError={(e) => {
+                    console.error('❌ Image load error for preview image:', url);
                     // Fallback to placeholder on error
                     e.currentTarget.src = carPlaceholder;
                   }}

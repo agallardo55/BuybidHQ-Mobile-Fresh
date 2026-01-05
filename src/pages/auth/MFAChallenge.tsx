@@ -19,9 +19,26 @@ const MFAChallenge = () => {
   // Use ref to prevent spamming resend button
   const lastResendTimeRef = useRef<number>(0);
 
+  // Use ref to prevent duplicate handleSendCode calls
+  const isSendingCodeRef = useRef(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
+
+  // Check both navigation state AND sessionStorage for isInitialSignIn flag
+  const isInitialSignInFromState = location.state?.isInitialSignIn || false;
+  const isInitialSignInFromStorage = sessionStorage.getItem('mfa_is_initial_signin') === 'true';
+  const isInitialSignIn = isInitialSignInFromState || isInitialSignInFromStorage;
+
+  // DEBUG: Log the navigation state
+  console.log('🔐 MFAChallenge - Navigation State:', {
+    fullLocationState: location.state,
+    isInitialSignInFromState,
+    isInitialSignInFromStorage,
+    isInitialSignIn,
+    from,
+  });
 
   // Get user's phone from session
   const [userPhone, setUserPhone] = useState<string | null>(null);
@@ -32,6 +49,38 @@ const MFAChallenge = () => {
 
   useEffect(() => {
     const initMFA = async () => {
+      // Get user's phone number for display
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError('No active session. Please sign in again.');
+        return;
+      }
+
+      // Try to get phone from user object
+      let phone = user.phone;
+      if (!phone) {
+        // Fallback: check buybidhq_users.mobile_number
+        const { data: userData } = await supabase
+          .from('buybidhq_users')
+          .select('mobile_number')
+          .eq('id', user.id)
+          .single();
+
+        phone = userData?.mobile_number;
+      }
+
+      if (phone) {
+        // Mask phone number for display
+        const masked = phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-****');
+        setUserPhone(masked);
+      }
+
+      // Only auto-send on INITIAL sign-in, not on subsequent navigations/refreshes
+      if (!isInitialSignIn) {
+        logger.debug('Not initial sign-in - user must manually click "Send Code"');
+        return;
+      }
+
       // Only send once - use ref to prevent double-send in React Strict Mode
       if (hasSentCodeRef.current) {
         logger.debug('Code already sent (ref check), skipping');
@@ -45,30 +94,26 @@ const MFAChallenge = () => {
       const lastSentUser = sessionStorage.getItem(sessionUserKey);
       const now = Date.now();
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setError('No active session. Please sign in again.');
-        return;
-      }
-
       // Only skip if code was sent less than 1 minute ago AND for the same user
-      if (lastSentTime && lastSentUser === user.id && (now - parseInt(lastSentTime)) < 60 * 1000) {
+      if (lastSentTime && lastSentUser === user?.id && (now - parseInt(lastSentTime)) < 60 * 1000) {
         logger.debug('Code already sent recently (session check), skipping');
         hasSentCodeRef.current = true;
         setCodeSent(true);
         return;
       }
 
-      logger.debug('Initializing MFA - sending first code');
+      logger.debug('Initializing MFA - sending first code (initial sign-in)');
       hasSentCodeRef.current = true;
 
       await handleSendCode();
       // Store timestamp and user ID to prevent resending on refresh
       sessionStorage.setItem(sessionKey, now.toString());
-      sessionStorage.setItem(sessionUserKey, user.id);
+      if (user?.id) {
+        sessionStorage.setItem(sessionUserKey, user.id);
+      }
     };
     initMFA();
-  }, []); // Empty dependency array - only run once
+  }, [isInitialSignIn]); // Re-run if isInitialSignIn changes
 
   useEffect(() => {
     // Start countdown timer
@@ -89,6 +134,14 @@ const MFAChallenge = () => {
   const handleSendCode = async () => {
     logger.debug('🔴 handleSendCode CALLED - Sending new MFA code');
     logger.debug('🔴 Call stack:', new Error().stack);
+
+    // Prevent duplicate calls if already sending
+    if (isSendingCodeRef.current) {
+      logger.debug('🔴 BLOCKED: Already sending code, ignoring duplicate call');
+      return;
+    }
+
+    isSendingCodeRef.current = true;
     setSendingCode(true);
     setError('');
 
@@ -98,6 +151,7 @@ const MFAChallenge = () => {
       
       if (!session) {
         setError('No active session. Please sign in again.');
+        isSendingCodeRef.current = false;
         setSendingCode(false);
         return;
       }
@@ -111,12 +165,14 @@ const MFAChallenge = () => {
 
       if (error) {
         setError(error.message || 'Failed to send code. Please try again.');
+        isSendingCodeRef.current = false;
         setSendingCode(false);
         return;
       }
 
       if (!data.success) {
         setError(data.error || 'Failed to send code. Please try again.');
+        isSendingCodeRef.current = false;
         setSendingCode(false);
         return;
       }
@@ -127,10 +183,12 @@ const MFAChallenge = () => {
       }
 
       setCodeSent(true);
+      isSendingCodeRef.current = false;
       setSendingCode(false);
     } catch (err) {
       logger.error('Error sending MFA code:', err);
       setError('Failed to send code. Please try again.');
+      isSendingCodeRef.current = false;
       setSendingCode(false);
     }
   };
@@ -226,9 +284,10 @@ const MFAChallenge = () => {
       // Reset the verifying flag before navigation
       isVerifyingRef.current = false;
 
-      // Clear sessionStorage timestamps
+      // Clear sessionStorage timestamps and initial sign-in flag
       sessionStorage.removeItem('mfa_code_sent_timestamp');
       sessionStorage.removeItem('mfa_code_sent_user');
+      sessionStorage.removeItem('mfa_is_initial_signin');
 
       // Navigate to original destination
       navigate(from, { replace: true });
@@ -272,9 +331,10 @@ const MFAChallenge = () => {
     } catch (err) {
       logger.error('Error signing out:', err);
     }
-    // Clear sessionStorage timestamps
+    // Clear sessionStorage timestamps and initial sign-in flag
     sessionStorage.removeItem('mfa_code_sent_timestamp');
     sessionStorage.removeItem('mfa_code_sent_user');
+    sessionStorage.removeItem('mfa_is_initial_signin');
     navigate('/signin', { replace: true });
   };
 
@@ -309,6 +369,75 @@ const MFAChallenge = () => {
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Back to Sign In
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show "Send Code" button if not initial sign-in and code not sent yet
+  if (!isInitialSignIn && !codeSent && !sendingCode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+          <div className="text-center">
+            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Verification Required
+            </h2>
+            <p className="text-gray-600 mb-6">
+              To continue, we need to verify your identity via text message.
+              {userPhone && (
+                <>
+                  <br />
+                  <span className="font-semibold mt-2 inline-block">
+                    We'll send a code to: {userPhone}
+                  </span>
+                </>
+              )}
+            </p>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 text-red-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleSendCode}
+              disabled={sendingCode}
+              className="w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mb-4"
+            >
+              {sendingCode ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Sending...
+                </span>
+              ) : (
+                'Send Verification Code'
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBackToSignIn}
+              className="w-full text-sm text-gray-600 hover:text-gray-700 font-medium transition-colors"
+            >
+              Back to sign in
             </button>
           </div>
         </div>
