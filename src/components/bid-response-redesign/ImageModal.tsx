@@ -1,8 +1,9 @@
 
 import React from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { X } from 'lucide-react'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 interface ImageModalProps {
   images: string[];
@@ -17,6 +18,11 @@ export function ImageModal({ images, open, onOpenChange, startIndex = 0 }: Image
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-black border-none p-0 max-w-full h-full [&>button]:hidden">
+        <VisuallyHidden>
+          <DialogTitle>Vehicle Images</DialogTitle>
+          <DialogDescription>View vehicle images in full screen</DialogDescription>
+        </VisuallyHidden>
+
         {/* Custom Close Button */}
         <button
           onClick={() => onOpenChange(false)}
