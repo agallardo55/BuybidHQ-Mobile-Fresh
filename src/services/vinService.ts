@@ -2127,9 +2127,9 @@ class VinService {
       model: manheimModel,
       trim: apiData?.trim || selectedTrim?.name || "", // ✅ FIX: Use apiData.trim first (from edge function)
       displayTrim: apiData?.trim || displayTrimValue, // ✅ FIX: Use apiData.trim for display as well
-      engineCylinders: selectedTrim?.specs?.engine || "",
-      transmission: selectedTrim?.specs?.transmission || "",
-      drivetrain: selectedTrim?.specs?.drivetrain || "",
+      engineCylinders: apiData?.engineCylinders || selectedTrim?.specs?.engine || "", // ✅ FIX: Use apiData first
+      transmission: apiData?.transmission || selectedTrim?.specs?.transmission || "", // ✅ FIX: Use apiData first
+      drivetrain: apiData?.drivetrain || selectedTrim?.specs?.drivetrain || "", // ✅ FIX: Use apiData first
       bodyStyle: bodyStyle,
       availableTrims: processedTrims,
       selectedTrim: selectedTrim // Pass the matched trim to hook
