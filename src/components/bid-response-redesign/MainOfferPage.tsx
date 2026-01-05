@@ -198,11 +198,10 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
 
         {/* View Details Link */}
         <Button
-          variant="ghost"
-          className="w-full text-brand font-bold text-lg"
+          className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold text-lg py-6 rounded-xl uppercase tracking-wide"
           onClick={onViewDetails}
         >
-          View Vehicle Details
+          Vehicle Details
         </Button>
       </div>
 

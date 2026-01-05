@@ -18,7 +18,7 @@ const DetailsTab = ({ vehicle }: DetailsTabProps) => {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Identification</CardTitle>
+          <CardTitle>Vehicle Details</CardTitle>
         </CardHeader>
         <CardContent>
           <DetailItem label="VIN" value={vehicle.vehicle_vin} />

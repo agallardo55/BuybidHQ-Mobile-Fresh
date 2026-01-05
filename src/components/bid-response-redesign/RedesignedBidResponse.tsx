@@ -94,10 +94,12 @@ const RedesignedBidResponse = () => {
 
   const handleViewDetails = () => {
     setCurrentView('details');
+    window.scrollTo(0, 0);
   };
 
   const handleBackToOffer = () => {
     setCurrentView('offer');
+    window.scrollTo(0, 0);
   };
 
   if (isLoading) {
