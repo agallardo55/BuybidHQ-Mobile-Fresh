@@ -15,6 +15,18 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [offerAmount, setOfferAmount] = useState("");
 
+  // Clean model field by removing embedded trim designations
+  const cleanModel = (model: string, trim: string): string => {
+    if (!model || !trim) return model;
+
+    // Remove trim from end of model if it's embedded
+    // Handles cases like "Bentayga V8" with trim "V8" → "Bentayga"
+    const trimPattern = new RegExp(`\\s+${trim.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+    return model.replace(trimPattern, '').trim();
+  };
+
+  const displayModel = cleanModel(vehicle.vehicle_model, vehicle.vehicle_trim || '');
+
   const formatCurrency = (value: string) => {
     if (!value) return "";
 
@@ -103,7 +115,7 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
           <div className="p-6 sm:p-8">
             {/* Vehicle Title */}
             <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-6">
-              {vehicle.vehicle_year} {vehicle.vehicle_make} {vehicle.vehicle_model} {vehicle.vehicle_trim || ''}
+              {vehicle.vehicle_year} {vehicle.vehicle_make} {displayModel} {vehicle.vehicle_trim || ''}
             </h2>
 
             {/* Vehicle Info Grid with Dividers */}
