@@ -26,7 +26,7 @@ export function ImageModal({ images, open, onOpenChange, startIndex = 0 }: Image
         {/* Custom Close Button */}
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+          className="!block absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
           aria-label="Close"
         >
           <X className="h-6 w-6" />
