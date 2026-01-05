@@ -8,6 +8,7 @@ import { corsHeaders } from "./config.ts";
 import { isNotPowersports, getPowersportsRejectionMessage } from "./utils/vehicleTypeFilters.ts";
 import { applyBrandSpecificHandling, handleAMGTrims, handlePorscheGT3RS } from "./utils/brandHandlers.ts";
 import { processTrims } from "./utils/trimProcessor.ts";
+import { resolveTrimValue, resolveModelValue, compareDataSources } from "./utils/fieldPriority.ts";
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -514,6 +515,22 @@ Deno.serve(async (req) => {
 
     const vehicleData = apiResult;
 
+    // 🔍 PHASE 1: Compare CarAPI vs NHTSA for data quality analysis
+    // Fetch NHTSA data in parallel for comparison (non-blocking)
+    const nhtsaDataPromise = fetchNHTSAData(vin);
+    nhtsaDataPromise.then(nhtsaData => {
+      if (nhtsaData) {
+        const comparison = compareDataSources(vehicleData, nhtsaData);
+        console.log('📊 DATA SOURCE COMPARISON (CarAPI vs NHTSA):');
+        console.table(comparison);
+
+        // Log per-brand insights
+        console.log(`📋 BRAND: ${vehicleData.make} - Field quality comparison above`);
+      }
+    }).catch(err => {
+      console.log('⚠️ NHTSA comparison failed (non-critical):', err);
+    });
+
     // Check if vehicle is powersports (motorcycle, ATV, UTV, etc.)
     const vehicleType = vehicleData.specs?.vehicle_type || vehicleData.vehicle_type;
     const bodyClass = vehicleData.specs?.body_class || vehicleData.body_class;
@@ -732,11 +749,19 @@ Deno.serve(async (req) => {
       availableTrims[0]?.specs?.bodyStyle ||
       null;
     
+    // 🎯 PHASE 1: Use field priority resolution for trim
+    const trimResolution = resolveTrimValue(vehicleData, bestTrim);
+    console.log(`🎯 TRIM RESOLUTION RESULT:`, {
+      value: trimResolution.value,
+      source: trimResolution.source,
+      confidence: trimResolution.confidence
+    });
+
     const responseData = {
       year: vehicleData.year,
       make: vehicleData.make,
-      model: vehicleData.model,
-      trim: bestTrim || (processedTrims[0]?.name || ''),
+      model: resolveModelValue(vehicleData),
+      trim: trimResolution.value,
       engineCylinders: availableTrims[0]?.specs?.engine || (isElectric ? 'Electric Motor' : `${baseEngineInfo.displacement}L ${baseEngineInfo.cylinders}cyl${baseEngineInfo.turbo ? ' Turbo' : ''}`),
       transmission: availableTrims[0]?.specs?.transmission || (isElectric ? 'Single-Speed' : "7-Speed Automatic"),
       drivetrain: availableTrims[0]?.specs?.drivetrain || "AWD",
@@ -744,6 +769,11 @@ Deno.serve(async (req) => {
       availableTrims: availableTrims,
       // ✅ CRITICAL: Include full specs object for frontend vehicle type detection
       specs: fullSpecs,
+      // 🎯 PHASE 1: Add data quality metadata
+      dataQuality: {
+        trimSource: trimResolution.source,
+        trimConfidence: trimResolution.confidence,
+      }
     };
 
     console.log('Returning VIN decode response:', JSON.stringify(responseData, null, 2));
