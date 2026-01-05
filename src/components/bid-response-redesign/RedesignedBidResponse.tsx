@@ -22,8 +22,14 @@ const useQuickBidDetails = () => {
         .rpc('get_public_bid_request_details', { p_token: token });
 
       if (requestError) {
-        console.error('Error fetching bid request details:', requestError);
-        throw new Error('Failed to load bid request details');
+        console.error('Error fetching bid request details:', {
+          message: requestError.message,
+          code: requestError.code,
+          details: requestError.details,
+          hint: requestError.hint,
+          fullError: requestError
+        });
+        throw new Error(`Failed to load bid request details: ${requestError.message}`);
       }
 
       if (!requestDetails || requestDetails.length === 0) {
