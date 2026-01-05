@@ -170,9 +170,10 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
                 type="text"
                 value={formatCurrency(offerAmount)}
                 onChange={handleOfferChange}
-                className="flex-grow text-5xl sm:text-6xl font-black text-gray-700 placeholder:text-gray-400 bg-transparent border-none focus:outline-none focus:ring-0 p-0"
+                className="flex-grow text-5xl sm:text-6xl font-black text-gray-700 placeholder:text-gray-400 bg-transparent border-none focus:outline-none focus:ring-0 p-0 touch-manipulation"
                 placeholder="0.00"
                 inputMode="numeric"
+                style={{ touchAction: 'manipulation' }}
               />
             </div>
           </div>

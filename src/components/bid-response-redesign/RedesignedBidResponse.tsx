@@ -94,12 +94,18 @@ const RedesignedBidResponse = () => {
 
   const handleViewDetails = () => {
     setCurrentView('details');
-    window.scrollTo(0, 0);
+    // Use setTimeout to ensure DOM is rendered before scrolling
+    setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }, 0);
   };
 
   const handleBackToOffer = () => {
     setCurrentView('offer');
-    window.scrollTo(0, 0);
+    // Use setTimeout to ensure DOM is rendered before scrolling
+    setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }, 0);
   };
 
   if (isLoading) {
