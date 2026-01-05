@@ -105,12 +105,18 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
               </div>
               <div className="px-3 sm:px-4">
                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wide mb-1 sm:mb-2">Mileage</p>
-                <p className="text-lg sm:text-xl md:text-2xl font-black text-gray-900">{Number(vehicle.vehicle_mileage).toLocaleString()} mi</p>
+                <p className="text-lg sm:text-xl md:text-2xl font-black text-gray-900">
+                  {vehicle.vehicle_mileage && !isNaN(Number(vehicle.vehicle_mileage))
+                    ? Number(vehicle.vehicle_mileage).toLocaleString()
+                    : vehicle.vehicle_mileage || 'N/A'} mi
+                </p>
               </div>
               <div className="pl-3 sm:pl-4">
                 <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wide mb-1 sm:mb-2">Condition</p>
                 <p className={`text-lg sm:text-xl md:text-2xl font-black ${getConditionColor(vehicle.book_values_condition)}`}>
-                  {vehicle.book_values_condition || 'N/A'}
+                  {vehicle.book_values_condition
+                    ? vehicle.book_values_condition.charAt(0).toUpperCase() + vehicle.book_values_condition.slice(1)
+                    : 'N/A'}
                 </p>
               </div>
             </div>
