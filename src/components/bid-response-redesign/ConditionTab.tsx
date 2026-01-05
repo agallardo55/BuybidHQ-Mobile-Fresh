@@ -260,9 +260,9 @@ const ConditionTab = ({ vehicle }: ConditionTabProps) => {
         <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Reconditioning Details</h3>
 
         {/* Estimated Recon Cost */}
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 mb-6">
-          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Estimated Recon Cost</p>
-          <p className="text-3xl sm:text-4xl font-black text-slate-900">${vehicle.recon_estimate || 0}</p>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 mb-4">
+          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Estimated Recon Cost</p>
+          <p className="text-xl sm:text-2xl font-black text-slate-900">${vehicle.recon_estimate || 0}</p>
         </div>
 
         {/* Inspector Notes */}
