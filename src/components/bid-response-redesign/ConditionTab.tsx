@@ -268,9 +268,11 @@ const ConditionTab = ({ vehicle }: ConditionTabProps) => {
         {/* Inspector Notes */}
         <div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Details</p>
-          <p className="text-base text-gray-700 leading-relaxed">
-            {vehicle.recon_details || 'Not Specified'}
-          </p>
+          <div className="h-24 overflow-y-auto bg-gray-100 p-4 rounded-lg">
+            <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+              {vehicle.recon_details || 'Not Specified'}
+            </pre>
+          </div>
         </div>
       </Card>
     </div>
