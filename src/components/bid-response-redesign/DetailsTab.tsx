@@ -56,7 +56,7 @@ const DetailsTab = ({ vehicle }: DetailsTabProps) => {
           <CardTitle>Additional Equipment</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-48 overflow-y-auto bg-gray-100 p-4 rounded-lg">
+          <div className="h-24 overflow-y-auto bg-gray-100 p-4 rounded-lg">
             <pre className="text-sm text-gray-700 whitespace-pre-wrap">
               {vehicle.vehicle_accessories || 'No additional equipment listed.'}
             </pre>
