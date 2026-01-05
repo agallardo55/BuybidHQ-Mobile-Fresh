@@ -1,5 +1,5 @@
 
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { X } from 'lucide-react'
@@ -13,7 +13,38 @@ interface ImageModalProps {
 }
 
 export function ImageModal({ images, open, onOpenChange, startIndex = 0 }: ImageModalProps) {
-  const [emblaRef] = useEmblaCarousel({ startIndex });
+  const [currentImgIndex, setCurrentImgIndex] = useState(startIndex);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ startIndex });
+
+  // Update current index when carousel scrolls
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCurrentImgIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on('select', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  // Reset to startIndex when modal opens
+  useEffect(() => {
+    if (open && emblaApi) {
+      emblaApi.scrollTo(startIndex);
+      setCurrentImgIndex(startIndex);
+    }
+  }, [open, startIndex, emblaApi]);
+
+  const scrollToIndex = (index: number) => {
+    if (emblaApi) {
+      emblaApi.scrollTo(index);
+      setCurrentImgIndex(index);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -32,8 +63,9 @@ export function ImageModal({ images, open, onOpenChange, startIndex = 0 }: Image
           <X className="h-6 w-6" />
         </button>
 
-        <div className="relative h-full w-full">
-          <div className="overflow-hidden h-full" ref={emblaRef}>
+        <div className="relative h-full w-full flex flex-col">
+          {/* Main Carousel */}
+          <div className="flex-1 overflow-hidden" ref={emblaRef}>
             <div className="flex h-full">
               {images.map((src, index) => (
                 <div className="relative flex-grow-0 flex-shrink-0 w-full h-full flex items-center justify-center" key={index}>
@@ -41,6 +73,26 @@ export function ImageModal({ images, open, onOpenChange, startIndex = 0 }: Image
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Thumbnail Navigation Strip */}
+          <div className="mt-6 mb-6 flex gap-3 overflow-x-auto px-6 max-w-full no-scrollbar">
+            {images.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  scrollToIndex(idx);
+                }}
+                className={`w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
+                  currentImgIndex === idx
+                    ? 'border-white scale-110 shadow-lg'
+                    : 'border-transparent opacity-40 hover:opacity-100'
+                }`}
+              >
+                <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
         </div>
       </DialogContent>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { QuickBidDetails } from "./types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Info } from "lucide-react";
+import { Info, User, Building2 } from "lucide-react";
 import { ImageModal } from "./ImageModal";
 
 interface MainOfferPageProps {
@@ -61,12 +61,21 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
   return (
     <div className="bg-gray-50">
       {/* Header */}
-      <div className="bg-white p-4 sm:p-6">
+      <div className="bg-white p-4 sm:p-6 flex items-center justify-between">
         <img
           src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png"
           alt="BuybidHQ Logo"
           className="h-8 sm:h-10 w-auto"
         />
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg"
+          onClick={() => {
+            // Navigate to beta card on index page
+            window.location.href = '/#beta';
+          }}
+        >
+          Free Trial
+        </Button>
       </div>
 
       {/* Main Content */}
@@ -118,6 +127,33 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
                     ? vehicle.book_values_condition.charAt(0).toUpperCase() + vehicle.book_values_condition.slice(1)
                     : 'N/A'}
                 </p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Seller Information */}
+        <Card className="p-6 rounded-2xl shadow-lg bg-white">
+          <div className="space-y-4">
+            {/* Seller */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <User className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Seller</p>
+                <p className="text-xl font-black text-gray-900">{vehicle.buyer_name}</p>
+              </div>
+            </div>
+
+            {/* Dealership */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Building2 className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Dealership</p>
+                <p className="text-xl font-black text-gray-900">{vehicle.buyer_dealership}</p>
               </div>
             </div>
           </div>
