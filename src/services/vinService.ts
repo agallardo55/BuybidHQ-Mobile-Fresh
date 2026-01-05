@@ -2125,8 +2125,8 @@ class VinService {
       year: (apiData?.year || "").toString(),
       make: (apiData?.make || "").trim(),
       model: manheimModel,
-      trim: selectedTrim?.name || "",
-      displayTrim: displayTrimValue, // Use getDisplayTrim to match dropdown values
+      trim: apiData?.trim || selectedTrim?.name || "", // ✅ FIX: Use apiData.trim first (from edge function)
+      displayTrim: apiData?.trim || displayTrimValue, // ✅ FIX: Use apiData.trim for display as well
       engineCylinders: selectedTrim?.specs?.engine || "",
       transmission: selectedTrim?.specs?.transmission || "",
       drivetrain: selectedTrim?.specs?.drivetrain || "",
