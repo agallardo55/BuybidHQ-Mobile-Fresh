@@ -8,20 +8,41 @@ interface ConditionTabProps {
 }
 
 const ConditionTab = ({ vehicle }: ConditionTabProps) => {
-  const brakes = vehicle.brakes?.split(',').map(s => s.trim()) || [];
-  const tires = vehicle.tire?.split(',').map(s => s.trim()) || [];
+  // Parse quadrant data format: "frontLeft:8,frontRight:6,rearLeft:3.5,rearRight:1"
+  const parseQuadrantValues = (data: string | undefined): (number | null)[] => {
+    if (!data) return [null, null, null, null];
 
-  const getBrakeColor = (value: string | undefined) => {
-    const num = parseInt(value || '0');
-    if (num >= 8) return 'bg-green-100 text-green-800';
-    if (num >= 4) return 'bg-yellow-100 text-yellow-800';
+    const values: { [key: string]: number } = {};
+    data.split(',').forEach(pair => {
+      const [key, value] = pair.split(':');
+      if (key && value) {
+        values[key.trim()] = parseFloat(value.trim());
+      }
+    });
+
+    // Return in order: frontLeft, frontRight, rearLeft, rearRight
+    return [
+      values['frontLeft'] ?? null,
+      values['frontRight'] ?? null,
+      values['rearLeft'] ?? null,
+      values['rearRight'] ?? null
+    ];
+  };
+
+  const brakes = parseQuadrantValues(vehicle.brakes);
+  const tires = parseQuadrantValues(vehicle.tire);
+
+  const getBrakeColor = (value: number | null) => {
+    if (value === null) return 'bg-gray-100 text-gray-800';
+    if (value >= 8) return 'bg-green-100 text-green-800';
+    if (value >= 4) return 'bg-yellow-100 text-yellow-800';
     return 'bg-red-100 text-red-800';
   };
 
-  const getTireColor = (value: string | undefined) => {
-    const num = parseInt(value || '0');
-    if (num >= 7) return 'bg-green-100 text-green-800';
-    if (num >= 4) return 'bg-yellow-100 text-yellow-800';
+  const getTireColor = (value: number | null) => {
+    if (value === null) return 'bg-gray-100 text-gray-800';
+    if (value >= 7) return 'bg-green-100 text-green-800';
+    if (value >= 4) return 'bg-yellow-100 text-yellow-800';
     return 'bg-red-100 text-red-800';
   };
 
@@ -178,25 +199,25 @@ const ConditionTab = ({ vehicle }: ConditionTabProps) => {
           <div className="bg-gray-50 p-3 sm:p-4 rounded-xl text-center">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2 sm:mb-3">Front Left</p>
             <span className={`inline-block px-3 sm:px-4 py-2 rounded-lg text-lg sm:text-xl font-black ${getBrakeColor(brakes[0])}`}>
-              {brakes[0] ? `${brakes[0]}MM` : 'N/A'}
+              {brakes[0] !== null ? `${brakes[0]}mm` : 'N/A'}
             </span>
           </div>
           <div className="bg-gray-50 p-3 sm:p-4 rounded-xl text-center">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2 sm:mb-3">Front Right</p>
             <span className={`inline-block px-3 sm:px-4 py-2 rounded-lg text-lg sm:text-xl font-black ${getBrakeColor(brakes[1])}`}>
-              {brakes[1] ? `${brakes[1]}MM` : 'N/A'}
+              {brakes[1] !== null ? `${brakes[1]}mm` : 'N/A'}
             </span>
           </div>
           <div className="bg-gray-50 p-3 sm:p-4 rounded-xl text-center">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2 sm:mb-3">Rear Left</p>
             <span className={`inline-block px-3 sm:px-4 py-2 rounded-lg text-lg sm:text-xl font-black ${getBrakeColor(brakes[2])}`}>
-              {brakes[2] ? `${brakes[2]}MM` : 'N/A'}
+              {brakes[2] !== null ? `${brakes[2]}mm` : 'N/A'}
             </span>
           </div>
           <div className="bg-gray-50 p-3 sm:p-4 rounded-xl text-center">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2 sm:mb-3">Rear Right</p>
             <span className={`inline-block px-3 sm:px-4 py-2 rounded-lg text-lg sm:text-xl font-black ${getBrakeColor(brakes[3])}`}>
-              {brakes[3] ? `${brakes[3]}MM` : 'N/A'}
+              {brakes[3] !== null ? `${brakes[3]}mm` : 'N/A'}
             </span>
           </div>
         </div>
@@ -210,25 +231,25 @@ const ConditionTab = ({ vehicle }: ConditionTabProps) => {
           <div className="bg-gray-50 p-3 sm:p-4 rounded-xl text-center">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2 sm:mb-3">Front Left</p>
             <span className={`inline-block px-3 sm:px-4 py-2 rounded-lg text-lg sm:text-xl font-black ${getTireColor(tires[0])}`}>
-              {tires[0] ? `${tires[0]}/32"` : 'N/A'}
+              {tires[0] !== null ? `${tires[0]}/32"` : 'N/A'}
             </span>
           </div>
           <div className="bg-gray-50 p-3 sm:p-4 rounded-xl text-center">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2 sm:mb-3">Front Right</p>
             <span className={`inline-block px-3 sm:px-4 py-2 rounded-lg text-lg sm:text-xl font-black ${getTireColor(tires[1])}`}>
-              {tires[1] ? `${tires[1]}/32"` : 'N/A'}
+              {tires[1] !== null ? `${tires[1]}/32"` : 'N/A'}
             </span>
           </div>
           <div className="bg-gray-50 p-3 sm:p-4 rounded-xl text-center">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2 sm:mb-3">Rear Left</p>
             <span className={`inline-block px-3 sm:px-4 py-2 rounded-lg text-lg sm:text-xl font-black ${getTireColor(tires[2])}`}>
-              {tires[2] ? `${tires[2]}/32"` : 'N/A'}
+              {tires[2] !== null ? `${tires[2]}/32"` : 'N/A'}
             </span>
           </div>
           <div className="bg-gray-50 p-3 sm:p-4 rounded-xl text-center">
             <p className="text-xs font-bold text-gray-400 uppercase mb-2 sm:mb-3">Rear Right</p>
             <span className={`inline-block px-3 sm:px-4 py-2 rounded-lg text-lg sm:text-xl font-black ${getTireColor(tires[3])}`}>
-              {tires[3] ? `${tires[3]}/32"` : 'N/A'}
+              {tires[3] !== null ? `${tires[3]}/32"` : 'N/A'}
             </span>
           </div>
         </div>
@@ -239,9 +260,9 @@ const ConditionTab = ({ vehicle }: ConditionTabProps) => {
         <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-4">Reconditioning Details</h3>
 
         {/* Estimated Recon Cost */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 sm:p-6 mb-6">
-          <p className="text-xs font-bold text-yellow-700 uppercase tracking-wide mb-2">Estimated Recon Cost</p>
-          <p className="text-3xl sm:text-4xl font-black text-yellow-900">${vehicle.recon_estimate || 0}</p>
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 mb-6">
+          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Estimated Recon Cost</p>
+          <p className="text-3xl sm:text-4xl font-black text-slate-900">${vehicle.recon_estimate || 0}</p>
         </div>
 
         {/* Inspector Notes */}

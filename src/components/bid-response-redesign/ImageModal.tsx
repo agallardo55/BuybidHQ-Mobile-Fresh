@@ -2,6 +2,7 @@
 import React from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { X } from 'lucide-react'
 
 interface ImageModalProps {
   images: string[];
@@ -16,6 +17,15 @@ export function ImageModal({ images, open, onOpenChange, startIndex = 0 }: Image
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-black border-none p-0 max-w-full h-full [&>button]:hidden">
+        {/* Custom Close Button */}
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-6 w-6" />
+        </button>
+
         <div className="relative h-full w-full">
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">

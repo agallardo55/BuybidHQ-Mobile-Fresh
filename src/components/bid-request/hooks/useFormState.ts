@@ -38,7 +38,7 @@ const initialFormData: BidRequestFormData = {
   jdPowerRetail: "",
   auctionWholesale: "",
   auctionRetail: "",
-  bookValuesCondition: "",
+  bookValuesCondition: "excellent",
 };
 
 export const useFormState = (): FormState & FormStateActions => {
