@@ -35,13 +35,13 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
 
     if (!numericValue) return "";
 
-    // Convert to number and divide by 100 to get cents
-    const number = parseInt(numericValue) / 100;
+    // Convert to number (no division - whole dollars only)
+    const number = parseInt(numericValue);
 
-    // Format with commas and 2 decimal places
+    // Format with commas, no decimal places
     return number.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
     });
   };
 
@@ -177,15 +177,15 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
 
           <div className="bg-gray-50 rounded-2xl p-6 mb-6">
             <div className="flex items-center">
-              <span className="text-5xl sm:text-6xl font-black text-gray-600 mr-2">$</span>
+              <span className="text-5xl sm:text-6xl font-black text-gray-600 mr-2" style={{ fontSize: '40px' }}>$</span>
               <input
                 type="text"
                 value={formatCurrency(offerAmount)}
                 onChange={handleOfferChange}
                 className="flex-grow text-5xl sm:text-6xl font-black text-gray-700 placeholder:text-gray-400 bg-transparent border-none focus:outline-none focus:ring-0 p-0 touch-manipulation"
-                placeholder="0.00"
+                placeholder="0"
                 inputMode="numeric"
-                style={{ touchAction: 'manipulation' }}
+                style={{ touchAction: 'manipulation', fontSize: '40px' }}
               />
             </div>
           </div>
@@ -193,9 +193,7 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
           <div className="flex items-start gap-2 mb-6 text-sm text-gray-600">
             <Info className="h-5 w-5 text-brand flex-shrink-0 mt-0.5" />
             <p>
-              Recommended min. offer: <span className="font-bold text-gray-900">${recommendedMinOffer.toLocaleString()}</span>.
-              Submitting constitutes a binding agreement under our{' '}
-              <a href="/privacy" className="text-brand underline font-semibold">Privacy Policy</a>.
+              We recommend a competitive offer in order to win this vehicle. Submitting an offer constitutes a willingness to purchase if as described.
             </p>
           </div>
 
