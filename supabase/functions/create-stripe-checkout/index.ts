@@ -108,28 +108,77 @@ serve(async (req) => {
       );
     }
 
-    if (!userData || !userData.account_id) {
-      console.error('No account found for user:', user.id);
-      return new Response(
-        JSON.stringify({ error: 'Account not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // If user doesn't have an account, create one
+    let accountId = userData?.account_id;
+    let account: any;
 
-    const { data: account, error: accountError } = await supabase
-      .from('accounts')
-      .select('*')
-      .eq('id', userData.account_id)
-      .single();
+    if (!accountId) {
+      console.log('No account found for user, creating new account');
 
-    console.log('Account lookup result:', { account, accountError });
+      // Get user's full name for account naming
+      const { data: fullUserData } = await supabase
+        .from('buybidhq_users')
+        .select('full_name, email')
+        .eq('id', user.id)
+        .single();
 
-    if (accountError) {
-      console.error('Account lookup error:', accountError);
-      return new Response(
-        JSON.stringify({ error: 'Account lookup failed', details: accountError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      const accountName = fullUserData?.full_name
+        ? `${fullUserData.full_name}'s Account`
+        : `${fullUserData?.email || user.email}'s Account`;
+
+      // Create new account
+      const { data: newAccount, error: createAccountError } = await supabase
+        .from('accounts')
+        .insert({
+          name: accountName,
+          plan: 'free',
+          billing_status: 'active'
+        })
+        .select()
+        .single();
+
+      if (createAccountError) {
+        console.error('Account creation error:', createAccountError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to create account', details: createAccountError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      accountId = newAccount.id;
+      account = newAccount;
+
+      // Update user with new account_id
+      const { error: updateUserError } = await supabase
+        .from('buybidhq_users')
+        .update({ account_id: accountId })
+        .eq('id', user.id);
+
+      if (updateUserError) {
+        console.error('User account_id update error:', updateUserError);
+        // Continue anyway - account is created
+      }
+
+      console.log('New account created:', accountId);
+    } else {
+      // Account exists, fetch it
+      const { data: existingAccount, error: accountError } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('id', accountId)
+        .single();
+
+      console.log('Account lookup result:', { existingAccount, accountError });
+
+      if (accountError) {
+        console.error('Account lookup error:', accountError);
+        return new Response(
+          JSON.stringify({ error: 'Account lookup failed', details: accountError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      account = existingAccount;
     }
 
     let customerId = account.stripe_customer_id;

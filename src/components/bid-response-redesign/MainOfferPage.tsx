@@ -9,9 +9,18 @@ import { ImageModal } from "./ImageModal";
 interface MainOfferPageProps {
   vehicle: QuickBidDetails;
   onViewDetails: () => void;
+  onSubmitOffer?: (amount: number) => void;
+  isSubmitting?: boolean;
+  hasSubmitted?: boolean;
 }
 
-const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
+const MainOfferPage = ({
+  vehicle,
+  onViewDetails,
+  onSubmitOffer,
+  isSubmitting,
+  hasSubmitted
+}: MainOfferPageProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [offerAmount, setOfferAmount] = useState("");
 
@@ -69,6 +78,12 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
 
   // Calculate recommended minimum offer (you can adjust this logic)
   const recommendedMinOffer = vehicle.kbb_wholesale || vehicle.mmr_wholesale || 0;
+
+  const handleSubmit = () => {
+    const amount = Number(offerAmount);
+    if (!amount || Number.isNaN(amount)) return;
+    onSubmitOffer?.(amount);
+  };
 
   return (
     <div className="bg-gray-50">
@@ -199,11 +214,10 @@ const MainOfferPage = ({ vehicle, onViewDetails }: MainOfferPageProps) => {
 
           <Button
             className="w-full bg-brand hover:bg-brand/90 text-white font-bold text-lg py-6 rounded-xl"
-            onClick={() => {
-              // Handle submit
-            }}
+            onClick={handleSubmit}
+            disabled={!offerAmount || isSubmitting || hasSubmitted}
           >
-            Submit Offer
+            {hasSubmitted ? 'Offer Submitted' : isSubmitting ? 'Submitting...' : 'Submit Offer'}
           </Button>
         </Card>
 

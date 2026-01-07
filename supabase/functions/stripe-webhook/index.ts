@@ -118,13 +118,16 @@ serve(async (req) => {
           .single();
 
         if (user?.account_id) {
+          // Map plan type correctly - annual plan should be 'annual', not 'connect'
+          const accountPlan = planType === 'annual' ? 'annual' : 'connect';
+
           const { error: accountError } = await supabase
             .from('accounts')
             .update({
               stripe_customer_id: customerId,
               stripe_subscription_id: subscriptionId,
               billing_status: 'active',
-              plan: 'connect',
+              plan: accountPlan,
               billing_cycle: planType === 'annual' ? 'annual' : 'monthly',
             })
             .eq('id', user.account_id);
@@ -132,7 +135,7 @@ serve(async (req) => {
           if (accountError) {
             console.error('Error updating account:', accountError);
           } else {
-            console.log('Account updated with Stripe IDs:', user.account_id);
+            console.log('Account updated with Stripe IDs and plan:', { accountId: user.account_id, plan: accountPlan });
           }
         }
 

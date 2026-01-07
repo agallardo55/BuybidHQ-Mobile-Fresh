@@ -85,11 +85,41 @@ export const SubscriptionTab = () => {
 
       console.log('Stripe checkout response:', { data, error });
 
+      // If the Edge Function returned an error response
       if (error) {
-        console.error('Stripe checkout error:', error);
-        throw error;
+        console.error('Edge Function error:', error);
+
+        // Try to extract the actual error from the Response object
+        let errorMessage = 'Edge Function error';
+
+        try {
+          const errorContext = (error as any).context;
+          console.log('Error context type:', errorContext?.constructor?.name);
+
+          // If context is a Response object, read the body
+          if (errorContext && typeof errorContext.json === 'function') {
+            const errorBody = await errorContext.json();
+            console.error('Error body from server:', errorBody);
+            errorMessage = errorBody.details || errorBody.error || error.message;
+          } else if (errorContext?.error || errorContext?.details) {
+            errorMessage = errorContext.details || errorContext.error;
+          } else {
+            errorMessage = error.message;
+          }
+        } catch (parseError) {
+          console.error('Failed to parse error context:', parseError);
+          errorMessage = error.message;
+        }
+
+        throw new Error(errorMessage);
       }
-      
+
+      // If the data contains an error field (from Edge Function's error responses)
+      if (data?.error) {
+        console.error('Checkout error from server:', data);
+        throw new Error(data.details || data.error);
+      }
+
       if (data?.url) {
         console.log('Redirecting to Stripe checkout:', data.url);
         window.location.href = data.url;
@@ -97,11 +127,11 @@ export const SubscriptionTab = () => {
         console.error('No checkout URL returned:', data);
         throw new Error('No checkout URL returned from server');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating checkout session:', error);
       toast({
-        title: "Error",
-        description: `Unable to process upgrade request: ${error.message || 'Please try again later.'}`,
+        title: "Operation Failed",
+        description: error.message || 'Unable to process upgrade request. Please contact support.',
         variant: "destructive",
       });
     }

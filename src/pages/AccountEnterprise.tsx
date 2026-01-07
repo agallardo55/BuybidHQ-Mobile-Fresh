@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +34,7 @@ const AccountEnterprise = () => {
   const { currentUser, isLoading } = useCurrentUser();
   const { account } = useAccount();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const [activeSection, setActiveSection] = useState<AccountSection>("profile");
 
@@ -56,20 +58,18 @@ const AccountEnterprise = () => {
     }
 
     if (isSuccess) {
-      const currentPlan = account?.plan || 'free';
-      const planName = currentPlan === 'free' ? 'Baseline' :
-                      currentPlan === 'connect' ? 'Connect Premium' :
-                      currentPlan === 'annual' ? 'Enterprise' : 'current';
+      // Refetch account data to show updated plan
+      queryClient.invalidateQueries({ queryKey: ['account'] });
 
       toast({
         title: "Transaction Completed",
-        description: `Subscription updated successfully. Active plan: ${planName}`,
+        description: "Subscription updated successfully.",
         variant: "default",
       });
 
       window.history.replaceState({}, '', '/account');
     }
-  }, [searchParams, toast, account?.plan]);
+  }, [searchParams, toast, queryClient, account?.plan]);
 
   // Check for tab parameter in URL
   useEffect(() => {

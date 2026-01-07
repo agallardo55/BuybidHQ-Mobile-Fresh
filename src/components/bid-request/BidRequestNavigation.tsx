@@ -3,20 +3,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserRound, Bell, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { hasRequiredRole } from "@/config/features";
-import { enhancedLogout } from "@/utils/enhanced-auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 const BidRequestNavigation = () => {
   const navigate = useNavigate();
   const { currentUser, isLoading } = useCurrentUser();
+  const { signOut } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await enhancedLogout();
-      navigate('/');
+      await signOut();
+      // signOut handles navigation to /signin
     } catch (error) {
       console.error('Logout failed:', error);
-      // Force navigation even if logout fails
-      navigate('/');
+      // signOut fallback handles navigation
     }
   };
 

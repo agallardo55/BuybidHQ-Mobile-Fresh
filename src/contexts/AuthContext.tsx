@@ -59,18 +59,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = useCallback(async () => {
     logger.debug('AuthContext: Initiating sign out...');
     try {
-      // 1. Clear ALL auth state FIRST (before Supabase signOut)
-      setUser(null);
-      setSession(null);
-      setIsLoading(false);
-      
-      // 2. Reset all flags to allow proper re-initialization on next sign-in
+      // Reset all flags to allow proper re-initialization on next sign-in
       hasAuthInit.current = false;
       lastAuthEventUserId.current = null;
       enrichmentInProgress.current = false;
       lastEnrichmentUserId.current = null;
-      
-      // 3. Sign out from Supabase
+
+      // robustSignOut handles:
+      // 1. Supabase signOut
+      // 2. Clearing storage (localStorage, sessionStorage, cookies)
+      // 3. Navigation to /signin
+      // The SIGNED_OUT event handler will clear React state
       await robustSignOut({ scope: 'global', clearHistory: true });
     } catch (error) {
       console.error('AuthContext: Sign out error:', error);
@@ -82,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       lastAuthEventUserId.current = null;
       enrichmentInProgress.current = false;
       lastEnrichmentUserId.current = null;
-      navigate('/signin', { replace: true });
+      window.location.replace('/signin');
     }
   }, [navigate]);
 
@@ -473,14 +472,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(null);
           setSession(null);
           setIsLoading(false);
-          // Reset all flags to allow proper re-initialization
-          hasAuthInit.current = false;
-          lastAuthEventUserId.current = null;
-          enrichmentInProgress.current = false;
-          lastEnrichmentUserId.current = null;
-          // Clear storage
-          localStorage.clear();
-          navigate('/signin');
+          // Note: robustSignOut already handles navigation and storage cleanup
+          // Just update React state here
         } else if (event === 'TOKEN_REFRESHED' && session) {
           logger.debug('AuthContext: Token refreshed');
           setSession(session);

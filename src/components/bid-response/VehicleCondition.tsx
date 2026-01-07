@@ -2,6 +2,7 @@
 import { VehicleDetails } from "./types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getConditionDisplay } from "@/components/bid-request/utils/conditionFormatting";
+import MeasurementBadges from "./MeasurementBadges";
 
 interface Props {
   vehicle: VehicleDetails;
@@ -14,7 +15,7 @@ const VehicleCondition = ({ vehicle }: Props) => {
         <CardTitle>Vehicle Condition</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Windshield</p>
             <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.windshield, 'windshield')}</p>
@@ -23,13 +24,13 @@ const VehicleCondition = ({ vehicle }: Props) => {
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Engine Lights</p>
             <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.engineLights, 'engineLights')}</p>
           </div>
-          <div>
-            <p className="text-base lg:text-base text-lg font-medium text-gray-500">Brakes</p>
-            <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.brakes, 'brakesTires')}</p>
+          <div className="md:col-span-2">
+            <p className="text-base lg:text-base text-lg font-medium text-gray-500 mb-2">Brakes</p>
+            <MeasurementBadges type="brakes" measurements={vehicle.brakes} />
           </div>
-          <div>
-            <p className="text-base lg:text-base text-lg font-medium text-gray-500">Tires</p>
-            <p className="text-base lg:text-base text-lg">{getConditionDisplay(vehicle.tire, 'brakesTires')}</p>
+          <div className="md:col-span-2">
+            <p className="text-base lg:text-base text-lg font-medium text-gray-500 mb-2">Tires</p>
+            <MeasurementBadges type="tires" measurements={vehicle.tire} />
           </div>
           <div>
             <p className="text-base lg:text-base text-lg font-medium text-gray-500">Maintenance</p>

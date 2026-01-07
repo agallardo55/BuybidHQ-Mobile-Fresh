@@ -25,8 +25,19 @@ interface BidRequestDetails {
   maintenance: string;
   recon_estimate: string;
   recon_details: string;
+  body_style: string;
   primary_image?: string | null;
   user_id?: string;
+  // Book values fields
+  mmr_wholesale?: number;
+  mmr_retail?: number;
+  kbb_wholesale?: number;
+  kbb_retail?: number;
+  jd_power_wholesale?: number;
+  jd_power_retail?: number;
+  auction_wholesale?: number;
+  auction_retail?: number;
+  book_values_condition?: string;
 }
 
 interface BidOffer {
@@ -102,7 +113,7 @@ export const transformBidRequest = (
     createdAt: item.created_at,
     status,
     userId: item.user_id || "unknown",
-    accountId: "unknown", // Add required property  
+    accountId: "unknown", // Add required property
     vehicleId: "unknown", // Add required property
     year: parseInt(item.year) || 0,
     make: item.make,
@@ -126,6 +137,17 @@ export const transformBidRequest = (
     tire: item.tire,
     maintenance: item.maintenance,
     reconEstimate: item.recon_estimate,
-    reconDetails: item.recon_details
+    reconDetails: item.recon_details,
+    bodyStyle: item.body_style,
+    // Book values - flat fields
+    mmrWholesale: item.mmr_wholesale,
+    mmrRetail: item.mmr_retail,
+    kbbWholesale: item.kbb_wholesale,
+    kbbRetail: item.kbb_retail,
+    jdPowerWholesale: item.jd_power_wholesale,
+    jdPowerRetail: item.jd_power_retail,
+    auctionWholesale: item.auction_wholesale,
+    auctionRetail: item.auction_retail,
+    bookValuesCondition: item.book_values_condition
   };
 };

@@ -43,7 +43,7 @@ export const useBidRequestSubmission = () => {
         model: formData.model,
         trim: formData.trim,
         vin: formData.vin,
-        mileage: formData.mileage,
+        mileage: extractNumericValue(formData.mileage), // Strip commas before submission
         engine: formData.engineCylinders,
         transmission: formData.transmission,
         drivetrain: formData.drivetrain,

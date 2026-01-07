@@ -6,6 +6,8 @@ import { ErrorState, LoadingState } from "@/components/bid-response/BidResponseS
 import MainOfferPage from "./MainOfferPage";
 import DetailPage from "./DetailPage";
 import { QuickBidDetails } from "./types";
+import { useBidSubmission } from "@/hooks/useBidSubmission";
+import { toast } from "sonner";
 
 const useQuickBidDetails = () => {
   const [searchParams] = useSearchParams();
@@ -90,7 +92,29 @@ const useQuickBidDetails = () => {
 
 const RedesignedBidResponse = () => {
   const { data, isLoading, error } = useQuickBidDetails();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
   const [currentView, setCurrentView] = useState('offer'); // 'offer' or 'details'
+  const [submitted, setSubmitted] = useState(false);
+
+  const showAlert = (title: string, message: string | { amount: string; description: string }, type: string) => {
+    const body = typeof message === 'string' ? message : `${message.amount} — ${message.description}`;
+    if (type === 'success') {
+      toast.success(body, { description: title });
+    } else {
+      toast.error(body, { description: title });
+    }
+  };
+
+  const { isSubmitting, handleSubmit } = useBidSubmission({
+    token,
+    showAlert,
+    setSubmitted
+  });
+
+  const handleOfferSubmit = (amount: number) => {
+    handleSubmit({ offerAmount: amount.toString() });
+  };
 
   const handleViewDetails = () => {
     setCurrentView('details');
@@ -123,7 +147,13 @@ const RedesignedBidResponse = () => {
   return (
     <div>
       {currentView === 'offer' ? (
-        <MainOfferPage vehicle={data} onViewDetails={handleViewDetails} />
+        <MainOfferPage
+          vehicle={data}
+          onViewDetails={handleViewDetails}
+          onSubmitOffer={handleOfferSubmit}
+          isSubmitting={isSubmitting}
+          hasSubmitted={submitted || !!data.submitted_offer_amount}
+        />
       ) : (
         <DetailPage vehicle={data} onBackToOffer={handleBackToOffer} />
       )}

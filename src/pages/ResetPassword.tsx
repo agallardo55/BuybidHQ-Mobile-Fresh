@@ -56,6 +56,7 @@ const ResetPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log("handleSubmit called");
 
     // Validate password
     const passwordError = validatePassword(password);
@@ -80,18 +81,62 @@ const ResetPassword = () => {
     }
 
     try {
-      const { error } = await supabase.auth.updateUser({
+      console.log("Calling supabase.auth.updateUser");
+      const startTime = Date.now();
+      const { data, error } = await supabase.auth.updateUser({
         password: password
       });
+      const endTime = Date.now();
+      console.log(`supabase.auth.updateUser took ${endTime - startTime}ms`);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase updateUser error:", error);
+        throw error;
+      }
+
+      // Wait for session to be confirmed before navigating
+      // This prevents race condition with ProtectedRoute auth check
+      console.log("Verifying session after password update");
+
+      // Retry session check with timeout (max 3 attempts over 1.5 seconds)
+      let session = null;
+      let sessionError = null;
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const { data: { session: currentSession }, error: currentError } = await supabase.auth.getSession();
+
+        if (currentSession) {
+          session = currentSession;
+          break;
+        }
+
+        sessionError = currentError;
+
+        if (attempt < 3) {
+          console.log(`Session not ready, retrying (attempt ${attempt}/3)...`);
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
+
+      if (sessionError) {
+        console.error("Session verification error:", sessionError);
+        throw sessionError;
+      }
+
+      if (!session) {
+        console.error("No session found after password update");
+        throw new Error('Session not established after password update. Please sign in again.');
+      }
+
+      console.log("Session confirmed, user:", session.user.id);
 
       toast({
         title: "Success",
         description: "Your password has been successfully updated. Welcome back!",
       });
-      
-      // Keep the user signed in and redirect to dashboard
+
+      // Session is confirmed, safe to navigate to dashboard
+      console.log("Navigating to /dashboard");
       navigate("/dashboard");
     } catch (error: any) {
       console.error('Password reset error:', error);
@@ -103,6 +148,7 @@ const ResetPassword = () => {
       
       // If there's a session error, redirect to forgot password
       if (error.message?.includes('session') || error.message?.includes('token')) {
+        console.log("Redirecting to /forgot-password due to session/token error");
         navigate('/forgot-password');
       }
     } finally {

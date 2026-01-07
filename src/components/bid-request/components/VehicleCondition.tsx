@@ -1,6 +1,7 @@
 
 import { BidRequest } from "../types";
 import { getConditionDisplay } from "../utils/conditionFormatting";
+import MeasurementBadges from "@/components/bid-response/MeasurementBadges";
 
 interface VehicleConditionProps {
   request: BidRequest;
@@ -21,9 +22,13 @@ const VehicleCondition = ({ request }: VehicleConditionProps) => {
           <div className="font-bold text-black">Engine Lights:</div>
           <div className="font-normal p-2 rounded block w-full bg-gray-50">{getConditionDisplay(request.engineLights, 'engineLights')}</div>
           <div className="font-bold text-black">Brakes:</div>
-          <div className="font-normal p-2 rounded block w-full bg-gray-50">{getConditionDisplay(request.brakes, 'brakesTires')}</div>
+          <div className="font-normal p-2 rounded block w-full bg-gray-50">
+            <MeasurementBadges type="brakes" measurements={request.brakes} />
+          </div>
           <div className="font-bold text-black">Tires:</div>
-          <div className="font-normal p-2 rounded block w-full bg-gray-50">{getConditionDisplay(request.tire, 'brakesTires')}</div>
+          <div className="font-normal p-2 rounded block w-full bg-gray-50">
+            <MeasurementBadges type="tires" measurements={request.tire} />
+          </div>
           <div className="font-bold text-black">Maintenance:</div>
           <div className="font-normal p-2 rounded block w-full bg-gray-50">{getConditionDisplay(request.maintenance, 'maintenance')}</div>
         </div>

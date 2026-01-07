@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotificationToasts } from "./notifications/useNotificationToasts";
-import { enhancedLogout } from "@/utils/enhanced-auth";
+import { useAuth } from "@/contexts/AuthContext";
 import Logo from "./navigation/Logo";
 import NavItems from "./navigation/NavItems";
 import UserActions from "./navigation/UserActions";
@@ -16,6 +16,7 @@ const DashboardNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { currentUser, isLoading } = useCurrentUser();
+  const { signOut } = useAuth();
 
   // Initialize notification toasts
   useNotificationToasts();
@@ -83,12 +84,11 @@ const DashboardNavigation = () => {
 
   const handleLogout = async () => {
     try {
-      await enhancedLogout();
-      navigate('/');
+      await signOut();
+      // signOut handles navigation to /signin
     } catch (error) {
       console.error('Logout failed:', error);
-      // Force navigation even if logout fails
-      navigate('/');
+      // signOut fallback handles navigation
     }
   };
 

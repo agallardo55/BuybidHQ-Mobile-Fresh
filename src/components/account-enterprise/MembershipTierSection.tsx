@@ -34,18 +34,55 @@ export const MembershipTierSection = ({ account, user }: MembershipTierSectionPr
         },
       });
 
-      if (error) throw error;
+      console.log('Stripe checkout response:', { data, error });
+
+      // If the Edge Function returned an error response
+      if (error) {
+        console.error('Edge Function error:', error);
+
+        // Try to extract the actual error from the Response object
+        let errorMessage = 'Edge Function error';
+
+        try {
+          const errorContext = (error as any).context;
+          console.log('Error context type:', errorContext?.constructor?.name);
+
+          // If context is a Response object, read the body
+          if (errorContext && typeof errorContext.json === 'function') {
+            const errorBody = await errorContext.json();
+            console.error('Error body from server:', errorBody);
+            errorMessage = errorBody.details || errorBody.error || error.message;
+          } else if (errorContext?.error || errorContext?.details) {
+            errorMessage = errorContext.details || errorContext.error;
+          } else {
+            errorMessage = error.message;
+          }
+        } catch (parseError) {
+          console.error('Failed to parse error context:', parseError);
+          errorMessage = error.message;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      // If the data contains an error field (from Edge Function's error responses)
+      if (data?.error) {
+        console.error('Checkout error from server:', data);
+        throw new Error(data.details || data.error);
+      }
 
       if (data?.url) {
+        console.log('Redirecting to Stripe checkout:', data.url);
         window.location.href = data.url;
       } else {
+        console.error('No checkout URL returned:', data);
         throw new Error('No checkout URL returned from server');
       }
     } catch (error: any) {
       console.error('Error creating checkout session:', error);
       toast({
         title: "Operation Failed",
-        description: error.message || "Unable to process upgrade request",
+        description: error.message || "Unable to process upgrade request. Please contact support.",
         variant: "destructive",
       });
     } finally {
@@ -192,7 +229,7 @@ export const MembershipTierSection = ({ account, user }: MembershipTierSectionPr
                   </p>
                   {plan.recommended && (
                     <div className="mt-3">
-                      <span className="inline-block bg-slate-900 text-white px-3 py-1 rounded text-[10px] font-medium uppercase tracking-widest">
+                      <span className="inline-block bg-blue-600 text-white px-3 py-1 rounded text-[10px] font-medium uppercase tracking-widest">
                         RECOMMENDED
                       </span>
                     </div>
@@ -265,15 +302,9 @@ export const MembershipTierSection = ({ account, user }: MembershipTierSectionPr
       </Card>
 
       {/* Additional Info */}
-      <div className="text-xs text-slate-500 space-y-2">
+      <div className="text-xs text-slate-500">
         <p className="uppercase tracking-wide">
-          • ALL PLANS INCLUDE UNLIMITED BID REQUESTS
-        </p>
-        <p className="uppercase tracking-wide">
-          • CANCEL OR MODIFY SUBSCRIPTION AT ANY TIME
-        </p>
-        <p className="uppercase tracking-wide">
-          • SECURE PAYMENT PROCESSING VIA STRIPE
+          Downgrade plan to cancel payment tier
         </p>
       </div>
     </div>
