@@ -5,13 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { UserData } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProfileSettingsSectionProps {
   user: UserData | null | undefined;
 }
 
 export const ProfileSettingsSection = ({ user }: ProfileSettingsSectionProps) => {
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     full_name: user?.full_name || "",
@@ -38,6 +40,9 @@ export const ProfileSettingsSection = ({ user }: ProfileSettingsSectionProps) =>
         .eq("id", user?.id);
 
       if (error) throw error;
+
+      // Invalidate currentUser cache so profile completion recalculates with new data
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
 
       toast.success("Profile modifications committed successfully");
     } catch (error: any) {
@@ -122,7 +127,7 @@ export const ProfileSettingsSection = ({ user }: ProfileSettingsSectionProps) =>
               disabled={isSubmitting}
               className="bg-brand hover:bg-brand/90 text-white h-10 px-6 text-xs font-medium uppercase tracking-widest"
             >
-              {isSubmitting ? "PROCESSING..." : "COMMIT CHANGES"}
+              {isSubmitting ? "PROCESSING..." : "UPDATE"}
             </Button>
           </div>
         </form>

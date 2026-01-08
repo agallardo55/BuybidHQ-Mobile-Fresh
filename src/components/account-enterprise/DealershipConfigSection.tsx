@@ -5,13 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { UserData } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface DealershipConfigSectionProps {
   user: UserData | null | undefined;
 }
 
 export const DealershipConfigSection = ({ user }: DealershipConfigSectionProps) => {
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     business_name: "",
@@ -26,30 +28,65 @@ export const DealershipConfigSection = ({ user }: DealershipConfigSectionProps) 
 
   useEffect(() => {
     const fetchDealershipData = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        console.log('🏢 DealershipConfigSection: No user ID, skipping fetch');
+        return;
+      }
 
-      const { data } = await supabase
+      console.log('🏢 DealershipConfigSection: Fetching dealership data for user:', user.id);
+
+      const { data, error } = await supabase
         .from("individual_dealers")
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (data) {
-        setFormData({
-          business_name: data.business_name || "",
-          license_number: data.license_number || "",
-          address: data.address || "",
-          city: data.city || "",
-          state: data.state || "",
-          zip_code: data.zip_code || "",
-          business_phone: data.business_phone || "",
-          business_email: data.business_email || "",
-        });
+      console.log('🏢 DealershipConfigSection: Fetch result:', {
+        hasData: !!data,
+        error: error?.message,
+        individualDealersData: data ? {
+          business_name: data.business_name,
+          license_number: data.license_number,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          zip_code: data.zip_code,
+          business_phone: data.business_phone,
+          business_email: data.business_email,
+        } : null,
+        userPropData: {
+          dealer_name: user.dealer_name,
+          license_number: user.license_number,
+          address: user.address,
+          city: user.city,
+          state: user.state,
+          zip_code: user.zip_code,
+          business_phone: user.business_phone,
+          business_email: user.business_email,
+        }
+      });
+
+      if (error) {
+        console.error('🏢 DealershipConfigSection: Error fetching data:', error);
       }
+
+      // Use merged data: prefer individual_dealers data, but fall back to user prop (which has buybidhq_users data)
+      setFormData({
+        business_name: data?.business_name || user.dealer_name || "",
+        license_number: data?.license_number || user.license_number || "",
+        address: data?.address || user.address || "",
+        city: data?.city || user.city || "",
+        state: data?.state || user.state || "",
+        zip_code: data?.zip_code || user.zip_code || "",
+        business_phone: data?.business_phone || user.business_phone || "",
+        business_email: data?.business_email || user.business_email || "",
+      });
+
+      console.log('🏢 DealershipConfigSection: Form initialized with merged data');
     };
 
     fetchDealershipData();
-  }, [user?.id]);
+  }, [user?.id, user?.address, user?.city, user?.state, user?.zip_code, user?.dealer_name, user?.license_number, user?.business_phone, user?.business_email]);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -70,6 +107,9 @@ export const DealershipConfigSection = ({ user }: DealershipConfigSectionProps) 
         });
 
       if (error) throw error;
+
+      // Invalidate currentUser cache so profile completion recalculates with new dealership data
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
 
       toast.success("Dealership configuration committed successfully");
     } catch (error: any) {
@@ -208,7 +248,7 @@ export const DealershipConfigSection = ({ user }: DealershipConfigSectionProps) 
           disabled={isSubmitting}
           className="bg-brand hover:bg-brand/90 text-white h-10 px-6 text-xs font-medium uppercase tracking-widest"
         >
-          {isSubmitting ? "PROCESSING..." : "COMMIT CHANGES"}
+          {isSubmitting ? "PROCESSING..." : "UPDATE"}
         </Button>
       </form>
     </div>

@@ -33,14 +33,32 @@ export const calculateProfileCompletion = (user: UserData | null): ProfileComple
   ];
 
   const completedFields = requiredFields.filter(
-    (field) => field.value && field.value.trim() !== ''
+    (field) => field.value && typeof field.value === 'string' && field.value.trim() !== ''
   );
 
   const missingFields = requiredFields.filter(
-    (field) => !field.value || field.value.trim() === ''
+    (field) => !field.value || typeof field.value !== 'string' || field.value.trim() === ''
   );
 
   const percentage = Math.round((completedFields.length / requiredFields.length) * 100);
+
+  // Debug logging - show ALL field values
+  console.log('📊 Profile Completion Calculation:', {
+    user: user.email,
+    totalFields: requiredFields.length,
+    completedCount: completedFields.length,
+    missingCount: missingFields.length,
+    percentage,
+    completed: completedFields.map((f) => f.label),
+    missing: missingFields.map((f) => `${f.label} (${f.value === null ? 'null' : f.value === undefined ? 'undefined' : `"${f.value}"`})`),
+    allFieldValues: requiredFields.map((f) => ({
+      field: f.label,
+      key: f.key,
+      value: f.value,
+      type: typeof f.value,
+      isEmpty: !f.value || typeof f.value !== 'string' || f.value.trim() === ''
+    }))
+  });
 
   return {
     percentage,

@@ -6,6 +6,7 @@ import { PublicAppWrapper } from "@/components/PublicAppWrapper";
 import { ProtectedRoute, AuthRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 import { RecoveryRedirector } from "@/components/RecoveryRedirector";
 import { StrictMode, lazy, Suspense } from "react";
@@ -49,11 +50,12 @@ const App = () => {
             }}
           >
             <AuthProvider>
-              <PublicAppWrapper>
-              <RecoveryRedirector />
-              <Toaster />
-              <Sonner position="top-center" />
-              <Routes>
+              <NotificationProvider>
+                <PublicAppWrapper>
+                <RecoveryRedirector />
+                <Toaster />
+                <Sonner position="top-center" />
+                <Routes>
                 <Route path="/" element={<Index />} />
                 <Route 
                   path="/signin" 
@@ -182,6 +184,7 @@ const App = () => {
                 } />
               </Routes>
               </PublicAppWrapper>
+              </NotificationProvider>
             </AuthProvider>
           </BrowserRouter>
         </TooltipProvider>

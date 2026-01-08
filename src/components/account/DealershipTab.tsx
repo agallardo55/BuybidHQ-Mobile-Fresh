@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Form,
   FormControl,
@@ -44,6 +45,7 @@ const dealershipInfoSchema = z.object({
 export const DealershipTab = () => {
   const { currentUser, isLoading } = useCurrentUser();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof dealershipInfoSchema>>({
     resolver: zodResolver(dealershipInfoSchema),
@@ -102,14 +104,15 @@ export const DealershipTab = () => {
         if (dealerError) throw dealerError;
       }
 
+      // Invalidate currentUser cache so profile completion recalculates with new data
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+
       toast({
         title: "Success",
         description: canEditDealershipInfo
           ? "Dealership information updated successfully."
           : "Address information updated successfully.",
       });
-
-      window.location.reload();
     } catch (error) {
       console.error('Error updating information:', error);
       toast({

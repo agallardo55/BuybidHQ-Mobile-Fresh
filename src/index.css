@@ -90,12 +90,94 @@
     @apply border-border;
   }
 
+  html {
+    /* Prevent horizontal scrolling globally */
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     /* Optimize font rendering */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Aggressive horizontal scroll prevention */
+    overflow-x: hidden !important;
+    width: 100vw;
+    max-width: 100vw;
+    position: relative;
+    /* Allow vertical scroll */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #root {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100vh;
+  }
+
+  /* Prevent all children from causing horizontal overflow */
+  * {
+    max-width: 100%;
+  }
+
+  /* Mobile keyboard fixes - prevent horizontal drift */
+  @media (max-width: 768px) {
+    html {
+      position: fixed;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      position: fixed;
+      overflow-y: auto;
+      overflow-x: hidden;
+      width: 100%;
+      height: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Lock all containers to viewport width */
+    #root > * {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+  }
+
+  /* iOS Safari specific fixes */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS Safari safe area support */
+    body {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Prevent iOS Safari from adjusting text size */
+    input,
+    textarea,
+    select {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* Additional iOS fix for keyboard drift */
+    html {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+    }
   }
 
   /* Optimize web font loading to prevent render blocking */

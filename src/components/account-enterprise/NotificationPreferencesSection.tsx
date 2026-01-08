@@ -5,30 +5,27 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { UserData } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
+import { useQueryClient } from "@tanstack/react-query";
+import { invalidatePreferencesCache } from "@/utils/notificationToast";
 
 interface NotificationPreferencesSectionProps {
   user: UserData | null | undefined;
 }
 
 interface NotificationSettings {
-  email_bid_updates: boolean;
-  email_new_listings: boolean;
-  email_system_alerts: boolean;
   sms_bid_updates: boolean;
   sms_new_listings: boolean;
   sms_system_alerts: boolean;
 }
 
 export const NotificationPreferencesSection = ({ user }: NotificationPreferencesSectionProps) => {
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [settings, setSettings] = useState<NotificationSettings>({
-    email_bid_updates: true,
-    email_new_listings: true,
-    email_system_alerts: true,
-    sms_bid_updates: false,
-    sms_new_listings: false,
-    sms_system_alerts: false,
+    sms_bid_updates: true,
+    sms_new_listings: true,
+    sms_system_alerts: true,
   });
 
   useEffect(() => {
@@ -43,12 +40,9 @@ export const NotificationPreferencesSection = ({ user }: NotificationPreferences
 
       if (data?.notification_preferences) {
         setSettings({
-          email_bid_updates: data.notification_preferences.email_bid_updates ?? true,
-          email_new_listings: data.notification_preferences.email_new_listings ?? true,
-          email_system_alerts: data.notification_preferences.email_system_alerts ?? true,
-          sms_bid_updates: data.notification_preferences.sms_bid_updates ?? false,
-          sms_new_listings: data.notification_preferences.sms_new_listings ?? false,
-          sms_system_alerts: data.notification_preferences.sms_system_alerts ?? false,
+          sms_bid_updates: data.notification_preferences.sms_bid_updates ?? true,
+          sms_new_listings: data.notification_preferences.sms_new_listings ?? true,
+          sms_system_alerts: data.notification_preferences.sms_system_alerts ?? true,
         });
       }
     };
@@ -74,6 +68,12 @@ export const NotificationPreferencesSection = ({ user }: NotificationPreferences
 
       if (error) throw error;
 
+      // Invalidate currentUser cache to keep user object in sync
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+
+      // Invalidate notification preferences cache
+      invalidatePreferencesCache();
+
       toast.success("Notification preferences committed successfully");
     } catch (error: any) {
       toast.error(`Operation failed: ${error.message}`);
@@ -92,67 +92,17 @@ export const NotificationPreferencesSection = ({ user }: NotificationPreferences
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Electronic Mail Notifications */}
+        {/* Internal Messaging Notifications */}
         <Card className="border-slate-200 shadow-none">
           <div className="p-6 space-y-6">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 pb-3 border-b border-slate-200">
-              ELECTRONIC MAIL
-            </h3>
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-[11px] font-medium text-slate-900">
-                    BID UPDATES
-                  </Label>
-                  <p className="text-[10px] text-slate-500">
-                    Notifications for bid status changes and responses
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.email_bid_updates}
-                  onCheckedChange={() => handleToggle("email_bid_updates")}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-[11px] font-medium text-slate-900">
-                    NEW LISTINGS
-                  </Label>
-                  <p className="text-[10px] text-slate-500">
-                    Alerts for new vehicle listings matching your preferences
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.email_new_listings}
-                  onCheckedChange={() => handleToggle("email_new_listings")}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-[11px] font-medium text-slate-900">
-                    SYSTEM ALERTS
-                  </Label>
-                  <p className="text-[10px] text-slate-500">
-                    Important account and platform notifications
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.email_system_alerts}
-                  onCheckedChange={() => handleToggle("email_system_alerts")}
-                />
-              </div>
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 pb-1">
+                INTERNAL MESSAGING
+              </h3>
+              <p className="text-[10px] text-slate-500 pb-3 border-b border-slate-200">
+                Notification panel controls
+              </p>
             </div>
-          </div>
-        </Card>
-
-        {/* SMS Service Notifications */}
-        <Card className="border-slate-200 shadow-none">
-          <div className="p-6 space-y-6">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 pb-3 border-b border-slate-200">
-              SMS SERVICE
-            </h3>
             <div className="space-y-5">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
@@ -160,7 +110,7 @@ export const NotificationPreferencesSection = ({ user }: NotificationPreferences
                     BID UPDATES
                   </Label>
                   <p className="text-[10px] text-slate-500">
-                    Text notifications for bid status changes and responses
+                    In-app notifications for bid status changes and responses
                   </p>
                 </div>
                 <Switch
@@ -175,7 +125,7 @@ export const NotificationPreferencesSection = ({ user }: NotificationPreferences
                     NEW LISTINGS
                   </Label>
                   <p className="text-[10px] text-slate-500">
-                    Text alerts for new vehicle listings
+                    In-app alerts for new vehicle listings
                   </p>
                 </div>
                 <Switch
@@ -190,7 +140,7 @@ export const NotificationPreferencesSection = ({ user }: NotificationPreferences
                     SYSTEM ALERTS
                   </Label>
                   <p className="text-[10px] text-slate-500">
-                    Critical account and platform notifications via SMS
+                    Critical account and platform notifications
                   </p>
                 </div>
                 <Switch
@@ -207,7 +157,7 @@ export const NotificationPreferencesSection = ({ user }: NotificationPreferences
           disabled={isSubmitting}
           className="bg-brand hover:bg-brand/90 text-white h-10 px-6 text-xs font-medium uppercase tracking-widest"
         >
-          {isSubmitting ? "PROCESSING..." : "COMMIT CHANGES"}
+          {isSubmitting ? "PROCESSING..." : "UPDATE"}
         </Button>
       </form>
     </div>

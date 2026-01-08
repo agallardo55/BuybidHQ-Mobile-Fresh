@@ -7,7 +7,7 @@ import MainOfferPage from "./MainOfferPage";
 import DetailPage from "./DetailPage";
 import { QuickBidDetails } from "./types";
 import { useBidSubmission } from "@/hooks/useBidSubmission";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 const useQuickBidDetails = () => {
   const [searchParams] = useSearchParams();

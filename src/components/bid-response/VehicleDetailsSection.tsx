@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Copy } from "lucide-react";
 import { getConditionDisplay } from "../bid-request/utils/conditionFormatting";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import carPlaceholder from "@/assets/car-placeholder.png";
 import { formatCurrencyDisplay } from "@/utils/currencyUtils";
 import BookValuesCard from "./BookValuesCard";

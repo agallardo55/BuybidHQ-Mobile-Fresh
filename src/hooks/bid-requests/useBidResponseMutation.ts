@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 export const useBidResponseMutation = () => {
   const queryClient = useQueryClient();

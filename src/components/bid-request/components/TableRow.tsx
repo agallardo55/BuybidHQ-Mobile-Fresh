@@ -7,6 +7,7 @@ import { BidRequest } from "../types";
 import carPlaceholder from "@/assets/car-placeholder.png";
 import { Trash2 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { formatMileage } from "@/utils/mileageFormatter";
 
 interface TableRowProps {
   request: BidRequest;
@@ -135,7 +136,7 @@ export const TableRowComponent = ({ request, onClick, onDelete }: TableRowProps)
         </code>
       </TableCell>
       <TableCell className="py-3 px-4 text-[13px] text-slate-700">
-        {request.mileage.toLocaleString()}
+        {formatMileage(request.mileage)}
       </TableCell>
       <TableCell className="py-3 px-4 text-[13px] text-center font-medium text-slate-900">
         {getOfferCount()}

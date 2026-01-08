@@ -85,10 +85,21 @@ const MainOfferPage = ({
     onSubmitOffer?.(amount);
   };
 
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Scroll the input into view when focused on mobile
+    // iOS Safari needs slightly longer delay than Android
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const delay = isIOS ? 400 : 300;
+
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, delay);
+  };
+
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 overflow-x-hidden min-h-screen w-full max-w-full">
       {/* Header */}
-      <div className="bg-white p-4 sm:p-6 flex items-center justify-between">
+      <div className="bg-white p-4 sm:p-6 flex items-center justify-between w-full max-w-full">
         <img
           src="/lovable-uploads/5d819dd0-430a-4dee-bdb8-de7c0ea6b46e.png"
           alt="BuybidHQ Logo"
@@ -106,9 +117,9 @@ const MainOfferPage = ({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6 w-full box-border">
         {/* Vehicle Card */}
-        <Card className="overflow-hidden rounded-3xl shadow-lg bg-white">
+        <Card className="overflow-hidden rounded-3xl shadow-lg bg-white w-full max-w-full">
           {/* Hero Image */}
           <div className="relative">
             <img
@@ -160,7 +171,7 @@ const MainOfferPage = ({
         </Card>
 
         {/* Seller Information */}
-        <Card className="p-6 rounded-2xl shadow-lg bg-white">
+        <Card className="p-6 rounded-2xl shadow-lg bg-white w-full max-w-full">
           <div className="space-y-4">
             {/* Seller */}
             <div className="flex items-center gap-4">
@@ -187,20 +198,21 @@ const MainOfferPage = ({
         </Card>
 
         {/* Place Your Offer Section */}
-        <Card className="p-6 sm:p-8 rounded-2xl shadow-lg bg-white">
+        <Card className="p-6 sm:p-8 rounded-2xl shadow-lg bg-white w-full max-w-full box-border">
           <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mb-6">Place Your Offer</h3>
 
-          <div className="bg-gray-50 rounded-2xl p-6 mb-6">
-            <div className="flex items-center">
-              <span className="text-5xl sm:text-6xl font-black text-gray-600 mr-2" style={{ fontSize: '40px' }}>$</span>
+          <div className="bg-gray-50 rounded-2xl p-6 mb-6 w-full max-w-full box-border">
+            <div className="flex items-center overflow-hidden w-full max-w-full">
+              <span className="text-5xl sm:text-6xl font-black text-gray-600 mr-2 flex-shrink-0" style={{ fontSize: '40px' }}>$</span>
               <input
                 type="text"
                 value={formatCurrency(offerAmount)}
                 onChange={handleOfferChange}
-                className="flex-grow text-5xl sm:text-6xl font-black text-gray-700 placeholder:text-gray-400 bg-transparent border-none focus:outline-none focus:ring-0 p-0 touch-manipulation"
+                onFocus={handleInputFocus}
+                className="flex-grow text-5xl sm:text-6xl font-black text-gray-700 placeholder:text-gray-400 bg-transparent border-none focus:outline-none focus:ring-0 p-0 touch-manipulation min-w-0 w-full"
                 placeholder="0"
                 inputMode="numeric"
-                style={{ touchAction: 'manipulation', fontSize: '40px' }}
+                style={{ touchAction: 'manipulation', fontSize: '40px', maxWidth: 'calc(100% - 60px)', width: '100%' }}
               />
             </div>
           </div>

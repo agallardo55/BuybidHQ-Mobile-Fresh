@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useBuyers } from "@/hooks/useBuyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import AddBuyerForm from "./form-sections/AddBuyerForm";
 import { usePhoneFormat } from "@/hooks/signup/usePhoneFormat";
 

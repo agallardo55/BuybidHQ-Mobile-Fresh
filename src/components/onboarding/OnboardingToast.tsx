@@ -40,6 +40,8 @@ export const OnboardingToast = ({
       isDismissed,
       isLoading,
       hasCurrentUser: !!currentUser,
+      dismissKey,
+      sessionStorageValue: sessionStorage.getItem(dismissKey),
       currentUser: currentUser ? {
         email: currentUser.email,
         role: currentUser.role,
@@ -56,7 +58,12 @@ export const OnboardingToast = ({
     });
 
     if (isDismissed || isLoading || !currentUser) {
-      console.log('🎯 OnboardingToast: Early return -', { isDismissed, isLoading, hasUser: !!currentUser });
+      console.log('🎯 OnboardingToast: Early return -', {
+        reason: isDismissed ? 'dismissed' : isLoading ? 'loading' : 'no user',
+        isDismissed,
+        isLoading,
+        hasUser: !!currentUser
+      });
       return;
     }
 
@@ -124,7 +131,7 @@ export const OnboardingToast = ({
   return (
     <div
       className={cn(
-        "fixed bottom-6 right-6 z-50 max-w-md",
+        "fixed bottom-6 right-6 z-[9998] max-w-md",
         "animate-in slide-in-from-right-5 fade-in duration-500",
         isAnimatingOut && "animate-out slide-out-to-right-5 fade-out duration-300",
         className

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useFormState } from "./useFormState";
 import { useFormValidation } from "./useFormValidation";
 import { useBidRequestSubmission } from "./useBidRequestSubmission";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 export const useCreateBidRequest = () => {
   const formState = useFormState();

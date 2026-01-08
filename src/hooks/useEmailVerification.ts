@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "./useCurrentUser";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 export const useEmailVerification = () => {
   const { currentUser } = useCurrentUser();

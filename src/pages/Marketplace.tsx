@@ -11,6 +11,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { canUserSeePrices } from "@/utils/planHelpers";
 import { formatDistanceToNow } from "date-fns";
 import MarketplaceGridSkeleton from "@/components/marketplace/MarketplaceGridSkeleton";
+import { formatMileage } from "@/utils/mileageFormatter";
 
 const Marketplace = () => {
   const { currentUser } = useCurrentUser();
@@ -89,15 +90,13 @@ const Marketplace = () => {
   // Transform bid requests to vehicle format and apply filters
   const vehicles = useMemo(() => {
     const filtered = bidRequests.map(bid => {
-      const mileageStr = typeof bid.mileage === 'string' ? bid.mileage : String(bid.mileage || '0');
-      const mileageNum = parseInt(mileageStr.replace(/[^0-9]/g, ''));
       return {
         id: bid.id,
         year: String(bid.year || "N/A"),
         make: bid.make || "N/A",
         model: bid.model || "N/A",
         trim: bid.trim || "",
-        mileage: mileageNum.toLocaleString('en-US'),
+        mileage: formatMileage(bid.mileage),
         price: bid.offerSummary?.highestOffer || 0,
         image: bid.primaryImage || "/placeholder.svg",
         createdAt: bid.createdAt ? formatDistanceToNow(new Date(bid.createdAt), {

@@ -2,7 +2,7 @@
 import { SignUpFormData } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { logger } from '@/utils/logger';
 
 interface UseSignUpSubmissionProps {

@@ -1,6 +1,6 @@
 
 import { useState, useRef } from "react";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { BrowserMultiFormatReader, Result, DecodeHintType, BarcodeFormat } from '@zxing/library';
 import { useAuth } from '@/contexts/AuthContext';
 import { hasRole } from '@/utils/auth-helpers';

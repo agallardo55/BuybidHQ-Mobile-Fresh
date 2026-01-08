@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BuyerFormData } from "@/types/buyers";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { useNavigate } from "react-router-dom";
 import { normalizePhoneNumber } from "@/utils/phoneUtils";
 import { UpdateBuyerParams } from "./types";

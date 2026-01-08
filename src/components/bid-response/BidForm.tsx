@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { BidResponseFormData } from "./types";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 interface BidFormProps {
   onSubmit: (data: BidResponseFormData) => void;

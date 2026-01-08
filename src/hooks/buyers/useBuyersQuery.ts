@@ -2,7 +2,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { useCurrentUser } from "../useCurrentUser";
 import { useNavigate } from "react-router-dom";
 import { BuyerResponse, MappedBuyer } from "./types";

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { publicSupabase } from "@/integrations/supabase/publicClient";
 import { BidResponseFormData } from "@/components/bid-response/types";
 import { AlertType } from './useAlertDialog';
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 interface UseBidSubmissionProps {
   token: string | null;

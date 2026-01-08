@@ -14,7 +14,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserInformationSection from "./sections/UserInformationSection";
 import DealershipInformationSection from "./sections/DealershipInformationSection";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 const AddUserDialog = () => {
   const [isOpen, setIsOpen] = useState(false);

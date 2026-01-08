@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { FormState } from "../types";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { extractNumericValue } from "@/utils/currencyUtils";
 import { logger } from '@/utils/logger';
 
@@ -131,6 +131,9 @@ export const useBidRequestSubmission = () => {
       logger.debug(`[${requestId}] 📋 Total buyers selected:`, selectedBuyers.length);
       logger.debug(`[${requestId}] 📋 Buyer IDs:`, selectedBuyers);
 
+      // Track notification results
+      const failedBuyers: string[] = [];
+
       for (let i = 0; i < selectedBuyers.length; i++) {
         const buyerId = selectedBuyers[i];
         logger.debug(`[${requestId}] 🔄 Processing buyer ${i + 1}/${selectedBuyers.length} - ID:`, buyerId);
@@ -144,6 +147,7 @@ export const useBidRequestSubmission = () => {
 
         if (buyerError) {
           logger.error(`[${requestId}] ❌ Error fetching buyer ${i + 1} details:`, buyerError);
+          failedBuyers.push(`Buyer #${i + 1}`);
           continue;
         }
 
@@ -162,7 +166,7 @@ export const useBidRequestSubmission = () => {
 
         if (tokenError || !tokenResponse) {
           logger.error(`[${requestId}] ❌ Error generating token for buyer ${i + 1}:`, tokenError);
-          toast.error(`Failed to generate secure link for ${buyerData.buyer_name}`);
+          failedBuyers.push(buyerData.buyer_name);
           continue;
         }
 
@@ -173,7 +177,7 @@ export const useBidRequestSubmission = () => {
 
         if (!baseUrl) {
           logger.error(`[${requestId}] ❌ VITE_APP_URL environment variable not set`);
-          toast.error(`Configuration error: Unable to generate bid URL for ${buyerData.buyer_name}`);
+          failedBuyers.push(buyerData.buyer_name);
           continue;
         }
         const bidRequestUrl = `${baseUrl}/bid-response/${bidRequestData}?token=${encodeURIComponent(tokenResponse)}`;
@@ -205,14 +209,24 @@ export const useBidRequestSubmission = () => {
             name: buyerData.buyer_name,
             error: twilioError
           });
-          toast.error(`Failed to send notification to ${buyerData.buyer_name}`);
+          failedBuyers.push(buyerData.buyer_name);
         } else {
           logger.debug(`[${requestId}] ✅ Notification sent successfully to buyer ${i + 1}:`, buyerData.buyer_name);
-          toast.success(`Notification sent to ${buyerData.buyer_name}`);
         }
       }
 
       logger.debug(`[${requestId}] 🏁 Finished processing all ${selectedBuyers.length} buyers`);
+
+      // Show notification results
+      if (failedBuyers.length === 0) {
+        // All notifications sent successfully
+        toast.success('Notification sent to all buyers');
+      } else {
+        // Some notifications failed
+        failedBuyers.forEach(buyerName => {
+          toast.error(`${buyerName} was not sent successfully. Confirm the mobile number is correct.`);
+        });
+      }
 
       toast.success('Bid request created successfully');
       navigate('/dashboard');

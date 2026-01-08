@@ -11,7 +11,7 @@ import { useAlertDialog } from "@/hooks/useAlertDialog";
 import { AlertDialogCustom } from "@/components/bid-response/AlertDialogCustom";
 import { BidResponseFormData } from "@/components/bid-response/types";
 import { AlertType } from '@/hooks/useAlertDialog';
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 interface QuickBidDetails {
   request_id: string;

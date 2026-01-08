@@ -2,7 +2,7 @@
  * Complete VIN decoder hook with vehicle data and trim management
  */
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { vinService, VehicleData, TrimOption } from "@/services/vinService";
 import { useAuth } from "@/contexts/AuthContext";
 

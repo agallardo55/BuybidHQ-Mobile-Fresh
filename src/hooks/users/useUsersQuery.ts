@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { UsersQueryParams } from "./types";
 import { User } from "@/types/users";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { useCurrentUser } from "../useCurrentUser";
 import { useNavigate } from "react-router-dom";
 

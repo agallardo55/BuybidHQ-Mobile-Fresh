@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useBuyersQuery } from "./buyers/useBuyersQuery";
 import { useBuyersMutations } from "./buyers/useBuyersMutations";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 export const useBuyers = () => {
   const { data: buyers = [], isLoading } = useBuyersQuery();

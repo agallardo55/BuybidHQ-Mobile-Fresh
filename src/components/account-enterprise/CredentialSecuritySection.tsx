@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { UserData } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { Check, X } from "lucide-react";
 import { usePasswordStrength } from "@/hooks/usePasswordStrength";
 import { validatePassword, validatePasswordMatch } from "@/utils/passwordValidation";
@@ -159,7 +159,7 @@ export const CredentialSecuritySection = ({ user }: CredentialSecuritySectionPro
               disabled={isSubmitting || !isPasswordValid || showMismatchError}
               className="bg-brand hover:bg-brand/90 text-white h-10 px-6 text-xs font-medium uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "PROCESSING..." : "COMMIT CHANGES"}
+              {isSubmitting ? "PROCESSING..." : "UPDATE"}
             </Button>
           </div>
         </form>

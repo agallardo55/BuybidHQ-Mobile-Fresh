@@ -4,7 +4,7 @@
  * Provides consistent error handling across the application
  */
 
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 
 export class AppError extends Error {
   constructor(

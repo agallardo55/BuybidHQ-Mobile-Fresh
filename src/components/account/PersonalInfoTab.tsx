@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useQueryClient } from "@tanstack/react-query";
 import { RoleDisplay } from "./form-sections/RoleDisplay";
 import { ContactInfo } from "./form-sections/ContactInfo";
 
@@ -27,6 +28,7 @@ const personalInfoSchema = z.object({
 export const PersonalInfoTab = () => {
   const { toast } = useToast();
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
+  const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof personalInfoSchema>>({
     resolver: zodResolver(personalInfoSchema),
@@ -58,6 +60,9 @@ export const PersonalInfoTab = () => {
         .eq('id', user.id);
 
       if (userError) throw userError;
+
+      // Invalidate currentUser cache so profile completion recalculates with new data
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
 
       toast({
         title: "Success",

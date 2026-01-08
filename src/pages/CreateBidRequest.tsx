@@ -7,7 +7,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCreateBidRequest } from "@/components/bid-request/hooks/useCreateBidRequest";
 import { useBuyers } from "@/hooks/useBuyers";
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { Loader2 } from "lucide-react";
 import { logger } from '@/utils/logger';
 

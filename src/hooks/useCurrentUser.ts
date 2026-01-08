@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "@/utils/notificationToast";
 import { User, UserRole } from "@/types/users";
 import { AppRole } from "@/types/accounts";
 import { useAuth } from "@/contexts/AuthContext";
@@ -183,13 +183,54 @@ export const useCurrentUser = () => {
         
         let userData, userError;
         try {
+          // Fetch user data with individual_dealers join to get address fields
           const result = await supabase
             .from('buybidhq_users')
-            .select('*')
+            .select(`
+              *,
+              individual_dealers!individual_dealers_user_id_fkey (
+                address,
+                city,
+                state,
+                zip_code,
+                business_name,
+                license_number,
+                business_phone,
+                business_email
+              )
+            `)
             .eq('id', authUser.id)
             .abortSignal(queryAbortController.signal)
             .maybeSingle();
-          userData = result.data;
+
+          // Merge individual_dealers fields into user object for backward compatibility
+          if (result.data && result.data.individual_dealers) {
+            const dealer = Array.isArray(result.data.individual_dealers)
+              ? result.data.individual_dealers[0]
+              : result.data.individual_dealers;
+
+            if (dealer) {
+              userData = {
+                ...result.data,
+                // Override with individual_dealers data if present
+                address: dealer.address || result.data.address,
+                city: dealer.city || result.data.city,
+                state: dealer.state || result.data.state,
+                zip_code: dealer.zip_code || result.data.zip_code,
+                license_number: dealer.license_number || result.data.license_number,
+                business_phone: dealer.business_phone || result.data.business_phone,
+                business_email: dealer.business_email || result.data.business_email,
+                dealer_name: dealer.business_name || result.data.dealer_name,
+                // Remove the join field to keep interface clean
+                individual_dealers: undefined
+              };
+            } else {
+              userData = result.data;
+            }
+          } else {
+            userData = result.data;
+          }
+
           userError = result.error;
         } finally {
           clearTimeout(userQueryTimeout);
