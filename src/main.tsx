@@ -3,7 +3,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import App from './App.tsx';
 import './index.css';
 import { isAuthError } from './lib/errorHandler';
@@ -41,7 +40,6 @@ try {
   root.render(
     <QueryClientProvider client={queryClient}>
       <App />
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 } catch (error) {

@@ -6,6 +6,7 @@ export interface Account {
   id: string;
   name: string;
   plan: PlanType;
+  billing_cycle: 'monthly' | 'annual' | null;
   seat_limit: number;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;

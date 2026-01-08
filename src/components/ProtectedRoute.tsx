@@ -1,10 +1,11 @@
 import { useEffect, useState, ReactNode } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [needsMFA, setNeedsMFA] = useState(false);
@@ -14,13 +15,37 @@ export const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
       try {
         // Check if user is authenticated
         const { data: { user: currentUser } } = await supabase.auth.getUser();
-        
+
         if (!currentUser) {
           setLoading(false);
           return;
         }
 
         setUser(currentUser);
+
+        // Skip MFA if user just completed payment (coming from Stripe)
+        const searchParams = new URLSearchParams(location.search);
+        const paymentSuccess = searchParams.get('payment') === 'success';
+        const paymentBypassFlag = sessionStorage.getItem('mfa_bypassed_for_payment');
+
+        if (paymentSuccess || paymentBypassFlag) {
+          console.log('Payment success detected - skipping MFA check');
+          setNeedsMFA(false);
+          setLoading(false);
+
+          // Set flag in sessionStorage (persists for this browser session only)
+          if (paymentSuccess) {
+            sessionStorage.setItem('mfa_bypassed_for_payment', 'true');
+
+            // Clean up the URL by removing the payment parameter
+            searchParams.delete('payment');
+            const newSearch = searchParams.toString();
+            const newUrl = newSearch ? `${location.pathname}?${newSearch}` : location.pathname;
+            navigate(newUrl, { replace: true });
+          }
+
+          return;
+        }
 
         // Check if user needs daily MFA verification
         const { data: mfaNeeded, error } = await supabase.rpc('needs_daily_mfa');
@@ -41,7 +66,7 @@ export const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
     };
 
     checkAuthAndMFA();
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   if (loading) {
     return (

@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 
 import { RecoveryRedirector } from "@/components/RecoveryRedirector";
+import { FeedbackFAB } from "@/components/feedback/FeedbackFAB";
 import { StrictMode, lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -55,6 +56,7 @@ const App = () => {
                 <RecoveryRedirector />
                 <Toaster />
                 <Sonner position="top-center" />
+                <FeedbackFAB />
                 <Routes>
                 <Route path="/" element={<Index />} />
                 <Route 

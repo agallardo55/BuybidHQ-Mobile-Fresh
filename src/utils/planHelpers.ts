@@ -14,22 +14,14 @@ export interface PlanButtonConfig {
 }
 
 export const getPlanButtonConfig = (
-  currentPlan: string | undefined, 
+  currentPlan: string | undefined,
   targetPlan: string
 ): PlanButtonConfig => {
   const currentLevel = PLAN_HIERARCHY[currentPlan as PlanType] ?? 0;
   const targetLevel = PLAN_HIERARCHY[targetPlan as PlanType] ?? 0;
-  
+
   const isDowngrade = targetLevel < currentLevel;
-  
-  if (targetPlan === 'free') {
-    return {
-      text: 'Start Free Trial',
-      className: 'bg-accent hover:bg-accent/90',
-      isDowngrade: false
-    };
-  }
-  
+
   if (isDowngrade) {
     return {
       text: 'Downgrade Plan',
@@ -37,10 +29,10 @@ export const getPlanButtonConfig = (
       isDowngrade: true
     };
   }
-  
+
   return {
     text: 'Upgrade Plan',
-    className: 'bg-accent hover:bg-accent/90',
+    className: 'bg-brand hover:bg-brand/90',
     isDowngrade: false
   };
 };

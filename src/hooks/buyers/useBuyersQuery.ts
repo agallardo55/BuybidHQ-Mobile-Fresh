@@ -1,6 +1,5 @@
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
 import { useCurrentUser } from "../useCurrentUser";
@@ -11,7 +10,6 @@ import { logger } from '@/utils/logger';
 export const useBuyersQuery = () => {
   const { currentUser, isLoading: isLoadingUser } = useCurrentUser();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const userId = currentUser?.id;
   const userRole = currentUser?.role;
@@ -20,16 +18,6 @@ export const useBuyersQuery = () => {
 
   const isEnabled = !!userId && !isLoadingUser;
   logger.debug('🔍 useBuyersQuery: Query enabled?', isEnabled, { userId, isLoadingUser });
-
-  // Force clear this query's cache on mount
-  useEffect(() => {
-    if (currentUser?.id) {
-      logger.debug('🔍 useBuyersQuery: Clearing cache for', ['buyers', currentUser?.id, currentUser?.role]);
-      queryClient.invalidateQueries({ queryKey: ['buyers', currentUser?.id, currentUser?.role] });
-    } else {
-      logger.debug('🔍 useBuyersQuery: Skipping cache clear - no user ID yet');
-    }
-  }, [currentUser?.id, currentUser?.role, queryClient]);
 
   return useQuery({
     queryKey: ['buyers', currentUser?.id, currentUser?.role],

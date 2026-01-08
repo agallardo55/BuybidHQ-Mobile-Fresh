@@ -18,7 +18,29 @@ export const MembershipTierSection = ({ account, user }: MembershipTierSectionPr
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
   const currentPlan = account?.plan || 'free';
+  const billingCycle = account?.billing_cycle;
   const isAdmin = user?.app_role === 'super_admin' || user?.app_role === 'account_admin';
+
+  // Determine the effective plan tier based on plan and billing_cycle
+  // Annual plans are stored as plan='connect' with billing_cycle='annual'
+  const getCurrentTier = () => {
+    if (currentPlan === 'free') return 'free';
+    if (currentPlan === 'connect' && billingCycle === 'annual') return 'annual';
+    if (currentPlan === 'connect') return 'connect';
+    return currentPlan;
+  };
+
+  const currentTier = getCurrentTier();
+
+  // Debug logging
+  console.log('🔍 MembershipTier Debug:', {
+    account,
+    currentPlan,
+    billingCycle,
+    currentTier,
+    isAdmin,
+    userAppRole: user?.app_role
+  });
 
   const handlePlanUpgrade = async (targetPlan: string) => {
     setProcessingPlan(targetPlan);
@@ -181,9 +203,9 @@ export const MembershipTierSection = ({ account, user }: MembershipTierSectionPr
             <div>
               <p className="text-sm font-medium text-slate-900">
                 {isAdmin ? 'ADMINISTRATOR ACCESS' :
-                 currentPlan === 'free' ? 'BETA TIER' :
-                 currentPlan === 'connect' ? 'CONNECT PREMIUM TIER' :
-                 currentPlan === 'annual' ? 'ANNUAL TIER' : 'BETA TIER'}
+                 currentTier === 'free' ? 'BETA TIER' :
+                 currentTier === 'connect' ? 'CONNECT PREMIUM TIER' :
+                 currentTier === 'annual' ? 'ANNUAL TIER' : 'BETA TIER'}
               </p>
               <p className="text-xs text-slate-500 mt-1 uppercase tracking-wide">
                 STATUS: {account?.billing_status?.toUpperCase() || 'ACTIVE'}
@@ -214,7 +236,7 @@ export const MembershipTierSection = ({ account, user }: MembershipTierSectionPr
       <Card className="border-slate-200 shadow-none overflow-hidden">
         <div className="grid grid-cols-3 divide-x divide-slate-200">
           {plans.map((plan, index) => {
-            const isCurrentPlan = currentPlan === plan.id;
+            const isCurrentPlan = currentTier === plan.id;
             const isProcessing = processingPlan === plan.id;
 
             return (
@@ -256,23 +278,16 @@ export const MembershipTierSection = ({ account, user }: MembershipTierSectionPr
 
                 {/* Action Button */}
                 <div>
-                  {isAdmin ? (
+                  {isCurrentPlan ? (
                     <Button
                       disabled
-                      className="w-full bg-slate-100 text-slate-500 h-9 px-4 text-xs font-medium uppercase tracking-widest cursor-not-allowed"
-                    >
-                      ADMIN ACCESS
-                    </Button>
-                  ) : isCurrentPlan ? (
-                    <Button
-                      disabled
-                      className="w-full bg-green-50 text-green-700 border border-green-200 h-9 px-4 text-xs font-medium uppercase tracking-widest cursor-default hover:bg-green-50"
+                      className="w-full bg-blue-50 text-blue-700 border border-blue-200 h-9 px-4 text-xs font-medium uppercase tracking-widest cursor-default hover:bg-blue-50"
                     >
                       <Check className="mr-2 h-3 w-3" />
                       ACTIVE TIER
                     </Button>
                   ) : (() => {
-                      const buttonConfig = getPlanButtonConfig(currentPlan, plan.id);
+                      const buttonConfig = getPlanButtonConfig(currentTier, plan.id);
                       return (
                         <Button
                           onClick={() => handlePlanUpgrade(plan.id)}

@@ -288,6 +288,7 @@ const MFAChallenge = () => {
       sessionStorage.removeItem('mfa_code_sent_timestamp');
       sessionStorage.removeItem('mfa_code_sent_user');
       sessionStorage.removeItem('mfa_is_initial_signin');
+      sessionStorage.removeItem('mfa_bypassed_for_payment'); // Clear payment bypass flag after successful MFA
 
       // Navigate to original destination
       navigate(from, { replace: true });

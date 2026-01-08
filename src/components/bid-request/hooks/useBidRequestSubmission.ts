@@ -223,9 +223,9 @@ export const useBidRequestSubmission = () => {
         toast.success('Notification sent to all buyers');
       } else {
         // Some notifications failed
-        failedBuyers.forEach(buyerName => {
-          toast.error(`${buyerName} was not sent successfully. Confirm the mobile number is correct.`);
-        });
+        const buyerList = failedBuyers.join(', ');
+        const numberText = failedBuyers.length === 1 ? 'mobile number is' : 'mobile numbers are';
+        toast.error(`Something went wrong. Confirm ${buyerList} ${numberText} correct and resend.`);
       }
 
       toast.success('Bid request created successfully');

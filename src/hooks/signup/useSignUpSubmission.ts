@@ -74,12 +74,15 @@ export const useSignUpSubmission = ({
           },
           body: JSON.stringify(requestBody)
         });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+
         const result = await response.json();
+
+        if (!response.ok) {
+          const errorMessage = result.error || `HTTP error! status: ${response.status}`;
+          logger.error('Edge Function error response:', result);
+          throw new Error(errorMessage);
+        }
+
         signupResponse = result;
         signupError = null;
       } catch (invokeError) {
