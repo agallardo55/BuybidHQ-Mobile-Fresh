@@ -103,22 +103,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       logger.debug('AuthContext: Querying buybidhq_users table...');
-      
+
       // Query with a reasonable timeout to prevent hanging
-      // Use AbortController for proper timeout handling
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
-      
+      // Use Promise.race to enforce timeout even if AbortController fails
+      const queryPromise = (async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+        try {
+          const result = await supabase
+            .from('buybidhq_users')
+            .select('id, account_id, dealership_id, role')
+            // @ts-expect-error - Supabase type inference limitation for .eq()
+            .eq('id', authUser.id)
+            .abortSignal(controller.signal)
+            .single();
+
+          clearTimeout(timeoutId);
+          return result;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          throw error;
+        }
+      })();
+
+      const timeoutPromise = new Promise<{ data: null; error: any }>((resolve) => {
+        setTimeout(() => {
+          console.warn('AuthContext: Profile query forced timeout after 3s');
+          resolve({
+            data: null,
+            error: { message: 'Query timeout', code: 'TIMEOUT' }
+          });
+        }, 3000);
+      });
+
       try {
-        const { data: profile, error: profileError } = await supabase
-          .from('buybidhq_users')
-          .select('id, account_id, dealership_id, role')
-          // @ts-expect-error - Supabase type inference limitation for .eq()
-          .eq('id', authUser.id)
-          .abortSignal(controller.signal)
-          .single();
-        
-        clearTimeout(timeoutId);
+        const { data: profile, error: profileError } = await Promise.race([queryPromise, timeoutPromise]);
         
         logger.warn('AuthContext: Profile query result:', { profile, profileError });
           
@@ -170,25 +190,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Fetch user roles from secure user_roles table (optional)
         let highestRole = 'member';
         try {
-          const rolesController = new AbortController();
-          const rolesTimeoutId = setTimeout(() => rolesController.abort(), 2000); // 2 second timeout for roles
-          
+          // Use Promise.race for roles query too
+          const rolesQueryPromise = (async () => {
+            const rolesController = new AbortController();
+            const rolesTimeoutId = setTimeout(() => rolesController.abort(), 2000);
+
+            try {
+              const result = await supabase
+                .from('user_roles')
+                .select('role, user_id, is_active')
+                // @ts-expect-error - Supabase type inference limitation for .eq()
+                .eq('user_id', authUser.id)
+                // @ts-expect-error - Supabase type inference limitation for .eq()
+                .eq('is_active', true)
+                .abortSignal(rolesController.signal);
+
+              clearTimeout(rolesTimeoutId);
+              return result;
+            } catch (error) {
+              clearTimeout(rolesTimeoutId);
+              throw error;
+            }
+          })();
+
+          const rolesTimeoutPromise = new Promise<{ data: null; error: any }>((resolve) => {
+            setTimeout(() => {
+              console.warn('AuthContext: Roles query forced timeout after 2s');
+              resolve({
+                data: null,
+                error: { message: 'Roles query timeout', code: 'TIMEOUT' }
+              });
+            }, 2000);
+          });
+
           try {
-            const { data: roles, error: rolesError } = await supabase
-              .from('user_roles')
-              .select('role, user_id, is_active')
-              // @ts-expect-error - Supabase type inference limitation for .eq()
-              .eq('user_id', authUser.id)
-              // @ts-expect-error - Supabase type inference limitation for .eq()
-              .eq('is_active', true)
-              .abortSignal(rolesController.signal);
+            const { data: roles, error: rolesError } = await Promise.race([rolesQueryPromise, rolesTimeoutPromise]);
 
-            clearTimeout(rolesTimeoutId);
-
-            // Check abort signal before processing results
-            if (rolesController.signal.aborted) {
-              console.warn('AuthContext: Roles query was aborted');
-            } else if (!rolesError && roles && Array.isArray(roles)) {
+            if (!rolesError && roles && Array.isArray(roles)) {
               // Determine highest role (prioritize super_admin > account_admin > manager > member)
               const roleHierarchy = { 
                 member: 1, 
@@ -206,7 +244,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               }, 'member');
             }
           } catch (rolesTimeoutError) {
-            clearTimeout(rolesTimeoutId);
             console.warn('AuthContext: Roles fetch timed out (using default role):', rolesTimeoutError);
             // Continue with default role
           }

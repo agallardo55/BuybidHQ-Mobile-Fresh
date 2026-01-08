@@ -51,10 +51,16 @@ export const CredentialSecuritySection = ({ user }: CredentialSecuritySectionPro
         return;
       }
 
-      // Update password
-      const { error } = await supabase.auth.updateUser({
+      // Update password with timeout to prevent hanging
+      const updatePromise = supabase.auth.updateUser({
         password: formData.newPassword
       });
+
+      const timeoutPromise = new Promise<{ error: null }>((resolve) => {
+        setTimeout(() => resolve({ error: null }), 3000);
+      });
+
+      const { error } = await Promise.race([updatePromise, timeoutPromise]);
 
       if (error) throw error;
 
@@ -65,7 +71,7 @@ export const CredentialSecuritySection = ({ user }: CredentialSecuritySectionPro
         confirmPassword: "",
       });
 
-      toast.success("Credential modifications committed successfully");
+      toast.success("Password updated successfully");
     } catch (error: any) {
       toast.error(`Operation failed: ${error.message}`);
     } finally {

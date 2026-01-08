@@ -62,17 +62,50 @@ const getNotificationPreferences = async (): Promise<NotificationPreferences> =>
 };
 
 const shouldShowToast = async (type: ToastType): Promise<boolean> => {
-  const prefs = await getNotificationPreferences();
+  try {
+    // If we have fresh cached preferences, use them immediately
+    const now = Date.now();
+    if (cachedPreferences && (now - lastFetchTime) < CACHE_DURATION) {
+      const prefs = cachedPreferences;
+      switch (type) {
+        case "bid_updates":
+          return prefs.sms_bid_updates ?? true;
+        case "new_listings":
+          return prefs.sms_new_listings ?? true;
+        case "system_alerts":
+          return prefs.sms_system_alerts ?? true;
+        default:
+          return prefs.sms_system_alerts ?? true;
+      }
+    }
 
-  switch (type) {
-    case "bid_updates":
-      return prefs.sms_bid_updates ?? true;
-    case "new_listings":
-      return prefs.sms_new_listings ?? true;
-    case "system_alerts":
-      return prefs.sms_system_alerts ?? true;
-    default:
-      return prefs.sms_system_alerts ?? true;
+    // Add short timeout to preference check to prevent hanging
+    const prefsPromise = getNotificationPreferences();
+    const timeoutPromise = new Promise<NotificationPreferences>((resolve) => {
+      setTimeout(() => {
+        resolve({
+          sms_bid_updates: true,
+          sms_new_listings: true,
+          sms_system_alerts: true,
+        });
+      }, 200); // 200ms timeout (much faster)
+    });
+
+    const prefs = await Promise.race([prefsPromise, timeoutPromise]);
+
+    switch (type) {
+      case "bid_updates":
+        return prefs.sms_bid_updates ?? true;
+      case "new_listings":
+        return prefs.sms_new_listings ?? true;
+      case "system_alerts":
+        return prefs.sms_system_alerts ?? true;
+      default:
+        return prefs.sms_system_alerts ?? true;
+    }
+  } catch (error) {
+    console.error('Error in shouldShowToast, defaulting to true:', error);
+    return true;
   }
 };
 
@@ -105,29 +138,44 @@ const categorizeToast = (message: string): ToastType => {
 export const toast = {
   success: (message: string, options?: any) => {
     const type = categorizeToast(message);
-    shouldShowToast(type).then((should) => {
-      if (should) {
+    shouldShowToast(type)
+      .then((should) => {
+        if (should) {
+          sonnerToast.success(message, options);
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking notification preferences, showing toast anyway:", error);
         sonnerToast.success(message, options);
-      }
-    });
+      });
   },
   error: (message: string, options?: any) => {
     // Always show errors regardless of preferences (critical alerts)
     sonnerToast.error(message, options);
   },
   warning: (message: string, options?: any) => {
-    shouldShowToast("system_alerts").then((should) => {
-      if (should) {
+    shouldShowToast("system_alerts")
+      .then((should) => {
+        if (should) {
+          sonnerToast.warning(message, options);
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking notification preferences, showing toast anyway:", error);
         sonnerToast.warning(message, options);
-      }
-    });
+      });
   },
   info: (message: string, options?: any) => {
-    shouldShowToast("system_alerts").then((should) => {
-      if (should) {
+    shouldShowToast("system_alerts")
+      .then((should) => {
+        if (should) {
+          sonnerToast.info(message, options);
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking notification preferences, showing toast anyway:", error);
         sonnerToast.info(message, options);
-      }
-    });
+      });
   },
 };
 
