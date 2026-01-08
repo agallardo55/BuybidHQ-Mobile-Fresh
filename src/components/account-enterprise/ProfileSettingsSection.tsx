@@ -7,6 +7,7 @@ import { UserData } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatPhoneForInput, formatPhoneForDisplay } from "@/utils/phoneUtils";
 
 interface ProfileSettingsSectionProps {
   user: UserData | null | undefined;
@@ -18,12 +19,14 @@ export const ProfileSettingsSection = ({ user }: ProfileSettingsSectionProps) =>
   const [formData, setFormData] = useState({
     full_name: user?.full_name || "",
     email: user?.email || "",
-    mobile_number: user?.mobile_number || "",
+    mobile_number: formatPhoneForDisplay(user?.mobile_number) || "",
     role: user?.role || "",
   });
 
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Format phone number if the field is mobile_number
+    const formattedValue = field === 'mobile_number' ? formatPhoneForInput(value) : value;
+    setFormData((prev) => ({ ...prev, [field]: formattedValue }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,10 +101,12 @@ export const ProfileSettingsSection = ({ user }: ProfileSettingsSectionProps) =>
                 MOBILE NUMBER
               </Label>
               <Input
+                type="tel"
                 value={formData.mobile_number}
                 onChange={(e) => handleChange("mobile_number", e.target.value)}
                 className="bg-white border-slate-200 h-10"
                 placeholder="(000) 000-0000"
+                maxLength={14}
               />
             </div>
 

@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useEmailAvailability } from "@/hooks/signup/useEmailAvailability";
 import { Link } from "react-router-dom";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { formatPhoneForInput } from "@/utils/phoneUtils";
 
 interface PersonalInfoFormProps {
   formData: {
@@ -31,6 +32,16 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
       target: {
         name: 'smsConsent',
         value: checked.toString(),
+      },
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneForInput(e.target.value);
+    onChange({
+      target: {
+        name: 'mobileNumber',
+        value: formatted,
       },
     } as React.ChangeEvent<HTMLInputElement>);
   };
@@ -136,7 +147,7 @@ const PersonalInfoForm = ({ formData, onNext, onChange, onBack }: PersonalInfoFo
           name="mobileNumber"
           type="tel"
           value={formData.mobileNumber}
-          onChange={onChange}
+          onChange={handlePhoneChange}
           placeholder="(123) 456-7890"
           maxLength={14}
         />
