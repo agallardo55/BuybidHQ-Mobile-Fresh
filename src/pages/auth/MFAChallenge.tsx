@@ -31,21 +31,23 @@ const MFAChallenge = () => {
   const isInitialSignInFromStorage = sessionStorage.getItem('mfa_is_initial_signin') === 'true';
   const isInitialSignIn = isInitialSignInFromState || isInitialSignInFromStorage;
 
-  // DEBUG: Log the navigation state
-  console.log('🔐 MFAChallenge - Navigation State:', {
-    fullLocationState: location.state,
-    isInitialSignInFromState,
-    isInitialSignInFromStorage,
-    isInitialSignIn,
-    from,
-  });
-
   // Get user's phone from session
   const [userPhone, setUserPhone] = useState<string | null>(null);
 
   // Session timeout countdown (15 minutes)
   const [timeRemaining, setTimeRemaining] = useState(15 * 60); // 15 minutes in seconds
   const [sessionExpired, setSessionExpired] = useState(false);
+
+  // DEBUG: Log navigation state only when it changes
+  useEffect(() => {
+    logger.debug('🔐 MFAChallenge - Navigation State:', {
+      fullLocationState: location.state,
+      isInitialSignInFromState,
+      isInitialSignInFromStorage,
+      isInitialSignIn,
+      from,
+    });
+  }, [location.state, isInitialSignInFromState, isInitialSignInFromStorage, isInitialSignIn, from]);
 
   useEffect(() => {
     const initMFA = async () => {

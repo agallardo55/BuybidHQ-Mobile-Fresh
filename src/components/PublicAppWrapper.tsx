@@ -13,17 +13,11 @@ export const PublicAppWrapper = ({ children }: PublicAppWrapperProps) => {
   const { user } = useAuth();
   const [showBetaModal, setShowBetaModal] = useState(false);
 
-  console.log('🔍 PublicAppWrapper: Rendering', { pathname: location.pathname });
-
   // Check if current route is a public bid response page
   // Note: AuthProvider is now at App.tsx level, so we just render children
   // Public bid pages don't need special handling since they're already wrapped
   const isPublicBidPage = location.pathname.startsWith('/bid-response/') ||
                          location.pathname.startsWith('/quick-bid/');
-
-  if (isPublicBidPage) {
-    console.log('🔍 PublicAppWrapper: Public bid page detected');
-  }
 
   // Show beta modal ONLY on dashboard page (once per session for non-admin users)
   useEffect(() => {
