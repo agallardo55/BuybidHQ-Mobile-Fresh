@@ -14,6 +14,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logger } from '@/utils/logger';
+import { cleanupDiagnostics } from '@/hooks/useCurrentUser';
 
 interface SignOutOptions {
   scope?: 'local' | 'global';  // local = this device, global = all devices
@@ -43,6 +44,7 @@ export const robustSignOut = async (options: SignOutOptions = {}): Promise<SignO
   try {
     // Step 1: Clear timers and subscriptions FIRST (before any async operations)
     logger.debug('RobustSignOut: Clearing timers and subscriptions...');
+    cleanupDiagnostics(); // Clean up diagnostic interval from useCurrentUser
     clearAllTimers();
     unsubscribeAllRealtimeChannels();
     

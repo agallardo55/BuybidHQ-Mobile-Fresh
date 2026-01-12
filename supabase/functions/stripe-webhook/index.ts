@@ -139,6 +139,26 @@ serve(async (req) => {
           }
         }
 
+        // Create MFA bypass token for successful payment
+        // This allows user to skip MFA verification after completing payment
+        // Token expires after 10 minutes and can only be used once
+        if (userId) {
+          const { error: bypassError } = await supabase
+            .from('mfa_bypass_tokens')
+            .insert({
+              user_id: userId,
+              reason: 'payment_success',
+              granted_at: new Date().toISOString(),
+              expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutes
+            });
+
+          if (bypassError) {
+            console.error('Failed to create MFA bypass token:', bypassError);
+          } else {
+            console.log('MFA bypass token created for user:', userId);
+          }
+        }
+
         break;
       }
 

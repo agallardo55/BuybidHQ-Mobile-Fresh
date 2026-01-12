@@ -1,4 +1,5 @@
 import { UserData } from "@/hooks/useCurrentUser";
+import { logger } from "@/utils/logger";
 
 export interface ProfileCompletion {
   percentage: number;
@@ -42,23 +43,25 @@ export const calculateProfileCompletion = (user: UserData | null): ProfileComple
 
   const percentage = Math.round((completedFields.length / requiredFields.length) * 100);
 
-  // Debug logging - show ALL field values
-  console.log('📊 Profile Completion Calculation:', {
-    user: user.email,
-    totalFields: requiredFields.length,
-    completedCount: completedFields.length,
-    missingCount: missingFields.length,
-    percentage,
-    completed: completedFields.map((f) => f.label),
-    missing: missingFields.map((f) => `${f.label} (${f.value === null ? 'null' : f.value === undefined ? 'undefined' : `"${f.value}"`})`),
-    allFieldValues: requiredFields.map((f) => ({
-      field: f.label,
-      key: f.key,
-      value: f.value,
-      type: typeof f.value,
-      isEmpty: !f.value || typeof f.value !== 'string' || f.value.trim() === ''
-    }))
-  });
+  // Debug logging - only in development mode
+  if (import.meta.env.DEV) {
+    logger.debug('📊 Profile Completion Calculation:', {
+      userId: user.id, // Don't log email for privacy
+      totalFields: requiredFields.length,
+      completedCount: completedFields.length,
+      missingCount: missingFields.length,
+      percentage,
+      completed: completedFields.map((f) => f.label),
+      missing: missingFields.map((f) => `${f.label} (${f.value === null ? 'null' : f.value === undefined ? 'undefined' : `"${f.value}"`})`),
+      allFieldValues: requiredFields.map((f) => ({
+        field: f.label,
+        key: f.key,
+        value: f.value,
+        type: typeof f.value,
+        isEmpty: !f.value || typeof f.value !== 'string' || f.value.trim() === ''
+      }))
+    });
+  }
 
   return {
     percentage,

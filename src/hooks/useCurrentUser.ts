@@ -22,9 +22,11 @@ const diagnosticState = {
   queryTimeouts: 0,
 };
 
-// DIAGNOSTIC: Log diagnostic state periodically
-if (typeof window !== 'undefined') {
-  setInterval(() => {
+// DIAGNOSTIC: Log diagnostic state periodically (development only)
+let diagnosticInterval: ReturnType<typeof setInterval> | null = null;
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  diagnosticInterval = setInterval(() => {
     if (diagnosticState.activeInstances > 0 || diagnosticState.activeIntervals.size > 0) {
       logger.debug('🔍 useCurrentUser DIAGNOSTICS:', {
         activeInstances: diagnosticState.activeInstances,
@@ -42,6 +44,14 @@ if (typeof window !== 'undefined') {
       });
     }
   }, 5000); // Log every 5 seconds
+}
+
+// Export cleanup function for robustSignOut
+export function cleanupDiagnostics() {
+  if (diagnosticInterval) {
+    clearInterval(diagnosticInterval);
+    diagnosticInterval = null;
+  }
 }
 
 export interface UserData {
@@ -113,51 +123,36 @@ export const useCurrentUser = () => {
 
       const startTime = Date.now();
       const MAX_QUERY_TIME = 3000;
-      
+
       // CRITICAL: Declare outside try block so finally can access it
       let checkTimeout: NodeJS.Timeout | null = null;
       const queryAbortController = new AbortController();
-      const intervalId = Math.random();
-      
+      const timeoutId = Math.random();
+
       try {
-        // DIAGNOSTIC: Track interval creation
+        // DIAGNOSTIC: Track timeout creation
         diagnosticState.totalIntervalsCreated++;
-        diagnosticState.activeIntervals.add(intervalId);
-        diagnosticState.intervalFireCounts.set(intervalId, 0);
-        
-        checkTimeout = setInterval(() => {
-          // DIAGNOSTIC: Track interval fires
-          const currentCount = diagnosticState.intervalFireCounts.get(intervalId) || 0;
-          diagnosticState.intervalFireCounts.set(intervalId, currentCount + 1);
-          
-          if (Date.now() - startTime > MAX_QUERY_TIME) {
-            logger.warn(`🔍 useCurrentUser: Query timeout [${instanceId.current}]`, {
-              queryId,
-              instanceId: instanceId.current,
-              intervalFires: currentCount + 1,
-              elapsed: Date.now() - startTime,
-            });
-            diagnosticState.queryTimeouts++;
-            
-            if (checkTimeout) {
-              clearInterval(checkTimeout);
-              checkTimeout = null;
-              diagnosticState.totalIntervalsCleared++;
-              diagnosticState.activeIntervals.delete(intervalId);
-              diagnosticState.intervalFireCounts.delete(intervalId);
-            }
-            queryAbortController.abort();
-          }
-        }, 100);
+        diagnosticState.activeIntervals.add(timeoutId);
+
+        // Use single setTimeout instead of polling interval (performance optimization)
+        checkTimeout = setTimeout(() => {
+          logger.warn(`🔍 useCurrentUser: Query timeout [${instanceId.current}]`, {
+            queryId,
+            instanceId: instanceId.current,
+            timeout: MAX_QUERY_TIME,
+            elapsed: Date.now() - startTime,
+          });
+          diagnosticState.queryTimeouts++;
+          queryAbortController.abort();
+        }, MAX_QUERY_TIME);
         
         if (!authUser?.id) {
           logger.debug(`🔍 useCurrentUser: No auth user [${instanceId.current}]`);
           if (checkTimeout) {
-            clearInterval(checkTimeout);
+            clearTimeout(checkTimeout);
             checkTimeout = null;
             diagnosticState.totalIntervalsCleared++;
-            diagnosticState.activeIntervals.delete(intervalId);
-            diagnosticState.intervalFireCounts.delete(intervalId);
+            diagnosticState.activeIntervals.delete(timeoutId);
           }
           return null;
         }
@@ -170,11 +165,10 @@ export const useCurrentUser = () => {
         if (signal?.aborted) {
           logger.debug(`🔍 useCurrentUser: Request aborted before start [${instanceId.current}]`);
           if (checkTimeout) {
-            clearInterval(checkTimeout);
+            clearTimeout(checkTimeout);
             checkTimeout = null;
             diagnosticState.totalIntervalsCleared++;
-            diagnosticState.activeIntervals.delete(intervalId);
-            diagnosticState.intervalFireCounts.delete(intervalId);
+            diagnosticState.activeIntervals.delete(timeoutId);
           }
           return null;
         }
@@ -239,11 +233,10 @@ export const useCurrentUser = () => {
         if (signal?.aborted || queryAbortController.signal.aborted) {
           logger.debug(`🔍 useCurrentUser: Request aborted after fetch [${instanceId.current}]`);
           if (checkTimeout) {
-            clearInterval(checkTimeout);
+            clearTimeout(checkTimeout);
             checkTimeout = null;
             diagnosticState.totalIntervalsCleared++;
-            diagnosticState.activeIntervals.delete(intervalId);
-            diagnosticState.intervalFireCounts.delete(intervalId);
+            diagnosticState.activeIntervals.delete(timeoutId);
           }
           return null;
         }
@@ -291,13 +284,12 @@ export const useCurrentUser = () => {
             };
             
             if (checkTimeout) {
-              clearInterval(checkTimeout);
+              clearTimeout(checkTimeout);
               checkTimeout = null;
               diagnosticState.totalIntervalsCleared++;
-              diagnosticState.activeIntervals.delete(intervalId);
-              diagnosticState.intervalFireCounts.delete(intervalId);
+              diagnosticState.activeIntervals.delete(timeoutId);
             }
-            
+
             diagnosticState.queryCompletions++;
             const queryDuration = Date.now() - queryStartTime;
             logger.debug(`🔍 useCurrentUser: Query COMPLETED (fallback) [${instanceId.current}]`, {
@@ -309,13 +301,12 @@ export const useCurrentUser = () => {
           }
           
           if (checkTimeout) {
-            clearInterval(checkTimeout);
+            clearTimeout(checkTimeout);
             checkTimeout = null;
             diagnosticState.totalIntervalsCleared++;
-            diagnosticState.activeIntervals.delete(intervalId);
-            diagnosticState.intervalFireCounts.delete(intervalId);
+            diagnosticState.activeIntervals.delete(timeoutId);
           }
-          
+
           diagnosticState.queryCompletions++;
           return null;
         }
@@ -323,11 +314,10 @@ export const useCurrentUser = () => {
         if (signal?.aborted) {
           logger.debug(`🔍 useCurrentUser: Request aborted before dealership fetch [${instanceId.current}]`);
           if (checkTimeout) {
-            clearInterval(checkTimeout);
+            clearTimeout(checkTimeout);
             checkTimeout = null;
             diagnosticState.totalIntervalsCleared++;
-            diagnosticState.activeIntervals.delete(intervalId);
-            diagnosticState.intervalFireCounts.delete(intervalId);
+            diagnosticState.activeIntervals.delete(timeoutId);
           }
           return null;
         }
@@ -387,11 +377,10 @@ export const useCurrentUser = () => {
         if (signal?.aborted) {
           logger.debug(`🔍 useCurrentUser: Request aborted before super admin check [${instanceId.current}]`);
           if (checkTimeout) {
-            clearInterval(checkTimeout);
+            clearTimeout(checkTimeout);
             checkTimeout = null;
             diagnosticState.totalIntervalsCleared++;
-            diagnosticState.activeIntervals.delete(intervalId);
-            diagnosticState.intervalFireCounts.delete(intervalId);
+            diagnosticState.activeIntervals.delete(timeoutId);
           }
           return null;
         }
@@ -442,11 +431,10 @@ export const useCurrentUser = () => {
 
         // DIAGNOSTIC: Ensure interval is cleared on success
         if (checkTimeout) {
-          clearInterval(checkTimeout);
+          clearTimeout(checkTimeout);
           checkTimeout = null;
           diagnosticState.totalIntervalsCleared++;
-          diagnosticState.activeIntervals.delete(intervalId);
-          diagnosticState.intervalFireCounts.delete(intervalId);
+          diagnosticState.activeIntervals.delete(timeoutId);
         }
         
         diagnosticState.queryCompletions++;
@@ -462,11 +450,10 @@ export const useCurrentUser = () => {
         diagnosticState.queryErrors++;
         
         if (checkTimeout) {
-          clearInterval(checkTimeout);
+          clearTimeout(checkTimeout);
           checkTimeout = null;
           diagnosticState.totalIntervalsCleared++;
-          diagnosticState.activeIntervals.delete(intervalId);
-          diagnosticState.intervalFireCounts.delete(intervalId);
+          diagnosticState.activeIntervals.delete(timeoutId);
         }
         
         if (error?.message?.includes('AbortError') || error?.message?.includes('aborted')) {
@@ -532,11 +519,10 @@ export const useCurrentUser = () => {
         // DIAGNOSTIC: CRITICAL - Always clear interval in finally block
         // This ensures cleanup even if an unexpected error occurs
         if (checkTimeout) {
-          clearInterval(checkTimeout);
+          clearTimeout(checkTimeout);
           checkTimeout = null;
           diagnosticState.totalIntervalsCleared++;
-          diagnosticState.activeIntervals.delete(intervalId);
-          diagnosticState.intervalFireCounts.delete(intervalId);
+          diagnosticState.activeIntervals.delete(timeoutId);
         }
       }
     },

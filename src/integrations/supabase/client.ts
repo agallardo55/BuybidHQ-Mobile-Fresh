@@ -26,9 +26,18 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   logger.error('❌ Supabase client: Configuration error', error);
   logger.error('❌ Supabase client: SUPABASE_URL:', SUPABASE_URL ? 'present' : 'MISSING');
   logger.error('❌ Supabase client: SUPABASE_PUBLISHABLE_KEY:', SUPABASE_PUBLISHABLE_KEY ? 'present' : 'MISSING');
-  // Don't throw - create a dummy client to prevent blocking
-  // The app will show errors when trying to use Supabase, but at least it will load
-  logger.warn('⚠️ Supabase client: Creating dummy client to prevent blocking');
+
+  // SECURITY: Fail fast in production - missing env vars should not be silently ignored
+  if (import.meta.env.PROD) {
+    throw new Error(
+      'CRITICAL: Missing Supabase configuration in production. ' +
+      `VITE_SUPABASE_URL: ${!!SUPABASE_URL}, ` +
+      `VITE_SUPABASE_ANON_KEY: ${!!SUPABASE_PUBLISHABLE_KEY}`
+    );
+  }
+
+  // Development: Create dummy client with warnings for local dev
+  logger.warn('⚠️ Supabase client: Creating dummy client to prevent blocking (development mode)');
   supabase = createClient<Database>('https://dummy.supabase.co', 'dummy-key', {
     auth: { persistSession: false, autoRefreshToken: false }
   }) as any;

@@ -44,15 +44,27 @@ try {
   );
 } catch (error) {
   console.error('❌ main.tsx: Failed to render app', error);
-  // Only set innerHTML if React failed to mount
+  // Only render error if React failed to mount
   if (rootElement && !rootElement.hasChildNodes()) {
-    rootElement.innerHTML = `
-      <div style="padding: 20px; color: red;">
-        <h2>Failed to load app</h2>
-        <p>Error: ${error instanceof Error ? error.message : String(error)}</p>
-        <p>Check the browser console for details.</p>
-      </div>
-    `;
+    // SECURITY: Use DOM manipulation instead of innerHTML to prevent XSS
+    rootElement.textContent = '';
+    const errorDiv = document.createElement('div');
+    errorDiv.style.padding = '20px';
+    errorDiv.style.color = 'red';
+
+    const heading = document.createElement('h2');
+    heading.textContent = 'Failed to load app';
+    errorDiv.appendChild(heading);
+
+    const errorMsg = document.createElement('p');
+    errorMsg.textContent = `Error: ${error instanceof Error ? error.message : String(error)}`;
+    errorDiv.appendChild(errorMsg);
+
+    const instructions = document.createElement('p');
+    instructions.textContent = 'Check the browser console for details.';
+    errorDiv.appendChild(instructions);
+
+    rootElement.appendChild(errorDiv);
   }
   throw error;
 }

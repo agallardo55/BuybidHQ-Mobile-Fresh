@@ -6,6 +6,15 @@ import { cn } from "@/lib/utils"
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
 
+// SECURITY: Validate CSS color values to prevent CSS injection
+const CSS_COLOR_REGEX = /^(#[0-9A-Fa-f]{3,6}|rgb\([0-9,\s]+\)|rgba\([0-9,\s.]+\)|hsl\([0-9,\s%]+\)|hsla\([0-9,\s%.]+\)|[a-z]+)$/;
+
+function sanitizeColor(color: string | undefined): string | null {
+  if (!color) return null;
+  const trimmed = color.trim();
+  return CSS_COLOR_REGEX.test(trimmed) ? trimmed : null;
+}
+
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode
@@ -86,7 +95,8 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    const safeColor = sanitizeColor(color);
+    return safeColor ? `  --color-${key}: ${safeColor};` : null
   })
   .join("\n")}
 }
@@ -217,8 +227,8 @@ const ChartTooltipContent = React.forwardRef<
                           )}
                           style={
                             {
-                              "--color-bg": indicatorColor,
-                              "--color-border": indicatorColor,
+                              "--color-bg": sanitizeColor(indicatorColor) || 'currentColor',
+                              "--color-border": sanitizeColor(indicatorColor) || 'currentColor',
                             } as React.CSSProperties
                           }
                         />
@@ -300,7 +310,7 @@ const ChartLegendContent = React.forwardRef<
                 <div
                   className="h-2 w-2 shrink-0 rounded-[2px]"
                   style={{
-                    backgroundColor: item.color,
+                    backgroundColor: sanitizeColor(item.color) || 'transparent',
                   }}
                 />
               )}

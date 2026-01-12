@@ -1,49 +1,48 @@
 import { useEffect, useState, ReactNode } from 'react';
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const { user, isLoading: authLoading } = useAuth(); // Use AuthContext as single source of truth
   const [needsMFA, setNeedsMFA] = useState(false);
+  const [checkingMFA, setCheckingMFA] = useState(true);
 
   useEffect(() => {
-    const checkAuthAndMFA = async () => {
+    const checkMFA = async () => {
+      // Wait for auth to finish loading
+      if (authLoading || !user) {
+        setCheckingMFA(false);
+        return;
+      }
+
       try {
-        // Check if user is authenticated
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        setCheckingMFA(true);
 
-        if (!currentUser) {
-          setLoading(false);
-          return;
-        }
+        // Check for database-backed MFA bypass token (e.g., after payment)
+        const { data: bypassToken } = await supabase
+          .from('mfa_bypass_tokens')
+          .select('*')
+          .eq('user_id', user.id)
+          .is('used_at', null)
+          .gt('expires_at', new Date().toISOString())
+          .maybeSingle();
 
-        setUser(currentUser);
+        if (bypassToken) {
+          console.log('Valid MFA bypass token found - skipping MFA check');
 
-        // Skip MFA if user just completed payment (coming from Stripe)
-        const searchParams = new URLSearchParams(location.search);
-        const paymentSuccess = searchParams.get('payment') === 'success';
-        const paymentBypassFlag = sessionStorage.getItem('mfa_bypassed_for_payment');
+          // Mark token as used
+          await supabase
+            .from('mfa_bypass_tokens')
+            .update({
+              used_at: new Date().toISOString(),
+              used_from_ip: null // Could add IP tracking if needed
+            })
+            .eq('id', bypassToken.id);
 
-        if (paymentSuccess || paymentBypassFlag) {
-          console.log('Payment success detected - skipping MFA check');
           setNeedsMFA(false);
-          setLoading(false);
-
-          // Set flag in sessionStorage (persists for this browser session only)
-          if (paymentSuccess) {
-            sessionStorage.setItem('mfa_bypassed_for_payment', 'true');
-
-            // Clean up the URL by removing the payment parameter
-            searchParams.delete('payment');
-            const newSearch = searchParams.toString();
-            const newUrl = newSearch ? `${location.pathname}?${newSearch}` : location.pathname;
-            navigate(newUrl, { replace: true });
-          }
-
+          setCheckingMFA(false);
           return;
         }
 
@@ -52,23 +51,28 @@ export const ProtectedRoute = ({ children }: { children?: ReactNode }) => {
 
         if (error) {
           console.error('Error checking MFA status:', error);
-          // On error, allow access (fail open for better UX)
-          setNeedsMFA(false);
+          // SECURITY: Fail closed - require MFA verification on error
+          setNeedsMFA(true);
         } else {
           setNeedsMFA(mfaNeeded === true);
         }
 
-        setLoading(false);
+        setCheckingMFA(false);
       } catch (err) {
-        console.error('Auth check error:', err);
-        setLoading(false);
+        console.error('MFA check error:', err);
+        // SECURITY: Fail closed on error
+        setNeedsMFA(true);
+        setCheckingMFA(false);
       }
     };
 
-    checkAuthAndMFA();
-  }, [location.pathname, location.search]);
+    checkMFA();
+  }, [user, authLoading]);
 
-  if (loading) {
+  // Combined loading state: either auth is loading OR MFA is being checked
+  const isLoading = authLoading || checkingMFA;
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
