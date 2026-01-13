@@ -9,22 +9,68 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { DealershipMobileCard } from "./DealershipMobileCard";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+
+type SortField = 'dealer_name' | 'dealer_id' | 'city' | 'state' | 'business_phone';
+
+type SortConfig = {
+  field: SortField | null;
+  direction: 'asc' | 'desc' | null;
+};
 
 interface DealershipListProps {
   dealerships: Dealership[];
+  sortConfig: SortConfig;
+  onSort: (field: SortField) => void;
   onEdit: (dealership: Dealership) => void;
   onDelete: (dealership: Dealership) => void;
 }
 
-const ActionButton = ({ 
-  icon: Icon, 
-  onClick, 
+const SortIcon = ({ field, sortConfig }: { field: SortField, sortConfig: SortConfig }) => {
+  if (sortConfig.field !== field) {
+    return <ArrowUpDown className="h-3 w-3 ml-1.5 opacity-40" />;
+  }
+  return sortConfig.direction === 'asc' ? (
+    <ArrowUp className="h-3 w-3 ml-1.5 text-brand" />
+  ) : (
+    <ArrowDown className="h-3 w-3 ml-1.5 text-brand" />
+  );
+};
+
+const SortableHeader = ({
+  field,
+  children,
+  sortConfig,
+  onSort
+}: {
+  field: SortField;
+  children: React.ReactNode;
+  sortConfig: SortConfig;
+  onSort: (field: SortField) => void;
+}) => (
+  <TableHead
+    className={cn(
+      "text-[11px] font-bold uppercase tracking-widest cursor-pointer select-none transition-colors border-b-0",
+      sortConfig.field === field ? "text-brand" : "text-slate-600 hover:text-slate-900"
+    )}
+    onClick={() => onSort(field)}
+  >
+    <div className="flex items-center">
+      {children}
+      <SortIcon field={field} sortConfig={sortConfig} />
+    </div>
+  </TableHead>
+);
+
+const ActionButton = ({
+  icon: Icon,
+  onClick,
   variant = "ghost",
   className = "",
-}: { 
+}: {
   icon: typeof Pencil | typeof Trash2;
   onClick: () => void;
   variant?: "ghost";
@@ -40,8 +86,10 @@ const ActionButton = ({
   </Button>
 );
 
-const DealershipList = ({ 
+const DealershipList = ({
   dealerships,
+  sortConfig,
+  onSort,
   onEdit,
   onDelete
 }: DealershipListProps) => {
@@ -67,10 +115,10 @@ const DealershipList = ({
         <Table>
           <TableHeader>
             <TableRow className="border-b border-slate-100 hover:bg-transparent">
-              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Dealership Name</TableHead>
-              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Dealer ID</TableHead>
-              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Contact</TableHead>
-              <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Location</TableHead>
+              <SortableHeader field="dealer_name" sortConfig={sortConfig} onSort={onSort}>Dealership Name</SortableHeader>
+              <SortableHeader field="dealer_id" sortConfig={sortConfig} onSort={onSort}>Dealer ID</SortableHeader>
+              <SortableHeader field="business_phone" sortConfig={sortConfig} onSort={onSort}>Contact</SortableHeader>
+              <SortableHeader field="city" sortConfig={sortConfig} onSort={onSort}>Location</SortableHeader>
               <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0">Account Admin</TableHead>
               <TableHead className="text-[11px] font-bold uppercase tracking-widest text-slate-600 border-b-0 text-center">Actions</TableHead>
             </TableRow>

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useDealershipsQuery } from "@/hooks/dealerships/useDealershipsQuery";
 import { useDealershipMutations } from "@/hooks/dealerships/useDealershipMutations";
@@ -10,11 +10,19 @@ import DealershipDialogs from "@/components/dealerships/DealershipDialogs";
 import DealershipHeader from "@/components/dealerships/DealershipHeader";
 import DealershipTableFooter from "@/components/dealerships/DealershipTableFooter";
 
+type SortField = 'dealer_name' | 'dealer_id' | 'city' | 'state' | 'business_phone';
+
+type SortConfig = {
+  field: SortField | null;
+  direction: 'asc' | 'desc' | null;
+};
+
 const Dealerships = () => {
   // Dealerships management page
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'dealer_name', direction: 'asc' });
   const [selectedDealership, setSelectedDealership] = useState<Dealership | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -36,6 +44,37 @@ const Dealerships = () => {
     setSearchTerm(value);
     setCurrentPage(1);
   };
+
+  const handleSort = (field: SortField) => {
+    setSortConfig((currentConfig) => {
+      if (currentConfig.field === field) {
+        if (currentConfig.direction === 'asc') return { field, direction: 'desc' };
+        if (currentConfig.direction === 'desc') return { field: null, direction: null };
+      }
+      return { field, direction: 'asc' };
+    });
+  };
+
+  const sortedDealerships = useMemo(() => {
+    if (!sortConfig.field || !sortConfig.direction) return dealerships;
+
+    return [...dealerships].sort((a, b) => {
+      const aValue = a[sortConfig.field!];
+      const bValue = b[sortConfig.field!];
+
+      // Handle null/undefined values
+      if (!aValue && !bValue) return 0;
+      if (!aValue) return 1;
+      if (!bValue) return -1;
+
+      const stringA = String(aValue).toLowerCase();
+      const stringB = String(bValue).toLowerCase();
+
+      return sortConfig.direction === 'asc'
+        ? stringA.localeCompare(stringB)
+        : stringB.localeCompare(stringA);
+    });
+  }, [dealerships, sortConfig]);
 
   const handleCreateDealership = async (wizardData: DealershipWizardData) => {
     try {
@@ -99,7 +138,9 @@ const Dealerships = () => {
             />
 
             <DealershipList
-              dealerships={dealerships}
+              dealerships={sortedDealerships}
+              sortConfig={sortConfig}
+              onSort={handleSort}
               onEdit={(dealership) => {
                 setSelectedDealership(dealership);
                 setIsEditDialogOpen(true);
