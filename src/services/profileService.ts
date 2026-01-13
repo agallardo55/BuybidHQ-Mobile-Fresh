@@ -81,55 +81,8 @@ export const generateMotivationalMessage = (
   const firstName = userName?.split(' ')[0] || null;
   const greeting = firstName ? `${firstName}, ` : '';
 
-  // Messages based on completion percentage
-  if (percentage >= 90) {
-    const messages = [
-      `${greeting}you're almost there! Just one more step to unlock all features.`,
-      `${greeting}finish up your profile to get full access to BuybidHQ.`,
-      `So close! Complete your profile to start receiving bids nationwide.`,
-      `${greeting}one final detail and you're ready to go!`,
-    ];
-    return messages[Math.floor(Math.random() * messages.length)];
-  }
-
-  if (percentage >= 70) {
-    const messages = [
-      `${greeting}great progress! Just ${missingFieldsCount} more ${missingFieldsCount === 1 ? 'field' : 'fields'} to complete.`,
-      `${greeting}you're ${percentage}% there! Finish your profile to unlock full features.`,
-      `Nice work! Add a few more details to access all dealer tools.`,
-      `${greeting}almost done! Complete your profile to start bidding.`,
-    ];
-    return messages[Math.floor(Math.random() * messages.length)];
-  }
-
-  if (percentage >= 50) {
-    const messages = [
-      `${greeting}you're halfway there! Keep going to unlock all features.`,
-      `${greeting}finish your dealership details to connect with buyers nationwide.`,
-      `Great start! Complete your profile to access full functionality.`,
-      `${greeting}add your business details to get started with BuybidHQ.`,
-    ];
-    return messages[Math.floor(Math.random() * messages.length)];
-  }
-
-  if (percentage >= 30) {
-    const messages = [
-      `${greeting}complete your profile to start receiving competitive bids.`,
-      `Get started by adding your dealership details today.`,
-      `${greeting}finish setup to unlock access to our buyer network.`,
-      `Complete your account to connect with dealers nationwide.`,
-    ];
-    return messages[Math.floor(Math.random() * messages.length)];
-  }
-
-  // Less than 30% complete
-  const messages = [
-    `${greeting}let's get your profile set up! Add your dealership details to begin.`,
-    `Welcome! Complete your account to start bidding on vehicles.`,
-    `${greeting}finish your profile to unlock all BuybidHQ features.`,
-    `Get started by completing your dealership information.`,
-  ];
-  return messages[Math.floor(Math.random() * messages.length)];
+  // Single consistent message for all completion levels
+  return `${greeting}complete your profile to start sending complete bid requests to your buyers.`;
 };
 
 /**
