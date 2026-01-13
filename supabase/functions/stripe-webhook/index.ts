@@ -63,8 +63,119 @@ serve(async (req) => {
     console.log('Webhook event type:', event.type);
     console.log('Webhook event ID:', event.id);
 
+    // IDEMPOTENCY CHECK: Prevent duplicate processing
+    // Check if this event has already been processed
+    const { data: existingEvent } = await supabase
+      .from('stripe_webhook_events')
+      .select('id, processing_result')
+      .eq('event_id', event.id)
+      .maybeSingle();
+
+    if (existingEvent) {
+      console.log(`Event ${event.id} already processed with result: ${existingEvent.processing_result}`);
+      return new Response(
+        JSON.stringify({ received: true, status: 'already_processed' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Log event as being processed
+    const { error: logError } = await supabase
+      .from('stripe_webhook_events')
+      .insert({
+        event_id: event.id,
+        event_type: event.type,
+        payload: event as any,
+        processing_result: 'processing'
+      });
+
+    if (logError) {
+      console.error('Failed to log webhook event:', logError);
+      // Continue anyway - idempotency is best effort
+    }
+
     // Handle different event types
-    switch (event.type) {
+    let processingResult = 'success';
+    let processingError: string | null = null;
+
+    try {
+      await processEvent(event, supabase);
+    } catch (error) {
+      processingResult = 'failed';
+      processingError = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Event processing failed:', error);
+
+      // Update event log with failure
+      await supabase
+        .from('stripe_webhook_events')
+        .update({
+          processing_result: 'failed',
+          processing_error: processingError
+        })
+        .eq('event_id', event.id);
+
+      // Still return 200 to prevent Stripe from retrying indefinitely
+      return new Response(
+        JSON.stringify({
+          received: true,
+          status: 'failed',
+          error: processingError
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Update event log with success
+    await supabase
+      .from('stripe_webhook_events')
+      .update({
+        processing_result: 'success'
+      })
+      .eq('event_id', event.id);
+
+    return new Response(
+      JSON.stringify({ received: true, status: 'success' }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return new Response(
+      JSON.stringify({
+        error: 'Webhook handler failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});
+
+// Process event with retry logic
+async function processEvent(event: Stripe.Event, supabase: any) {
+  const MAX_RETRIES = 3;
+  let retryCount = 0;
+
+  while (retryCount < MAX_RETRIES) {
+    try {
+      await processEventOnce(event, supabase);
+      return; // Success
+    } catch (error) {
+      retryCount++;
+      console.error(`Event processing attempt ${retryCount} failed:`, error);
+
+      if (retryCount >= MAX_RETRIES) {
+        throw error; // Give up after max retries
+      }
+
+      // Exponential backoff: wait 1s, 2s, 4s
+      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount - 1)));
+    }
+  }
+}
+
+// Process event once (extracted for retry logic)
+async function processEventOnce(event: Stripe.Event, supabase: any) {
+  switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         console.log('Checkout session completed:', session.id);
@@ -303,20 +414,4 @@ serve(async (req) => {
       default:
         console.log('Unhandled event type:', event.type);
     }
-
-    return new Response(
-      JSON.stringify({ received: true }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
-  } catch (error) {
-    console.error('Webhook error:', error);
-    return new Response(
-      JSON.stringify({
-        error: 'Webhook handler failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-});
+}
