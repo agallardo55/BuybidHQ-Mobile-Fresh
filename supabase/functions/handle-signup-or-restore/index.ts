@@ -121,38 +121,20 @@ Deno.serve(async (req) => {
     // Not a deleted user, proceed with normal signup
     console.log('New user signup:', signupData.email);
 
-    // Check if user already exists in auth system
-    const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const userExists = existingUsers?.users.some(u => u.email === signupData.email);
-    
-    if (userExists) {
-      console.log('User already exists, attempting sign in:', signupData.email);
-      
-      // Try to sign in with provided credentials
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: signupData.email,
-        password: signupData.password,
-      });
+    // Check if user already exists using the same RPC function as frontend
+    // This ensures consistent validation between frontend and backend
+    const { data: emailExists, error: checkError } = await supabase.rpc('check_email_exists', {
+      email_to_check: signupData.email.toLowerCase().trim()
+    });
 
-      if (signInError) {
-        console.error('Sign in failed for existing user:', signInError);
-        throw new Error('An account with this email already exists. Please use the sign in page instead.');
-      }
+    if (checkError) {
+      console.error('Email check error:', checkError);
+      // Don't fail signup if check fails - let Supabase handle duplicate email
+    }
 
-      console.log('Existing user signed in successfully');
-      
-      return new Response(
-        JSON.stringify({
-          type: 'existing',
-          user: signInData.user,
-          session: signInData.session,
-          message: 'Signed in successfully',
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
-        }
-      );
+    if (emailExists === true) {
+      console.error('User already exists:', signupData.email);
+      throw new Error('An account with this email already exists. Please use the sign in page instead.');
     }
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
