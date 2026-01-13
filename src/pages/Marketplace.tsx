@@ -19,7 +19,7 @@ const Marketplace = () => {
   const {
     bidRequests,
     isLoading: isBidRequestsLoading
-  } = useBidRequests();
+  } = useBidRequests({ scope: 'global' });
   const {
     prefetchImages
   } = usePrefetchVehicleDetails();

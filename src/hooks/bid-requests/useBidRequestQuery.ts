@@ -22,9 +22,18 @@ const convertFromDbStatus = (status: string): BidStatus => {
   }
 };
 
-export const useBidRequestQuery = (enabled: boolean) => {
+type BidRequestScope = 'user' | 'global';
+
+interface UseBidRequestQueryOptions {
+  enabled: boolean;
+  scope?: BidRequestScope;
+}
+
+export const useBidRequestQuery = (options: UseBidRequestQueryOptions) => {
+  const { enabled, scope = 'user' } = options;
+
   return useQuery({
-    queryKey: ['bidRequests'],
+    queryKey: ['bidRequests', scope],
     queryFn: async () => {
       try {
         // Check session but allow anonymous users (RLS policies will handle access control)
@@ -35,7 +44,7 @@ export const useBidRequestQuery = (enabled: boolean) => {
           return [];
         }
 
-        // Get current user to determine account filtering
+        // Get current user to determine filtering
         const { data: { user } } = await supabase.auth.getUser();
         let currentUserData = null;
 
@@ -48,16 +57,24 @@ export const useBidRequestQuery = (enabled: boolean) => {
           currentUserData = userData;
         }
 
-        // Build query with account filtering for authenticated non-super_admin users
+        // Build query with filtering based on scope
         let bidRequestsQuery = supabase
           .from('bid_requests')
           .select('id, created_at, status, user_id');
 
-        // Filter by account for authenticated users (except super_admin)
-        // Individual dealers and team members should only see bid requests from their account
-        if (currentUserData?.account_id && currentUserData?.app_role !== 'super_admin') {
-          bidRequestsQuery = bidRequestsQuery.eq('account_id', currentUserData.account_id);
-          console.log('🔍 Filtering bid requests by account_id:', currentUserData.account_id);
+        // Apply filtering based on scope and user role
+        if (scope === 'user') {
+          // Dashboard scope: Users see only THEIR OWN bid requests, super_admins see all
+          if (currentUserData?.app_role !== 'super_admin' && user) {
+            bidRequestsQuery = bidRequestsQuery.eq('user_id', user.id);
+            console.log('🔍 Filtering bid requests by user_id (Dashboard):', user.id);
+          } else if (currentUserData?.app_role === 'super_admin') {
+            console.log('🔍 Super admin - showing all bid requests (Dashboard)');
+          }
+        } else if (scope === 'global') {
+          // Marketplace scope: All authenticated users see ALL bid requests
+          console.log('🔍 Marketplace - showing all bid requests globally');
+          // No filtering - RLS policies allow all authenticated users to view
         }
 
         // Get bid requests (with account filtering if applicable)
