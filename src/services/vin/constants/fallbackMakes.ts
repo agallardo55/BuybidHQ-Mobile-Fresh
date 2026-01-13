@@ -1,0 +1,13 @@
+/**
+ * Fallback makes list when API calls fail
+ */
+export const FALLBACK_MAKES = [
+  "ACURA", "ALFA ROMEO", "ASTON MARTIN", "AUDI", "BENTLEY", "BMW", "BUGATTI", "BUICK",
+  "CADILLAC", "CHEVROLET", "CHRYSLER", "DODGE", "FERRARI", "FORD", "GENESIS", "GMC",
+  "HONDA", "HYUNDAI", "INFINITI", "JAGUAR", "JEEP", "KIA", "KOENIGSEGG", "LAMBORGHINI",
+  "LAND ROVER", "LEXUS", "LINCOLN", "LUCID", "MASERATI", "MAZDA", "MCLAREN", "MERCEDES-BENZ",
+  "NISSAN", "PAGANI", "POLESTAR", "PORSCHE", "RAM", "RIVIAN", "ROLLS-ROYCE", "SUBARU",
+  "TESLA", "TOYOTA", "VOLKSWAGEN", "VOLVO"
+] as const;
+
+export type VehicleMake = typeof FALLBACK_MAKES[number];

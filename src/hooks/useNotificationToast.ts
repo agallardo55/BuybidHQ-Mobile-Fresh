@@ -1,13 +1,12 @@
 import { toast } from "sonner";
 import { useCurrentUser } from "./useCurrentUser";
-
-type ToastType = "bid_updates" | "new_listings" | "system_alerts";
+import { ToastType, ToastOptions } from "@/types/notification";
 
 interface NotificationToast {
-  success: (message: string, type?: ToastType, options?: any) => void;
-  error: (message: string, type?: ToastType, options?: any) => void;
-  warning: (message: string, type?: ToastType, options?: any) => void;
-  info: (message: string, type?: ToastType, options?: any) => void;
+  success: (message: string, type?: ToastType, options?: ToastOptions) => void;
+  error: (message: string, type?: ToastType, options?: ToastOptions) => void;
+  warning: (message: string, type?: ToastType, options?: ToastOptions) => void;
+  info: (message: string, type?: ToastType, options?: ToastOptions) => void;
 }
 
 export const useNotificationToast = (): NotificationToast => {
@@ -36,22 +35,22 @@ export const useNotificationToast = (): NotificationToast => {
   };
 
   return {
-    success: (message: string, type?: ToastType, options?: any) => {
+    success: (message: string, type?: ToastType, options?: ToastOptions) => {
       if (shouldShowToast(type)) {
         toast.success(message, options);
       }
     },
-    error: (message: string, type?: ToastType, options?: any) => {
+    error: (message: string, type?: ToastType, options?: ToastOptions) => {
       if (shouldShowToast(type)) {
         toast.error(message, options);
       }
     },
-    warning: (message: string, type?: ToastType, options?: any) => {
+    warning: (message: string, type?: ToastType, options?: ToastOptions) => {
       if (shouldShowToast(type)) {
         toast.warning(message, options);
       }
     },
-    info: (message: string, type?: ToastType, options?: any) => {
+    info: (message: string, type?: ToastType, options?: ToastOptions) => {
       if (shouldShowToast(type)) {
         toast.info(message, options);
       }

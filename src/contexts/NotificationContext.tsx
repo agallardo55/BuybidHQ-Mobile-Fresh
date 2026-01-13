@@ -1,15 +1,14 @@
 import { createContext, useContext, ReactNode } from "react";
 import { toast as sonnerToast } from "sonner";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-
-type ToastType = "bid_updates" | "new_listings" | "system_alerts";
+import { ToastType, ToastOptions } from "@/types/notification";
 
 interface NotificationContextType {
   toast: {
-    success: (message: string, options?: any) => void;
-    error: (message: string, options?: any) => void;
-    warning: (message: string, options?: any) => void;
-    info: (message: string, options?: any) => void;
+    success: (message: string, options?: ToastOptions) => void;
+    error: (message: string, options?: ToastOptions) => void;
+    warning: (message: string, options?: ToastOptions) => void;
+    info: (message: string, options?: ToastOptions) => void;
   };
 }
 
@@ -64,22 +63,22 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const toast = {
-    success: (message: string, options?: any) => {
+    success: (message: string, options?: ToastOptions) => {
       const type = categorizeToast(message);
       if (shouldShowToast(type)) {
         sonnerToast.success(message, options);
       }
     },
-    error: (message: string, options?: any) => {
+    error: (message: string, options?: ToastOptions) => {
       // Always show errors for critical system alerts
       sonnerToast.error(message, options);
     },
-    warning: (message: string, options?: any) => {
+    warning: (message: string, options?: ToastOptions) => {
       if (shouldShowToast("system_alerts")) {
         sonnerToast.warning(message, options);
       }
     },
-    info: (message: string, options?: any) => {
+    info: (message: string, options?: ToastOptions) => {
       if (shouldShowToast("system_alerts")) {
         sonnerToast.info(message, options);
       }

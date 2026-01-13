@@ -2,27 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "./useCurrentUser";
 import { toast } from "@/utils/notificationToast";
-
-interface SecurityEvent {
-  id: string;
-  event_type: string;
-  details: any;
-  ip_address?: string;
-  user_agent?: string;
-  created_at: string;
-}
-
-interface UserSession {
-  id: string;
-  session_token: string;
-  device_info: any;
-  ip_address?: string;
-  user_agent?: string;
-  last_activity: string;
-  expires_at?: string;
-  is_active: boolean;
-  created_at: string;
-}
+import { SecurityEvent, UserSession, SecurityEventDetails } from "@/types/security";
 
 export const useSecurityEvents = () => {
   const { currentUser } = useCurrentUser();
@@ -72,7 +52,7 @@ export const useSecurityEvents = () => {
       userAgent,
     }: {
       eventType: string;
-      details?: any;
+      details?: SecurityEventDetails;
       ipAddress?: string;
       userAgent?: string;
     }) => {

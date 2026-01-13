@@ -39,7 +39,7 @@ interface VehicleIdentificationProps {
     availableTrims: TrimOption[];
   }) => void;
   onSelectChange: (value: string, name: string) => void;
-  onBatchChange?: (changes: Array<{ name: string; value: any }>) => void;
+  onBatchChange?: (changes: Array<{ name: string; value: string | TrimOption[] }>) => void;
   showValidation?: boolean;
 }
 
@@ -60,10 +60,10 @@ const VehicleIdentification = ({
   const [isLoadingTrims, setIsLoadingTrims] = useState(false);
 
   // Add debug logging for the callback
-  const handleVehicleDataFetched = (data: any) => {
+  const handleVehicleDataFetched = (data: Parameters<typeof onVehicleDataFetched>[0]) => {
     logger.debug('📦 VehicleIdentification handleVehicleDataFetched called with:', data);
     logger.debug('📦 VehicleIdentification: data.displayTrim:', data.displayTrim);
-    logger.debug('📦 VehicleIdentification: data.availableTrims:', data.availableTrims?.map((t: any) => ({
+    logger.debug('📦 VehicleIdentification: data.availableTrims:', data.availableTrims?.map((t: TrimOption) => ({
       name: t.name,
       description: t.description,
       getDisplayTrim: vinService.getDisplayTrim(t)
