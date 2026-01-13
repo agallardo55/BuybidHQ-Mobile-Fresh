@@ -14,8 +14,8 @@ interface StripeCheckoutRequest {
 }
 
 const PRICE_IDS = {
-  'connect': process.env.STRIPE_CONNECT_PRICE_ID,
-  'annual': process.env.STRIPE_ANNUAL_PRICE_ID,
+  'connect': Deno.env.get('STRIPE_CONNECT_PRICE_ID'),
+  'annual': Deno.env.get('STRIPE_ANNUAL_PRICE_ID'),
 }
 
 Deno.serve(async (req) => {
