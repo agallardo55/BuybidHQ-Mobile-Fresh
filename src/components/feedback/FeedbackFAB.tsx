@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { MessageSquare, X } from "lucide-react";
 import { FeedbackPanel } from "./FeedbackPanel";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const FeedbackFAB = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
+
+  // Only show feedback button for authenticated users
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
