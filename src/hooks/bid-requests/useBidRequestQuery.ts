@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/utils/notificationToast";
 import { BidRequest } from "@/components/bid-request/types";
 import { mapResponsesToOffers, transformBidRequest } from "./utils";
@@ -31,31 +32,14 @@ interface UseBidRequestQueryOptions {
 
 export const useBidRequestQuery = (options: UseBidRequestQueryOptions) => {
   const { enabled, scope = 'user' } = options;
+  const { user } = useAuth();
 
   return useQuery({
     queryKey: ['bidRequests', scope],
     queryFn: async () => {
       try {
-        // Check session but allow anonymous users (RLS policies will handle access control)
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        // Note: We allow anonymous queries for Market View - RLS policies handle access control
-        if (sessionError && sessionError.message !== 'Session not found') {
-          console.error("Session error:", sessionError);
-          return [];
-        }
-
-        // Get current user to determine filtering
-        const { data: { user } } = await supabase.auth.getUser();
-        let currentUserData = null;
-
-        if (user) {
-          const { data: userData } = await supabase
-            .from('buybidhq_users')
-            .select('account_id, app_role')
-            .eq('id', user.id)
-            .maybeSingle();
-          currentUserData = userData;
-        }
+        // Use user from AuthContext which already has app_role in app_metadata
+        const app_role = user?.app_metadata?.app_role;
 
         // Build query with filtering based on scope
         let bidRequestsQuery = supabase
@@ -65,10 +49,10 @@ export const useBidRequestQuery = (options: UseBidRequestQueryOptions) => {
         // Apply filtering based on scope and user role
         if (scope === 'user') {
           // Dashboard scope: Users see only THEIR OWN bid requests, super_admins see all
-          if (currentUserData?.app_role !== 'super_admin' && user) {
+          if (app_role !== 'super_admin' && user) {
             bidRequestsQuery = bidRequestsQuery.eq('user_id', user.id);
             console.log('🔍 Filtering bid requests by user_id (Dashboard):', user.id);
-          } else if (currentUserData?.app_role === 'super_admin') {
+          } else if (app_role === 'super_admin') {
             console.log('🔍 Super admin - showing all bid requests (Dashboard)');
           }
         } else if (scope === 'global') {

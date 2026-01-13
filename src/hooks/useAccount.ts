@@ -1,16 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Account, BidRequestLimit } from "@/types/accounts";
 
 export const useAccount = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: account, isLoading } = useQuery({
     queryKey: ['account'],
     queryFn: async () => {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError) throw authError;
       if (!user) throw new Error('Not authenticated');
 
       // Get user's account through buybidhq_users
@@ -76,10 +76,11 @@ export const useAccount = () => {
 
 // Hook to check bid request limits
 export const useBidRequestLimit = () => {
+  const { user } = useAuth();
+
   return useQuery({
     queryKey: ['bid-request-limit'],
     queryFn: async (): Promise<BidRequestLimit> => {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase.rpc('can_create_bid_request', {

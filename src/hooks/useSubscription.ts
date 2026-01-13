@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Account, PlanType } from "@/types/accounts";
 
 // Legacy interface for backwards compatibility
@@ -16,12 +17,11 @@ interface Subscription {
 
 export const useSubscription = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: subscription, isLoading } = useQuery({
     queryKey: ['subscription'],
     queryFn: async () => {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError) throw authError;
       if (!user) throw new Error('Not authenticated');
 
       // Get user's account through buybidhq_users
@@ -75,7 +75,6 @@ export const useSubscription = () => {
 
   const updateSubscription = useMutation({
     mutationFn: async (updatedData: Partial<Account>) => {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       // Get user's account_id

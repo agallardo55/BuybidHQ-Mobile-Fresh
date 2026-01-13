@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useQueryClient } from "@tanstack/react-query";
 import { RoleDisplay } from "./form-sections/RoleDisplay";
@@ -27,6 +28,7 @@ const personalInfoSchema = z.object({
 
 export const PersonalInfoTab = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const { currentUser, isLoading: isUserLoading } = useCurrentUser();
   const queryClient = useQueryClient();
 
@@ -45,7 +47,6 @@ export const PersonalInfoTab = () => {
 
   const onSubmit = async (values: z.infer<typeof personalInfoSchema>) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
       const updateData = {

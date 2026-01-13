@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/utils/logger';
 
 const MFAChallenge = () => {
+  const { user } = useAuth();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,8 +53,7 @@ const MFAChallenge = () => {
 
   useEffect(() => {
     const initMFA = async () => {
-      // Get user's phone number for display
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get user's phone number for display from AuthContext
       if (!user) {
         setError('No active session. Please sign in again.');
         return;
@@ -115,7 +116,7 @@ const MFAChallenge = () => {
       }
     };
     initMFA();
-  }, [isInitialSignIn]); // Re-run if isInitialSignIn changes
+  }, [isInitialSignIn, user]); // Re-run if isInitialSignIn or user changes
 
   useEffect(() => {
     // Start countdown timer

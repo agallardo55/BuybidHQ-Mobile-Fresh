@@ -1,31 +1,15 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCurrentUser } from "./useCurrentUser";
 import { toast } from "@/utils/notificationToast";
 
 export const useEmailVerification = () => {
+  const { user: authUser } = useAuth();
   const { currentUser } = useCurrentUser();
   const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [canResend, setCanResend] = useState(true);
   const [resendCooldown, setResendCooldown] = useState(0);
-
-  // Check if user's email is verified using Supabase auth user
-  const [authUser, setAuthUser] = useState<any>(null);
-  
-  useEffect(() => {
-    const getAuthUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setAuthUser(user);
-    };
-    
-    getAuthUser();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuthUser(session?.user || null);
-    });
-    
-    return () => subscription.unsubscribe();
-  }, []);
 
   const isEmailVerified = authUser?.email_confirmed_at !== null && authUser?.email_confirmed_at !== undefined;
 

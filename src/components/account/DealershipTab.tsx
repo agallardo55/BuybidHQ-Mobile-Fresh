@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -43,6 +44,7 @@ const dealershipInfoSchema = z.object({
 });
 
 export const DealershipTab = () => {
+  const { user } = useAuth();
   const { currentUser, isLoading } = useCurrentUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -67,7 +69,6 @@ export const DealershipTab = () => {
 
   const onSubmit = async (values: z.infer<typeof dealershipInfoSchema>) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
       // Always update user address in buybidhq_users
