@@ -10,6 +10,7 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 
 import { RecoveryRedirector } from "@/components/RecoveryRedirector";
 import { FeedbackFAB } from "@/components/feedback/FeedbackFAB";
+import { SessionManager } from "@/components/SessionManager";
 import { StrictMode, lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -51,6 +52,7 @@ const App = () => {
             }}
           >
             <AuthProvider>
+              <SessionManager />
               <NotificationProvider>
                 <PublicAppWrapper>
                 <RecoveryRedirector />
