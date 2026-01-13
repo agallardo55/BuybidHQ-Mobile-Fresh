@@ -208,11 +208,15 @@ async function main() {
   const accountId = await createAccountForUser(user.userId, user.email);
 
   // Create Stripe customer for testing (normally done by checkout)
+  // Match the same data structure as create-signup-checkout Edge Function
   console.log('Creating Stripe customer...');
   let customer = await stripe.customers.create({
     email: user.email,
+    name: 'E2E Tester', // Match signup flow - includes customer name
     metadata: {
       account_id: accountId,
+      signup_plan: 'connect', // Match signup flow - will create connect subscription next
+      source: 'e2e_test', // Identify this as E2E test customer
     },
   });
   console.log('Created Stripe customer', customer.id);
