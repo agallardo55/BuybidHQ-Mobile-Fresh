@@ -1,4 +1,5 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { BidRequest } from "./types";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -268,6 +269,9 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange, onStatusUpdate }: Bid
             "!bg-slate-700 !border-none !shadow-none !outline-none !ring-0" // Dark background, remove all effects
           )}
         >
+          <VisuallyHidden>
+            <DialogTitle>Bid Request Details</DialogTitle>
+          </VisuallyHidden>
           {/* Main White Container */}
           <div className="bg-white rounded-2xl m-3 flex flex-col h-[calc(100%-1.5rem)] overflow-hidden shadow-none border-none outline-none ring-0">
             {/* Header */}
