@@ -7,6 +7,16 @@ import App from './App.tsx';
 import './index.css';
 import { isAuthError } from './lib/errorHandler';
 
+// Disable React DevTools in production to prevent inspection of component tree
+if (import.meta.env.PROD && typeof window !== 'undefined') {
+  const devToolsHook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+  if (devToolsHook) {
+    for (const key in devToolsHook) {
+      devToolsHook[key] = typeof devToolsHook[key] === 'function' ? () => {} : null;
+    }
+  }
+}
+
 // Create a client with improved configuration
 const queryClient = new QueryClient({
   defaultOptions: {
