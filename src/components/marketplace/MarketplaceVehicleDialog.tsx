@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -217,6 +217,7 @@ const MarketplaceVehicleDialog = ({
         >
           <VisuallyHidden>
             <DialogTitle>Vehicle Details</DialogTitle>
+            <DialogDescription>Detailed information about the selected vehicle</DialogDescription>
           </VisuallyHidden>
           {isLoadingData ? (
             <div className="flex items-center justify-center py-12 text-white">

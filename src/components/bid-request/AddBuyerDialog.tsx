@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useBuyers } from "@/hooks/useBuyers";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "@/utils/notificationToast";
@@ -101,6 +101,7 @@ const AddBuyerDialog = ({ isOpen, onOpenChange }: AddBuyerDialogProps) => {
       <DialogContent className="w-[400px] max-w-[95vw]">
         <DialogHeader>
           <DialogTitle>Add New Buyer</DialogTitle>
+          <DialogDescription>Enter buyer information to add them to your contacts</DialogDescription>
         </DialogHeader>
         <AddBuyerForm
           formData={formData}

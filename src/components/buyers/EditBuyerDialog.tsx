@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Buyer, BuyerFormData } from "@/types/buyers";
@@ -109,6 +110,7 @@ const EditBuyerDialog = ({ buyer, isOpen, onOpenChange, onUpdate }: EditBuyerDia
         <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[700px] h-[90vh] sm:h-auto max-h-[600px] flex flex-col p-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle className="text-2xl font-bold">Edit Buyer</DialogTitle>
+            <DialogDescription>Update buyer and dealership information</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">

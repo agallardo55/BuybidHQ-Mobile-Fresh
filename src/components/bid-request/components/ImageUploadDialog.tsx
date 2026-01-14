@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ImagePlus, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "@/utils/notificationToast";
@@ -60,6 +60,7 @@ const ImageUploadDialog = ({
       <DialogContent className="w-[90vw] max-w-3xl mx-auto">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-semibold text-center">Upload Photos</DialogTitle>
+          <DialogDescription className="text-center">Select and upload vehicle photos</DialogDescription>
         </DialogHeader>
 
         {/* Selected Files Carousel */}

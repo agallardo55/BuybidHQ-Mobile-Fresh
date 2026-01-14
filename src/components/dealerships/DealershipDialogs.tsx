@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -56,6 +57,7 @@ const DealershipDialogs = ({
         <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[700px] h-[90vh] sm:h-auto max-h-[600px] flex flex-col p-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle className="text-2xl font-bold">Add New Dealership</DialogTitle>
+            <DialogDescription>Enter dealership details to create a new account</DialogDescription>
           </DialogHeader>
           <DealershipWizardForm
             onSubmit={onCreateSubmit}
@@ -69,6 +71,7 @@ const DealershipDialogs = ({
         <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[700px] h-[90vh] sm:h-auto max-h-[600px] flex flex-col p-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle className="text-2xl font-bold">Edit Dealership</DialogTitle>
+            <DialogDescription>Update dealership information and settings</DialogDescription>
           </DialogHeader>
           {selectedDealership && (
             <EditDealershipForm

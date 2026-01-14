@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Flag, ArrowRight, Bug, Heart, CheckCircle2, X } from "lucide-react";
@@ -18,6 +18,7 @@ export const BetaNoticeModal = ({ open, onOpenChange }: BetaNoticeModalProps) =>
       <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-0 gap-0" hideCloseButton>
         <VisuallyHidden>
           <DialogTitle>Beta Notice</DialogTitle>
+          <DialogDescription>Information about the beta version of the application</DialogDescription>
         </VisuallyHidden>
         {/* Gradient Header Section */}
         <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 px-6 py-8 text-center">

@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { BidRequest } from "./types";
 import { useEffect, useState } from "react";
@@ -271,6 +271,7 @@ const BidRequestDialog = ({ request, isOpen, onOpenChange, onStatusUpdate }: Bid
         >
           <VisuallyHidden>
             <DialogTitle>Bid Request Details</DialogTitle>
+            <DialogDescription>Details and offers for this bid request</DialogDescription>
           </VisuallyHidden>
           {/* Main White Container */}
           <div className="bg-white rounded-2xl m-3 flex flex-col h-[calc(100%-1.5rem)] overflow-hidden shadow-none border-none outline-none ring-0">

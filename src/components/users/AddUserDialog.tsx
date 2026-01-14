@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,7 @@ const AddUserDialog = () => {
       <DialogContent className="w-[95vw] sm:w-[85vw] md:w-full max-w-[90vw] sm:max-w-lg md:max-w-xl lg:max-w-2xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto">
         <DialogHeader className="p-3 sm:p-4 md:p-6">
           <DialogTitle>Add New User</DialogTitle>
+          <DialogDescription>Create a new user account with dealership information</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
