@@ -7,11 +7,13 @@ import { useNavigate } from "react-router-dom";
 import { normalizePhoneNumber } from "@/utils/phoneUtils";
 import { UpdateBuyerParams } from "./types";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 export const useBuyersMutations = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
+  const showError = useErrorHandler();
 
   const createBuyerMutation = useMutation({
     mutationFn: async (buyerData: BuyerFormData) => {
@@ -70,7 +72,7 @@ export const useBuyersMutations = () => {
       if (error.message?.includes('JWT')) {
         navigate('/signin');
       } else {
-        toast.error("Failed to add buyer. Please try again.");
+        showError(error, "Unable to add buyer. Please try again.", "create");
       }
     },
   });
@@ -117,7 +119,7 @@ export const useBuyersMutations = () => {
       if (error.message?.includes('JWT')) {
         navigate('/signin');
       } else {
-        toast.error("Failed to update buyer. Please try again.");
+        showError(error, "Unable to update buyer. Please try again.", "update");
       }
     },
   });
@@ -158,7 +160,7 @@ export const useBuyersMutations = () => {
       if (error.message?.includes('JWT')) {
         navigate('/signin');
       } else {
-        toast.error("Failed to delete buyer. Please try again.");
+        showError(error, "Unable to delete buyer. Please try again.", "delete");
       }
     },
   });

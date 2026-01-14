@@ -2,9 +2,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 export const useBidResponseMutation = () => {
   const queryClient = useQueryClient();
+  const showError = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ 
@@ -69,7 +71,7 @@ export const useBidResponseMutation = () => {
     },
     onError: (error) => {
       console.error("Update bid response error:", error);
-      toast.error("Failed to update bid response status. Please try again.");
+      showError(error, "Unable to update bid response. Please try again.", "update");
     },
   });
 };

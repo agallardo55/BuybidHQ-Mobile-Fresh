@@ -160,25 +160,32 @@ const MFAChallenge = () => {
       }
 
       // Call our custom send-mfa-code Edge Function
+      logger.debug('🔴 Invoking send-mfa-code edge function...');
       const { data, error } = await supabase.functions.invoke('send-mfa-code', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
 
+      logger.debug('🔴 send-mfa-code response:', { data, error });
+
       if (error) {
+        logger.error('🔴 send-mfa-code error:', error);
         setError(error.message || 'Failed to send code. Please try again.');
         isSendingCodeRef.current = false;
         setSendingCode(false);
         return;
       }
 
-      if (!data.success) {
-        setError(data.error || 'Failed to send code. Please try again.');
+      if (!data?.success) {
+        logger.error('🔴 send-mfa-code failed:', data);
+        setError(data?.error || 'Failed to send code. Please try again.');
         isSendingCodeRef.current = false;
         setSendingCode(false);
         return;
       }
+
+      logger.debug('🔴 send-mfa-code SUCCESS - code sent to:', data.phone);
 
       // Update displayed phone number if returned
       if (data.phone) {

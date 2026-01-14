@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
 import { CreateUserParams } from "../types";
 import { transformFormUser } from "@/types/users";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
+  const showError = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ userData, dealershipData }: CreateUserParams) => {
@@ -143,7 +145,7 @@ export const useCreateUser = () => {
       toast.success('User created successfully. A welcome email has been sent to set their password.');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to create user: ${error.message}`);
+      showError(error, "Unable to create user. Please try again.", "create");
     }
   });
 };

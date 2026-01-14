@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
 import { logger } from '@/utils/logger';
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 export const useBidRequestDelete = () => {
   const queryClient = useQueryClient();
+  const showError = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
@@ -254,7 +256,7 @@ export const useBidRequestDelete = () => {
     },
     onError: (error: Error) => {
       logger.error('Error deleting bid request:', error);
-      toast.error(`Failed to delete bid request: ${error.message}`);
+      showError(error, "Unable to delete bid request. Please try again.", "delete");
     },
   });
 };

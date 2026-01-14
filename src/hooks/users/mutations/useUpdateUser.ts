@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
 import { UpdateUserParams } from "../types";
 import { transformFormUser } from "@/types/users";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
+  const showError = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ userId, userData, dealershipData }: UpdateUserParams) => {
@@ -99,7 +101,7 @@ export const useUpdateUser = () => {
       toast.success('User updated successfully');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to update user: ${error.message}`);
+      showError(error, "Unable to update user. Please try again.", "update");
     }
   });
 };

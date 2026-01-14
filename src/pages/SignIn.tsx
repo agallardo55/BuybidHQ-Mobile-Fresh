@@ -10,6 +10,29 @@ import { toast } from "@/utils/notificationToast";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Map technical auth errors to user-friendly messages
+const getAuthErrorMessage = (error: { message: string; status?: number }): string => {
+  const msg = error.message.toLowerCase();
+
+  if (msg.includes("invalid login credentials") || msg.includes("invalid password")) {
+    return "Invalid email or password. Please try again.";
+  }
+  if (msg.includes("email not confirmed")) {
+    return "Please verify your email before signing in.";
+  }
+  if (msg.includes("user not found") || msg.includes("no user found")) {
+    return "No account found with this email address.";
+  }
+  if (msg.includes("too many requests") || msg.includes("rate limit")) {
+    return "Too many attempts. Please wait a moment and try again.";
+  }
+  if (msg.includes("network") || msg.includes("fetch")) {
+    return "Unable to connect. Please check your internet connection.";
+  }
+  // Default friendly message
+  return "Unable to sign in. Please try again.";
+};
+
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,7 +77,7 @@ const SignIn = () => {
 
       if (signInError) {
         setIsAuthenticating(false);
-        
+
         // Detailed error logging to capture full Supabase error response
         console.error('Auth error full details:', {
           message: signInError.message,
@@ -63,8 +86,8 @@ const SignIn = () => {
           cause: (signInError as any).cause,
           error: signInError,
         });
-        
-        toast.error(signInError.message);
+
+        toast.error(getAuthErrorMessage(signInError));
         return;
       }
 
@@ -117,7 +140,7 @@ const SignIn = () => {
         error: error,
       });
       setIsAuthenticating(false);
-      toast.error(error?.message || "Failed to sign in");
+      toast.error(getAuthErrorMessage(error || { message: "Unknown error" }));
     } finally {
       setIsLoading(false);
     }

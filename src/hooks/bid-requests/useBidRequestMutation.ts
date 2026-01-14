@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 // Define valid database status types
 type DatabaseStatus = "Approved" | "Pending" | "Declined";
@@ -23,6 +24,7 @@ const convertToDbStatus = (status: UIStatus): DatabaseStatus => {
 
 export const useBidRequestMutation = () => {
   const queryClient = useQueryClient();
+  const showError = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: UIStatus }) => {
@@ -41,7 +43,7 @@ export const useBidRequestMutation = () => {
     },
     onError: (error) => {
       console.error("Update bid request error:", error);
-      toast.error("Failed to update bid request status. Please try again.");
+      showError(error, "Unable to update bid request status. Please try again.", "update");
     },
   });
 };

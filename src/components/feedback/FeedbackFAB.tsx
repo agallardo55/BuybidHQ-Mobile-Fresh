@@ -1,14 +1,31 @@
 import { useState } from "react";
 import { MessageSquare, X } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { useAuth } from "@/contexts/AuthContext";
+
+// Routes where feedback FAB should be visible
+const ALLOWED_ROUTES = [
+  "/dashboard",
+  "/buyers",
+  "/users",
+  "/dealerships",
+  "/create-bid-request",
+  "/marketplace",
+  "/account",
+];
 
 export const FeedbackFAB = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
+  const location = useLocation();
 
-  // Only show feedback button for authenticated users
-  if (!user) {
+  // Only show feedback button for authenticated users on allowed routes
+  const isAllowedRoute = ALLOWED_ROUTES.some(route =>
+    location.pathname === route || location.pathname.startsWith(route + "/")
+  );
+
+  if (!user || !isAllowedRoute) {
     return null;
   }
 

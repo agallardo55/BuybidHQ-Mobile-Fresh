@@ -3,9 +3,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
 import { DeleteUserParams } from "../types";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
+  const showError = useErrorHandler();
 
   return useMutation({
     mutationFn: async ({ userId, reason }: DeleteUserParams) => {
@@ -39,7 +41,7 @@ export const useDeleteUser = () => {
       toast.success('User deleted successfully');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to delete user: ${error.message}`);
+      showError(error, "Unable to delete user. Please try again.", "delete");
     }
   });
 };

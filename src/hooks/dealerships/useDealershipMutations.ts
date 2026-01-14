@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/utils/notificationToast";
 import { DealershipFormData } from "@/types/dealerships";
 import { DealershipWizardData } from "@/types/dealership-wizard";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 export const useDealershipMutations = () => {
   const queryClient = useQueryClient();
+  const showError = useErrorHandler();
 
   const createDealership = useMutation({
     mutationFn: async (data: DealershipWizardData) => {
@@ -111,8 +113,7 @@ export const useDealershipMutations = () => {
     },
     onError: (error: any) => {
       console.error('Error creating dealership:', error);
-      const errorMessage = error?.message || 'Failed to create dealership';
-      toast.error(errorMessage);
+      showError(error, "Unable to create dealership. Please try again.", "create");
     }
   });
 
@@ -147,8 +148,7 @@ export const useDealershipMutations = () => {
     },
     onError: (error: any) => {
       console.error('Error updating dealership:', error);
-      const errorMessage = error?.message || 'Failed to update dealership';
-      toast.error(errorMessage);
+      showError(error, "Unable to update dealership. Please try again.", "update");
     }
   });
 
@@ -182,8 +182,7 @@ export const useDealershipMutations = () => {
     },
     onError: (error: any) => {
       console.error('Error deleting dealership:', error);
-      const errorMessage = error?.message || 'Failed to delete dealership';
-      toast.error(errorMessage);
+      showError(error, "Unable to delete dealership. Please try again.", "delete");
     }
   });
 
