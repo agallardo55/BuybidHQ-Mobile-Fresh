@@ -3214,6 +3214,26 @@ class VinService {
       }
     }
 
+    // Append wheelbase and seating info from description (Land Rover, etc.)
+    if (trim.description) {
+      const descLower = trim.description.toLowerCase();
+      const displayLower = displayName.toLowerCase();
+
+      // Add LWB/SWB distinction
+      if (descLower.includes('long wheelbase') && !displayLower.includes('lwb')) {
+        displayName = `${displayName} LWB`;
+      } else if ((descLower.includes('standard wheelbase') || descLower.includes('short wheelbase')) &&
+                 !displayLower.includes('swb') && descLower.includes('long wheelbase') === false) {
+        // Only add SWB if there's no LWB in description (to avoid confusion)
+        // Actually, don't add SWB - it's the default, only mark LWB as special
+      }
+
+      // Add 7-seat distinction
+      if (descLower.includes('7 seat') && !displayLower.includes('7 seat') && !displayLower.includes('7-seat')) {
+        displayName = `${displayName} 7-Seat`;
+      }
+    }
+
     return displayName;
   }
 

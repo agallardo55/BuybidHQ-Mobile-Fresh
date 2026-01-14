@@ -6,7 +6,7 @@ import { fetchData } from "./api/fetchData.ts";
 import { CarApiResult } from "./types.ts";
 import { corsHeaders } from "./config.ts";
 import { isNotPowersports, getPowersportsRejectionMessage } from "./utils/vehicleTypeFilters.ts";
-import { applyBrandSpecificHandling, handleAMGTrims, handlePorscheGT3RS } from "./utils/brandHandlers.ts";
+import { applyBrandSpecificHandling, handleAMGTrims } from "./utils/brandHandlers.ts";
 import { processTrims } from "./utils/trimProcessor.ts";
 import { resolveTrimValue, resolveModelValue, compareDataSources } from "./utils/fieldPriority.ts";
 
@@ -19,84 +19,11 @@ Deno.serve(async (req) => {
     });
   }
 
-  // TEMPORARY DEBUG ENDPOINT: Remove after testing
-  if (req.url.includes('/debug-credentials') || req.url.includes('debug-credentials')) {
-    const apiToken = Deno.env.get('VIN_API_TOKEN') || Deno.env.get('VIN_API_KEY');
-    const apiSecret = Deno.env.get('VIN_API_SECRET');
-    
-    // Generate JWT to verify it works
-    let jwtToken = null;
-    let jwtError = null;
-    let jwtStatus = null;
-    try {
-      const loginResponse = await fetch('https://carapi.app/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          api_token: apiToken,
-          api_secret: apiSecret
-        })
-      });
-      
-      jwtStatus = loginResponse.status;
-      if (loginResponse.ok) {
-        jwtToken = await loginResponse.text();
-      } else {
-        jwtError = await loginResponse.text();
-      }
-    } catch (e) {
-      jwtError = String(e);
-    }
-    
-    // Test the JWT with a 2023 VIN
-    let vinTestResult = null;
-    if (jwtToken) {
-      try {
-        const vinResponse = await fetch('https://carapi.app/api/vin/WAUAUDGYXPA051082', {
-          headers: {
-            'Authorization': `Bearer ${jwtToken}`,
-            'Accept': 'application/json'
-          }
-        });
-        const vinData = await vinResponse.json();
-        vinTestResult = {
-          status: vinResponse.status,
-          has2023Data: vinData.year === 2023 || vinData.year === '2023',
-          year: vinData.year,
-          make: vinData.make,
-          model: vinData.model,
-          errorMessage: vinData.message || vinData.error || null
-        };
-      } catch (e) {
-        vinTestResult = { error: String(e) };
-      }
-    }
-    
-    return new Response(JSON.stringify({
-      credentials: {
-        api_token: apiToken,
-        api_secret: apiSecret,
-        token_source: Deno.env.get('VIN_API_TOKEN') ? 'VIN_API_TOKEN' : (Deno.env.get('VIN_API_KEY') ? 'VIN_API_KEY' : 'NONE')
-      },
-      jwt_test: {
-        success: !!jwtToken,
-        status: jwtStatus,
-        token_preview: jwtToken ? jwtToken.substring(0, 50) + '...' : null,
-        token_length: jwtToken ? jwtToken.length : 0,
-        error: jwtError
-      },
-      vin_test_2023: vinTestResult,
-      warning: "⚠️ DELETE THIS ENDPOINT AFTER TESTING ⚠️"
-    }, null, 2), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-  }
-
   try {
     let body: { 
       vin?: string; 
-      make_model_id?: number; 
-      year?: number; 
+      make_model_id?: number;
+      year?: number;
       make?: string;
       model?: string;
       trim?: string;
@@ -314,7 +241,7 @@ Deno.serve(async (req) => {
 
       try {
         const allTrims = await fetchTrimsByYearMakeModel(String(body.year), body.make, body.model);
-        
+
         if (allTrims && allTrims.length > 0) {
           console.log(`✅ TRIMS_LOOKUP: Successfully fetched ${allTrims.length} trims for ${body.year} ${body.make} ${body.model}`);
           console.log(`📋 TRIMS_LOOKUP: Trim names:`, allTrims.map((t: any) => t.name || t.trim_name));
@@ -339,12 +266,12 @@ Deno.serve(async (req) => {
           make: body.make,
           model: body.model
         });
-        
+
         // Return error response instead of letting it bubble up
-        return new Response(JSON.stringify({ 
+        return new Response(JSON.stringify({
           error: 'Failed to fetch trims',
           details: error instanceof Error ? error.message : String(error),
-          trims: [] 
+          trims: []
         }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -630,9 +557,8 @@ Deno.serve(async (req) => {
     // Process trims: deduplicate, create fallbacks, validate quality
     let processedTrims = processTrims(vehicleData);
     
-    // Handle manufacturer-specific trim additions (AMG, GT3 RS)
+    // Handle manufacturer-specific trim additions (AMG)
     processedTrims = handleAMGTrims(vehicleData, processedTrims);
-    processedTrims = handlePorscheGT3RS(vehicleData, processedTrims);
 
     // Trim quality validation already handled by trimProcessor module
 
@@ -649,8 +575,14 @@ Deno.serve(async (req) => {
     );
 
     // Format base engine info
+    // Fix floating point precision: round displacement to 1 decimal place (e.g., 5.204 -> "5.2")
+    const rawDisplacement = vehicleData.specs?.displacement_l;
+    const formattedDisplacement = rawDisplacement
+      ? parseFloat(String(rawDisplacement)).toFixed(1).replace(/\.0$/, '') // Remove trailing .0 (e.g., "6.0" -> "6")
+      : "3.5";
+
     const baseEngineInfo = {
-      displacement: vehicleData.specs?.displacement_l || "3.5",
+      displacement: formattedDisplacement,
       cylinders: vehicleData.specs?.engine_number_of_cylinders || "6",
       turbo: vehicleData.specs?.turbo || false
     };

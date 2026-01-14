@@ -11,25 +11,7 @@ async function generateJWTToken(): Promise<string | null> {
   try {
     const apiToken = Deno.env.get('VIN_API_TOKEN') || Deno.env.get('VIN_API_KEY');
     const apiSecret = Deno.env.get('VIN_API_SECRET');
-    
-    // DETAILED LOGGING: Check if CarAPI credentials exist
-    console.log('=== CarAPI Credentials Check ===');
-    console.log('VIN_API_TOKEN exists:', !!apiToken);
-    console.log('VIN_API_SECRET exists:', !!apiSecret);
-    if (apiToken) {
-      console.log('VIN_API_TOKEN first 8 chars:', apiToken.substring(0, 8));
-    }
-    if (apiSecret) {
-      console.log('VIN_API_SECRET first 8 chars:', apiSecret.substring(0, 8));
-    }
-    
-    // TEMPORARY: Full credentials logging for Postman testing (REMOVE AFTER DEBUGGING)
-    console.log('=== FULL CREDENTIALS DEBUG (REMOVE AFTER TESTING) ===');
-    console.log('API Token (full):', apiToken);
-    console.log('API Secret (full):', apiSecret);
-    console.log('Token source:', Deno.env.get('VIN_API_TOKEN') ? 'VIN_API_TOKEN' : (Deno.env.get('VIN_API_KEY') ? 'VIN_API_KEY' : 'NONE'));
-    console.log('=== END CREDENTIALS DEBUG ===');
-    
+
     if (!apiToken || !apiSecret) {
       console.error('VIN_API_TOKEN and VIN_API_SECRET are required for JWT authentication');
       return null;
@@ -50,9 +32,7 @@ async function generateJWTToken(): Promise<string | null> {
     });
 
     if (!response.ok) {
-      console.error(`=== CarAPI Authentication Failed ===`);
-      console.error(`Status: ${response.status}`);
-      console.error(`Status Text: ${response.statusText}`);
+      console.error(`CarAPI Authentication Failed - Status: ${response.status}`);
       const errorText = await response.text();
       console.error(`Error Response: ${errorText}`);
       return null;
@@ -60,12 +40,6 @@ async function generateJWTToken(): Promise<string | null> {
 
     // Get the JWT token as plain text
     const jwtToken = await response.text();
-    console.log('CarAPI auth response received:', jwtToken.substring(0, 20) + '...');
-    // TEMPORARY: Log full JWT for comparison with Postman (REMOVE AFTER DEBUGGING)
-    console.log('=== JWT TOKEN DEBUG (REMOVE AFTER TESTING) ===');
-    console.log('JWT Token (first 50 chars):', jwtToken.substring(0, 50));
-    console.log('JWT Token (full length):', jwtToken.length);
-    console.log('=== END JWT DEBUG ===');
 
     if (!jwtToken || jwtToken.length < 10) {
       console.error('Invalid JWT token received from CarAPI');
@@ -79,7 +53,7 @@ async function generateJWTToken(): Promise<string | null> {
       expiresAt
     };
 
-    console.log('JWT token generated successfully, expires at:', new Date(expiresAt));
+    console.log('JWT token generated successfully');
     return jwtToken.trim();
   } catch (error) {
     console.error('Error generating JWT token:', error);
@@ -471,50 +445,32 @@ export async function fetchTrimsByYearMakeModel(year: string, make: string, mode
       return [];
     }
 
-    // 🔍 DEBUG: Log each trim's body_class before filtering
-    console.log(`🔍🔍🔍 [${callId}] Examining ${trimsArray.length} trims BEFORE powersports filter:`);
-    trimsArray.forEach((trim: any, index: number) => {
-      const bodyClass = trim.body_class || trim.bodyClass;
-      const vehicleType = trim.vehicle_type || trim.vehicleType;
-      console.log(`  Trim ${index + 1}: "${trim.name || trim.trim_name || 'Unknown'}" | body_class="${bodyClass}" | vehicle_type="${vehicleType}"`);
-    });
+    // For trims lookup by year/make/model, we're querying specific car makes/models
+    // so we skip the powersports filter (it's only needed for VIN decode where we might get motorcycles)
+    // The v2 trims API doesn't return body_class for individual trims anyway
+    console.log(`🔍 [${callId}] Skipping powersports filter for trims lookup (querying specific car make/model)`);
 
-    // Filter out powersports vehicles (motorcycles, ATVs, UTVs, etc.) and normalize body_class
-    const filteredTrims = trimsArray
-      .filter((trim: any) => {
-        const bodyClass = trim.body_class || trim.bodyClass;
-        const result = isNotPowersports(undefined, bodyClass);
-        // 🔍 DEBUG: Log why each trim passed or failed
-        if (!result) {
-          console.log(`  ❌ REJECTED: "${trim.name || trim.trim_name || 'Unknown'}" with body_class="${bodyClass}"`);
-        }
-        return result;
-      })
-      .map((trim: any) => {
-        // Normalize body_class in trim specs
-        if (trim.body_class || trim.bodyClass || trim.specs?.body_class) {
-          const rawBodyClass = trim.body_class || trim.bodyClass || trim.specs?.body_class;
-          const normalizedBodyClass = getSafeBodyStyle(rawBodyClass);
-          
-          // Update trim with normalized body_class
-          return {
-            ...trim,
+    // Normalize body_class if present (may be needed for some API responses)
+    const filteredTrims = trimsArray.map((trim: any) => {
+      // Normalize body_class in trim specs if present
+      if (trim.body_class || trim.bodyClass || trim.specs?.body_class) {
+        const rawBodyClass = trim.body_class || trim.bodyClass || trim.specs?.body_class;
+        const normalizedBodyClass = getSafeBodyStyle(rawBodyClass);
+
+        // Update trim with normalized body_class
+        return {
+          ...trim,
+          body_class: normalizedBodyClass,
+          bodyClass: normalizedBodyClass,
+          specs: {
+            ...trim.specs,
             body_class: normalizedBodyClass,
-            bodyClass: normalizedBodyClass,
-            specs: {
-              ...trim.specs,
-              body_class: normalizedBodyClass,
-              bodyStyle: normalizedBodyClass
-            }
-          };
-        }
-        return trim;
-      });
-
-    const filteredCount = trimsArray.length - filteredTrims.length;
-    if (filteredCount > 0) {
-      console.log(`🚫 [${callId}] Filtered out ${filteredCount} powersports trims`);
-    }
+            bodyStyle: normalizedBodyClass
+          }
+        };
+      }
+      return trim;
+    });
 
     console.log(`✅ [${callId}] Found ${filteredTrims.length} total trims for ${normalizedMake} ${normalizedModel} (after filtering)`);
     console.log(`📋 [${callId}] Trim names:`, filteredTrims.map((t: any) => t.name || t.trim_name || 'Unknown'));
@@ -548,7 +504,8 @@ export async function fetchAllTrimsForModel(makeModelId: number, year: number): 
       return [];
     }
 
-    const API_URL = `https://carapi.app/api/trims?make_model_id=${makeModelId}&year=${year}`;
+    // Use v2 endpoint (premium subscription compatible)
+    const API_URL = `https://carapi.app/api/trims/v2?make_model_id=${makeModelId}&year=${year}`;
     
     console.log('Fetching all trims for model:', {
       url: API_URL,
@@ -599,9 +556,8 @@ export async function fetchMakesFromCarAPI(year?: number): Promise<string[]> {
       return [];
     }
 
-    // Try different possible CarAPI endpoints for makes
-    // Common patterns: /api/makes, /api/makes?year={year}, /api/models?year={year}
-    let API_URL = `https://carapi.app/api/makes`;
+    // Use v2 endpoint (premium subscription compatible)
+    let API_URL = `https://carapi.app/api/makes/v2`;
     if (year) {
       API_URL += `?year=${year}`;
     }
@@ -678,9 +634,8 @@ export async function fetchModelsFromCarAPI(year: number, make: string): Promise
       return [];
     }
 
-    // Try different possible CarAPI endpoints for models
-    // Common patterns: /api/models?year={year}&make={make}, /api/models?make_id={id}&year={year}
-    const API_URL = `https://carapi.app/api/models?year=${year}&make=${encodeURIComponent(make)}`;
+    // Use v2 endpoint (premium subscription compatible)
+    const API_URL = `https://carapi.app/api/models/v2?year=${year}&make=${encodeURIComponent(make)}`;
     
     console.log('Fetching models from CarAPI:', {
       url: API_URL,

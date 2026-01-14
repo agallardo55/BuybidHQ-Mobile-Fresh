@@ -2,17 +2,55 @@ import { TrimOption } from "../types";
 
 /**
  * Removes duplicate trims from the available trims array
+ * Keeps variants with different wheelbase (LWB/SWB), seating (7 Seats), or body style
  */
 export const deduplicateTrims = (trims: TrimOption[]): TrimOption[] => {
+  // Guard against null/undefined input
+  if (!trims || !Array.isArray(trims)) {
+    return [];
+  }
+
   return trims.reduce((acc: TrimOption[], current) => {
     const isDuplicate = acc.some(item => {
-      // Consider a trim duplicate if:
-      // - Names match exactly OR
-      // - Both are "GT3 RS" related
-      return item.name === current.name || 
-             (item.name === 'GT3 RS' && current.name === 'GT3 RS');
+      // Names must match to even be considered duplicates
+      if (item.name !== current.name) {
+        return false;
+      }
+
+      // If names match, check if descriptions differ meaningfully
+      // Keep both if one has LWB/SWB distinction
+      const itemDesc = item.description?.toLowerCase() || '';
+      const currentDesc = current.description?.toLowerCase() || '';
+
+      // Wheelbase variants (Land Rover, etc.)
+      const itemHasLWB = itemDesc.includes('long wheelbase');
+      const currentHasLWB = currentDesc.includes('long wheelbase');
+      const itemHasSWB = itemDesc.includes('standard wheelbase') || itemDesc.includes('short wheelbase');
+      const currentHasSWB = currentDesc.includes('standard wheelbase') || currentDesc.includes('short wheelbase');
+
+      if ((itemHasLWB !== currentHasLWB) || (itemHasSWB !== currentHasSWB)) {
+        return false; // Different wheelbase = not duplicate
+      }
+
+      // Seating variants (7 Seats vs 5 Seats)
+      const itemHas7Seats = itemDesc.includes('7 seat');
+      const currentHas7Seats = currentDesc.includes('7 seat');
+      if (itemHas7Seats !== currentHas7Seats) {
+        return false; // Different seating = not duplicate
+      }
+
+      // Body style variants (Coupe vs Convertible vs Targa)
+      const bodyStyles = ['coupe', 'convertible', 'cabriolet', 'targa', 'sedan', 'wagon'];
+      const itemBodyStyle = bodyStyles.find(style => itemDesc.includes(style));
+      const currentBodyStyle = bodyStyles.find(style => currentDesc.includes(style));
+      if (itemBodyStyle && currentBodyStyle && itemBodyStyle !== currentBodyStyle) {
+        return false; // Different body style = not duplicate
+      }
+
+      // Same name and no meaningful description difference = duplicate
+      return true;
     });
-    
+
     if (!isDuplicate) {
       acc.push(current);
     }
@@ -71,13 +109,13 @@ export const getDisplayValue = (trim: TrimOption): string => {
   }
   
   // If the description already contains the trim name, don't duplicate it
-  if (trim.description.includes(trim.name)) {
+  if (trim.description && trim.description.includes(trim.name)) {
     return cleanTrimDescription(trim.description);
   }
-  
-  // If the name is "GT3 RS" and the description contains "GT3 RS", 
+
+  // If the name is "GT3 RS" and the description contains "GT3 RS",
   // just return the cleaned description to avoid duplication
-  if (trim.name === 'GT3 RS' && trim.description.includes('GT3 RS')) {
+  if (trim.name === 'GT3 RS' && trim.description && trim.description.includes('GT3 RS')) {
     return cleanTrimDescription(trim.description);
   }
   
