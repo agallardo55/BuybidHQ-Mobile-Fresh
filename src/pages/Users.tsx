@@ -106,7 +106,7 @@ const Users = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+        <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50">
           <div className="max-w-[1920px] mx-auto">
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
               Loading users...
@@ -119,7 +119,7 @@ const Users = () => {
 
   return (
     <DashboardLayout>
-      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50">
         <div className="max-w-[1920px] mx-auto">
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

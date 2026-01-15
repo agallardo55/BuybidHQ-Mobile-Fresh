@@ -179,7 +179,7 @@ const Marketplace = () => {
   if (isBidRequestsLoading) {
     return (
       <DashboardLayout>
-        <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+        <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50">
           <div className="max-w-[1920px] mx-auto">
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
               <div className="mb-6">
@@ -207,7 +207,7 @@ const Marketplace = () => {
 
   return (
     <DashboardLayout>
-      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50/30">
+      <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow bg-slate-50">
         <div className="max-w-[1920px] mx-auto">
           <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 sm:p-8">
             <div className="mb-6">

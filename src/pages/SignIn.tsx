@@ -102,10 +102,17 @@ const SignIn = () => {
 
       if (mfaError) {
         console.error('Error checking MFA status:', mfaError);
-        // Fail open - navigate to dashboard
-        setIsAuthenticating(false);
+        // Fail closed - require MFA when check fails (security best practice)
         const from = (location.state as any)?.from?.pathname || '/dashboard';
-        navigate(from, { replace: true });
+        sessionStorage.setItem('mfa_is_initial_signin', 'true');
+        setIsAuthenticating(false);
+        navigate('/auth/mfa-challenge', {
+          state: {
+            from: { pathname: from },
+            isInitialSignIn: true
+          },
+          replace: true
+        });
         return;
       }
 

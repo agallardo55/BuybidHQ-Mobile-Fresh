@@ -66,7 +66,7 @@ const CreateBidRequest = () => {
   if (isLoadingUser && !loadingTimeout) {
     logger.debug('🔍 CreateBidRequest: Showing user loading state');
     return (
-      <div className="min-h-screen bg-slate-50/30 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-brand mx-auto mb-4" />
           <p className="text-slate-600">Loading user data...</p>
@@ -79,7 +79,7 @@ const CreateBidRequest = () => {
   if (!currentUser) {
     logger.warn('🔍 CreateBidRequest: No current user, showing error');
     return (
-      <div className="min-h-screen bg-slate-50/30 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-rose-600 mb-4">Failed to load user data</p>
           <button
@@ -147,7 +147,7 @@ const CreateBidRequest = () => {
   logger.debug('🔴 CreateBidRequest: About to return JSX', Date.now());
 
   return (
-    <div className="min-h-screen bg-slate-50/30 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <DashboardNavigation />
       <div className="pt-20 px-6 lg:px-12 pb-20 sm:pb-8 flex-grow">
         <div className="max-w-[1400px] mx-auto">
