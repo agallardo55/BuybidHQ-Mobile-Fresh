@@ -305,8 +305,11 @@ const MFAChallenge = () => {
       sessionStorage.removeItem('mfa_code_sent_user');
       sessionStorage.removeItem('mfa_is_initial_signin');
 
-      // Navigate to original destination
-      navigate(from, { replace: true });
+      // DEBUG: Log navigation destination (visible in production)
+      console.log('[MFA] Verification successful, navigating to:', from);
+
+      // Navigate to dashboard (always go to dashboard after MFA)
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       logger.error('Error verifying MFA code:', err);
       setError('Verification failed. Please try again.');
