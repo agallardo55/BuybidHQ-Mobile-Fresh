@@ -74,7 +74,10 @@ const MFAChallenge = () => {
 
       if (phone) {
         // Mask phone number for display
-        const masked = phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-****');
+        // Strip non-digits and remove leading country code (1) if present
+        const digits = phone.replace(/\D/g, '');
+        const last10 = digits.slice(-10); // Get last 10 digits (ignore country code)
+        const masked = last10.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
         setUserPhone(masked);
       }
 
@@ -187,9 +190,12 @@ const MFAChallenge = () => {
 
       logger.debug('🔴 send-mfa-code SUCCESS - code sent to:', data.phone);
 
-      // Update displayed phone number if returned
+      // Update displayed phone number if returned (format it properly)
       if (data.phone) {
-        setUserPhone(data.phone);
+        const digits = data.phone.replace(/\D/g, '');
+        const last10 = digits.slice(-10);
+        const formatted = last10.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        setUserPhone(formatted);
       }
 
       setCodeSent(true);

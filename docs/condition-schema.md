@@ -98,13 +98,15 @@ The condition section uses a consistent color system based on severity/quality l
 
 ---
 
-## 8. History Service Provider
+## 8. History Source (Provider)
 
 | Value | Display Label |
 |-------|---------------|
 | `Unknown` | Unknown |
 | `AutoCheck` | AutoCheck |
 | `CarFax` | CarFax |
+
+*Note: Variable name is `historyService` in code, but UI label is "History Source" or "Report Provider"*
 
 ---
 

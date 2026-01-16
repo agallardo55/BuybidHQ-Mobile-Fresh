@@ -13,7 +13,7 @@ const VehicleCondition = ({ request }: VehicleConditionProps) => {
       <h3 className="font-semibold text-lg mb-2">Condition</h3>
       <div className="space-y-1">
         <div className="grid grid-cols-[140px_1fr] gap-2 text-sm">
-          <div className="font-bold text-black">History Service:</div>
+          <div className="font-bold text-black">History Source:</div>
           <div className="font-normal p-2 rounded block w-full bg-gray-50">{request.historyService || 'Not Specified'}</div>
           <div className="font-bold text-black">History:</div>
           <div className="font-normal p-2 rounded block w-full bg-gray-50">{getConditionDisplay(request.history, 'history')}</div>
