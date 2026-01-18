@@ -622,7 +622,7 @@ export type Database = {
           deleted_at: string | null
           deleted_by: string | null
           deletion_reason: string | null
-          email: string
+          email: string | null
           id: string
           last_validated_at: string | null
           owner_user_id: string | null
@@ -652,7 +652,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           deletion_reason?: string | null
-          email: string
+          email?: string | null
           id?: string
           last_validated_at?: string | null
           owner_user_id?: string | null
